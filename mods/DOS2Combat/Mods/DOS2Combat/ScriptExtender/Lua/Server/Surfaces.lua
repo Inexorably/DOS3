@@ -62,6 +62,9 @@ end
 local function getPosition(handle)
     if not (Osi and Osi.GetPosition) then return nil end
     local ok, x, y, z = pcall(Osi.GetPosition, handle)
+    if ok and type(x) == "table" then
+        return x[1], x[2], x[3]
+    end
     if ok and x and y and z then return x, y, z end
     return nil
 end
@@ -70,8 +73,16 @@ local function getSurfaceAt(handle)
     local x, y, z = getPosition(handle)
     if not x or not (Osi and Osi.GetSurfaceTypeAtPosition) then return nil end
     local ok, first, second = pcall(Osi.GetSurfaceTypeAtPosition, x, y, z)
-    local surface = second or first
-    if ok and surface and tostring(surface) ~= "" then return surface end
+    if not ok then return nil end
+
+    -- Pick the first non-boolean return value; BG3SE may return
+    -- (success, type) or just (type) depending on the query shape.
+    for _, value in ipairs({ first, second }) do
+        local text = tostring(value)
+        if text ~= "true" and text ~= "false" and text ~= "nil" and text ~= "" then
+            return value
+        end
+    end
     return nil
 end
 
