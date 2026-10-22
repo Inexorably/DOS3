@@ -453,7 +453,7 @@ if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
     -- SpellCastFinished is a fallback for AI casts that do not emit SpellCast
     -- through the same path.
     for _, eventName in ipairs({ "SpellCast", "SpellCastFinished" }) do
-        for _, arity in ipairs({ 6, 5, 4, 3 }) do
+        for _, arity in ipairs({ 9, 6, 5, 4, 3 }) do
             local ok = pcall(Ext.Osiris.RegisterListener, eventName, arity, "after", C.OnSpellCast)
             U.Log("%s cooldown listener (arity %d) registered: %s",
                 eventName, arity, tostring(ok))
