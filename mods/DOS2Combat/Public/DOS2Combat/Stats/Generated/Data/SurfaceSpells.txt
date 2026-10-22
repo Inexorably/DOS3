@@ -1,3 +1,9 @@
+-- Runtime AP max boost for existing saves. A passive is used instead of
+-- DefaultBoosts so characters already spawned in a save can receive it.
+new entry "DOS2C_APBoost"
+type "PassiveData"
+data "Boosts" "ActionResource(ActionPoint,5,0)"
+
 -- DOS2 surface-setter test spells.
 -- These reuse BG3-native spell mechanics/visual effects so they can be tested.
 -- Their icons are ported from the DOS2 skill icon atlas (see

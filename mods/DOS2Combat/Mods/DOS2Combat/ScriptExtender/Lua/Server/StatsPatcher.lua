@@ -109,6 +109,28 @@ local function cleanTestSpellUnlocks(stat)
     return false
 end
 
+local function removeAPBoost(stat)
+    local current = U.SafeGet(stat, "DefaultBoosts")
+    if type(current) ~= "string" then return false end
+    local cleaned = current:gsub("%s*;?%s*ActionResource%(%s*ActionPoint%s*,%s*%d+%s*,%s*%d+%s*%)", "")
+    cleaned = cleaned:gsub("^%s*;%s*", ""):gsub("%s*;%s*$", "")
+    if cleaned ~= current then return U.SafeSet(stat, "DefaultBoosts", cleaned) end
+    return false
+end
+
+local function ensureAPPassive(entity)
+    if not (Osi and Osi.AddPassive) then return false end
+    local okUuid, uuid = pcall(function() return entity.Uuid.EntityUuid end)
+    local guid = okUuid and uuid and tostring(uuid) or nil
+    if not guid or guid == "" then return false end
+
+    if Osi.HasPassive then
+        local ok, has = pcall(Osi.HasPassive, guid, "DOS2C_APBoost")
+        if ok and (has == 1 or has == true) then return false end
+    end
+    return pcall(Osi.AddPassive, guid, "DOS2C_APBoost")
+end
+
 local function patchCharacter(stat)
     local cfg = DOS2C.Config
     local resources = U.SafeGet(stat, "ActionResources")
@@ -141,7 +163,9 @@ local function patchCharacter(stat)
     end
 
     local applied = U.SafeSet(stat, "ActionResources", table.concat(parts, ";"))
-    if addAPBoost(stat) then applied = true end
+    -- AP max is provided by the DOS2C_APBoost passive at runtime so existing
+    -- saves receive it too; remove any old DefaultBoosts AP boost.
+    if removeAPBoost(stat) then applied = true end
     if cleanTestSpellUnlocks(stat) then applied = true end
     return applied
 end
@@ -348,7 +372,7 @@ local function patchSpell(name, stat)
     -- Compute the cooldown above before clearing these fields.
     if cfg.CONVERT_NATIVE_COOLDOWNS then
         if U.SafeGet(stat, "Cooldown") ~= nil then
-            if U.SafeSet(stat, "Cooldown", "") then changed = true end
+            if U.SafeSet(stat, "Cooldown", "Default") then changed = true end
         end
         if U.SafeGet(stat, "RechargeValues") ~= nil then
             if U.SafeSet(stat, "RechargeValues", "") then changed = true end
@@ -495,7 +519,16 @@ end
 
 local function setAP(entity, amount, maxAmount)
     local entries = apEntriesOf(entity)
-    if not entries then return false end
+    if not entries then
+        local guid = entityGuid(entity)
+        if guid and Osi and Osi.SetActionResourceAmount then
+            local value = amount
+            if value == nil then value = maxAmount or DOS2C.Config.AP_MAX end
+            local ok = pcall(Osi.SetActionResourceAmount, guid, "ActionPoint", value)
+            return ok
+        end
+        return false
+    end
 
     local maxAP = maxAmount or DOS2C.Config.AP_MAX
     local touched = false
@@ -528,10 +561,18 @@ end
 --   "full"  - debug: max and current 6
 local function patchEntityAP(entity, mode)
     mode = mode or "cap"
-    local entries = apEntriesOf(entity)
-    if not entries then return false end
+    ensureAPPassive(entity)
 
     local cfg = DOS2C.Config
+    local entries = apEntriesOf(entity)
+    if not entries then
+        -- The passive should supply the max of 6. If the component shape is
+        -- unexpected, still set the current value through Osiris.
+        local target = cfg.AP_START
+        if mode == "full" then target = cfg.AP_MAX end
+        return setAP(entity, target, cfg.AP_MAX)
+    end
+
     local current = tonumber(entries[1] and entries[1].Amount) or 0
     local target = current
 

@@ -479,18 +479,27 @@ if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
     -- the common shapes and let the first matching one deliver the event.
     -- SpellCastFinished is a fallback for AI casts that do not emit SpellCast
     -- through the same path.
-    local eventArities = {
-        -- Current patch: SpellCast is arity 9, SpellCastFinished is arity 3.
-        -- Keep older shapes as compatibility fallbacks.
-        SpellCast = { 9, 6, 5, 4, 3 },
-        SpellCastFinished = { 3, 4, 5, 6, 9 },
-    }
-    for eventName, arities in pairs(eventArities) do
-        for _, arity in ipairs(arities) do
-            local ok = pcall(Ext.Osiris.RegisterListener, eventName, arity, "after", C.OnSpellCast)
-            U.Log("%s cooldown listener (arity %d) registered: %s",
-                eventName, arity, tostring(ok))
-        end
+    -- Osiris does not expose SpellCast/SpellCastFinished in this build.
+    -- The one-frame ECS SpellCastEvent component is the reliable hook.
+    local function onSpellCastEntity(entity)
+        local comp = entity and entity.SpellCastEvent
+        local hit = comp and comp.Hit
+        local spell = hit and hit.SpellId
+        if not spell then return end
+
+        local caster = hit.InflicterOwner or hit.Inflicter
+            or (entity.Uuid and entity.Uuid.EntityUuid)
+        if not caster then return end
+
+        local ok, err = pcall(C.OnSpellCast, caster, spell)
+        if not ok then U.Log("spell cast cooldown error: %s", tostring(err)) end
+    end
+
+    if Ext.Entity and Ext.Entity.OnCreate then
+        local ok = pcall(Ext.Entity.OnCreate, "SpellCastEvent", onSpellCastEntity)
+        U.Log("SpellCastEvent ECS listener registered: %s", tostring(ok))
+    else
+        U.Log("SpellCastEvent ECS hook unavailable")
     end
 
     pcall(Ext.Osiris.RegisterListener, "TurnStarted", 1, "after", function(character)
