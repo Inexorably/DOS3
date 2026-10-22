@@ -89,15 +89,15 @@ local function walk(node, depth, path)
     end
 end
 
-local function probe(reason)
-    if logged then return end
+local function probe(reason, force)
+    if logged and not force then return end
     if not (Ext.UI and Ext.UI.GetRoot and Ext.UI.Defer) then
         Ext.Log.Print("[DOS2C] overhead probe unavailable: Ext.UI.GetRoot/Defer missing")
         return
     end
 
     Ext.UI.Defer(function()
-        if logged then return end
+        if logged and not force then return end
         local root
         local ok, value = pcall(Ext.UI.GetRoot)
         if ok then root = value end
@@ -105,6 +105,13 @@ local function probe(reason)
             Ext.Log.Print("[DOS2C] overhead probe: no UI root")
             return
         end
+        -- Do not treat the loading screen as the gameplay HUD.
+        local okLoading, loading = pcall(function() return root:Find("LoadingScreen") end)
+        if okLoading and loading and not force then
+            Ext.Log.Print("[DOS2C] overhead probe: loading screen still active")
+            return
+        end
+
         logged = true
 
         Ext.Log.Print(string.format("[DOS2C] overhead probe (%s): root type=%s children=%s",
@@ -133,5 +140,9 @@ end
 if Ext.Timer and Ext.Timer.WaitFor then
     for _, delay in ipairs({ 3000, 8000, 15000 }) do
         Ext.Timer.WaitFor(delay, function() probe("delay-" .. tostring(delay)) end)
+    end
+    -- The loading screen can occupy the root well past SessionLoaded.
+    for _, delay in ipairs({ 30000, 60000 }) do
+        Ext.Timer.WaitFor(delay, function() probe("delay-" .. tostring(delay), true) end)
     end
 end

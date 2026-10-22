@@ -35,13 +35,20 @@ function S.UnlockForParty()
     if not (Osi and Osi.AddSpell) then return 0 end
 
     local members = partyMembers()
+    U.Log("test spell unlock: %d party members, %d spells configured", #members,
+        #(cfg.TEST_SURFACE_SPELLS or {}))
     if #members == 0 then return 0 end
 
     local added = 0
     for _, guid in ipairs(members) do
         for _, spell in ipairs(cfg.TEST_SURFACE_SPELLS or {}) do
             if not hasSpell(guid, spell) then
-                local ok, err = pcall(Osi.AddSpell, guid, spell, 0)
+                -- AddSpell(character, spell, level, prepared); the fourth
+                -- argument is required for the spell to be usable.
+                local ok, err = pcall(Osi.AddSpell, guid, spell, 0, 1)
+                if not ok then
+                    ok, err = pcall(Osi.AddSpell, guid, spell, 0)
+                end
                 if ok then
                     added = added + 1
                     U.Log("test spell unlocked: %s -> %s", tostring(guid), spell)
