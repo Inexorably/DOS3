@@ -94,15 +94,20 @@ end
 
 local function addTestSpellUnlocks(stat)
     local cfg = DOS2C.Config
-    if not cfg.UNLOCK_TEST_SURFACE_SPELLS then return false end
 
     local current = U.SafeGet(stat, "DefaultBoosts")
     if type(current) ~= "string" then current = "" end
-    current = current:gsub("%s*;?%s*UnlockSpell%(%s*DOS2C_[%w_]+%s*%)", "")
-    current = current:gsub("^%s*;%s*", ""):gsub("%s*;%s*$", "")
+
+    local cleaned = current:gsub("%s*;?%s*UnlockSpell%(%s*DOS2C_[%w_]+%s*%)", "")
+    cleaned = cleaned:gsub("^%s*;%s*", ""):gsub("%s*;%s*$", "")
+
+    if not cfg.UNLOCK_TEST_SURFACE_SPELLS then
+        if cleaned ~= current then return U.SafeSet(stat, "DefaultBoosts", cleaned) end
+        return false
+    end
 
     local parts = {}
-    if current ~= "" then parts[#parts + 1] = current end
+    if cleaned ~= "" then parts[#parts + 1] = cleaned end
     for _, spell in ipairs(cfg.TEST_SURFACE_SPELLS or {}) do
         parts[#parts + 1] = "UnlockSpell(" .. spell .. ")"
     end
