@@ -150,12 +150,13 @@ Known DOS2 visual references for the current test spells:
 
 ## Armor
 
-- [x] Armor pools are derived from equipped armor and applicable statuses,
+- [x] Armor no longer depletes; it is flat per-hit physical/magic resistance.
+- [x] Resistance is derived from equipped armor and applicable statuses,
       not character level.
 - [x] Shields use their AC bonus rather than the base-AC-minus-10 formula.
-- [x] Armor absorbs physical/magic damage before HP; a StatsDamage fallback
-      handles damage paths where Hit.DamageList is empty.
-- [x] CC gating remains intentionally disabled for now.
-- [ ] Verify gear-to-armor values and the StatsDamage fallback in-game.
+- [x] A StatsDamage fallback handles damage paths where Hit.DamageList is
+      empty.
+- [x] CC gating and rest-based reset are intentionally skipped for now.
+- [ ] Verify gear-to-resistance values and the StatsDamage fallback in-game.
 - [ ] Replace the native AC display and AC-boosting passives with DOS2 armor
       values where needed.
