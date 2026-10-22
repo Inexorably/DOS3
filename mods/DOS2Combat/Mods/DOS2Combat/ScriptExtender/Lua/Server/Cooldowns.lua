@@ -20,6 +20,35 @@ local function normalize(name)
     return tostring(name or ""):lower()
 end
 
+local function isPartyMember(handle)
+    if not (Osi and Osi.GetPartyMembers) then return true end
+    local ok, a, b, c, d = pcall(Osi.GetPartyMembers)
+    if not ok or not a then return true end
+
+    local target = U.GuidOf(handle)
+    if not target then return true end
+
+    local members
+    if type(a) == "table" then
+        members = a
+    else
+        members = { a, b, c, d }
+    end
+
+    local checked = 0
+    for _, member in ipairs(members) do
+        if member ~= nil and member ~= "" then
+            checked = checked + 1
+            if U.GuidOf(member) == target then return true end
+        end
+    end
+
+    -- If the party list is not populated yet, do not accidentally suppress
+    -- player cooldowns during session startup.
+    if checked == 0 then return true end
+    return false
+end
+
 local function baseName(name)
     return normalize(name):gsub("_%d+$", "")
 end
@@ -209,6 +238,14 @@ function C.OnSpellCast(caster, spell)
     local name = spellName(spell)
     local turns = C.Get(name)
     if turns <= 0 then return end
+
+    local cfg = DOS2C.Config
+    if not cfg.ENEMY_COOLDOWNS_ENABLED and not isPartyMember(caster) then
+        -- Enemy/NPC spells keep their native BG3 recharge behaviour until
+        -- enemy cooldowns have been audited.
+        return
+    end
+
     C.Apply(caster, name, turns)
 end
 

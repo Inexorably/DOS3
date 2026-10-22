@@ -22,21 +22,22 @@ too, but enemy cooldowns have not been audited separately.
 - [ ] Audit enemy/NPC spells and creature-specific variants; identify which
       ones rely on `Cooldown`, `RechargeValues`, `OncePerCombat`, legendary
       actions, or no cooldown at all.
-- [ ] Decide whether enemy spells should use the same BG3 cooldown
-      rebalancing as player-accessible spells, or keep their original enemy
-      cooldowns.
+- [x] Interim decision: enemies keep native BG3 cooldowns; the numeric
+      turn-cooldown overlay is gated to party members by
+      `ENEMY_COOLDOWNS_ENABLED = false`.
 - [ ] Preserve encounter-defining enemy abilities: do not convert
       `RechargeValues`/once-per-combat/legendary actions into long numeric
       cooldowns that effectively disable them.
 - [ ] If the same spell needs different cooldowns for players and enemies, add
-      per-character overrides. `Cooldowns.lua` already tracks active counters
-      per GUID, but `defs` is currently keyed by spell name only.
+      per-character cooldown values. `Cooldowns.lua` now gates application by
+      caster, but `defs` is still keyed by spell name only.
 - [ ] Verify enemy AI behaves correctly with the 4 AP economy and any rebalanced
       cooldowns.
 - [x] Ensure test surface spells are not unlocked on enemies; `DefaultBoosts`
       no longer receives `UnlockSpell(DOS2C_*)` and old entries are cleaned up.
-- [ ] Avoid applying ported DOS2 cooldowns to enemy-only variants unless an
-      explicit DOS2 analogue is mapped.
+- [x] Avoid applying ported DOS2 cooldowns to enemy-only variants unless an
+      explicit DOS2 analogue is mapped; non-party casters currently skip the
+      numeric cooldown overlay entirely.
 
 ## Surfaces
 
