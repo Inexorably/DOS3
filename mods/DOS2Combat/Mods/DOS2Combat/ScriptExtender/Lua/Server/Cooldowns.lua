@@ -241,8 +241,8 @@ local function normalizeSpellbook(entity)
         end
     end
 
-    -- Drop native limited-use cooldown entries; leave our numeric
-    -- UntilShortRest entries and ordinary Default entries intact.
+    -- Drop native cooldown entries; keep only ordinary entries and numeric
+    -- UntilShortRest entries that this module is actively tracking.
     local comp = entity.SpellBookCooldowns
     if comp and comp.Cooldowns then
         local list = {}
@@ -250,7 +250,15 @@ local function normalizeSpellbook(entity)
         for i = 1, #comp.Cooldowns do
             local entry = comp.Cooldowns[i]
             local kind = entry and entry.CooldownType
-            if kind == "UntilShortRest" or kind == "Default" or kind == nil then
+            local entryActive = false
+            if current and entry and entry.SpellId then
+                local ok, proto = pcall(function() return entry.SpellId.Prototype end)
+                if ok and proto then
+                    local key = normalize(proto)
+                    entryActive = current[key] ~= nil or current[baseName(key)] ~= nil
+                end
+            end
+            if kind == "Default" or kind == nil or entryActive then
                 list[#list + 1] = entry
             else
                 removed = true
