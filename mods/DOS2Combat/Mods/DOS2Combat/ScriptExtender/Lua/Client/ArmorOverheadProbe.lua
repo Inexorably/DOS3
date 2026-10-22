@@ -26,6 +26,10 @@ local function typeOf(obj)
 end
 
 local function textOf(obj)
+    local t = typeOf(obj):lower()
+    if not (t:find("text", 1, true) or t:find("label", 1, true)) then
+        return nil
+    end
     local value = property(obj, "Text")
     if value ~= nil then return tostring(value) end
     return nil
