@@ -92,27 +92,20 @@ local function addAPBoost(stat)
     return U.SafeSet(stat, "DefaultBoosts", current .. boost)
 end
 
-local function addTestSpellUnlocks(stat)
-    local cfg = DOS2C.Config
-
+local function cleanTestSpellUnlocks(stat)
+    -- Test spells are added only to party members at runtime by
+    -- SurfaceSpells.lua. Never put UnlockSpell(DOS2C_*) on DefaultBoosts:
+    -- Character stats are shared by enemies/NPCs, which would give them the
+    -- test spellbook too.
     local current = U.SafeGet(stat, "DefaultBoosts")
-    if type(current) ~= "string" then current = "" end
+    if type(current) ~= "string" then return false end
 
     local cleaned = current:gsub("%s*;?%s*UnlockSpell%(%s*DOS2C_[%w_]+%s*%)", "")
     cleaned = cleaned:gsub("^%s*;%s*", ""):gsub("%s*;%s*$", "")
-
-    if not cfg.UNLOCK_TEST_SURFACE_SPELLS then
-        if cleaned ~= current then return U.SafeSet(stat, "DefaultBoosts", cleaned) end
-        return false
+    if cleaned ~= current then
+        return U.SafeSet(stat, "DefaultBoosts", cleaned)
     end
-
-    local parts = {}
-    if cleaned ~= "" then parts[#parts + 1] = cleaned end
-    for _, spell in ipairs(cfg.TEST_SURFACE_SPELLS or {}) do
-        parts[#parts + 1] = "UnlockSpell(" .. spell .. ")"
-    end
-    if #parts == 0 then return false end
-    return U.SafeSet(stat, "DefaultBoosts", table.concat(parts, ";"))
+    return false
 end
 
 local function patchCharacter(stat)
@@ -148,7 +141,7 @@ local function patchCharacter(stat)
 
     local applied = U.SafeSet(stat, "ActionResources", table.concat(parts, ";"))
     if addAPBoost(stat) then applied = true end
-    if addTestSpellUnlocks(stat) then applied = true end
+    if cleanTestSpellUnlocks(stat) then applied = true end
     return applied
 end
 
