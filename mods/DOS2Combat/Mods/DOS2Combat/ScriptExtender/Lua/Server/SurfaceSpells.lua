@@ -10,16 +10,55 @@ DOS2C.SurfaceSpells = DOS2C.SurfaceSpells or {}
 local S = DOS2C.SurfaceSpells
 local U = DOS2C.Utils
 
-local function partyMembers()
-    if not (Osi and Osi.GetPartyMembers) then return {} end
-    local ok, a, b, c, d = pcall(Osi.GetPartyMembers)
-    if not ok then return {} end
-    if type(a) == "table" then return a end
-
-    local list = {}
-    for _, value in ipairs({ a, b, c, d }) do
-        if value ~= nil and value ~= "" then list[#list + 1] = value end
+local function addGuid(list, seen, value)
+    if type(value) == "table" then
+        for _, item in ipairs(value) do addGuid(list, seen, item) end
+        return
     end
+    if type(value) ~= "string" or value == "" then return end
+    if not seen[value] then
+        seen[value] = true
+        list[#list + 1] = value
+    end
+end
+
+local function partyMembers()
+    local list, seen = {}, {}
+
+    if Osi and Osi.GetPartyMembers then
+        local ok, a, b, c, d = pcall(Osi.GetPartyMembers)
+        if ok then
+            addGuid(list, seen, a)
+            addGuid(list, seen, b)
+            addGuid(list, seen, c)
+            addGuid(list, seen, d)
+        end
+    end
+
+    if #list == 0 and Osi and Osi.GetAllPartyMembers then
+        local ok, values = pcall(Osi.GetAllPartyMembers)
+        if ok then addGuid(list, seen, values) end
+    end
+
+    -- The host/avatar is not always returned by GetPartyMembers during combat.
+    if Osi and Osi.GetHostCharacter then
+        local ok, host = pcall(Osi.GetHostCharacter)
+        if ok then addGuid(list, seen, host) end
+    end
+
+    -- Last resort: server-side player/avatar entities.
+    if #list == 0 and Ext and Ext.Entity and Ext.Entity.GetAllEntitiesWithComponent then
+        for _, component in ipairs({ "Player", "UserAvatar" }) do
+            local ok, entities = pcall(Ext.Entity.GetAllEntitiesWithComponent, component)
+            if ok and type(entities) == "table" then
+                for _, entity in ipairs(entities) do
+                    local uuidOk, uuid = pcall(function() return entity.Uuid.EntityUuid end)
+                    if uuidOk then addGuid(list, seen, tostring(uuid)) end
+                end
+            end
+        end
+    end
+
     return list
 end
 

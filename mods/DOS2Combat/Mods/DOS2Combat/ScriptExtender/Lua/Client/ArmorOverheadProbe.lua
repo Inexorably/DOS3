@@ -118,8 +118,17 @@ local function probe(reason, force)
 
         logged = true
 
-        Ext.Log.Print(string.format("[DOS2C] overhead probe (%s): root type=%s children=%s",
-            tostring(reason), typeOf(root), tostring(({ pcall(function() return root.ChildrenCount end) })[2])))
+        local rootCount, rootKind = childCount(root)
+        Ext.Log.Print(string.format("[DOS2C] overhead probe (%s): root type=%s children=%d kind=%s",
+            tostring(reason), typeOf(root), rootCount, tostring(rootKind)))
+        for i = 1, math.min(rootCount, 5) do
+            local child = childAt(root, i, rootKind)
+            if child then
+                local cc = childCount(child)
+                Ext.Log.Print(string.format("[DOS2C] overhead root child %d: type=%s name=%s children=%d",
+                    i, typeOf(child), tostring(nameOf(child)), cc))
+            end
+        end
 
         for _, name in ipairs({
             "HealthBar", "NameText", "OverheadHealthBar", "Overhead",
