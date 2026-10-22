@@ -34,7 +34,8 @@ end
 local function addArmorFromItem(armor, physical, magic)
     local cfg = DOS2C.Config
     local ac = tonumber(armor.ArmorClass) or 0
-    local gain = math.max(0, ac - 10)
+    -- Shield AC is stored as its bonus (usually 2), not as a full base AC.
+    local gain = math.max(0, armor.Shield and ac or (ac - 10))
     if gain <= 0 then return physical, magic end
 
     local heavy = (tonumber(armor.ArmorType) or 0) >= 6
