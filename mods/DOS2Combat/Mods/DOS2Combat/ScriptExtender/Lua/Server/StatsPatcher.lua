@@ -554,11 +554,22 @@ local function setAP(entity, amount, maxAmount)
     local entries = apEntriesOf(entity)
     if not entries then
         local guid = entityGuid(entity)
-        if guid and Osi and Osi.SetActionResourceAmount then
-            local value = amount
-            if value == nil then value = maxAmount or DOS2C.Config.AP_MAX end
-            local ok = pcall(Osi.SetActionResourceAmount, guid, "ActionPoint", value)
-            return ok
+        if not guid or not Osi then return false end
+
+        local value = amount
+        if value == nil then value = maxAmount or DOS2C.Config.AP_MAX end
+
+        -- Osiris exposes different names across patches. Try the common
+        -- current-value setters before giving up.
+        for _, api in ipairs({ "SetActionResourceValue", "SetActionResourceValuePersonal",
+                "SetActionResourceAmount" }) do
+            if Osi[api] then
+                local ok, err = pcall(Osi[api], guid, "ActionPoint", value)
+                if not ok then
+                    U.Log("AP %s failed: %s", api, tostring(err))
+                end
+                return ok
+            end
         end
         return false
     end
