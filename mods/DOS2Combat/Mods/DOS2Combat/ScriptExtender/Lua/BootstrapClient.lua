@@ -4,6 +4,7 @@
 
 Ext.Require("Client/CooldownUI.lua")
 Ext.Require("Client/ArmorOverheadProbe.lua")
+Ext.Require("Client/UIDump.lua")
 
 Ext.Events.SessionLoaded:Subscribe(function()
     if Ext.Utils and Ext.Utils.Print then
