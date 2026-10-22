@@ -44,22 +44,20 @@ local function localAvatar()
     return nil
 end
 
-local function clearWindow()
-    if not window then return end
-    local children = window.Children
-    if type(children) ~= "table" then return end
-    for _, child in ipairs(children) do
-        pcall(function() child:Destroy() end)
-        pcall(function() window:RemoveChild(child.Handle) end)
-    end
-end
+local ensureWindow
 
 local function rebuild()
+    -- Recreating the tiny window is safer than trying to remove child handles
+    -- across BG3SE builds; it happens at most once per second.
+    if window then
+        pcall(function() window:Destroy() end)
+        window = nil
+    end
+    if not ensureWindow() then return end
+
     local entity = localAvatar()
     local entries = entity and entity.SpellBookCooldowns
         and entity.SpellBookCooldowns.Cooldowns
-
-    clearWindow()
 
     local shown = 0
     if type(entries) == "table" then
@@ -78,7 +76,7 @@ local function rebuild()
     end
 end
 
-local function ensureWindow()
+ensureWindow = function()
     if not (Ext.IMGUI and Ext.IMGUI.NewWindow) then return nil end
     if window then return window end
 
@@ -94,7 +92,6 @@ local function ensureWindow()
 end
 
 local function update()
-    if not ensureWindow() then return end
     local now = os.time()
     if now == lastUpdate then return end
     lastUpdate = now
