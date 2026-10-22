@@ -231,6 +231,11 @@ end
 local function cooldownForSpell(name, stat, level, costs, damageScale)
     local cfg = DOS2C.Config
 
+    -- Ported DOS2 skills keep their original DOS2 cooldowns. Only BG3-native
+    -- spells go through the level/damage rebalancing below.
+    local dos2Cooldown = cfg.DOS2_COOLDOWNS and cfg.DOS2_COOLDOWNS[name]
+    if dos2Cooldown ~= nil then return dos2Cooldown end
+
     if isWeaponAttack(name) then return 0 end
     if type(costs) == "string" and costs:find("ReactionActionPoint", 1, true) then
         return 0

@@ -30,16 +30,32 @@ DOS2C.Config = {
     COOLDOWN_LONG_REST = 5,
     COOLDOWN_ONCE_PER_TURN = 1,
     COOLDOWN_ONCE_PER_COMBAT = 5,
+    -- These values are for rebalancing BG3-native spells. Ported DOS2 spells
+    -- use their original DOS2 cooldown from DOS2_COOLDOWNS below.
+    -- BG3-native spell rebalancing only; ported DOS2 spells use DOS2_COOLDOWNS.
     -- DOS2 player skills cluster around 3-5 turn cooldowns, with the biggest
-    -- effects at 6. BG3 spells deal much more damage relative to character HP,
-    -- so we start at the upper end of the DOS2 range and add a damage bump.
-    -- Indexed by spell level (0 = cantrip).
+    -- effects at 6. Indexed by spell level (0 = cantrip).
     COOLDOWN_BY_LEVEL = { 0, 3, 3, 4, 5, 5, 6, 6, 6, 6, 6 },
     -- Rough BG3 HP baseline per spell level, used only for the damage bump.
     COOLDOWN_HP_BY_LEVEL = { 10, 15, 25, 35, 45, 55, 65, 75, 85, 95, 105 },
     COOLDOWN_DAMAGE_BUMP_RATIO = 0.80,   -- >= 80% of baseline HP -> +1 turn
     COOLDOWN_DAMAGE_BUMP_HIGH_RATIO = 1.5, -- >= 150% -> +2 turns
     COOLDOWN_MAX = 6,
+
+    -- Original DOS2 cooldowns for ported skills. These are intentionally not
+    -- rebalanced; only BG3-native spells use the heuristics above.
+    DOS2_COOLDOWNS = {
+        DOS2C_Rain = 6,
+        DOS2C_FossilStrike = 5,
+        DOS2C_Contamination = 3,
+        DOS2C_Fireball = 4,
+        DOS2C_GlobalCooling = 3,
+        DOS2C_ElectricDischarge = 3,
+        DOS2C_Web = 1,
+        DOS2C_SmokeCover = 5,
+        DOS2C_AcidSpray = 5,
+        DOS2C_PoisonCloud = 4,
+    },
 
     -- Ported DOS2 damage spells ---------------------------------------------
     -- DOS2 spells deal a much smaller fraction of character HP than BG3
