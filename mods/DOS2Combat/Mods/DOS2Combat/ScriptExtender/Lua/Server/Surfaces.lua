@@ -152,7 +152,7 @@ function S.OnTurnStarted(handle)
 end
 
 if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
-    pcall(Ext.Osiris.RegisterListener, "TurnStarted", 2, "after", function(character)
+    pcall(Ext.Osiris.RegisterListener, "TurnStarted", 1, "after", function(character)
         local ok, err = pcall(S.OnTurnStarted, character)
         if not ok then U.Log("surface tick error: %s", tostring(err)) end
     end)

@@ -11,6 +11,15 @@
 - [ ] Replace the temporary `UntilShortRest` native cooldown stamp with a true
       numeric cooldown display once the native cooldown component is verified.
 
+## Runtime event wiring
+
+- [x] `TurnStarted` is arity 1 in this BG3SE/Osiris build (was registered as 2).
+- [x] Armor now subscribes to `Ext.Events.DealDamage` (the runtime event name)
+      instead of the nonexistent `EsvLuaDealDamage` alias.
+- [ ] `ShortRestFinished` / `LongRestFinished` are not Osiris events in this
+      build. Find a working rest event so numeric cooldowns and armor can reset
+      on rests; currently they reset on session load only.
+
 ## Enemy / NPC spell cooldowns
 
 Enemies use the same `SpellData` table as players. BG3 has 1,467 SpellData

@@ -2,7 +2,8 @@
 --
 -- BG3 has no depleting armor pools, so this module keeps a small server-side
 -- table keyed by entity UUID and intercepts incoming damage before the engine
--- applies it (EsvLuaDealDamage, which fires immediately before damage is dealt).
+-- applies it (the DealDamage event, which fires immediately before damage is
+-- applied in this BG3SE build).
 --
 -- Damage is split by type:
 --   physical : Slashing / Piercing / Bludgeoning
@@ -195,18 +196,17 @@ if Ext.Events and Ext.Events.SessionLoaded then
     end)
 end
 
-if Ext.Events and Ext.Events.EsvLuaDealDamage then
-    Ext.Events.EsvLuaDealDamage:Subscribe(function(ev)
+if Ext.Events and Ext.Events.DealDamage then
+    Ext.Events.DealDamage:Subscribe(function(ev)
         local ok, err = pcall(absorbDamage, ev)
         if not ok then U.Log("armor damage handler error: %s", tostring(err)) end
     end, { Priority = 90 })
 end
 
 if Ext.Osiris and Ext.Osiris.RegisterListener then
-    if DOS2C.Config.ARMOR_RESET_ON_REST then
-        pcall(Ext.Osiris.RegisterListener, "LongRestFinished", 0, "after", A.ResetAll)
-        pcall(Ext.Osiris.RegisterListener, "ShortRestFinished", 0, "after", A.ResetAll)
-    end
+    -- BG3SE in this build does not expose LongRestFinished/ShortRestFinished
+    -- as Osiris events. Armor reset on rest remains a TODO until a working
+    -- rest event is available.
     if DOS2C.Config.ARMOR_CC_GATING then
         pcall(Ext.Osiris.RegisterListener, "StatusApplied", 4, "after", onStatusApplied)
     end

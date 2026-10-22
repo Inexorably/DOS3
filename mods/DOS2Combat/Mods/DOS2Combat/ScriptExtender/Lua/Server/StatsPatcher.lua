@@ -722,15 +722,17 @@ end
 
 
 if Ext.Osiris and Ext.Osiris.RegisterListener then
-    pcall(Ext.Osiris.RegisterListener, "TurnStarted", 2, "after", function(character, combat)
+    pcall(Ext.Osiris.RegisterListener, "TurnStarted", 1, "after", function(character)
         local ok, err = pcall(S.OnTurnStarted, character)
         if not ok then U.Log("TurnStarted AP error: %s", tostring(err)) end
     end)
 
-    pcall(Ext.Osiris.RegisterListener, "TurnEnded", 2, "after", function(character, combat)
-        local ok, err = pcall(S.OnTurnEnded, character)
-        if not ok then U.Log("TurnEnded AP error: %s", tostring(err)) end
-    end)
+    for _, arity in ipairs({ 1, 2 }) do
+        pcall(Ext.Osiris.RegisterListener, "TurnEnded", arity, "after", function(character)
+            local ok, err = pcall(S.OnTurnEnded, character)
+            if not ok then U.Log("TurnEnded AP error: %s", tostring(err)) end
+        end)
+    end
 end
 
 if Ext.Events and Ext.Events.SessionLoaded then

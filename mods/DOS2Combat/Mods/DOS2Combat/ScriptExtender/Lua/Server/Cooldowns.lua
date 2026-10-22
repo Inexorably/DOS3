@@ -493,11 +493,12 @@ if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
         end
     end
 
-    pcall(Ext.Osiris.RegisterListener, "TurnStarted", 2, "after", function(character)
+    pcall(Ext.Osiris.RegisterListener, "TurnStarted", 1, "after", function(character)
         local success, err = pcall(C.OnTurnStarted, character)
         if not success then U.Log("cooldown turn error: %s", tostring(err)) end
     end)
 
-    pcall(Ext.Osiris.RegisterListener, "ShortRestFinished", 0, "after", C.ReapplyAll)
-    pcall(Ext.Osiris.RegisterListener, "LongRestFinished", 0, "after", C.ClearAll)
+    -- BG3SE in this build does not expose ShortRestFinished/LongRestFinished
+    -- as Osiris events. Rest-based cooldown clearing is pending a working
+    -- rest event; SessionLoaded still resets session state.
 end
