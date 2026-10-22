@@ -19,9 +19,10 @@ entries; many are shared and some are creature-specific (e.g.
 `Target_Generic_Goblin`). The current patcher therefore touches enemy spells
 too, but enemy cooldowns have not been audited separately.
 
-- [ ] Audit enemy/NPC spells and creature-specific variants; identify which
-      ones relied on `Cooldown`, `RechargeValues`, `OncePerCombat`, legendary
-      actions, or no cooldown at all, and choose suitable numeric values.
+- [x] Audit helper: `scripts/audit-enemy-cooldowns.py` lists all 183 spells
+      with native cooldown/recharge limits and the numeric turns they map to.
+- [ ] Choose per-spell overrides for encounter-defining abilities that need
+      something other than the default mapping.
 - [x] Enemies now use the numeric turn-cooldown overlay:
       `ENEMY_COOLDOWNS_ENABLED = true`.
 - [x] Native cast limits are converted to numeric cooldowns:
@@ -33,18 +34,20 @@ too, but enemy cooldowns have not been audited separately.
       number of casts.
 - [x] Convert `RechargeValues` to expected turn counts: `5-6` -> 6,
       `4-6`/`3-6` -> 5, `2-6` -> 4, `6` -> 6.
-- [x] Keep NPC/at-will abilities without a  field at 0 cooldown so
+- [x] When a spell has both a native `Cooldown` and `RechargeValues`, use the
+      longer of the two (e.g. `OncePerTurn` + `5-6` -> 6).
+- [x] Keep NPC/at-will abilities without a `Level` field at 0 cooldown so
       they do not receive a synthetic 3-turn cooldown.
 - [ ] Spot-check encounter-defining abilities against those values; some
       bosses may need per-spell overrides.
-- [ ] If the same spell needs different cooldowns for players and enemies, add
-      per-character cooldown values. `defs` is still keyed by spell name only.
+- [x] Add per-character cooldown overrides via `Cooldowns.SetFor`/`GetFor`;
+      `defs` remains the shared default for all casters.
 - [ ] Verify enemy AI behaves correctly with the 4 AP economy and numeric
       cooldowns.
 - [x] Ensure test surface spells are not unlocked on enemies; `DefaultBoosts`
       no longer receives `UnlockSpell(DOS2C_*)` and old entries are cleaned up.
-- [ ] Verify enemy spellcasts actually produce `SpellCast` events so the
-      numeric cooldown starts; if not, add an AI/cast fallback.
+- [x] Register `SpellCastFinished` as a fallback for AI casts that do not emit
+      `SpellCast`; verify in-game that at least one event fires.
 
 ## Surfaces
 

@@ -15,6 +15,7 @@ local ZERO_GUID = "00000000-0000-0000-0000-000000000000"
 local DEFAULT_COOLDOWN_TYPE = "Default"
 local defs = {}       -- spell name -> turns
 local active = {}     -- character guid -> { [spell name] = remaining turns }
+local charDefs = {}   -- character guid -> { [spell name] = override turns }
 local originals = {}  -- character guid -> { [spell name] = original CooldownType }
 
 local function normalize(name)
@@ -281,6 +282,28 @@ function C.Get(name)
     return defs[baseName(key)] or 0
 end
 
+-- Optional per-character override for bosses/enemies that need a different
+-- cooldown than the shared spell definition.
+function C.SetFor(handle, name, turns)
+    local guid = U.GuidOf(handle)
+    if not guid or type(name) ~= "string" or name == "" then return false end
+    charDefs[guid] = charDefs[guid] or {}
+    charDefs[guid][normalize(name)] = tonumber(turns) or 0
+    return true
+end
+
+function C.GetFor(handle, name)
+    local guid = U.GuidOf(handle)
+    local key = normalize(name)
+    if guid and charDefs[guid] then
+        local turns = charDefs[guid][key]
+        if turns ~= nil then return turns end
+        turns = charDefs[guid][baseName(key)]
+        if turns ~= nil then return turns end
+    end
+    return C.Get(name)
+end
+
 function C.Apply(handle, name, turns)
     local entity = U.EntityOf(handle)
     local guid = U.GuidOf(handle)
@@ -297,7 +320,7 @@ end
 
 function C.OnSpellCast(caster, spell)
     local name = spellName(spell)
-    local turns = C.Get(name)
+    local turns = C.GetFor(caster, name)
     if turns <= 0 then return end
 
     local cfg = DOS2C.Config
@@ -346,6 +369,7 @@ local function clearCharacter(entity)
         end
     end
     active[guid] = nil
+    charDefs[guid] = nil
     originals[guid] = nil
 end
 
@@ -388,6 +412,7 @@ function C.ClearAll()
         for _, entity in ipairs(entities) do clearCharacter(entity) end
     end
     active = {}
+    charDefs = {}
     originals = {}
     U.Log("cooldowns cleared")
 end
@@ -410,9 +435,14 @@ end
 if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
     -- The Osiris SpellCast event has changed arity across patches; register
     -- the common shapes and let the first matching one deliver the event.
-    for _, arity in ipairs({ 6, 5, 4, 3 }) do
-        local ok = pcall(Ext.Osiris.RegisterListener, "SpellCast", arity, "after", C.OnSpellCast)
-        U.Log("SpellCast cooldown listener (arity %d) registered: %s", arity, tostring(ok))
+    -- SpellCastFinished is a fallback for AI casts that do not emit SpellCast
+    -- through the same path.
+    for _, eventName in ipairs({ "SpellCast", "SpellCastFinished" }) do
+        for _, arity in ipairs({ 6, 5, 4, 3 }) do
+            local ok = pcall(Ext.Osiris.RegisterListener, eventName, arity, "after", C.OnSpellCast)
+            U.Log("%s cooldown listener (arity %d) registered: %s",
+                eventName, arity, tostring(ok))
+        end
     end
 
     pcall(Ext.Osiris.RegisterListener, "TurnStarted", 2, "after", function(character)

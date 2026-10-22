@@ -242,6 +242,22 @@ local function rechargeToTurns(value)
     return nil
 end
 
+local function explicitCooldownToTurns(explicit, cfg)
+    if type(explicit) ~= "string" or explicit == "" then return nil end
+    if explicit == "OncePerTurn" or explicit == "OncePerTurnNoRealtime" then
+        return cfg.COOLDOWN_ONCE_PER_TURN
+    elseif explicit == "OncePerShortRest" or explicit == "OncePerShortRestPerItem"
+        or explicit == "UntilShortRest" then
+        return cfg.COOLDOWN_SHORT_REST
+    elseif explicit == "OncePerCombat" then
+        return cfg.COOLDOWN_ONCE_PER_COMBAT
+    elseif explicit == "OncePerRest" or explicit == "OncePerRestPerItem"
+        or explicit == "UntilRest" then
+        return cfg.COOLDOWN_LONG_REST
+    end
+    return nil
+end
+
 local function cooldownForSpell(name, stat, level, costs, damageScale)
     local cfg = DOS2C.Config
 
@@ -258,28 +274,21 @@ local function cooldownForSpell(name, stat, level, costs, damageScale)
     local remembered = nativeCooldownInfo[name] or {}
     local explicit = remembered.Cooldown
     if explicit == nil then explicit = U.SafeGet(stat, "Cooldown") end
-    if type(explicit) == "string" and explicit ~= "" then
-        if explicit == "OncePerTurn" or explicit == "OncePerTurnNoRealtime" then
-            return cfg.COOLDOWN_ONCE_PER_TURN
-        elseif explicit == "OncePerShortRest" or explicit == "OncePerShortRestPerItem"
-            or explicit == "UntilShortRest" then
-            return cfg.COOLDOWN_SHORT_REST
-        elseif explicit == "OncePerCombat" then
-            return cfg.COOLDOWN_ONCE_PER_COMBAT
-        elseif explicit == "OncePerRest" or explicit == "OncePerRestPerItem"
-            or explicit == "UntilRest" then
-            return cfg.COOLDOWN_LONG_REST
-        end
-    end
-
     local recharge = remembered.RechargeValues
     if recharge == nil then recharge = U.SafeGet(stat, "RechargeValues") end
+
+    local explicitTurns = explicitCooldownToTurns(explicit, cfg)
+    local rechargeTurns = rechargeToTurns(recharge)
+
+    -- Some NPC abilities carry both (e.g. OncePerTurn + RechargeValues).
+    -- The recharge roll is the real limiter, so use the longer of the two.
+    if explicitTurns and rechargeTurns then
+        return math.min(cfg.COOLDOWN_MAX, math.max(explicitTurns, rechargeTurns))
+    end
+    if explicitTurns then return explicitTurns end
     if type(recharge) == "string" and recharge ~= "" then
-        -- Convert recharge dice (e.g. "5-6") to their expected turn count
-        -- instead of collapsing every enemy recharge ability to 3 turns.
-        local turns = rechargeToTurns(recharge)
-        if turns then
-            return math.min(cfg.COOLDOWN_MAX, math.max(1, turns))
+        if rechargeTurns then
+            return math.min(cfg.COOLDOWN_MAX, math.max(1, rechargeTurns))
         end
         return cfg.COOLDOWN_SHORT_REST
     end
