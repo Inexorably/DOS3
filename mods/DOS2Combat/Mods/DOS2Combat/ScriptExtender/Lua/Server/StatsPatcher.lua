@@ -286,6 +286,16 @@ local function cooldownForSpell(name, stat, level, costs, damageScale)
 
     -- Class resources (Rage/Ki/SuperiorityDie/...) already limit the spell.
     if hasClassResource(costs) then return 0 end
+
+    -- A lot of NPC/at-will abilities have no Level field. Treat those as
+    -- at-will rather than giving them a synthetic 3-turn cooldown. Explicit
+    -- cooldowns/recharges were already handled above.
+    local rawLevel = tonumber(U.SafeGet(stat, "Level"))
+    local suffix = name and name:match("_(%d)$")
+    if rawLevel == nil and not suffix and cfg.NO_LEVEL_SPELLS_AT_WILL then
+        return 0
+    end
+
     if level <= 0 then return 0 end
 
     local base = cfg.COOLDOWN_BY_LEVEL[level + 1] or 3

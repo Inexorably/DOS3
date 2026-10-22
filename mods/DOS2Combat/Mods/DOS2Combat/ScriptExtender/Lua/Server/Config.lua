@@ -46,6 +46,10 @@ DOS2C.Config = {
     -- being limited by OncePerCombat/OncePerRest/RechargeValues.
     ENEMY_COOLDOWNS_ENABLED = true,
     CONVERT_NATIVE_COOLDOWNS = true,
+    -- Many NPC/at-will abilities omit Level entirely. Do not invent a
+    -- 3-turn cooldown for them unless they have an explicit cooldown,
+    -- recharge value, class resource, or a level suffix in their name.
+    NO_LEVEL_SPELLS_AT_WILL = true,
 
     -- Original DOS2 cooldowns for ported skills. These are intentionally not
     -- rebalanced; only BG3-native spells use the heuristics above.

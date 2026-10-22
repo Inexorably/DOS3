@@ -33,6 +33,8 @@ too, but enemy cooldowns have not been audited separately.
       number of casts.
 - [x] Convert `RechargeValues` to expected turn counts: `5-6` -> 6,
       `4-6`/`3-6` -> 5, `2-6` -> 4, `6` -> 6.
+- [x] Keep NPC/at-will abilities without a  field at 0 cooldown so
+      they do not receive a synthetic 3-turn cooldown.
 - [ ] Spot-check encounter-defining abilities against those values; some
       bosses may need per-spell overrides.
 - [ ] If the same spell needs different cooldowns for players and enemies, add
