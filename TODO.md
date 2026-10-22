@@ -8,14 +8,24 @@
       Fireball 4, Web 1, etc.).
 - [x] BG3-native spells use the BG3-side level/damage rebalancing heuristic
       (e.g. native Fireball 5, Magic Missile 3).
-- [ ] Replace the temporary `UntilShortRest` native cooldown stamp with a true
-      numeric cooldown display once the native cooldown component is verified.
+- [x] Add a client IMGUI overlay that reads replicated `SpellBookCooldowns`
+      and lists the actual remaining turn count.
+- [ ] Replace the native hotbar/tooltip "Short rest" text itself; the current
+      overlay shows the number, but BG3's native hotbar only understands enum
+      cooldown labels.
 
 ## Runtime event wiring
 
 - [x] `TurnStarted` is arity 1 in this BG3SE/Osiris build (was registered as 2).
 - [x] Armor now subscribes to `Ext.Events.DealDamage` (the runtime event name)
       instead of the nonexistent `EsvLuaDealDamage` alias.
+- [x] Cooldown clearing writes the valid `Default` enum instead of the invalid
+      empty string that produced thousands of `SetFixedString` errors.
+- [x] Cooldowns hook the one-frame ECS `SpellCastEvent` because Osiris does not
+      expose `SpellCast`/`SpellCastFinished` events in this build.
+- [x] AP max is supplied by a runtime `DOS2C_APBoost` passive so existing saves
+      receive 6 max AP; current AP has an `Osi.SetActionResourceAmount`
+      fallback when the ActionResources component shape is unexpected.
 - [ ] `ShortRestFinished` / `LongRestFinished` are not Osiris events in this
       build. Find a working rest event so numeric cooldowns and armor can reset
       on rests; currently they reset on session load only.
