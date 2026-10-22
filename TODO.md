@@ -147,3 +147,15 @@ Known DOS2 visual references for the current test spells:
       unimplemented rather than bugged.
 - [ ] Decide how to handle fractional distance/AP and prevent movement once AP
       is exhausted.
+
+## Armor
+
+- [x] Armor pools are derived from equipped armor and applicable statuses,
+      not character level.
+- [x] Shields use their AC bonus rather than the base-AC-minus-10 formula.
+- [x] Armor absorbs physical/magic damage before HP; a StatsDamage fallback
+      handles damage paths where Hit.DamageList is empty.
+- [x] CC gating remains intentionally disabled for now.
+- [ ] Verify gear-to-armor values and the StatsDamage fallback in-game.
+- [ ] Replace the native AC display and AC-boosting passives with DOS2 armor
+      values where needed.
