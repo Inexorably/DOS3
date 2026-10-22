@@ -98,7 +98,12 @@ def main():
             f"{row['spell']:55} {row['cooldown'] or '-':22} "
             f"{row['recharge'] or '-':8} {row['turns'] if row['turns'] is not None else '-'}"
         )
+    from collections import Counter
+
+    counts = Counter(row["turns"] for row in rows if row["turns"] is not None)
+    summary = ", ".join(f"{turn}:{counts[turn]}" for turn in sorted(counts))
     print(f"\n{len(rows)} spells with native cooldown/recharge limits")
+    print(f"numeric turns: {summary}")
 
 
 if __name__ == "__main__":
