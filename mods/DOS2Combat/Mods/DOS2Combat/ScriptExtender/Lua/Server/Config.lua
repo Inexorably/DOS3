@@ -118,22 +118,22 @@ DOS2C.Config = {
     ARMOR_BASE_PHYSICAL = 0,
     ARMOR_BASE_MAGIC = 0,
     ARMOR_PER_LEVEL = 0,
-    ARMOR_PHYSICAL_PER_AC = 5,    -- armor points per AC above 10
-    ARMOR_MAGIC_PER_AC = 2,
+    ARMOR_PHYSICAL_PER_AC = 1,    -- flat physical resistance per AC above 10
+    ARMOR_MAGIC_PER_AC = 0.5,     -- flat magic resistance per AC above 10
     ARMOR_HEAVY_PHYSICAL_MULT = 1.25,
     ARMOR_HEAVY_MAGIC_MULT = 0.75,
     ARMOR_SHIELD_PHYSICAL_MULT = 1.5,
     ARMOR_RESET_ON_REST = true,
     -- Skill/status contributions to the DOS2-style pools.
     ARMOR_SKILL_BONUSES = {
-        MAGE_ARMOR = { magic = 15 },
-        BARKSKIN = { physical = 15 },
-        SHIELD = { physical = 10, magic = 5 },
-        SHIELD_OF_FAITH = { magic = 15 },
-        ARMOR_OF_AGATHYS = { physical = 10 },
-        ARMOR_OF_AGATHYS_2 = { physical = 15 },
-        ARMOR_OF_AGATHYS_3 = { physical = 20 },
-        BLADE_WARD = { physical = 10 },
+        MAGE_ARMOR = { magic = 10 },
+        BARKSKIN = { physical = 10 },
+        SHIELD = { physical = 5, magic = 5 },
+        SHIELD_OF_FAITH = { magic = 10 },
+        ARMOR_OF_AGATHYS = { physical = 5 },
+        ARMOR_OF_AGATHYS_2 = { physical = 10 },
+        ARMOR_OF_AGATHYS_3 = { physical = 15 },
+        BLADE_WARD = { physical = 5 },
     },
     -- Experimental: block hard CC while the matching armor pool is alive.
     -- Leave false until the armor hook has been verified in-game.

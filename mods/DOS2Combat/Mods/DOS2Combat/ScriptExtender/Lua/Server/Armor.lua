@@ -1,16 +1,10 @@
--- DOS2 Combat Overhaul - physical / magic armor pools.
+-- DOS2 Combat Overhaul - flat physical / magic damage resistance.
 --
--- BG3 has no depleting armor pools, so this module keeps a small server-side
--- table keyed by entity UUID and intercepts incoming damage before the engine
--- applies it (the DealDamage event, which fires immediately before damage is
--- applied in this BG3SE build).
+-- This overhaul intentionally does not use depleting DOS2 armor pools.
+-- Matching damage is reduced by a fixed amount every hit instead.
 --
--- Damage is split by type:
---   physical : Slashing / Piercing / Bludgeoning
---   magic    : everything else (Fire, Cold, Lightning, Acid, Poison, ...)
---
--- Armor absorbs damage first; only damage left after the pool is empty reaches
--- HP. This is intentionally simple: equipment/level scaling is a follow-up.
+-- Armor comes from equipment and skills only; character level contributes
+-- nothing. A character with no armor gear and no armor skill has 0 resistance.
 
 DOS2C = DOS2C or {}
 DOS2C.Armor = DOS2C.Armor or {}
@@ -18,7 +12,7 @@ DOS2C.Armor = DOS2C.Armor or {}
 local A = DOS2C.Armor
 local U = DOS2C.Utils
 
-local pools = {}
+local resistances = {}
 
 local ARMOR_SLOTS = {
     "Helmet", "Breast", "Cloak", "Gloves", "Boots",
@@ -31,12 +25,14 @@ local function hasStatus(handle, status)
     return ok and (result == 1 or result == true)
 end
 
-local function addArmorFromItem(armor, physical, magic)
+-- Convert an equipment piece's AC into flat resistance.
+-- Normal armor uses AC above 10 (AC 14 -> 4 contribution points); shields
+-- store their bonus directly (usually 2).
+local function addResistanceFromItem(armor, physical, magic, pieces)
     local cfg = DOS2C.Config
     local ac = tonumber(armor.ArmorClass) or 0
-    -- Shield AC is stored as its bonus (usually 2), not as a full base AC.
     local gain = math.max(0, armor.Shield and ac or (ac - 10))
-    if gain <= 0 then return physical, magic end
+    if gain <= 0 then return physical, magic, pieces end
 
     local heavy = (tonumber(armor.ArmorType) or 0) >= 6
     local p = gain * cfg.ARMOR_PHYSICAL_PER_AC
@@ -49,25 +45,25 @@ local function addArmorFromItem(armor, physical, magic)
         p = p * cfg.ARMOR_SHIELD_PHYSICAL_MULT
         m = 0
     end
-    return physical + p, magic + m
+    return physical + p, magic + m, pieces + 1
 end
 
 local function armorFromGear(handle)
     local guid = U.GuidOf(handle)
-    if not guid or not (Osi and Osi.GetEquippedItem) then return 0, 0 end
+    if not guid or not (Osi and Osi.GetEquippedItem) then return 0, 0, 0 end
 
-    local physical, magic = 0, 0
+    local physical, magic, pieces = 0, 0, 0
     for _, slot in ipairs(ARMOR_SLOTS) do
         local ok, item = pcall(Osi.GetEquippedItem, guid, slot)
         if ok and item then
             local entity = U.EntityOf(item)
             local armor = entity and entity.Armor
             if armor then
-                physical, magic = addArmorFromItem(armor, physical, magic)
+                physical, magic, pieces = addResistanceFromItem(armor, physical, magic, pieces)
             end
         end
     end
-    return math.floor(physical + 0.5), math.floor(magic + 0.5)
+    return physical, magic, pieces
 end
 
 local function armorFromSkills(handle)
@@ -82,37 +78,40 @@ local function armorFromSkills(handle)
     return physical, magic
 end
 
-local function computeArmor(handle)
+local function computeResistance(handle)
     local cfg = DOS2C.Config
-    local physical, magic = armorFromGear(handle)
+    local gearPhysical, gearMagic, pieces = armorFromGear(handle)
     local skillPhysical, skillMagic = armorFromSkills(handle)
-    return cfg.ARMOR_BASE_PHYSICAL + physical + skillPhysical,
-           cfg.ARMOR_BASE_MAGIC + magic + skillMagic
+    return {
+        physical = cfg.ARMOR_BASE_PHYSICAL + gearPhysical + skillPhysical,
+        magic = cfg.ARMOR_BASE_MAGIC + gearMagic + skillMagic,
+        gearPhysical = gearPhysical,
+        gearMagic = gearMagic,
+        skillPhysical = skillPhysical,
+        skillMagic = skillMagic,
+        pieces = pieces,
+    }
 end
 
-local function getPool(handle)
+local function getResistance(handle)
     local key = U.GuidOf(handle)
     if not key then return nil, nil end
 
-    local pool = pools[key]
-    if not pool then
-        local level = U.GetLevel(handle)
-        local physical, magic = computeArmor(handle)
-        pool = {
-            physical = physical,
-            magic = magic,
-            maxPhysical = physical,
-            maxMagic = magic,
-            level = level,
-        }
-        pools[key] = pool
-        U.Log("armor init %s: phys=%d magic=%d", key, physical, magic)
+    local resist = resistances[key]
+    if not resist then
+        resist = computeResistance(handle)
+        resistances[key] = resist
+        U.Log("armor resist init %s: physical=%s magic=%s (gear=%s/%s skills=%s/%s pieces=%s)",
+            key,
+            tostring(resist.physical), tostring(resist.magic),
+            tostring(resist.gearPhysical), tostring(resist.gearMagic),
+            tostring(resist.skillPhysical), tostring(resist.skillMagic),
+            tostring(resist.pieces))
     end
-    return pool, key
+    return resist, key
 end
 
 local function kindOf(damageType)
-    -- DamagePair.DamageType may be an enum number or a label.
     local numeric = tonumber(damageType)
     if numeric and numeric >= 1 and numeric <= 3 then
         return "physical"
@@ -127,10 +126,33 @@ local function kindOf(damageType)
     return "magic"
 end
 
+local function applyFlatResistance(list, resist)
+    local resisted = 0
+    for i = 1, #list do
+        local pair = list[i]
+        local amount = tonumber(pair and pair.Amount) or 0
+        if amount > 0 then
+            local reduction = resist[kindOf(pair.DamageType)] or 0
+            if reduction > 0 then
+                local applied = math.min(amount, reduction)
+                resisted = resisted + applied
+                local ok = pcall(function() pair.Amount = amount - applied end)
+                if not ok then
+                    U.Log("armor: could not write damage pair")
+                elseif tonumber(pair.Amount) ~= (amount - applied) then
+                    U.Log("armor: damage pair write did not stick (wanted %d, got %s)",
+                        amount - applied, tostring(pair.Amount))
+                end
+            end
+        end
+    end
+    return resisted
+end
+
 -- Some BG3SE damage paths expose the computed damage through Hit.Damage
--- before Hit.DamageList is populated. Absorb from the StatsDamage totals as a
--- fallback so armor still reduces the hit.
-local function absorbStatsDamage(hit, pool)
+-- before Hit.DamageList is populated. Apply the same flat resistance to those
+-- totals as a fallback.
+local function applyFlatResistanceToStats(hit, resist)
     local damage = hit and hit.Damage
     if not damage then return 0 end
 
@@ -138,40 +160,36 @@ local function absorbStatsDamage(hit, pool)
     if total <= 0 then total = tonumber(damage.TotalDamage) or 0 end
     if total <= 0 then return 0 end
 
-    local absorbed = 0
+    local resisted = 0
     local perType = damage.FinalDamagePerType or damage.TotalDamagePerType
     if type(perType) == "table" then
         for dtype, amount in pairs(perType) do
             local value = tonumber(amount) or 0
             if value > 0 then
-                local kind = kindOf(dtype)
-                local available = pool[kind] or 0
-                if available > 0 then
-                    local take = math.min(available, value)
-                    pool[kind] = available - take
-                    absorbed = absorbed + take
-                    pcall(function() perType[dtype] = value - take end)
+                local reduction = resist[kindOf(dtype)] or 0
+                if reduction > 0 then
+                    local applied = math.min(value, reduction)
+                    resisted = resisted + applied
+                    pcall(function() perType[dtype] = value - applied end)
                 end
             end
         end
     else
-        local kind = kindOf(hit.DamageType)
-        local available = pool[kind] or 0
-        if available > 0 then
-            absorbed = math.min(available, total)
-            pool[kind] = available - absorbed
+        local reduction = resist[kindOf(hit.DamageType)] or 0
+        if reduction > 0 then
+            resisted = math.min(total, reduction)
         end
     end
 
-    if absorbed > 0 then
-        local remaining = math.max(0, total - absorbed)
+    if resisted > 0 then
+        local remaining = math.max(0, total - resisted)
         pcall(function() damage.TotalDamage = remaining end)
         pcall(function() damage.FinalDamage = remaining end)
     end
-    return absorbed
+    return resisted
 end
 
-local function absorbDamage(ev)
+local function resistDamage(ev)
     local cfg = DOS2C.Config
     if not cfg.ARMOR_ENABLED then return end
     if not ev or not ev.Target or not ev.Hit then return end
@@ -180,161 +198,82 @@ local function absorbDamage(ev)
     -- Only characters carry ActionResources; skip doors, surfaces, items, etc.
     if not entity or not entity.ActionResources then return end
 
-    local pool = getPool(ev.Target)
-    if not pool then return end
+    local resist = getResistance(ev.Target)
+    if not resist then return end
 
     local hit = ev.Hit
     local list = hit.DamageList
     if (not list or #list == 0) and ev.Attack then
-        -- Some damage paths populate the attack sum list instead of Hit.DamageList.
         list = ev.Attack.DamageList
     end
-    if not list or #list == 0 then
-        local absorbed = absorbStatsDamage(hit, pool)
-        if absorbed > 0 then
-            pcall(function()
-                hit.ArmorAbsorption = (tonumber(hit.ArmorAbsorption) or 0) + absorbed
-            end)
-            U.Log("armor absorbed %d via StatsDamage fallback (phys %d/%d, magic %d/%d)",
-                absorbed, pool.physical, pool.maxPhysical, pool.magic, pool.maxMagic)
-        elseif DOS2C.Config.DEBUG then
-            U.Log("armor: empty damage list for target %s (damage total=%s final=%s)",
-                tostring(U.GuidOf(ev.Target)),
-                tostring(hit.Damage and hit.Damage.TotalDamage),
-                tostring(hit.Damage and hit.Damage.FinalDamage))
-        end
-        return
+
+    local resisted
+    if list and #list > 0 then
+        resisted = applyFlatResistance(list, resist)
+    else
+        resisted = applyFlatResistanceToStats(hit, resist)
     end
 
-    local absorbedTotal = 0
-    for i = 1, #list do
-        local pair = list[i]
-        local amount = tonumber(pair and pair.Amount) or 0
-        if amount > 0 then
-            local kind = kindOf(pair.DamageType)
-            local available = pool[kind] or 0
-            if available > 0 then
-                local absorbed = math.min(available, amount)
-                pool[kind] = available - absorbed
-                absorbedTotal = absorbedTotal + absorbed
-                local ok = pcall(function() pair.Amount = amount - absorbed end)
-                if not ok then
-                    U.Log("armor: could not write damage pair")
-                elseif tonumber(pair.Amount) ~= (amount - absorbed) then
-                    U.Log("armor: damage pair write did not stick (wanted %d, got %s)",
-                        amount - absorbed, tostring(pair.Amount))
-                end
-            end
-        end
-    end
-
-    if absorbedTotal > 0 then
-        -- Some engine paths read ArmorAbsorption for the hit result.
+    if resisted > 0 then
         pcall(function()
-            hit.ArmorAbsorption = (tonumber(hit.ArmorAbsorption) or 0) + absorbedTotal
+            hit.ArmorAbsorption = (tonumber(hit.ArmorAbsorption) or 0) + resisted
         end)
-        U.Log("armor absorbed %d (phys %d/%d, magic %d/%d)",
-            absorbedTotal, pool.physical, pool.maxPhysical, pool.magic, pool.maxMagic)
-    end
-end
-
-local CC_PHYSICAL = {
-    KNOCKED_DOWN = true,
-    PRONE = true,
-    STUNNED = true,
-    STUN = true,
-}
-
-local function isCC(statusName)
-    local name = tostring(statusName or ""):upper()
-    if CC_PHYSICAL[name] then return "physical" end
-    for _, fragment in ipairs({
-        "FEAR", "FRIGHT", "CHARM", "PARALYZ", "PETRIF", "INCAPACITAT",
-        "SLEEP", "DAZED", "STUN", "KNOCK", "PRONE", "POLYMORPH", "CONFUS",
-    }) do
-        if name:find(fragment, 1, true) then
-            if fragment == "STUN" or fragment == "KNOCK" or fragment == "PRONE" then
-                return "physical"
-            end
-            return "magic"
-        end
-    end
-    return nil
-end
-
-local function onStatusApplied(status, target, source, statusSource)
-    local cfg = DOS2C.Config
-    if not cfg.ARMOR_ENABLED or not cfg.ARMOR_CC_GATING then return end
-    if type(status) ~= "string" or type(target) ~= "string" then return end
-
-    local kind = isCC(status)
-    if not kind then return end
-
-    local pool = getPool(target)
-    if pool and (pool[kind] or 0) > 0 and Osi and Osi.RemoveStatus then
-        local ok = pcall(Osi.RemoveStatus, target, status)
-        U.Log("armor blocked CC %s (%s armor remaining %d), removed=%s",
-            tostring(status), kind, pool[kind], tostring(ok))
+        U.Log("armor resisted %d (physical=%s magic=%s)",
+            resisted, tostring(resist.physical), tostring(resist.magic))
+    elseif cfg.DEBUG then
+        U.Log("armor: no damage reduced for target %s (damage total=%s final=%s)",
+            tostring(U.GuidOf(ev.Target)),
+            tostring(hit.Damage and hit.Damage.TotalDamage),
+            tostring(hit.Damage and hit.Damage.FinalDamage))
     end
 end
 
 function A.Get(handle)
-    return getPool(handle)
+    return getResistance(handle)
 end
 
 function A.Set(handle, physical, magic)
-    local pool = getPool(handle)
-    if not pool then return false end
-    pool.physical = tonumber(physical) or pool.physical
-    pool.magic = tonumber(magic) or pool.magic
-    pool.maxPhysical = pool.physical
-    pool.maxMagic = pool.magic
+    local resist = getResistance(handle)
+    if not resist then return false end
+    resist.physical = tonumber(physical) or resist.physical
+    resist.magic = tonumber(magic) or resist.magic
+    U.Log("armor set: physical=%s magic=%s", tostring(resist.physical), tostring(resist.magic))
     return true
 end
 
 function A.Refresh(handle)
-    local pool, key = getPool(handle)
-    if not pool then return false end
-
-    local physical, magic = computeArmor(handle)
-    pool.physical = math.min(pool.physical + math.max(0, physical - pool.maxPhysical), physical)
-    pool.magic = math.min(pool.magic + math.max(0, magic - pool.maxMagic), magic)
-    pool.maxPhysical = physical
-    pool.maxMagic = magic
-    U.Log("armor refresh %s: phys=%d/%d magic=%d/%d", tostring(key),
-        pool.physical, pool.maxPhysical, pool.magic, pool.maxMagic)
+    local resist, key = getResistance(handle)
+    if not resist then return false end
+    local updated = computeResistance(handle)
+    for k, v in pairs(updated) do resist[k] = v end
+    U.Log("armor refresh %s: physical=%s magic=%s",
+        tostring(key), tostring(resist.physical), tostring(resist.magic))
     return true
 end
 
 function A.ResetAll()
-    for _, pool in pairs(pools) do
-        pool.physical = pool.maxPhysical
-        pool.magic = pool.maxMagic
-    end
-    U.Log("armor reset for %d characters", (function()
-        local n = 0
-        for _ in pairs(pools) do n = n + 1 end
-        return n
-    end)())
+    resistances = {}
+    U.Log("armor resistance cache cleared")
 end
 
 function A.Dump(handle)
-    local pool, key = getPool(handle)
-    if not pool then return "no armor" end
-    return string.format("%s: physical %d/%d, magic %d/%d (level %s)",
-        tostring(key), pool.physical, pool.maxPhysical,
-        pool.magic, pool.maxMagic, tostring(pool.level))
+    local resist, key = getResistance(handle)
+    if not resist then return "no armor" end
+    return string.format("%s: physical resist %s, magic resist %s (gear %s/%s, skills %s/%s)",
+        tostring(key), tostring(resist.physical), tostring(resist.magic),
+        tostring(resist.gearPhysical), tostring(resist.gearMagic),
+        tostring(resist.skillPhysical), tostring(resist.skillMagic))
 end
 
 if Ext.Events and Ext.Events.SessionLoaded then
     Ext.Events.SessionLoaded:Subscribe(function()
-        pools = {}
+        resistances = {}
     end)
 end
 
 if Ext.Events and Ext.Events.DealDamage then
     Ext.Events.DealDamage:Subscribe(function(ev)
-        local ok, err = pcall(absorbDamage, ev)
+        local ok, err = pcall(resistDamage, ev)
         if not ok then U.Log("armor damage handler error: %s", tostring(err)) end
     end, { Priority = 90 })
 end
@@ -344,11 +283,4 @@ if Ext.Osiris and Ext.Osiris.RegisterListener then
         local ok, err = pcall(A.Refresh, character)
         if not ok then U.Log("armor refresh error: %s", tostring(err)) end
     end)
-
-    -- BG3SE in this build does not expose LongRestFinished/ShortRestFinished
-    -- as Osiris events. Armor reset on rest remains a TODO until a working
-    -- rest event is available.
-    if DOS2C.Config.ARMOR_CC_GATING then
-        pcall(Ext.Osiris.RegisterListener, "StatusApplied", 4, "after", onStatusApplied)
-    end
 end
