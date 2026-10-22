@@ -61,6 +61,7 @@ DOS2C.Config = {
     -- rebalanced; only BG3-native spells use the heuristics above.
     DOS2_COOLDOWNS = {
         DOS2C_Rain = 6,
+        DOS2C_ChaosBolt = 1,
         DOS2C_FossilStrike = 5,
         DOS2C_Contamination = 3,
         DOS2C_Fireball = 4,
@@ -70,6 +71,12 @@ DOS2C.Config = {
         DOS2C_SmokeCover = 5,
         DOS2C_AcidSpray = 5,
         DOS2C_PoisonCloud = 4,
+    },
+
+    -- Explicit DOS2 AP costs for ported skills that differ from the BG3 level
+    -- heuristic (for example, Dimensional/Chaos Bolt costs 2 AP in DOS2).
+    DOS2_AP_COSTS = {
+        DOS2C_ChaosBolt = 2,
     },
 
     -- Ported DOS2 damage spells ---------------------------------------------
@@ -93,6 +100,7 @@ DOS2C.Config = {
     UNLOCK_TEST_SURFACE_SPELLS = true,
     TEST_SURFACE_SPELLS = {
         "DOS2C_Rain",
+        "DOS2C_ChaosBolt",
         "DOS2C_FossilStrike",
         "DOS2C_Contamination",
         "DOS2C_Fireball",

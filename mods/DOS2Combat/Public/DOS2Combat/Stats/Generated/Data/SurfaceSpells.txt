@@ -2,7 +2,7 @@
 -- BG3 spellbook/hotbar path; it is added only to party members by Lua.
 new entry "DOS2C_TestSpells"
 type "PassiveData"
-data "Boosts" "UnlockSpell(DOS2C_Rain);UnlockSpell(DOS2C_FossilStrike);UnlockSpell(DOS2C_Contamination);UnlockSpell(DOS2C_Fireball);UnlockSpell(DOS2C_GlobalCooling);UnlockSpell(DOS2C_ElectricDischarge);UnlockSpell(DOS2C_Web);UnlockSpell(DOS2C_SmokeCover);UnlockSpell(DOS2C_AcidSpray);UnlockSpell(DOS2C_PoisonCloud)"
+data "Boosts" "UnlockSpell(DOS2C_Rain);UnlockSpell(DOS2C_ChaosBolt);UnlockSpell(DOS2C_FossilStrike);UnlockSpell(DOS2C_Contamination);UnlockSpell(DOS2C_Fireball);UnlockSpell(DOS2C_GlobalCooling);UnlockSpell(DOS2C_ElectricDischarge);UnlockSpell(DOS2C_Web);UnlockSpell(DOS2C_SmokeCover);UnlockSpell(DOS2C_AcidSpray);UnlockSpell(DOS2C_PoisonCloud)"
 
 -- Runtime AP max boost for existing saves. A passive is used instead of
 -- DefaultBoosts so characters already spawned in a save can receive it.
@@ -24,6 +24,13 @@ data "Icon" "DOS2C_Rain_DOS2Icon"
 data "CastEffect" "995f3dc2-367a-5b58-99b7-5cb2c3d5b11f"
 data "TargetRadius" "8"
 data "AreaRadius" "10"
+
+new entry "DOS2C_ChaosBolt"
+type "SpellData"
+using "Projectile_ChromaticOrb"
+data "Icon" "DOS2C_ChaosBolt_DOS2Icon"
+data "CastEffect" "64b7952a-2ee7-5994-9994-24ef1ae021d4"
+data "PrepareEffect" "0c09f622-8d73-554a-a592-6d9b26154df6"
 
 new entry "DOS2C_FossilStrike"
 type "SpellData"

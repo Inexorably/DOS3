@@ -57,6 +57,8 @@ local function costForSpell(name, level)
     if isWeaponAttack(name) then
         return cfg.BASIC_ATTACK_COST
     end
+    local explicit = cfg.DOS2_AP_COSTS and cfg.DOS2_AP_COSTS[name]
+    if explicit ~= nil then return tonumber(explicit) or 1 end
     local lvl = tonumber(level) or 0
     if lvl < 0 then lvl = 0 end
     local costs = cfg.SPELL_COST_BY_LEVEL

@@ -7137,6 +7137,13 @@
                     <attribute id="V1" type="float" value="0.968750000" />
                     <attribute id="V2" type="float" value="1.000000000" />
                 </node>
+                <node id="IconUV">
+                    <attribute id="MapKey" type="FixedString" value="DOS2C_ChaosBolt_DOS2Icon" />
+                    <attribute id="U1" type="float" value="0.843750000" />
+                    <attribute id="U2" type="float" value="0.875000000" />
+                    <attribute id="V1" type="float" value="0.968750000" />
+                    <attribute id="V2" type="float" value="1.000000000" />
+                </node>
                 </children>
         </node>
     </region>
