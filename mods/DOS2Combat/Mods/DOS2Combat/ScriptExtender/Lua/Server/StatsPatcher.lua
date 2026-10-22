@@ -371,8 +371,12 @@ local function patchSpell(name, stat)
     -- Replace native cast limits with the numeric turn-cooldown overlay.
     -- Compute the cooldown above before clearing these fields.
     if cfg.CONVERT_NATIVE_COOLDOWNS then
-        if U.SafeGet(stat, "Cooldown") ~= nil then
-            if U.SafeSet(stat, "Cooldown", "Default") then changed = true end
+        local currentCooldown = U.SafeGet(stat, "Cooldown")
+        if currentCooldown ~= nil and currentCooldown ~= "" then
+            -- "Default" is not accepted by the SpellData Cooldown enum, and
+            -- an empty string cannot be written. OncePerTurn is a valid,
+            -- minimally restrictive value; the numeric overlay replaces it.
+            if U.SafeSet(stat, "Cooldown", "OncePerTurn") then changed = true end
         end
         if U.SafeGet(stat, "RechargeValues") ~= nil then
             if U.SafeSet(stat, "RechargeValues", "") then changed = true end
@@ -498,9 +502,26 @@ end
 local turnStates = {}
 local sessionInitialized = {}
 
+local apShapeLogged = false
+
 local function apEntriesOf(entity)
     local ar = entity and entity.ActionResources
     if not ar or not ar.Resources then return nil end
+
+    -- Diagnostic: the resource map key type differs between BG3SE builds.
+    if not apShapeLogged then
+        apShapeLogged = true
+        for key, entries in pairs(ar.Resources) do
+            local first = type(entries) == "table" and entries[1] or nil
+            U.Log("AP component sample: key=%s keyType=%s entryType=%s uuid=%s id=%s amount=%s max=%s",
+                tostring(key), type(key), type(entries),
+                first and tostring(first.ResourceUUID) or "nil",
+                first and tostring(first.ResourceId) or "nil",
+                first and tostring(first.Amount) or "nil",
+                first and tostring(first.MaxAmount) or "nil")
+            break
+        end
+    end
 
     for key, entries in pairs(ar.Resources) do
         local isAP = guidMatches(key, AP_RESOURCE_UUID)
@@ -513,6 +534,18 @@ local function apEntriesOf(entity)
             end
         end
         if isAP and type(entries) == "table" then return entries end
+    end
+
+    -- ActionPoint is the first ActionResourceDefinition and has id 0.
+    -- This fallback matters because Lua-side Guid identity differs by build.
+    for _, entries in pairs(ar.Resources) do
+        if type(entries) == "table" then
+            for _, entry in ipairs(entries) do
+                if tonumber(entry.ResourceId) == 0 then
+                    return entries
+                end
+            end
+        end
     end
     return nil
 end
@@ -561,7 +594,7 @@ end
 --   "full"  - debug: max and current 6
 local function patchEntityAP(entity, mode)
     mode = mode or "cap"
-    ensureAPPassive(entity)
+    local passiveAdded = ensureAPPassive(entity)
 
     local cfg = DOS2C.Config
     local entries = apEntriesOf(entity)
@@ -570,7 +603,11 @@ local function patchEntityAP(entity, mode)
         -- unexpected, still set the current value through Osiris.
         local target = cfg.AP_START
         if mode == "full" then target = cfg.AP_MAX end
-        return setAP(entity, target, cfg.AP_MAX)
+        local applied = setAP(entity, target, cfg.AP_MAX)
+        if passiveAdded and Ext.Timer and Ext.Timer.WaitFor then
+            Ext.Timer.WaitFor(250, function() pcall(setAP, entity, target, cfg.AP_MAX) end)
+        end
+        return applied
     end
 
     local current = tonumber(entries[1] and entries[1].Amount) or 0
@@ -599,7 +636,11 @@ local function patchEntityAP(entity, mode)
         end
     end
 
-    return setAP(entity, target, cfg.AP_MAX)
+    local applied = setAP(entity, target, cfg.AP_MAX)
+    if passiveAdded and Ext.Timer and Ext.Timer.WaitFor then
+        Ext.Timer.WaitFor(250, function() pcall(setAP, entity, target, cfg.AP_MAX) end)
+    end
+    return applied
 end
 
 function S.PatchRuntimeAP(mode)
