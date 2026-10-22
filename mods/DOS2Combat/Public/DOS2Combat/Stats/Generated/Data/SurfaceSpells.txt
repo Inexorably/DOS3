@@ -1,3 +1,9 @@
+-- Runtime-only test spell unlock passive. This puts the test spells into the
+-- BG3 spellbook/hotbar path; it is added only to party members by Lua.
+new entry "DOS2C_TestSpells"
+type "PassiveData"
+data "Boosts" "UnlockSpell(DOS2C_Rain);UnlockSpell(DOS2C_FossilStrike);UnlockSpell(DOS2C_Contamination);UnlockSpell(DOS2C_Fireball);UnlockSpell(DOS2C_GlobalCooling);UnlockSpell(DOS2C_ElectricDischarge);UnlockSpell(DOS2C_Web);UnlockSpell(DOS2C_SmokeCover);UnlockSpell(DOS2C_AcidSpray);UnlockSpell(DOS2C_PoisonCloud)"
+
 -- Runtime AP max boost for existing saves. A passive is used instead of
 -- DefaultBoosts so characters already spawned in a save can receive it.
 new entry "DOS2C_APBoost"

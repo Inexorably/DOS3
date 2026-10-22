@@ -99,6 +99,24 @@ function S.UnlockForParty()
         end
     end
 
+    -- UnlockSpell boosts are what make the spells available to the BG3
+    -- spellbook/hotbar; AddSpell alone can register the spell without showing
+    -- it in the UI.
+    if Osi.AddPassive then
+        for _, guid in ipairs(members) do
+            local has = false
+            if Osi.HasPassive then
+                local ok, result = pcall(Osi.HasPassive, guid, "DOS2C_TestSpells")
+                has = ok and (result == 1 or result == true)
+            end
+            if not has then
+                local ok, err = pcall(Osi.AddPassive, guid, "DOS2C_TestSpells")
+                U.Log("test spell passive: %s added=%s err=%s",
+                    tostring(guid), tostring(ok), tostring(err))
+            end
+        end
+    end
+
     if added > 0 then
         U.Log("unlocked %d DOS2 surface test spells", added)
     end
