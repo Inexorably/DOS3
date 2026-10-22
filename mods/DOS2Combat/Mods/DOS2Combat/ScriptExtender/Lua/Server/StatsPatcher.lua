@@ -508,17 +508,40 @@ local sessionInitialized = {}
 
 local apShapeLogged = false
 
+-- BG3SE exposes the Resource map values differently across builds: usually a
+-- Lua table of ActionResourceEntry, but sometimes an Array userdata or a single
+-- entry userdata. Normalize all three shapes to a Lua list.
+local function entryList(value)
+    if value == nil then return nil end
+    if type(value) == "table" then return value end
+
+    local okFirst, first = pcall(function() return value[1] end)
+    if okFirst and first ~= nil then
+        local list = {}
+        local okLen, len = pcall(function() return #value end)
+        if not okLen or not tonumber(len) then len = 0 end
+        for i = 1, tonumber(len) or 0 do
+            local ok, entry = pcall(function() return value[i] end)
+            if ok and entry ~= nil then list[#list + 1] = entry end
+        end
+        if #list > 0 then return list end
+    end
+
+    -- A single ActionResourceEntry userdata.
+    return { value }
+end
+
 local function apEntriesOf(entity)
     local ar = entity and entity.ActionResources
     if not ar or not ar.Resources then return nil end
 
-    -- Diagnostic: the resource map key type differs between BG3SE builds.
     if not apShapeLogged then
         apShapeLogged = true
-        for key, entries in pairs(ar.Resources) do
-            local first = type(entries) == "table" and entries[1] or nil
-            U.Log("AP component sample: key=%s keyType=%s entryType=%s uuid=%s id=%s amount=%s max=%s",
-                tostring(key), type(key), type(entries),
+        for key, value in pairs(ar.Resources) do
+            local list = entryList(value)
+            local first = list and list[1] or nil
+            U.Log("AP component sample: key=%s keyType=%s valueType=%s listType=%s uuid=%s id=%s amount=%s max=%s",
+                tostring(key), type(key), type(value), type(list),
                 first and tostring(first.ResourceUUID) or "nil",
                 first and tostring(first.ResourceId) or "nil",
                 first and tostring(first.Amount) or "nil",
@@ -527,26 +550,29 @@ local function apEntriesOf(entity)
         end
     end
 
-    for key, entries in pairs(ar.Resources) do
-        local isAP = guidMatches(key, AP_RESOURCE_UUID)
-        if not isAP and type(entries) == "table" then
-            for _, entry in ipairs(entries) do
-                if entry.ResourceUUID and guidMatches(entry.ResourceUUID, AP_RESOURCE_UUID) then
-                    isAP = true
-                    break
+    for key, value in pairs(ar.Resources) do
+        local list = entryList(value)
+        if list then
+            local isAP = guidMatches(key, AP_RESOURCE_UUID)
+            if not isAP then
+                for _, entry in ipairs(list) do
+                    if entry.ResourceUUID and guidMatches(entry.ResourceUUID, AP_RESOURCE_UUID) then
+                        isAP = true
+                        break
+                    end
                 end
             end
+            if isAP then return list end
         end
-        if isAP and type(entries) == "table" then return entries end
     end
 
     -- ActionPoint is the first ActionResourceDefinition and has id 0.
-    -- This fallback matters because Lua-side Guid identity differs by build.
-    for _, entries in pairs(ar.Resources) do
-        if type(entries) == "table" then
-            for _, entry in ipairs(entries) do
+    for _, value in pairs(ar.Resources) do
+        local list = entryList(value)
+        if list then
+            for _, entry in ipairs(list) do
                 if tonumber(entry.ResourceId) == 0 then
-                    return entries
+                    return list
                 end
             end
         end
