@@ -8,6 +8,7 @@
 --   !dos2c_debug on|off        toggle logging
 --   !dos2c_status              print module status
 --   !dos2c_ap                  dump the host ActionResources component
+--   !dos2c_fixap               raise ActionPoint max on all existing characters
 
 DOS2C = DOS2C or {}
 DOS2C.Commands = DOS2C.Commands or {}
@@ -74,7 +75,13 @@ end)
 register("dos2c_patch", function()
     DOS2C.Stats.Patched = false
     DOS2C.Stats.PatchAll(true)
-    printLine("[DOS2C] stat patch pass complete")
+    local fixed = DOS2C.Stats.PatchRuntimeAP()
+    printLine(string.format("[DOS2C] stat patch pass complete; runtime AP fixed on %d entities", fixed))
+end)
+
+register("dos2c_fixap", function()
+    local fixed = DOS2C.Stats.PatchRuntimeAP()
+    printLine(string.format("[DOS2C] runtime AP fixed on %d entities", fixed))
 end)
 
 register("dos2c_rolls", function(_, value)
@@ -104,9 +111,13 @@ register("dos2c_ap", function()
         return
     end
     for resourceGuid, entries in pairs(resources.Resources) do
+        local label = tostring(resourceGuid)
+        if label:lower():find("734cbcfb-8922-4b6d-8330-b2a7e4c14b6a", 1, true) then
+            label = "ActionPoint"
+        end
         for _, entry in ipairs(entries) do
             printLine(string.format("[DOS2C] resource %s amount=%s max=%s",
-                tostring(resourceGuid), tostring(entry.Amount), tostring(entry.MaxAmount)))
+                label, tostring(entry.Amount), tostring(entry.MaxAmount)))
         end
     end
 end)

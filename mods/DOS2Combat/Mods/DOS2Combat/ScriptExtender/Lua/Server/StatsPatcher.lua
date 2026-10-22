@@ -224,6 +224,68 @@ local function eachStat(statType, handler)
     return count
 end
 
+
+local AP_RESOURCE_UUID = "734cbcfb-8922-4b6d-8330-b2a7e4c14b6a"
+
+local function guidMatches(value, expected)
+    local text = tostring(value or ""):lower():gsub("[{}]", "")
+    return text == expected
+end
+
+-- Existing saves keep the ActionResources component they were spawned with,
+-- so a stat-only patch cannot raise their AP cap. Walk every character's
+-- component and raise the ActionPoint max/current value. This also makes the
+-- AP change testable without starting a new campaign.
+function S.PatchRuntimeAP()
+    if not (Ext and Ext.Entity and Ext.Entity.GetAllEntitiesWithComponent) then
+        return 0
+    end
+
+    local ok, entities = pcall(Ext.Entity.GetAllEntitiesWithComponent, "ActionResources")
+    if not ok or type(entities) ~= "table" then return 0 end
+
+    local maxAP = DOS2C.Config.AP_MAX
+    local changed = 0
+
+    for _, entity in ipairs(entities) do
+        local ar = entity.ActionResources
+        if ar and ar.Resources then
+            local touched = false
+            for key, entries in pairs(ar.Resources) do
+                local isAP = guidMatches(key, AP_RESOURCE_UUID)
+                if not isAP and type(entries) == "table" then
+                    for _, entry in ipairs(entries) do
+                        if entry.ResourceUUID and guidMatches(entry.ResourceUUID, AP_RESOURCE_UUID) then
+                            isAP = true
+                            break
+                        end
+                    end
+                end
+
+                if isAP and type(entries) == "table" then
+                    for _, entry in ipairs(entries) do
+                        local currentMax = tonumber(entry.MaxAmount) or 0
+                        local currentAmount = tonumber(entry.Amount) or 0
+                        if currentMax < maxAP or currentAmount < maxAP then
+                            entry.MaxAmount = maxAP
+                            entry.Amount = maxAP
+                            touched = true
+                        end
+                    end
+                end
+            end
+
+            if touched then
+                pcall(function() entity:Replicate("ActionResources") end)
+                changed = changed + 1
+            end
+        end
+    end
+
+    U.Log("runtime AP patch: %d entities set to %d", changed, maxAP)
+    return changed
+end
+
 function S.RestoreRolls(runtime)
     for name, roll in pairs(originalRolls) do
         local got, stat = pcall(Ext.Stats.Get, name)
@@ -282,6 +344,18 @@ if Ext.Events and Ext.Events.SessionLoaded then
     Ext.Events.SessionLoaded:Subscribe(function()
         if not S.Patched then
             S.PatchAll(true)
+        end
+
+        -- Characters already spawned from an existing save need the component
+        -- patched directly; stat changes alone only affect newly spawned units.
+        local function applyRuntimeAP()
+            S.PatchRuntimeAP()
+        end
+        if Ext.Timer and Ext.Timer.WaitFor then
+            Ext.Timer.WaitFor(1000, applyRuntimeAP)
+            Ext.Timer.WaitFor(5000, applyRuntimeAP)
+        else
+            applyRuntimeAP()
         end
     end)
 end
