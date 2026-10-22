@@ -8,6 +8,13 @@ DOS2C.Config = {
     -- Action point economy -------------------------------------------------
     AP_MAX = 4,                  -- DOS2 starts with 4 AP and caps at 6 later
     AP_START = 4,
+    -- BG3 may clamp the ActionPoint resource to 1 when set only via
+    -- ActionResources. Haste grants extra actions through the
+    -- ActionResource(ActionPoint,N,0) boost, so we use the same mechanism:
+    -- base 1 + AP_BOOST_AMOUNT = AP_MAX.
+    AP_BASE = 1,
+    USE_AP_BOOST = true,
+    AP_BOOST_AMOUNT = 3,
     REMOVE_BONUS_ACTIONS = true, -- convert BonusActionPoint costs to ActionPoint
     BASIC_ATTACK_COST = 2,       -- DOS2 basic attack is 2 AP
     -- Indexed by spell Level (0..9). Level 0 is a cantrip.

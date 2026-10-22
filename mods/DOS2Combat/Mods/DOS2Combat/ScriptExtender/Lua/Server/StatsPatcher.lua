@@ -74,6 +74,21 @@ local function rebuildCosts(costs, apCost)
     return table.concat(parts, ";")
 end
 
+local function addAPBoost(stat)
+    local cfg = DOS2C.Config
+    if not cfg.USE_AP_BOOST or cfg.AP_BOOST_AMOUNT <= 0 then return false end
+
+    local boost = string.format("ActionResource(ActionPoint,%d,0)", cfg.AP_BOOST_AMOUNT)
+    local current = U.SafeGet(stat, "DefaultBoosts")
+    if type(current) ~= "string" then current = "" end
+    if current:find(boost, 1, true) then return false end
+
+    if current ~= "" and not current:match(";%s*$") then
+        current = current .. ";"
+    end
+    return U.SafeSet(stat, "DefaultBoosts", current .. boost)
+end
+
 local function patchCharacter(stat)
     local cfg = DOS2C.Config
     local resources = U.SafeGet(stat, "ActionResources")
@@ -84,7 +99,7 @@ local function patchCharacter(stat)
         resources = "ActionPoint:1;BonusActionPoint:1;Movement:9;ReactionActionPoint:1"
     end
 
-    local parts = { "ActionPoint:" .. tostring(cfg.AP_MAX) }
+    local parts = { "ActionPoint:" .. tostring(cfg.AP_BASE or 1) }
     local hasMovement, hasReaction = false, false
     for raw in resources:gmatch("[^;]+") do
         local token = raw:gsub("^%s+", ""):gsub("%s+$", "")
@@ -105,7 +120,9 @@ local function patchCharacter(stat)
         parts[#parts + 1] = "BonusActionPoint:1"
     end
 
-    return U.SafeSet(stat, "ActionResources", table.concat(parts, ";"))
+    local applied = U.SafeSet(stat, "ActionResources", table.concat(parts, ";"))
+    if addAPBoost(stat) then applied = true end
+    return applied
 end
 
 local function flattenField(stat, field, changed)
