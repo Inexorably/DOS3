@@ -1,0 +1,85 @@
+-- DOS2 surface-setter test spells.
+--
+-- The spells themselves are defined in Public/DOS2Combat/Stats/Generated/Data/
+-- SurfaceSpells.txt and reuse BG3-native spell visuals. This module makes them
+-- available on the party automatically while UNLOCK_TEST_SURFACE_SPELLS is on.
+
+DOS2C = DOS2C or {}
+DOS2C.SurfaceSpells = DOS2C.SurfaceSpells or {}
+
+local S = DOS2C.SurfaceSpells
+local U = DOS2C.Utils
+
+local function partyMembers()
+    if not (Osi and Osi.GetPartyMembers) then return {} end
+    local ok, a, b, c, d = pcall(Osi.GetPartyMembers)
+    if not ok then return {} end
+    if type(a) == "table" then return a end
+
+    local list = {}
+    for _, value in ipairs({ a, b, c, d }) do
+        if value ~= nil and value ~= "" then list[#list + 1] = value end
+    end
+    return list
+end
+
+local function hasSpell(guid, spell)
+    if not (Osi and Osi.HasSpell) then return false end
+    local ok, result = pcall(Osi.HasSpell, guid, spell)
+    return ok and (result == 1 or result == true)
+end
+
+function S.UnlockForParty()
+    local cfg = DOS2C.Config
+    if not cfg.UNLOCK_TEST_SURFACE_SPELLS then return 0 end
+    if not (Osi and Osi.AddSpell) then return 0 end
+
+    local members = partyMembers()
+    if #members == 0 then return 0 end
+
+    local added = 0
+    for _, guid in ipairs(members) do
+        for _, spell in ipairs(cfg.TEST_SURFACE_SPELLS or {}) do
+            if not hasSpell(guid, spell) then
+                local ok, err = pcall(Osi.AddSpell, guid, spell, 0)
+                if ok then
+                    added = added + 1
+                    U.Log("test spell unlocked: %s -> %s", tostring(guid), spell)
+                else
+                    U.Log("test spell unlock failed: %s -> %s (%s)",
+                        tostring(guid), spell, tostring(err))
+                end
+            end
+        end
+    end
+
+    if added > 0 then
+        U.Log("unlocked %d DOS2 surface test spells", added)
+    end
+    return added
+end
+
+local function unlockSoon()
+    if not Ext.Timer or not Ext.Timer.WaitFor then
+        S.UnlockForParty()
+        return
+    end
+    -- Party members may not all be spawned when SessionLoaded fires.
+    for _, delay in ipairs({ 500, 1500, 3000, 6000, 12000 }) do
+        Ext.Timer.WaitFor(delay, function()
+            local ok, err = pcall(S.UnlockForParty)
+            if not ok then U.Log("test spell unlock error: %s", tostring(err)) end
+        end)
+    end
+end
+
+if Ext and Ext.Events and Ext.Events.SessionLoaded then
+    Ext.Events.SessionLoaded:Subscribe(unlockSoon)
+end
+
+if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
+    pcall(Ext.Osiris.RegisterListener, "LevelGameplayStarted", 2, "after", function()
+        local ok, err = pcall(S.UnlockForParty)
+        if not ok then U.Log("test spell unlock (level) error: %s", tostring(err)) end
+    end)
+end

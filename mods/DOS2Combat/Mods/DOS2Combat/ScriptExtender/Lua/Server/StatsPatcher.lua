@@ -92,6 +92,24 @@ local function addAPBoost(stat)
     return U.SafeSet(stat, "DefaultBoosts", current .. boost)
 end
 
+local function addTestSpellUnlocks(stat)
+    local cfg = DOS2C.Config
+    if not cfg.UNLOCK_TEST_SURFACE_SPELLS then return false end
+
+    local current = U.SafeGet(stat, "DefaultBoosts")
+    if type(current) ~= "string" then current = "" end
+    current = current:gsub("%s*;?%s*UnlockSpell%(%s*DOS2C_[%w_]+%s*%)", "")
+    current = current:gsub("^%s*;%s*", ""):gsub("%s*;%s*$", "")
+
+    local parts = {}
+    if current ~= "" then parts[#parts + 1] = current end
+    for _, spell in ipairs(cfg.TEST_SURFACE_SPELLS or {}) do
+        parts[#parts + 1] = "UnlockSpell(" .. spell .. ")"
+    end
+    if #parts == 0 then return false end
+    return U.SafeSet(stat, "DefaultBoosts", table.concat(parts, ";"))
+end
+
 local function patchCharacter(stat)
     local cfg = DOS2C.Config
     local resources = U.SafeGet(stat, "ActionResources")
@@ -125,6 +143,7 @@ local function patchCharacter(stat)
 
     local applied = U.SafeSet(stat, "ActionResources", table.concat(parts, ";"))
     if addAPBoost(stat) then applied = true end
+    if addTestSpellUnlocks(stat) then applied = true end
     return applied
 end
 

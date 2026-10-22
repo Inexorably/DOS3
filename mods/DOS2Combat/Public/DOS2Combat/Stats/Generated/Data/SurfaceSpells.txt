@@ -1,0 +1,44 @@
+-- DOS2 surface-setter test spells.
+-- These reuse BG3-native spells/icons/visuals so they can be tested without
+-- importing DOS2 assets. The internal names are DOS2-flavoured; the display
+-- names/icons are inherited from the BG3 base spell.
+
+new entry "DOS2C_Rain"
+type "SpellData"
+using "Target_CreateWater"
+
+new entry "DOS2C_FossilStrike"
+type "SpellData"
+using "Target_Grease"
+
+new entry "DOS2C_Contamination"
+type "SpellData"
+using "Projectile_ChromaticOrb_Poison"
+
+new entry "DOS2C_Fireball"
+type "SpellData"
+using "Projectile_Fireball"
+
+new entry "DOS2C_GlobalCooling"
+type "SpellData"
+using "Projectile_ChromaticOrb_Cold"
+
+new entry "DOS2C_ElectricDischarge"
+type "SpellData"
+using "Projectile_ChromaticOrb_Lightning"
+
+new entry "DOS2C_Web"
+type "SpellData"
+using "Target_Web"
+
+new entry "DOS2C_SmokeCover"
+type "SpellData"
+using "Target_FogCloud"
+
+new entry "DOS2C_AcidSpray"
+type "SpellData"
+using "Projectile_ChromaticOrb_Acid"
+
+new entry "DOS2C_PoisonCloud"
+type "SpellData"
+using "Target_StinkingCloud"

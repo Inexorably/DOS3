@@ -48,6 +48,21 @@ DOS2C.Config = {
     FLATTEN_WEAPON_DICE = true,  -- weapon Damage/VersatileDamage -> average
 
     -- DOS2 surfaces ---------------------------------------------------------
+    -- Test-only: unlock the DOS2 surface-setter spells on every party member.
+    -- Set this to false for release builds.
+    UNLOCK_TEST_SURFACE_SPELLS = true,
+    TEST_SURFACE_SPELLS = {
+        "DOS2C_Rain",
+        "DOS2C_FossilStrike",
+        "DOS2C_Contamination",
+        "DOS2C_Fireball",
+        "DOS2C_GlobalCooling",
+        "DOS2C_ElectricDischarge",
+        "DOS2C_Web",
+        "DOS2C_SmokeCover",
+        "DOS2C_AcidSpray",
+        "DOS2C_PoisonCloud",
+    },
     SURFACES_ENABLED = true,
     SURFACE_DAMAGE_HP_RATIO = 0.05, -- base tick damage as a fraction of max HP
     SURFACE_STATUS_DURATION = 2,    -- turns
