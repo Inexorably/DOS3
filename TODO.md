@@ -4,6 +4,9 @@
 
 - [x] Spells that recharge on a **short rest** get a **3-turn cooldown**.
 - [x] Spells that recharge on a **long rest** get a **5-turn cooldown**.
+- [x] All non-default spells have a **minimum 1-turn cooldown**.
+- [x] Default attacks (`MainHandAttack`, `OffhandAttack`, `UnarmedAttack`,
+      `WEAPON ATTACK`) remain cooldown-free.
 - [x] Ported DOS2 spells keep their **original DOS2 cooldowns** (Rain 6,
       Fireball 4, Web 1, etc.).
 - [x] BG3-native spells use the BG3-side level/damage rebalancing heuristic
@@ -19,13 +22,15 @@
 - [x] `TurnStarted` is arity 1 in this BG3SE/Osiris build (was registered as 2).
 - [x] Armor now subscribes to `Ext.Events.DealDamage` (the runtime event name)
       instead of the nonexistent `EsvLuaDealDamage` alias.
-- [x] Cooldown clearing writes the valid `Default` enum instead of the invalid
-      empty string that produced thousands of `SetFixedString` errors.
+- [x] Cooldown clearing no longer writes `Default` (invalid for SpellData) or
+      an empty string; it writes `OncePerTurn` only when a native cooldown
+      exists, and the numeric overlay supplies the real duration.
 - [x] Cooldowns hook the one-frame ECS `SpellCastEvent` because Osiris does not
       expose `SpellCast`/`SpellCastFinished` events in this build.
 - [x] AP max is supplied by a runtime `DOS2C_APBoost` passive so existing saves
-      receive 6 max AP; current AP has an `Osi.SetActionResourceAmount`
-      fallback when the ActionResources component shape is unexpected.
+      receive 6 max AP; current AP is re-applied after the passive is added,
+      with resource-id and Osiris setter fallbacks.
+- [x] Client overlay no longer uses the BG3SE-sandboxed `os` library.
 - [ ] `ShortRestFinished` / `LongRestFinished` are not Osiris events in this
       build. Find a working rest event so numeric cooldowns and armor can reset
       on rests; currently they reset on session load only.
