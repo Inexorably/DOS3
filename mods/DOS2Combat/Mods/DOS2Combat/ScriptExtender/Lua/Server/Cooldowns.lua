@@ -455,6 +455,12 @@ end
 
 if Ext and Ext.Events and Ext.Events.SessionLoaded then
     Ext.Events.SessionLoaded:Subscribe(function()
+        -- Cooldown tracking is session-local; stale GUIDs/active counters from
+        -- a previous session must not leak into the new one.
+        active = {}
+        charDefs = {}
+        originals = {}
+
         if not (Ext.Timer and Ext.Timer.WaitFor) then
             C.NormalizeAll()
             return
@@ -473,8 +479,14 @@ if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
     -- the common shapes and let the first matching one deliver the event.
     -- SpellCastFinished is a fallback for AI casts that do not emit SpellCast
     -- through the same path.
-    for _, eventName in ipairs({ "SpellCast", "SpellCastFinished" }) do
-        for _, arity in ipairs({ 9, 6, 5, 4, 3 }) do
+    local eventArities = {
+        -- Current patch: SpellCast is arity 9, SpellCastFinished is arity 3.
+        -- Keep older shapes as compatibility fallbacks.
+        SpellCast = { 9, 6, 5, 4, 3 },
+        SpellCastFinished = { 3, 4, 5, 6, 9 },
+    }
+    for eventName, arities in pairs(eventArities) do
+        for _, arity in ipairs(arities) do
             local ok = pcall(Ext.Osiris.RegisterListener, eventName, arity, "after", C.OnSpellCast)
             U.Log("%s cooldown listener (arity %d) registered: %s",
                 eventName, arity, tostring(ok))
