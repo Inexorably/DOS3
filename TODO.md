@@ -39,9 +39,11 @@ ported `DOS2C_*` spells, while keeping BG3's native surface terrain VFX.
       `scripts/port-dos2-effect.sh <DOS2 effect name>`.
 - [ ] Test loading a converted effect under a BG3 effect UUID. The converted
       file still contains DOS2 material/texture GUIDs, so it will not render
-      correctly until those dependencies are ported or remapped. The effect
-      graphs may be similar, but materials/textures/shaders differ between
-      DE2 and FW4 and may still require re-authoring in the BG3 Toolkit.
+      correctly until those dependencies are ported or remapped. Native BG3
+      effects are LSOF v6 while LSLib emitted v7 for the test conversion, so
+      version compatibility also needs verification. The effect graphs may be
+      similar, but materials/textures/shaders differ between DE2 and FW4 and
+      may still require re-authoring in the BG3 Toolkit.
 - [ ] Port the dependency chain for any reusable effect: `.lsfx` -> materials
       -> textures -> shaders; document which DOS2 shader types have BG3
       equivalents.
