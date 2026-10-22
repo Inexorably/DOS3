@@ -25,6 +25,7 @@ local SLOT_RESOURCES = {
 
 local originalRolls = {}
 local spellCooldowns = {}
+local nativeCooldownInfo = {}
 
 local DAMAGE_FIELDS = {
     "SpellProperties",
@@ -221,6 +222,15 @@ local function portedDamageScale(stat, level)
         math.min(cfg.PORTED_DAMAGE_MAX_SCALE, scale))
 end
 
+local function rememberNativeCooldown(name, stat)
+    if nativeCooldownInfo[name] == nil then
+        nativeCooldownInfo[name] = {
+            Cooldown = U.SafeGet(stat, "Cooldown"),
+            RechargeValues = U.SafeGet(stat, "RechargeValues"),
+        }
+    end
+end
+
 local function cooldownForSpell(name, stat, level, costs, damageScale)
     local cfg = DOS2C.Config
 
@@ -234,7 +244,9 @@ local function cooldownForSpell(name, stat, level, costs, damageScale)
         return 0
     end
 
-    local explicit = U.SafeGet(stat, "Cooldown")
+    local remembered = nativeCooldownInfo[name] or {}
+    local explicit = remembered.Cooldown
+    if explicit == nil then explicit = U.SafeGet(stat, "Cooldown") end
     if type(explicit) == "string" and explicit ~= "" then
         if explicit == "OncePerTurn" or explicit == "OncePerTurnNoRealtime" then
             return cfg.COOLDOWN_ONCE_PER_TURN
@@ -249,7 +261,8 @@ local function cooldownForSpell(name, stat, level, costs, damageScale)
         end
     end
 
-    local recharge = U.SafeGet(stat, "RechargeValues")
+    local recharge = remembered.RechargeValues
+    if recharge == nil then recharge = U.SafeGet(stat, "RechargeValues") end
     if type(recharge) == "string" and recharge ~= "" then
         return cfg.COOLDOWN_SHORT_REST
     end
@@ -284,6 +297,7 @@ local function patchSpell(name, stat)
     local changed = false
 
     local costs = U.SafeGet(stat, "UseCosts")
+    rememberNativeCooldown(name, stat)
     local damageScale = 1
     if cfg.PORTED_DAMAGE_RESCALE and name:match("^DOS2C_") then
         damageScale = portedDamageScale(stat, level)
@@ -292,6 +306,17 @@ local function patchSpell(name, stat)
     spellCooldowns[name] = cooldown
     if DOS2C.Cooldowns then
         DOS2C.Cooldowns.Set(name, cooldown)
+    end
+
+    -- Replace native cast limits with the numeric turn-cooldown overlay.
+    -- Compute the cooldown above before clearing these fields.
+    if cfg.CONVERT_NATIVE_COOLDOWNS then
+        if U.SafeGet(stat, "Cooldown") ~= nil then
+            if U.SafeSet(stat, "Cooldown", "") then changed = true end
+        end
+        if U.SafeGet(stat, "RechargeValues") ~= nil then
+            if U.SafeSet(stat, "RechargeValues", "") then changed = true end
+        end
     end
 
     if type(costs) == "string" and costs ~= "" then

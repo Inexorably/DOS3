@@ -20,24 +20,28 @@ entries; many are shared and some are creature-specific (e.g.
 too, but enemy cooldowns have not been audited separately.
 
 - [ ] Audit enemy/NPC spells and creature-specific variants; identify which
-      ones rely on `Cooldown`, `RechargeValues`, `OncePerCombat`, legendary
-      actions, or no cooldown at all.
-- [x] Interim decision: enemies keep native BG3 cooldowns; the numeric
-      turn-cooldown overlay is gated to party members by
-      `ENEMY_COOLDOWNS_ENABLED = false`.
-- [ ] Preserve encounter-defining enemy abilities: do not convert
-      `RechargeValues`/once-per-combat/legendary actions into long numeric
-      cooldowns that effectively disable them.
+      ones relied on `Cooldown`, `RechargeValues`, `OncePerCombat`, legendary
+      actions, or no cooldown at all, and choose suitable numeric values.
+- [x] Enemies now use the numeric turn-cooldown overlay:
+      `ENEMY_COOLDOWNS_ENABLED = true`.
+- [x] Native cast limits are converted to numeric cooldowns:
+      `Cooldown`/`RechargeValues` are cleared from SpellData, native
+      `SpellBook.CooldownType` is normalized to `Default`, and limited
+      `SpellBookCooldowns` entries are removed on turn start/session load.
+- [x] Numeric cooldowns now expire back to `Default` rather than restoring
+      `OncePerCombat`/`OncePerRest`, so enemies are not limited to a fixed
+      number of casts.
+- [ ] Choose appropriate numeric values for encounter-defining abilities;
+      `RechargeValues` currently maps to the generic 3-turn short-rest
+      cooldown and may need per-spell tuning.
 - [ ] If the same spell needs different cooldowns for players and enemies, add
-      per-character cooldown values. `Cooldowns.lua` now gates application by
-      caster, but `defs` is still keyed by spell name only.
-- [ ] Verify enemy AI behaves correctly with the 4 AP economy and any rebalanced
+      per-character cooldown values. `defs` is still keyed by spell name only.
+- [ ] Verify enemy AI behaves correctly with the 4 AP economy and numeric
       cooldowns.
 - [x] Ensure test surface spells are not unlocked on enemies; `DefaultBoosts`
       no longer receives `UnlockSpell(DOS2C_*)` and old entries are cleaned up.
-- [x] Avoid applying ported DOS2 cooldowns to enemy-only variants unless an
-      explicit DOS2 analogue is mapped; non-party casters currently skip the
-      numeric cooldown overlay entirely.
+- [ ] Verify enemy spellcasts actually produce `SpellCast` events so the
+      numeric cooldown starts; if not, add an AI/cast fallback.
 
 ## Surfaces
 

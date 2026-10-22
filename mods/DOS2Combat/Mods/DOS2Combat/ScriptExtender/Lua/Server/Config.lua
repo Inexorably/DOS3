@@ -42,10 +42,10 @@ DOS2C.Config = {
     COOLDOWN_DAMAGE_BUMP_HIGH_RATIO = 1.5, -- >= 150% -> +2 turns
     COOLDOWN_MAX = 6,
 
-    -- Until enemy/NPC cooldowns are audited, keep enemy-native cooldown
-    -- behaviour and do not apply the numeric turn-cooldown overlay to
-    -- non-party casters.
-    ENEMY_COOLDOWNS_ENABLED = false,
+    -- Enemies can chain-cast on DOS2-style numeric cooldowns instead of
+    -- being limited by OncePerCombat/OncePerRest/RechargeValues.
+    ENEMY_COOLDOWNS_ENABLED = true,
+    CONVERT_NATIVE_COOLDOWNS = true,
 
     -- Original DOS2 cooldowns for ported skills. These are intentionally not
     -- rebalanced; only BG3-native spells use the heuristics above.

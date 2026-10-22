@@ -12,6 +12,7 @@ local C = DOS2C.Cooldowns
 local U = DOS2C.Utils
 
 local ZERO_GUID = "00000000-0000-0000-0000-000000000000"
+local DEFAULT_COOLDOWN_TYPE = "Default"
 local defs = {}       -- spell name -> turns
 local active = {}     -- character guid -> { [spell name] = remaining turns }
 local originals = {}  -- character guid -> { [spell name] = original CooldownType }
@@ -60,6 +61,12 @@ local function spellName(value)
     ok, proto = pcall(function() return value.Id.Prototype end)
     if ok and proto then return tostring(proto) end
     return tostring(value)
+end
+
+local function prototypeOf(spell)
+    local ok, proto = pcall(function() return spell.Id.Prototype end)
+    if ok and proto then return tostring(proto) end
+    return nil
 end
 
 local function findSpell(entity, name)
@@ -197,15 +204,69 @@ end
 local function restoreSpellbookCooldownType(entity, name)
     local guid = U.GuidOf(entity)
     local key = normalize(name)
-    local original = guid and originals[guid] and originals[guid][key]
-    if original == nil then return end
+    if not (guid and originals[guid] and originals[guid][key] ~= nil) then return end
 
     local spell = findSpell(entity, name)
     if spell then
-        pcall(function() spell.CooldownType = original end)
+        -- Do not restore OncePerCombat/OncePerRest/RechargeValues: DOS2-style
+        -- numeric cooldowns replace those limited-use timers permanently.
+        pcall(function() spell.CooldownType = DEFAULT_COOLDOWN_TYPE end)
         pcall(function() entity:Replicate("SpellBook") end)
     end
     originals[guid][key] = nil
+end
+
+local function normalizeSpellbook(entity)
+    local book = entity and entity.SpellBook
+    if not book or not book.Spells then return false end
+
+    local guid = U.GuidOf(entity)
+    local current = guid and active[guid] or nil
+    local changed = false
+    for _, spell in ipairs(book.Spells) do
+        local proto = prototypeOf(spell)
+        local isActive = false
+        if proto and current then
+            local key = normalize(proto)
+            isActive = current[key] ~= nil or current[baseName(key)] ~= nil
+        end
+        if not isActive then
+            local ok, kind = pcall(function() return spell.CooldownType end)
+            if ok and kind ~= nil and kind ~= DEFAULT_COOLDOWN_TYPE then
+                if pcall(function() spell.CooldownType = DEFAULT_COOLDOWN_TYPE end) then
+                    changed = true
+                end
+            end
+        end
+    end
+
+    -- Drop native limited-use cooldown entries; leave our numeric
+    -- UntilShortRest entries and ordinary Default entries intact.
+    local comp = entity.SpellBookCooldowns
+    if comp and comp.Cooldowns then
+        local list = {}
+        local removed = false
+        for i = 1, #comp.Cooldowns do
+            local entry = comp.Cooldowns[i]
+            local kind = entry and entry.CooldownType
+            if kind == "UntilShortRest" or kind == "Default" or kind == nil then
+                list[#list + 1] = entry
+            else
+                removed = true
+            end
+        end
+        if removed then
+            if pcall(function() comp.Cooldowns = list end) then
+                changed = true
+                pcall(function() entity:Replicate("SpellBookCooldowns") end)
+            end
+        end
+    end
+
+    if changed then
+        pcall(function() entity:Replicate("SpellBook") end)
+    end
+    return changed
 end
 
 function C.Set(name, turns)
@@ -254,6 +315,8 @@ function C.OnTurnStarted(handle)
     local guid = U.GuidOf(handle)
     if not entity or not guid then return end
 
+    normalizeSpellbook(entity)
+
     local list = active[guid]
     if not list then return end
 
@@ -286,6 +349,20 @@ local function clearCharacter(entity)
     originals[guid] = nil
 end
 
+function C.NormalizeAll()
+    if not (Ext and Ext.Entity and Ext.Entity.GetAllEntitiesWithComponent) then return end
+    local ok, entities = pcall(Ext.Entity.GetAllEntitiesWithComponent, "SpellBook")
+    if not ok or type(entities) ~= "table" then return end
+
+    local changed = 0
+    for _, entity in ipairs(entities) do
+        if normalizeSpellbook(entity) then changed = changed + 1 end
+    end
+    if changed > 0 then
+        U.Log("normalized native cooldowns on %d characters", changed)
+    end
+end
+
 function C.ReapplyAll()
     if not (Ext and Ext.Entity and Ext.Entity.GetAllEntitiesWithComponent) then return end
     local ok, entities = pcall(Ext.Entity.GetAllEntitiesWithComponent, "SpellBook")
@@ -313,6 +390,21 @@ function C.ClearAll()
     active = {}
     originals = {}
     U.Log("cooldowns cleared")
+end
+
+if Ext and Ext.Events and Ext.Events.SessionLoaded then
+    Ext.Events.SessionLoaded:Subscribe(function()
+        if not (Ext.Timer and Ext.Timer.WaitFor) then
+            C.NormalizeAll()
+            return
+        end
+        for _, delay in ipairs({ 500, 1500, 3000, 6000, 12000 }) do
+            Ext.Timer.WaitFor(delay, function()
+                local ok, err = pcall(C.NormalizeAll)
+                if not ok then U.Log("cooldown normalize error: %s", tostring(err)) end
+            end)
+        end
+    end)
 end
 
 if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
