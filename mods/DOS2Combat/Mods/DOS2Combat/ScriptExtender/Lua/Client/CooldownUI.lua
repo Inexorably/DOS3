@@ -10,7 +10,7 @@ DOS2C.CooldownUI = DOS2C.CooldownUI or {}
 
 local UI = DOS2C.CooldownUI
 local window = nil
-local lastUpdate = 0
+local tickCount = 0
 
 local function nameOf(entry)
     local ok, proto = pcall(function() return entry.SpellId.Prototype end)
@@ -91,10 +91,9 @@ ensureWindow = function()
     return window
 end
 
-local function update()
-    local now = os.time()
-    if now == lastUpdate then return end
-    lastUpdate = now
+local function update(force)
+    tickCount = tickCount + 1
+    if not force and (tickCount % 30) ~= 0 then return end
     local ok, err = pcall(rebuild)
     if not ok and Ext.Utils and Ext.Utils.Print then
         pcall(Ext.Utils.Print, "[DOS2C] cooldown UI error: " .. tostring(err))
@@ -103,7 +102,7 @@ end
 
 if Ext.Events and Ext.Events.SessionLoaded then
     Ext.Events.SessionLoaded:Subscribe(function()
-        update()
+        update(true)
     end)
 end
 
