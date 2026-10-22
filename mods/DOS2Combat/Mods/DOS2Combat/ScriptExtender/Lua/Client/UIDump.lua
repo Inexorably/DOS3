@@ -62,6 +62,31 @@ local function childAt(obj, index, kind)
     return nil
 end
 
+local function dumpProperties(node, path)
+    local ok, props = pcall(function() return node:GetAllProperties() end)
+    if not ok or type(props) ~= "table" then
+        Ext.Log.Print("[DOS2C] UI props " .. path .. ": unavailable")
+        return
+    end
+
+    local shown = 0
+    for key, value in pairs(props) do
+        if shown >= 40 then break end
+        local propName = type(value) == "string" and value or tostring(key)
+        local got, propValue = pcall(function() return node:GetProperty(propName) end)
+        if got then
+            local vt = type(propValue)
+            if vt == "string" or vt == "number" or vt == "boolean" then
+                Ext.Log.Print(string.format("[DOS2C] UI prop %s.%s=%s", path, propName, tostring(propValue)))
+            else
+                Ext.Log.Print(string.format("[DOS2C] UI prop %s.%s=<%s>", path, propName, vt))
+            end
+            shown = shown + 1
+        end
+    end
+    Ext.Log.Print(string.format("[DOS2C] UI props %s: %d shown", path, shown))
+end
+
 local function dumpNode(node, depth, path, budget)
     if not node or budget.count <= 0 then return end
     budget.count = budget.count - 1
@@ -71,6 +96,15 @@ local function dumpNode(node, depth, path, budget)
     if depth <= 14 or n or text then
         Ext.Log.Print(string.format("[DOS2C] UI %s type=%s name=%s text=%s children=%d kind=%s",
             path, t, tostring(n), tostring(text), count, tostring(kind)))
+    end
+
+    local lowerType = tostring(t):lower()
+    local lowerName = tostring(n or ""):lower()
+    if lowerType:find("overhead", 1, true) or lowerType:find("combatant", 1, true)
+        or lowerName:find("overhead", 1, true) or lowerName:find("targetinfo", 1, true)
+        or lowerName:find("portraits", 1, true) or lowerName:find("turnmode", 1, true)
+        or lowerName:find("hotbar", 1, true) then
+        dumpProperties(node, path)
     end
 
     for i = 1, count do

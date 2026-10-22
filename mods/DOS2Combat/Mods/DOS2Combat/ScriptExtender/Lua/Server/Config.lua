@@ -41,6 +41,7 @@ DOS2C.Config = {
     COOLDOWN_DAMAGE_BUMP_RATIO = 0.80,   -- >= 80% of baseline HP -> +1 turn
     COOLDOWN_DAMAGE_BUMP_HIGH_RATIO = 1.5, -- >= 150% -> +2 turns
     COOLDOWN_MAX = 6,
+    OUT_OF_COMBAT_TURN_SECONDS = 6, -- DOS2: 1 turn-based turn == 6 seconds
 
     -- Enemies can chain-cast on DOS2-style numeric cooldowns instead of
     -- being limited by OncePerCombat/OncePerRest/RechargeValues.

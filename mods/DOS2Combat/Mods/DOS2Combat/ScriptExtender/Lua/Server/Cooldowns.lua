@@ -340,6 +340,7 @@ function C.Apply(handle, name, turns)
 
     active[guid] = active[guid] or {}
     active[guid][normalize(name)] = turns
+    outOfCombatSeconds[guid] = 0
 
     setNativeCooldown(entity, name, turns)
     setSpellbookCooldownType(entity, name, "UntilShortRest")
@@ -374,6 +375,7 @@ function C.OnTurnStarted(handle)
     local guid = U.GuidOf(handle)
     if not entity or not guid then return end
 
+    outOfCombatSeconds[guid] = 0
     normalizeSpellbook(entity)
 
     local list = active[guid]
@@ -394,6 +396,55 @@ function C.OnTurnStarted(handle)
     end
 end
 
+local function inCombat(guid)
+    if not (Osi and Osi.IsInCombat) then return false end
+    local ok, result = pcall(Osi.IsInCombat, guid)
+    if not ok or result == nil then return false end
+    return result == 1 or result == true
+end
+
+-- DOS2 out-of-combat cooldowns advance in real time: one turn-based turn is
+-- six seconds. The native cooldown entry still displays as "Short rest" in the
+-- BG3 tooltip until this ticker clears it.
+local function tickOutOfCombat()
+    local cfg = DOS2C.Config
+    local secondsPerTurn = tonumber(cfg.OUT_OF_COMBAT_TURN_SECONDS) or 6
+
+    for guid in pairs(active) do
+        if inCombat(guid) then
+            outOfCombatSeconds[guid] = 0
+        else
+            local elapsed = (outOfCombatSeconds[guid] or 0) + 1
+            if elapsed >= secondsPerTurn then
+                elapsed = 0
+                local entity = Ext.Entity.Get(guid)
+                local list = active[guid]
+                if entity and list then
+                    for name, remaining in pairs(list) do
+                        remaining = remaining - 1
+                        if remaining <= 0 then
+                            list[name] = nil
+                            clearNativeCooldown(entity, name)
+                            restoreSpellbookCooldownType(entity, name)
+                            U.Log("out-of-combat cooldown expired: %s", tostring(name))
+                        else
+                            list[name] = remaining
+                            setNativeCooldown(entity, name, remaining)
+                            U.Log("out-of-combat cooldown tick: %s %d turns left",
+                                tostring(name), remaining)
+                        end
+                    end
+                end
+            end
+            outOfCombatSeconds[guid] = elapsed
+        end
+    end
+
+    if Ext.Timer and Ext.Timer.WaitFor then
+        Ext.Timer.WaitFor(1000, tickOutOfCombat)
+    end
+end
+
 local function clearCharacter(entity)
     local guid = U.GuidOf(entity)
     if not guid then return end
@@ -405,6 +456,7 @@ local function clearCharacter(entity)
         end
     end
     active[guid] = nil
+    outOfCombatSeconds[guid] = nil
     charDefs[guid] = nil
     originals[guid] = nil
 end
@@ -458,6 +510,7 @@ if Ext and Ext.Events and Ext.Events.SessionLoaded then
         -- Cooldown tracking is session-local; stale GUIDs/active counters from
         -- a previous session must not leak into the new one.
         active = {}
+        outOfCombatSeconds = {}
         charDefs = {}
         originals = {}
 
@@ -516,4 +569,9 @@ if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
     -- BG3SE in this build does not expose ShortRestFinished/LongRestFinished
     -- as Osiris events. Rest-based cooldown clearing is pending a working
     -- rest event; SessionLoaded still resets session state.
+end
+
+
+if Ext.Timer and Ext.Timer.WaitFor then
+    Ext.Timer.WaitFor(1000, tickOutOfCombat)
 end

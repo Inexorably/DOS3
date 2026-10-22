@@ -6,56 +6,57 @@ data "Boosts" "ActionResource(ActionPoint,5,0)"
 
 -- DOS2 surface-setter test spells.
 -- These reuse BG3-native spell mechanics/visual effects so they can be tested.
--- Their icons are ported from the DOS2 skill icon atlas (see
--- Public/Shared/Assets/Textures/Icons/Icons_Skills.dds + GUI/Icons_Skills.lsx).
+-- Icons currently use known BG3 atlas keys so the test spells always render.
+-- The custom DOS2 icon atlas entries can be restored after verifying that the
+-- shared atlas override loads correctly.
 -- Display names are inherited from the BG3 base spell.
 
 new entry "DOS2C_Rain"
 type "SpellData"
 using "Target_CreateWater"
-data "Icon" "DOS2C_Rain"
+data "Icon" "Spell_Transmutation_CreateWater"
 
 new entry "DOS2C_FossilStrike"
 type "SpellData"
 using "Target_Grease"
-data "Icon" "DOS2C_FossilStrike"
+data "Icon" "Spell_Conjuration_Grease"
 
 new entry "DOS2C_Contamination"
 type "SpellData"
 using "Projectile_ChromaticOrb_Poison"
-data "Icon" "DOS2C_Contamination"
+data "Icon" "Spell_Conjuration_AcidSplash"
 
 new entry "DOS2C_Fireball"
 type "SpellData"
 using "Projectile_Fireball"
-data "Icon" "DOS2C_Fireball"
+data "Icon" "Spell_Evocation_Fireball"
 
 new entry "DOS2C_GlobalCooling"
 type "SpellData"
 using "Projectile_ChromaticOrb_Cold"
-data "Icon" "DOS2C_GlobalCooling"
+data "Icon" "Spell_Evocation_ChromaticOrb_Cold"
 
 new entry "DOS2C_ElectricDischarge"
 type "SpellData"
 using "Projectile_ChromaticOrb_Lightning"
-data "Icon" "DOS2C_ElectricDischarge"
+data "Icon" "Spell_Evocation_ChromaticOrb_Lightning"
 
 new entry "DOS2C_Web"
 type "SpellData"
 using "Target_Web"
-data "Icon" "DOS2C_Web"
+data "Icon" "Spell_Conjuration_Web"
 
 new entry "DOS2C_SmokeCover"
 type "SpellData"
 using "Target_FogCloud"
-data "Icon" "DOS2C_SmokeCover"
+data "Icon" "Spell_Conjuration_FogCloud"
 
 new entry "DOS2C_AcidSpray"
 type "SpellData"
 using "Projectile_ChromaticOrb_Acid"
-data "Icon" "DOS2C_AcidSpray"
+data "Icon" "Spell_Conjuration_AcidSplash"
 
 new entry "DOS2C_PoisonCloud"
 type "SpellData"
 using "Target_StinkingCloud"
-data "Icon" "DOS2C_PoisonCloud"
+data "Icon" "Spell_Conjuration_PoisonSpray"
