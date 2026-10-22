@@ -1,20 +1,21 @@
 -- DOS2 Combat Overhaul - tunables.
--- Everything here is safe to edit; reload the save (or use !dos2c_patch) after
--- changing stats-related values.
+-- Everything here is safe to edit; reload the save after changing
+-- stats-related values.
 
 DOS2C = DOS2C or {}
 
 DOS2C.Config = {
     -- Action point economy -------------------------------------------------
-    AP_MAX = 4,                  -- DOS2 starts with 4 AP and caps at 6 later
-    AP_START = 4,
+    AP_MAX = 6,                  -- DOS2 caps at 6 AP
+    AP_START = 4,                -- combat starts with 4 AP
+    AP_REGEN = 4,                -- each turn grants 4 AP, capped at AP_MAX
     -- BG3 may clamp the ActionPoint resource to 1 when set only via
     -- ActionResources. Haste grants extra actions through the
     -- ActionResource(ActionPoint,N,0) boost, so we use the same mechanism:
     -- base 1 + AP_BOOST_AMOUNT = AP_MAX.
     AP_BASE = 1,
     USE_AP_BOOST = true,
-    AP_BOOST_AMOUNT = 3,
+    AP_BOOST_AMOUNT = 5,
     REMOVE_BONUS_ACTIONS = true, -- convert BonusActionPoint costs to ActionPoint
     BASIC_ATTACK_COST = 2,       -- DOS2 basic attack is 2 AP
     -- Indexed by spell Level (0..9). Level 0 is a cantrip.
@@ -22,11 +23,21 @@ DOS2C.Config = {
     KEEP_CLASS_RESOURCES = true, -- keep Rage/Ki/SuperiorityDie/etc. costs
     REMOVE_SPELL_SLOTS = true,   -- DOS2 has no per-rest spell slots
 
+    -- TODO: cooldowns are not implemented yet.
+    -- SpellData cooldown sources should be inspected; short-rest recharge
+    -- spells get a 3-turn cooldown, long-rest recharge spells get 5 turns.
+    COOLDOWN_SHORT_REST = 3,
+    COOLDOWN_LONG_REST = 5,
+
     -- Determinism ----------------------------------------------------------
     REMOVE_ATTACK_ROLLS = true,  -- empty SpellRoll => auto-hit
     REMOVE_SAVING_THROWS = true, -- empty SpellRoll => no save
     FLATTEN_DAMAGE_DICE = true,  -- 8d6 -> 28, 1d4+1 -> 3
     FLATTEN_WEAPON_DICE = true,  -- weapon Damage/VersatileDamage -> average
+
+    -- Movement (TODO: not wired to BG3's native Movement resource yet) -----
+    MOVEMENT_AP_ENABLED = false,
+    MOVEMENT_UNITS_PER_AP = 5,   -- DOS2: 1 AP per 5 units of distance
 
     -- Armor ----------------------------------------------------------------
     ARMOR_ENABLED = true,

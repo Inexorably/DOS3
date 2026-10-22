@@ -78,14 +78,16 @@ local function addAPBoost(stat)
     local cfg = DOS2C.Config
     if not cfg.USE_AP_BOOST or cfg.AP_BOOST_AMOUNT <= 0 then return false end
 
-    local boost = string.format("ActionResource(ActionPoint,%d,0)", cfg.AP_BOOST_AMOUNT)
     local current = U.SafeGet(stat, "DefaultBoosts")
     if type(current) ~= "string" then current = "" end
-    if current:find(boost, 1, true) then return false end
 
-    if current ~= "" and not current:match(";%s*$") then
-        current = current .. ";"
-    end
+    -- Remove any ActionPoint boost from a previous pass, otherwise changing
+    -- AP_BOOST_AMOUNT would stack (eg. +3 then +5 => +8).
+    current = current:gsub("%s*;?%s*ActionResource%(%s*ActionPoint%s*,%s*%d+%s*,%s*%d+%s*%)", "")
+    current = current:gsub("^%s*;%s*", ""):gsub("%s*;%s*$", "")
+
+    local boost = string.format("ActionResource(ActionPoint,%d,0)", cfg.AP_BOOST_AMOUNT)
+    if current ~= "" then current = current .. ";" end
     return U.SafeSet(stat, "DefaultBoosts", current .. boost)
 end
 
@@ -251,14 +253,12 @@ local function isInCombat(entity)
     return result == 1 or result == true
 end
 
-local function patchEntityAP(entity, refill)
-    local ar = entity and entity.ActionResources
-    if not ar or not ar.Resources then return false end
+local turnStates = {}
+local sessionInitialized = {}
 
-    local maxAP = DOS2C.Config.AP_MAX
-    local inCombat = isInCombat(entity)
-    local mayRefill = refill or inCombat == false
-    local touched = false
+local function apEntriesOf(entity)
+    local ar = entity and entity.ActionResources
+    if not ar or not ar.Resources then return nil end
 
     for key, entries in pairs(ar.Resources) do
         local isAP = guidMatches(key, AP_RESOURCE_UUID)
@@ -270,20 +270,31 @@ local function patchEntityAP(entity, refill)
                 end
             end
         end
+        if isAP and type(entries) == "table" then return entries end
+    end
+    return nil
+end
 
-        if isAP and type(entries) == "table" then
-            for _, entry in ipairs(entries) do
-                local currentMax = tonumber(entry.MaxAmount) or 0
-                local currentAmount = tonumber(entry.Amount) or 0
-                if currentMax < maxAP then
-                    entry.MaxAmount = maxAP
-                    touched = true
-                end
-                if mayRefill and currentAmount < maxAP then
-                    entry.Amount = maxAP
-                    touched = true
-                end
-            end
+local function setAP(entity, amount, maxAmount)
+    local entries = apEntriesOf(entity)
+    if not entries then return false end
+
+    local maxAP = maxAmount or DOS2C.Config.AP_MAX
+    local touched = false
+    for _, entry in ipairs(entries) do
+        local currentMax = tonumber(entry.MaxAmount) or 0
+        local currentAmount = tonumber(entry.Amount) or 0
+        local targetAmount = amount
+        if targetAmount == nil then targetAmount = currentAmount end
+        targetAmount = math.max(0, math.min(maxAP, targetAmount))
+
+        if currentMax ~= maxAP then
+            entry.MaxAmount = maxAP
+            touched = true
+        end
+        if currentAmount ~= targetAmount then
+            entry.Amount = targetAmount
+            touched = true
         end
     end
 
@@ -293,11 +304,47 @@ local function patchEntityAP(entity, refill)
     return touched
 end
 
--- Raise the ActionPoint max on every character. When refill is true (session
--- load / explicit fix), also refill the current AP. During combat the
--- watchdog only raises the cap so it never refunds AP that was just spent.
-function S.PatchRuntimeAP(refill)
-    if refill == nil then refill = true end
+-- mode:
+--   "start" - session load: max 6, current 4
+--   "cap"   - watchdog: max 6; refill to 4 only outside combat
+--   "full"  - debug: max and current 6
+local function patchEntityAP(entity, mode)
+    mode = mode or "cap"
+    local entries = apEntriesOf(entity)
+    if not entries then return false end
+
+    local cfg = DOS2C.Config
+    local current = tonumber(entries[1] and entries[1].Amount) or 0
+    local target = current
+
+    if mode == "init" then
+        local guid = entityGuid(entity)
+        if guid and sessionInitialized[guid] then
+            -- Already initialized this session; don't refill mid-combat.
+            return setAP(entity, nil, cfg.AP_MAX)
+        end
+        if guid then sessionInitialized[guid] = true end
+        target = cfg.AP_START
+    elseif mode == "start" then
+        target = cfg.AP_START
+    elseif mode == "full" then
+        target = cfg.AP_MAX
+    elseif mode == "cap" then
+        local inCombat = isInCombat(entity)
+        if inCombat == false then
+            target = cfg.AP_START
+            local guid = entityGuid(entity)
+            if guid then turnStates[guid] = nil end
+        elseif current > cfg.AP_MAX then
+            target = cfg.AP_MAX
+        end
+    end
+
+    return setAP(entity, target, cfg.AP_MAX)
+end
+
+function S.PatchRuntimeAP(mode)
+    mode = mode or "init"
     if not (Ext and Ext.Entity and Ext.Entity.GetAllEntitiesWithComponent) then
         return 0
     end
@@ -307,26 +354,64 @@ function S.PatchRuntimeAP(refill)
 
     local changed = 0
     for _, entity in ipairs(entities) do
-        if patchEntityAP(entity, refill) then changed = changed + 1 end
+        if patchEntityAP(entity, mode) then changed = changed + 1 end
     end
 
     if changed > 0 then
-        U.Log("runtime AP patch: %d entities set to %d", changed, DOS2C.Config.AP_MAX)
+        U.Log("runtime AP patch (%s): %d entities, AP start=%d max=%d",
+            mode, changed, DOS2C.Config.AP_START, DOS2C.Config.AP_MAX)
     end
     return changed
 end
 
--- Called by the Osiris TurnStarted listener so each combatant gets their full
--- AP pool at the start of their own turn, even if the engine's normal
--- replenish path does not honour the component max.
-function S.PatchRuntimeAPFor(handle, refill)
+function S.PatchRuntimeAPFor(handle, mode)
     local entity = U.EntityOf(handle)
     if not entity then return false end
-    local changed = patchEntityAP(entity, refill ~= false)
-    if changed then
-        U.Log("turn AP refill: %s", tostring(U.GuidOf(handle)))
+    return patchEntityAP(entity, mode or "cap")
+end
+
+-- DOS2 turn economy: first turn of combat starts at 4 AP; each following turn
+-- grants AP_REGEN (4), capped at AP_MAX (6). Unused AP therefore carries over
+-- by at most two points.
+function S.OnTurnStarted(handle)
+    local entity = U.EntityOf(handle)
+    if not entity then return end
+
+    local guid = U.GuidOf(handle)
+    local entries = apEntriesOf(entity)
+    if not entries then return end
+
+    local cfg = DOS2C.Config
+    local state = guid and turnStates[guid] or nil
+    local target
+
+    if not state or not state.inCombat then
+        target = cfg.AP_START
+        state = { inCombat = true, lastAP = target }
+        if guid then turnStates[guid] = state end
+    else
+        local base = state.lastAP or (tonumber(entries[1].Amount) or 0)
+        target = math.min(cfg.AP_MAX, base + cfg.AP_REGEN)
+        state.inCombat = true
+        state.lastAP = target
     end
-    return changed
+
+    setAP(entity, target, cfg.AP_MAX)
+    U.Log("turn start: %s AP=%d/%d", tostring(guid), target, cfg.AP_MAX)
+end
+
+function S.OnTurnEnded(handle)
+    local entity = U.EntityOf(handle)
+    local guid = U.GuidOf(handle)
+    if not entity or not guid then return end
+
+    local entries = apEntriesOf(entity)
+    if not entries then return end
+
+    local state = turnStates[guid] or { inCombat = true }
+    state.inCombat = true
+    state.lastAP = tonumber(entries[1].Amount) or 0
+    turnStates[guid] = state
 end
 
 function S.RestoreRolls(runtime)
@@ -393,7 +478,7 @@ local function startAPWatchdog()
     end
 
     local function tick()
-        local ok, err = pcall(S.PatchRuntimeAP, false)
+        local ok, err = pcall(S.PatchRuntimeAP, "cap")
         if not ok then U.Log("AP watchdog error: %s", tostring(err)) end
         watchdogTimer = Ext.Timer.WaitFor(10000, tick)
     end
@@ -403,14 +488,22 @@ end
 
 if Ext.Osiris and Ext.Osiris.RegisterListener then
     pcall(Ext.Osiris.RegisterListener, "TurnStarted", 2, "after", function(character, combat)
-        local ok, err = pcall(S.PatchRuntimeAPFor, character, true)
-        if not ok then U.Log("TurnStarted AP patch error: %s", tostring(err)) end
+        local ok, err = pcall(S.OnTurnStarted, character)
+        if not ok then U.Log("TurnStarted AP error: %s", tostring(err)) end
+    end)
+
+    pcall(Ext.Osiris.RegisterListener, "TurnEnded", 2, "after", function(character, combat)
+        local ok, err = pcall(S.OnTurnEnded, character)
+        if not ok then U.Log("TurnEnded AP error: %s", tostring(err)) end
     end)
 end
 
 if Ext.Events and Ext.Events.SessionLoaded then
     Ext.Events.SessionLoaded:Subscribe(function()
-        U.Log("session loaded: applying DOS2 rules (AP target=%d)", DOS2C.Config.AP_MAX)
+        turnStates = {}
+        sessionInitialized = {}
+        U.Log("session loaded: applying DOS2 rules (AP start=%d max=%d regen=%d)",
+            DOS2C.Config.AP_START, DOS2C.Config.AP_MAX, DOS2C.Config.AP_REGEN)
         if not S.Patched then
             S.PatchAll(true)
         end
@@ -422,13 +515,13 @@ if Ext.Events and Ext.Events.SessionLoaded then
         if Ext.Timer and Ext.Timer.WaitFor then
             for _, delay in ipairs({ 500, 1500, 3000, 6000, 12000 }) do
                 Ext.Timer.WaitFor(delay, function()
-                    local ok, err = pcall(S.PatchRuntimeAP, true)
+                    local ok, err = pcall(S.PatchRuntimeAP, "init")
                     if not ok then U.Log("runtime AP patch error: %s", tostring(err)) end
                 end)
             end
             startAPWatchdog()
         else
-            pcall(S.PatchRuntimeAP, true)
+            pcall(S.PatchRuntimeAP, "init")
         end
     end)
 end

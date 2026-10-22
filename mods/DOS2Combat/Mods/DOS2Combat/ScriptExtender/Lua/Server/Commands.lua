@@ -75,12 +75,12 @@ end)
 register("dos2c_patch", function()
     DOS2C.Stats.Patched = false
     DOS2C.Stats.PatchAll(true)
-    local fixed = DOS2C.Stats.PatchRuntimeAP()
+    local fixed = DOS2C.Stats.PatchRuntimeAP("start")
     printLine(string.format("[DOS2C] stat patch pass complete; runtime AP fixed on %d entities", fixed))
 end)
 
 register("dos2c_fixap", function()
-    local fixed = DOS2C.Stats.PatchRuntimeAP()
+    local fixed = DOS2C.Stats.PatchRuntimeAP("start")
     printLine(string.format("[DOS2C] runtime AP fixed on %d entities", fixed))
 end)
 
@@ -125,8 +125,8 @@ end)
 register("dos2c_status", function()
     local cfg = DOS2C.Config
     printLine(string.format(
-        "[DOS2C] AP max=%d basic=%d remove bonus=%s slots=%s rolls=%s flatten=%s armor=%s ccgate=%s patched=%s debug=%s",
-        cfg.AP_MAX, cfg.BASIC_ATTACK_COST, tostring(cfg.REMOVE_BONUS_ACTIONS),
+        "[DOS2C] AP start=%d max=%d regen=%d basic=%d remove bonus=%s slots=%s rolls=%s flatten=%s armor=%s ccgate=%s patched=%s debug=%s",
+        cfg.AP_START, cfg.AP_MAX, cfg.AP_REGEN, cfg.BASIC_ATTACK_COST, tostring(cfg.REMOVE_BONUS_ACTIONS),
         tostring(cfg.REMOVE_SPELL_SLOTS), tostring(cfg.REMOVE_ATTACK_ROLLS),
         tostring(cfg.FLATTEN_DAMAGE_DICE), tostring(cfg.ARMOR_ENABLED),
         tostring(cfg.ARMOR_CC_GATING), tostring(DOS2C.Stats.Patched),
