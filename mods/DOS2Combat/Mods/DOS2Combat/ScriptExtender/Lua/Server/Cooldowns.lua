@@ -481,6 +481,7 @@ if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
     -- through the same path.
     -- Osiris does not expose SpellCast/SpellCastFinished in this build.
     -- The one-frame ECS SpellCastEvent component is the reliable hook.
+    local loggedCastEvent = false
     local function onSpellCastEntity(entity)
         local comp = entity and entity.SpellCastEvent
         local hit = comp and comp.Hit
@@ -490,6 +491,11 @@ if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
         local caster = hit.InflicterOwner or hit.Inflicter
             or (entity.Uuid and entity.Uuid.EntityUuid)
         if not caster then return end
+
+        if not loggedCastEvent then
+            loggedCastEvent = true
+            U.Log("SpellCastEvent: caster=%s spell=%s", tostring(caster), tostring(spell))
+        end
 
         local ok, err = pcall(C.OnSpellCast, caster, spell)
         if not ok then U.Log("spell cast cooldown error: %s", tostring(err)) end
