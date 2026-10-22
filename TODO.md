@@ -165,6 +165,10 @@ Known DOS2 visual references for the current test spells:
 
 - [ ] Add a party/character armor readout to the stat screen or a client
       overlay: `Physical resist` and `Magic resist`.
+- [ ] Enemy armor must be visible too; a party-only panel is insufficient.
+      Prefer the native overhead HP label or enemy examine tooltip.
+- [ ] Probe the Noesis overhead HP control tree in-game and map character
+      entities to their overhead labels.
 - [ ] Add above-character combat labels for physical/magic resistance.
       BG3SE does not expose a simple world-to-screen helper, so this likely
       requires Noesis UI injection or camera-projection math and needs an
