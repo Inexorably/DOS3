@@ -1,44 +1,55 @@
 -- DOS2 surface-setter test spells.
--- These reuse BG3-native spells/icons/visuals so they can be tested without
--- importing DOS2 assets. The internal names are DOS2-flavoured; the display
--- names/icons are inherited from the BG3 base spell.
+-- These reuse BG3-native spell mechanics/visual effects so they can be tested.
+-- Their icons are ported from the DOS2 skill icon atlas (see
+-- Public/Shared/Assets/Textures/Icons/Icons_Skills.dds + GUI/Icons_Skills.lsx).
+-- Display names are inherited from the BG3 base spell.
 
 new entry "DOS2C_Rain"
 type "SpellData"
 using "Target_CreateWater"
+data "Icon" "DOS2C_Rain"
 
 new entry "DOS2C_FossilStrike"
 type "SpellData"
 using "Target_Grease"
+data "Icon" "DOS2C_FossilStrike"
 
 new entry "DOS2C_Contamination"
 type "SpellData"
 using "Projectile_ChromaticOrb_Poison"
+data "Icon" "DOS2C_Contamination"
 
 new entry "DOS2C_Fireball"
 type "SpellData"
 using "Projectile_Fireball"
+data "Icon" "DOS2C_Fireball"
 
 new entry "DOS2C_GlobalCooling"
 type "SpellData"
 using "Projectile_ChromaticOrb_Cold"
+data "Icon" "DOS2C_GlobalCooling"
 
 new entry "DOS2C_ElectricDischarge"
 type "SpellData"
 using "Projectile_ChromaticOrb_Lightning"
+data "Icon" "DOS2C_ElectricDischarge"
 
 new entry "DOS2C_Web"
 type "SpellData"
 using "Target_Web"
+data "Icon" "DOS2C_Web"
 
 new entry "DOS2C_SmokeCover"
 type "SpellData"
 using "Target_FogCloud"
+data "Icon" "DOS2C_SmokeCover"
 
 new entry "DOS2C_AcidSpray"
 type "SpellData"
 using "Projectile_ChromaticOrb_Acid"
+data "Icon" "DOS2C_AcidSpray"
 
 new entry "DOS2C_PoisonCloud"
 type "SpellData"
 using "Target_StinkingCloud"
+data "Icon" "DOS2C_PoisonCloud"

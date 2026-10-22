@@ -216,7 +216,19 @@ local function hasSurfaceEffect(stat)
     return false
 end
 
-local function cooldownForSpell(name, stat, level, costs)
+local function portedDamageScale(stat, level)
+    local cfg = DOS2C.Config
+    local damage = estimateDamage(stat)
+    if damage <= 0 then return 1 end
+
+    local hp = cfg.COOLDOWN_HP_BY_LEVEL[level + 1] or 15
+    local target = hp * cfg.PORTED_DAMAGE_HP_RATIO
+    local scale = target / damage
+    return math.max(cfg.PORTED_DAMAGE_MIN_SCALE,
+        math.min(cfg.PORTED_DAMAGE_MAX_SCALE, scale))
+end
+
+local function cooldownForSpell(name, stat, level, costs, damageScale)
     local cfg = DOS2C.Config
 
     if isWeaponAttack(name) then return 0 end
@@ -250,7 +262,7 @@ local function cooldownForSpell(name, stat, level, costs)
 
     local base = cfg.COOLDOWN_BY_LEVEL[level + 1] or 3
     local hp = cfg.COOLDOWN_HP_BY_LEVEL[level + 1] or 15
-    local damage = estimateDamage(stat)
+    local damage = estimateDamage(stat) * (damageScale or 1)
     if hp > 0 and damage > 0 then
         local ratio = damage / hp
         if ratio >= cfg.COOLDOWN_DAMAGE_BUMP_HIGH_RATIO then
@@ -274,7 +286,11 @@ local function patchSpell(name, stat)
     local changed = false
 
     local costs = U.SafeGet(stat, "UseCosts")
-    local cooldown = cooldownForSpell(name, stat, level, costs)
+    local damageScale = 1
+    if cfg.PORTED_DAMAGE_RESCALE and name:match("^DOS2C_") then
+        damageScale = portedDamageScale(stat, level)
+    end
+    local cooldown = cooldownForSpell(name, stat, level, costs, damageScale)
     spellCooldowns[name] = cooldown
     if DOS2C.Cooldowns then
         DOS2C.Cooldowns.Set(name, cooldown)
@@ -325,6 +341,20 @@ local function patchSpell(name, stat)
         for _, field in ipairs(DAMAGE_FIELDS) do
             changed = flattenField(stat, field, changed)
         end
+    end
+
+    if damageScale ~= 1 then
+        for _, field in ipairs({ "SpellProperties", "SpellSuccess", "SpellFail",
+            "TooltipDamageList", "DescriptionParams", "Damage" }) do
+            local value = U.SafeGet(stat, field)
+            if type(value) == "string" and value ~= "" then
+                local scaled = U.ScaleDealDamage(value, damageScale)
+                if scaled ~= value and U.SafeSet(stat, field, scaled) then
+                    changed = true
+                end
+            end
+        end
+        U.Log("ported damage scale: %s x%.3f", tostring(name), damageScale)
     end
 
     return changed

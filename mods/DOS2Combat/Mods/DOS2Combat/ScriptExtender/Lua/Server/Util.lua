@@ -219,3 +219,20 @@ function U.MaxDiceAverage(value)
     end
     return best
 end
+
+-- Rescale the first numeric argument of DealDamage(...) calls. Used only for
+-- ported DOS2 spells; native BG3 spells are left untouched.
+function U.ScaleDealDamage(value, scale)
+    if type(value) ~= "string" or value == "" or not scale or scale == 1 then
+        return value
+    end
+    local ok, out = pcall(function()
+        return (value:gsub("DealDamage%(%s*(%d+)", function(raw)
+            local n = tonumber(raw) or 0
+            local scaled = math.max(1, math.floor(n * scale + 0.5))
+            return "DealDamage(" .. tostring(scaled)
+        end))
+    end)
+    if ok then return out end
+    return value
+end

@@ -41,6 +41,15 @@ DOS2C.Config = {
     COOLDOWN_DAMAGE_BUMP_HIGH_RATIO = 1.5, -- >= 150% -> +2 turns
     COOLDOWN_MAX = 6,
 
+    -- Ported DOS2 damage spells ---------------------------------------------
+    -- DOS2 spells deal a much smaller fraction of character HP than BG3
+    -- spells do. Ported damage is rescaled toward this fraction of the
+    -- baseline HP for the spell's level.
+    PORTED_DAMAGE_RESCALE = true,
+    PORTED_DAMAGE_HP_RATIO = 0.30,
+    PORTED_DAMAGE_MIN_SCALE = 0.10,
+    PORTED_DAMAGE_MAX_SCALE = 1.00,
+
     -- Determinism ----------------------------------------------------------
     REMOVE_ATTACK_ROLLS = true,  -- empty SpellRoll => auto-hit
     REMOVE_SAVING_THROWS = true, -- empty SpellRoll => no save
