@@ -55,6 +55,17 @@ local function baseName(name)
     return normalize(name):gsub("_%d+$", "")
 end
 
+local function namesMatch(a, b)
+    local na, nb = normalize(a), normalize(b)
+    if na == "" or nb == "" then return false end
+    if na == nb or baseName(na) == baseName(nb) then return true end
+
+    -- Creature variants often append a suffix to the shared spell name
+    -- (Projectile_FireBolt -> Projectile_FireBolt_Goblin).
+    local ba, bb = baseName(na), baseName(nb)
+    return ba:find(bb, 1, true) == 1 or bb:find(ba, 1, true) == 1
+end
+
 local function spellName(value)
     if type(value) == "string" then return value end
     local ok, proto = pcall(function() return value.Prototype end)
@@ -80,7 +91,8 @@ local function findSpell(entity, name)
         local id = spell.Id
         if id and id.Prototype then
             local proto = normalize(id.Prototype)
-            if proto == target or baseName(proto) == targetBase then
+            if proto == target or baseName(proto) == targetBase
+                or namesMatch(proto, target) then
                 return spell
             end
         end
@@ -119,8 +131,7 @@ end
 local function entryMatches(entry, name)
     local id = entry and entry.SpellId
     if not id or not id.Prototype then return false end
-    return normalize(id.Prototype) == normalize(name)
-        or baseName(id.Prototype) == baseName(name)
+    return namesMatch(id.Prototype, name)
 end
 
 local function setNativeCooldown(entity, name, turns)
@@ -254,8 +265,12 @@ local function normalizeSpellbook(entity)
             if current and entry and entry.SpellId then
                 local ok, proto = pcall(function() return entry.SpellId.Prototype end)
                 if ok and proto then
-                    local key = normalize(proto)
-                    entryActive = current[key] ~= nil or current[baseName(key)] ~= nil
+                    for activeName in pairs(current) do
+                        if namesMatch(proto, activeName) then
+                            entryActive = true
+                            break
+                        end
+                    end
                 end
             end
             if kind == "Default" or kind == nil or entryActive then
