@@ -61,9 +61,15 @@ local function namesMatch(a, b)
     if na == nb or baseName(na) == baseName(nb) then return true end
 
     -- Creature variants often append a suffix to the shared spell name
-    -- (Projectile_FireBolt -> Projectile_FireBolt_Goblin).
+    -- (Projectile_FireBolt -> Projectile_FireBolt_Goblin). Only match at an
+    -- underscore boundary so short names like Fire do not match Fireball.
     local ba, bb = baseName(na), baseName(nb)
-    return ba:find(bb, 1, true) == 1 or bb:find(ba, 1, true) == 1
+    local function prefixAtBoundary(short, long)
+        if long:sub(1, #short) ~= short then return false end
+        local nextChar = long:sub(#short + 1, #short + 1)
+        return nextChar == "" or nextChar == "_"
+    end
+    return prefixAtBoundary(bb, ba) or prefixAtBoundary(ba, bb)
 end
 
 local function spellName(value)
