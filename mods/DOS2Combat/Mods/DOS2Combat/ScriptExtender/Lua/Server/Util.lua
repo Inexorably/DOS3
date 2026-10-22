@@ -11,7 +11,9 @@ function U.Log(fmt, ...)
     local ok, msg = pcall(string.format, fmt, ...)
     if not ok then msg = tostring(fmt) end
     local line = (cfg.LOG_PREFIX or "[DOS2C]") .. " " .. msg
-    if Ext and Ext.Utils and Ext.Utils.Print then
+    if Ext and Ext.Log and Ext.Log.Print then
+        pcall(Ext.Log.Print, line)
+    elseif Ext and Ext.Utils and Ext.Utils.Print then
         pcall(Ext.Utils.Print, line)
     else
         print(line)

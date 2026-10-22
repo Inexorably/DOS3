@@ -36,4 +36,25 @@ if [[ ! -f "$TMP/bg3se/DWrite.dll" ]]; then
 fi
 cp -f "$TMP/bg3se/DWrite.dll" "$GAME_BIN/DWrite.dll"
 echo "Installed BG3SE to: $GAME_BIN/DWrite.dll"
+
+# BG3SE disables file logging by default. Enable it and the console so mod
+# errors/status are visible without the user having to configure anything.
+SETTINGS="$GAME_BIN/ScriptExtenderSettings.json"
+if [[ ! -f "$SETTINGS" ]]; then
+    cat > "$SETTINGS" <<'JSON'
+{
+  "EnableLogging": true,
+  "LogRuntime": true,
+  "CreateConsole": true,
+  "EnableLuaDebugger": false,
+  "DeveloperMode": true,
+  "SendCrashReports": false,
+  "DisableLauncher": false
+}
+JSON
+    echo "Enabled Script Extender logging/console: $SETTINGS"
+else
+    echo "Keeping existing Script Extender settings: $SETTINGS"
+fi
+
 echo "Start BG3 once so the extender can initialize its Script Extender folder."
