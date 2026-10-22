@@ -101,6 +101,7 @@ DOS2C.Config = {
     SURFACE_DAMAGE_HP_RATIO = 0.05, -- base tick damage as a fraction of max HP
     SURFACE_STATUS_DURATION = 2,    -- turns
     SURFACE_TICK_DAMAGE = true,
+    SURFACE_DOUSE_FIRE = true,      -- water removes BURNING (DOS2 douse rule)
 
     -- Movement (TODO: not wired to BG3's native Movement resource yet) -----
     MOVEMENT_AP_ENABLED = false,

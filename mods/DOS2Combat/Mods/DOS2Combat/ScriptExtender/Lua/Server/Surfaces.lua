@@ -94,6 +94,27 @@ local function maxHP(handle)
     return 40
 end
 
+local function hasStatus(handle, status)
+    if not (Osi and Osi.HasStatus) then return false end
+    local ok, result = pcall(Osi.HasStatus, handle, status)
+    return ok and (result == 1 or result == true)
+end
+
+local function applySurfaceInteraction(handle, key)
+    local cfg = DOS2C.Config
+    if not cfg.SURFACE_DOUSE_FIRE then return end
+
+    -- DOS2: water douses burning characters. BG3's native surface system
+    -- handles the terrain interaction, but a burning character standing in
+    -- water still keeps BURNING without this rule.
+    if (key == "water" or key == "deepwater" or key == "waterfrozen") then
+        if hasStatus(handle, "BURNING") and Osi and Osi.RemoveStatus then
+            local ok = pcall(Osi.RemoveStatus, handle, "BURNING")
+            if ok then U.Log("surface combo: water doused BURNING") end
+        end
+    end
+end
+
 local function applySurface(handle, surfaceType)
     local cfg = DOS2C.Config
     local key = normalizeSurface(surfaceType)
@@ -115,6 +136,8 @@ local function applySurface(handle, surfaceType)
         damage = math.max(1, math.floor(maxHP(handle) * cfg.SURFACE_DAMAGE_HP_RATIO * (rule.ratio or 1.0)))
         pcall(Osi.DealDamage, handle, damage, rule.damage)
     end
+
+    applySurfaceInteraction(handle, key)
 
     U.Log("surface tick: %s -> %s (status=%s damage=%d/%s)",
         tostring(surfaceType), tostring(key), tostring(statusApplied),
