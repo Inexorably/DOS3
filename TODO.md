@@ -160,3 +160,14 @@ Known DOS2 visual references for the current test spells:
 - [ ] Verify gear-to-resistance values and the StatsDamage fallback in-game.
 - [ ] Replace the native AC display and AC-boosting passives with DOS2 armor
       values where needed.
+
+## Armor UI
+
+- [ ] Add a party/character armor readout to the stat screen or a client
+      overlay: `Physical resist` and `Magic resist`.
+- [ ] Add above-character combat labels for physical/magic resistance.
+      BG3SE does not expose a simple world-to-screen helper, so this likely
+      requires Noesis UI injection or camera-projection math and needs an
+      in-game proof of concept.
+- [ ] Add a compact combat HUD/tooltip showing the values next to AC/health.
+- [ ] Add an in-game toggle to show/hide the armor UI.
