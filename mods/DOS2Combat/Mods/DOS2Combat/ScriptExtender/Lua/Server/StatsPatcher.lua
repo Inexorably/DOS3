@@ -175,6 +175,23 @@ local function estimateDamage(stat)
     return best
 end
 
+local SURFACE_FUNCTORS = {
+    "CreateSurface", "SurfaceChange", "CreateExplosion", "CreateWall",
+    "CreateZone", "CreatePuddle", "CreateConeSurface", "CreateCone",
+}
+
+local function hasSurfaceEffect(stat)
+    for _, field in ipairs({ "SpellProperties", "SpellSuccess" }) do
+        local value = U.SafeGet(stat, field)
+        if type(value) == "string" then
+            for _, token in ipairs(SURFACE_FUNCTORS) do
+                if value:find(token, 1, true) then return true end
+            end
+        end
+    end
+    return false
+end
+
 local function cooldownForSpell(name, stat, level, costs)
     local cfg = DOS2C.Config
 
@@ -217,6 +234,10 @@ local function cooldownForSpell(name, stat, level, costs)
         elseif ratio >= cfg.COOLDOWN_DAMAGE_BUMP_RATIO then
             base = base + 1
         end
+    elseif damage <= 0 and hasSurfaceEffect(stat) then
+        -- DOS2 surface-setup skills (Rain, Grease, Fog Cloud, ...) have
+        -- long cooldowns even though they deal no direct damage.
+        base = base + 2
     end
 
     return math.min(cfg.COOLDOWN_MAX, math.max(0, base))
