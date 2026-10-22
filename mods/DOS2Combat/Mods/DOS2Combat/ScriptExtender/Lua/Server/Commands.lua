@@ -1,0 +1,123 @@
+-- DOS2 Combat Overhaul - debug console commands.
+-- In the Script Extender console:
+--   !dos2c_armor [guid]        print armor pools
+--   !dos2c_setarmor 40 25      set host armor pools (and max)
+--   !dos2c_resetarmor          refill every tracked pool
+--   !dos2c_patch               re-apply the stat patch pass
+--   !dos2c_rolls on|off        restore/clear BG3 attack and save rolls
+--   !dos2c_debug on|off        toggle logging
+--   !dos2c_status              print module status
+--   !dos2c_ap                  dump the host ActionResources component
+
+DOS2C = DOS2C or {}
+DOS2C.Commands = DOS2C.Commands or {}
+
+local C = DOS2C.Commands
+local U = DOS2C.Utils
+
+local function hostCharacter()
+    if GetHostCharacter then
+        local ok, guid = pcall(GetHostCharacter)
+        if ok and guid then return guid end
+    end
+    if Osi and Osi.GetHostCharacter then
+        local ok, guid = pcall(Osi.GetHostCharacter)
+        if ok and guid then return guid end
+    end
+    return nil
+end
+
+local function printLine(text)
+    if Ext and Ext.Utils and Ext.Utils.Print then
+        pcall(Ext.Utils.Print, text)
+    else
+        print(text)
+    end
+end
+
+local function register(name, handler)
+    if Ext and Ext.RegisterConsoleCommand then
+        pcall(Ext.RegisterConsoleCommand, name, handler)
+    end
+end
+
+register("dos2c_armor", function(_, target)
+    local guid = (target and target ~= "") and target or hostCharacter()
+    if not guid then
+        printLine("[DOS2C] no host character")
+        return
+    end
+    printLine("[DOS2C] " .. DOS2C.Armor.Dump(guid))
+end)
+
+register("dos2c_setarmor", function(_, physical, magic)
+    local guid = hostCharacter()
+    if not guid then
+        printLine("[DOS2C] no host character")
+        return
+    end
+    local p = tonumber(physical)
+    local m = tonumber(magic)
+    if not p or not m then
+        printLine("[DOS2C] usage: !dos2c_setarmor <physical> <magic>")
+        return
+    end
+    DOS2C.Armor.Set(guid, p, m)
+    printLine("[DOS2C] " .. DOS2C.Armor.Dump(guid))
+end)
+
+register("dos2c_resetarmor", function()
+    DOS2C.Armor.ResetAll()
+    printLine("[DOS2C] armor pools refilled")
+end)
+
+register("dos2c_patch", function()
+    DOS2C.Stats.Patched = false
+    DOS2C.Stats.PatchAll(true)
+    printLine("[DOS2C] stat patch pass complete")
+end)
+
+register("dos2c_rolls", function(_, value)
+    local restore = tostring(value or ""):lower() == "on"
+    if restore then
+        DOS2C.Stats.RestoreRolls(true)
+        printLine("[DOS2C] original attack/save rolls restored")
+    else
+        DOS2C.Stats.Patched = false
+        DOS2C.Stats.PatchAll(true)
+        printLine("[DOS2C] rolls cleared again (deterministic)")
+    end
+end)
+
+register("dos2c_debug", function(_, value)
+    local enabled = tostring(value or ""):lower() == "on"
+    DOS2C.Config.DEBUG = enabled
+    printLine("[DOS2C] debug " .. (enabled and "on" or "off"))
+end)
+
+register("dos2c_ap", function()
+    local guid = hostCharacter()
+    local entity = guid and Ext.Entity.Get(guid)
+    local resources = entity and entity.ActionResources
+    if not resources or not resources.Resources then
+        printLine("[DOS2C] no ActionResources component on host")
+        return
+    end
+    for resourceGuid, entries in pairs(resources.Resources) do
+        for _, entry in ipairs(entries) do
+            printLine(string.format("[DOS2C] resource %s amount=%s max=%s",
+                tostring(resourceGuid), tostring(entry.Amount), tostring(entry.MaxAmount)))
+        end
+    end
+end)
+
+register("dos2c_status", function()
+    local cfg = DOS2C.Config
+    printLine(string.format(
+        "[DOS2C] AP max=%d basic=%d remove bonus=%s slots=%s rolls=%s flatten=%s armor=%s ccgate=%s patched=%s debug=%s",
+        cfg.AP_MAX, cfg.BASIC_ATTACK_COST, tostring(cfg.REMOVE_BONUS_ACTIONS),
+        tostring(cfg.REMOVE_SPELL_SLOTS), tostring(cfg.REMOVE_ATTACK_ROLLS),
+        tostring(cfg.FLATTEN_DAMAGE_DICE), tostring(cfg.ARMOR_ENABLED),
+        tostring(cfg.ARMOR_CC_GATING), tostring(DOS2C.Stats.Patched),
+        tostring(cfg.DEBUG)))
+end)

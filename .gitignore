@@ -1,0 +1,11 @@
+# Local tooling and extracted analysis artifacts
+tools/
+.analysis/
+
+# Build output
+dist/
+*.pak
+
+# OS/editor noise
+Thumbs.db
+.DS_Store

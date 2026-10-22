@@ -1,0 +1,27 @@
+-- DOS2 Combat Overhaul: baseline stat overrides.
+-- Bulk overrides (AP costs for every spell, deterministic damage, character
+-- ActionResources) are applied by ScriptExtender/Lua/Server/StatsPatcher.lua.
+-- This file only pins the most important entries so the mod has a sane
+-- baseline even if Script Extender is not installed.
+
+new entry "Target_MainHandAttack"
+type "SpellData"
+using "Target_MainHandAttack"
+data "UseCosts" "ActionPoint:2"
+data "DualWieldingUseCosts" "ActionPoint:2"
+
+new entry "Projectile_MainHandAttack"
+type "SpellData"
+using "Projectile_MainHandAttack"
+data "UseCosts" "ActionPoint:2"
+data "DualWieldingUseCosts" "ActionPoint:2"
+
+new entry "Target_OffhandAttack"
+type "SpellData"
+using "Target_OffhandAttack"
+data "UseCosts" "ActionPoint:2"
+
+new entry "Projectile_OffhandAttack"
+type "SpellData"
+using "Projectile_OffhandAttack"
+data "UseCosts" "ActionPoint:2"
