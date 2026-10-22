@@ -113,11 +113,28 @@ DOS2C.Config = {
     MOVEMENT_UNITS_PER_AP = 5,   -- DOS2: 1 AP per 5 units of distance
 
     -- Armor ----------------------------------------------------------------
+    -- DOS2 armor comes from equipment and skills, not character level.
     ARMOR_ENABLED = true,
-    ARMOR_BASE_PHYSICAL = 20,
-    ARMOR_BASE_MAGIC = 20,
-    ARMOR_PER_LEVEL = 4,
+    ARMOR_BASE_PHYSICAL = 0,
+    ARMOR_BASE_MAGIC = 0,
+    ARMOR_PER_LEVEL = 0,
+    ARMOR_PHYSICAL_PER_AC = 5,    -- armor points per AC above 10
+    ARMOR_MAGIC_PER_AC = 2,
+    ARMOR_HEAVY_PHYSICAL_MULT = 1.25,
+    ARMOR_HEAVY_MAGIC_MULT = 0.75,
+    ARMOR_SHIELD_PHYSICAL_MULT = 1.5,
     ARMOR_RESET_ON_REST = true,
+    -- Skill/status contributions to the DOS2-style pools.
+    ARMOR_SKILL_BONUSES = {
+        MAGE_ARMOR = { magic = 15 },
+        BARKSKIN = { physical = 15 },
+        SHIELD = { physical = 10, magic = 5 },
+        SHIELD_OF_FAITH = { magic = 15 },
+        ARMOR_OF_AGATHYS = { physical = 10 },
+        ARMOR_OF_AGATHYS_2 = { physical = 15 },
+        ARMOR_OF_AGATHYS_3 = { physical = 20 },
+        BLADE_WARD = { physical = 10 },
+    },
     -- Experimental: block hard CC while the matching armor pool is alive.
     -- Leave false until the armor hook has been verified in-game.
     ARMOR_CC_GATING = false,
