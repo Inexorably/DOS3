@@ -28,12 +28,30 @@ DOS2C.Config = {
     -- spells get a 3-turn cooldown, long-rest recharge spells get 5 turns.
     COOLDOWN_SHORT_REST = 3,
     COOLDOWN_LONG_REST = 5,
+    COOLDOWN_ONCE_PER_TURN = 1,
+    COOLDOWN_ONCE_PER_COMBAT = 5,
+    -- DOS2 player skills cluster around 3-5 turn cooldowns, with the biggest
+    -- effects at 6. BG3 spells deal much more damage relative to character HP,
+    -- so we start at the upper end of the DOS2 range and add a damage bump.
+    -- Indexed by spell level (0 = cantrip).
+    COOLDOWN_BY_LEVEL = { 0, 3, 3, 4, 5, 5, 6, 6, 6, 6, 6 },
+    -- Rough BG3 HP baseline per spell level, used only for the damage bump.
+    COOLDOWN_HP_BY_LEVEL = { 10, 15, 25, 35, 45, 55, 65, 75, 85, 95, 105 },
+    COOLDOWN_DAMAGE_BUMP_RATIO = 0.80,   -- >= 80% of baseline HP -> +1 turn
+    COOLDOWN_DAMAGE_BUMP_HIGH_RATIO = 1.5, -- >= 150% -> +2 turns
+    COOLDOWN_MAX = 6,
 
     -- Determinism ----------------------------------------------------------
     REMOVE_ATTACK_ROLLS = true,  -- empty SpellRoll => auto-hit
     REMOVE_SAVING_THROWS = true, -- empty SpellRoll => no save
     FLATTEN_DAMAGE_DICE = true,  -- 8d6 -> 28, 1d4+1 -> 3
     FLATTEN_WEAPON_DICE = true,  -- weapon Damage/VersatileDamage -> average
+
+    -- DOS2 surfaces ---------------------------------------------------------
+    SURFACES_ENABLED = true,
+    SURFACE_DAMAGE_HP_RATIO = 0.05, -- base tick damage as a fraction of max HP
+    SURFACE_STATUS_DURATION = 2,    -- turns
+    SURFACE_TICK_DAMAGE = true,
 
     -- Movement (TODO: not wired to BG3's native Movement resource yet) -----
     MOVEMENT_AP_ENABLED = false,

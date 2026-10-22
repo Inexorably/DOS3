@@ -198,3 +198,24 @@ function U.NeutralizeRolls(value)
     if ok then return out end
     return value
 end
+
+-- Return the highest average damage expression in a stats string.
+-- Used only for cooldown balancing, not for actual damage calculation.
+function U.MaxDiceAverage(value)
+    if type(value) ~= "string" or value == "" then return 0 end
+    local best = 0
+    local function consider(count, sides, mod)
+        local n = tonumber(count) or 1
+        local m = tonumber(sides) or 0
+        local bonus = tonumber(mod) or 0
+        local avg = n * (m + 1) / 2 + bonus
+        if avg > best then best = avg end
+    end
+    for count, sides, mod in value:gmatch("(%d*)d(%d+)([%+%-]%d+)") do
+        consider(count, sides, mod)
+    end
+    for count, sides in value:gmatch("(%d*)d(%d+)") do
+        consider(count, sides, nil)
+    end
+    return best
+end

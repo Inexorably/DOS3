@@ -4,8 +4,10 @@
 
 Ext.Require("Server/Config.lua")
 Ext.Require("Server/Util.lua")
+Ext.Require("Server/Cooldowns.lua")
 Ext.Require("Server/StatsPatcher.lua")
 Ext.Require("Server/Armor.lua")
+Ext.Require("Server/Surfaces.lua")
 Ext.Require("Server/Commands.lua")
 
 DOS2C.Utils.Log("server bootstrap complete (AP=%d, armor=%s)",

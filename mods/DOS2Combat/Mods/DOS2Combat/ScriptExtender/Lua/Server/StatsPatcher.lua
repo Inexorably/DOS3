@@ -24,6 +24,7 @@ local SLOT_RESOURCES = {
 }
 
 local originalRolls = {}
+local spellCooldowns = {}
 
 local DAMAGE_FIELDS = {
     "SpellProperties",
@@ -141,7 +142,84 @@ local function levelFor(name, stat)
     local level = tonumber(U.SafeGet(stat, "Level"))
     if level and level > 0 then return level end
     local suffix = name and name:match("_(%d)$")
-    return tonumber(suffix) or 0
+    if suffix then return tonumber(suffix) end
+    if level == 0 then return 0 end
+    -- Most SpellData entries omit Level. They are not cantrips (those have an
+    -- explicit Level 0), so treat them as level 1 rather than level 0.
+    return 1
+end
+
+local CLASS_RESOURCES = {
+    Rage = true, KiPoint = true, SuperiorityDie = true,
+    BardicInspiration = true, ChannelDivinity = true, SorceryPoint = true,
+    WarlockSpellSlot = true, WildShape = true, SuperiorityDie = true,
+    ShortRestPoint = true, ArcaneRecoveryPoint = true, NaturalRecoveryPoint = true,
+}
+
+local function hasClassResource(costs)
+    for _, token in ipairs(U.SplitCosts(costs)) do
+        local name = token:match("^([^:]+)")
+        if name and CLASS_RESOURCES[name] then return true end
+    end
+    return false
+end
+
+local function estimateDamage(stat)
+    local best = 0
+    for _, field in ipairs({ "SpellSuccess", "SpellProperties", "TooltipDamageList", "SpellFail" }) do
+        local value = U.SafeGet(stat, field)
+        if type(value) == "string" and value ~= "" then
+            best = math.max(best, U.MaxDiceAverage(value))
+        end
+    end
+    return best
+end
+
+local function cooldownForSpell(name, stat, level, costs)
+    local cfg = DOS2C.Config
+
+    if isWeaponAttack(name) then return 0 end
+    if type(costs) == "string" and costs:find("ReactionActionPoint", 1, true) then
+        return 0
+    end
+
+    local explicit = U.SafeGet(stat, "Cooldown")
+    if type(explicit) == "string" and explicit ~= "" then
+        if explicit == "OncePerTurn" or explicit == "OncePerTurnNoRealtime" then
+            return cfg.COOLDOWN_ONCE_PER_TURN
+        elseif explicit == "OncePerShortRest" or explicit == "OncePerShortRestPerItem"
+            or explicit == "UntilShortRest" then
+            return cfg.COOLDOWN_SHORT_REST
+        elseif explicit == "OncePerCombat" then
+            return cfg.COOLDOWN_ONCE_PER_COMBAT
+        elseif explicit == "OncePerRest" or explicit == "OncePerRestPerItem"
+            or explicit == "UntilRest" then
+            return cfg.COOLDOWN_LONG_REST
+        end
+    end
+
+    local recharge = U.SafeGet(stat, "RechargeValues")
+    if type(recharge) == "string" and recharge ~= "" then
+        return cfg.COOLDOWN_SHORT_REST
+    end
+
+    -- Class resources (Rage/Ki/SuperiorityDie/...) already limit the spell.
+    if hasClassResource(costs) then return 0 end
+    if level <= 0 then return 0 end
+
+    local base = cfg.COOLDOWN_BY_LEVEL[level + 1] or 3
+    local hp = cfg.COOLDOWN_HP_BY_LEVEL[level + 1] or 15
+    local damage = estimateDamage(stat)
+    if hp > 0 and damage > 0 then
+        local ratio = damage / hp
+        if ratio >= cfg.COOLDOWN_DAMAGE_BUMP_HIGH_RATIO then
+            base = base + 2
+        elseif ratio >= cfg.COOLDOWN_DAMAGE_BUMP_RATIO then
+            base = base + 1
+        end
+    end
+
+    return math.min(cfg.COOLDOWN_MAX, math.max(0, base))
 end
 
 local function patchSpell(name, stat)
@@ -151,6 +229,12 @@ local function patchSpell(name, stat)
     local changed = false
 
     local costs = U.SafeGet(stat, "UseCosts")
+    local cooldown = cooldownForSpell(name, stat, level, costs)
+    spellCooldowns[name] = cooldown
+    if DOS2C.Cooldowns then
+        DOS2C.Cooldowns.Set(name, cooldown)
+    end
+
     if type(costs) == "string" and costs ~= "" then
         if U.SafeSet(stat, "UseCosts", rebuildCosts(costs, apCost)) then
             changed = true
@@ -430,6 +514,13 @@ function S.RestoreRolls(runtime)
     end)())
 end
 
+function S.GetCooldown(name)
+    local cd = spellCooldowns[name]
+    if cd ~= nil then return cd end
+    local base = tostring(name or ""):gsub("_%d+$", "")
+    return spellCooldowns[base] or 0
+end
+
 function S.PatchAll(runtime)
     if not (Ext and Ext.Stats) then return end
 
@@ -457,6 +548,16 @@ function S.PatchAll(runtime)
             end
         end
     end
+
+    local cdHist = {}
+    local cdCount = 0
+    for _, turns in pairs(spellCooldowns) do
+        cdCount = cdCount + 1
+        cdHist[turns] = (cdHist[turns] or 0) + 1
+    end
+    U.Log("cooldowns: %d spells (0:%d 1:%d 3:%d 4:%d 5:%d 6:%d)",
+        cdCount, cdHist[0] or 0, cdHist[1] or 0, cdHist[3] or 0,
+        cdHist[4] or 0, cdHist[5] or 0, cdHist[6] or 0)
 
     S.Patched = true
     U.Log("patched %d characters, %d spells, %d weapons", nCharacters, nSpells, nWeapons)
