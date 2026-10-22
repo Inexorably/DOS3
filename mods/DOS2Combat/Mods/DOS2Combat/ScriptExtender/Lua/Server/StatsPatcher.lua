@@ -41,6 +41,17 @@ local function isWeaponAttack(name)
         or name:find("OffhandAttack", 1, true) ~= nil
 end
 
+-- True default attacks are the only abilities that may have no cooldown.
+-- Everything else, including cantrips, reactions, class-resource abilities and
+-- NPC at-will spells, gets at least one turn.
+local function isDefaultAttack(name)
+    if not name then return false end
+    return name:find("MainHandAttack", 1, true) ~= nil
+        or name:find("OffhandAttack", 1, true) ~= nil
+        or name:find("UnarmedAttack", 1, true) ~= nil
+        or name:find("WEAPON ATTACK", 1, true) ~= nil
+end
+
 local function costForSpell(name, level)
     local cfg = DOS2C.Config
     if isWeaponAttack(name) then
@@ -287,12 +298,11 @@ local function cooldownForSpell(name, stat, level, costs, damageScale)
 
     -- Ported DOS2 skills keep their original DOS2 cooldowns. Only BG3-native
     -- spells go through the level/damage rebalancing below.
-    local dos2Cooldown = cfg.DOS2_COOLDOWNS and cfg.DOS2_COOLDOWNS[name]
-    if dos2Cooldown ~= nil then return dos2Cooldown end
+    if isDefaultAttack(name) then return 0 end
 
-    if isWeaponAttack(name) then return 0 end
-    if type(costs) == "string" and costs:find("ReactionActionPoint", 1, true) then
-        return 0
+    local dos2Cooldown = cfg.DOS2_COOLDOWNS and cfg.DOS2_COOLDOWNS[name]
+    if dos2Cooldown ~= nil then
+        return math.min(cfg.COOLDOWN_MAX, math.max(1, dos2Cooldown))
     end
 
     local remembered = nativeCooldownInfo[name] or {}
@@ -307,9 +317,9 @@ local function cooldownForSpell(name, stat, level, costs, damageScale)
     -- Some NPC abilities carry both (e.g. OncePerTurn + RechargeValues).
     -- The recharge roll is the real limiter, so use the longer of the two.
     if explicitTurns and rechargeTurns then
-        return math.min(cfg.COOLDOWN_MAX, math.max(explicitTurns, rechargeTurns))
+        return math.min(cfg.COOLDOWN_MAX, math.max(1, explicitTurns, rechargeTurns))
     end
-    if explicitTurns then return explicitTurns end
+    if explicitTurns then return math.min(cfg.COOLDOWN_MAX, math.max(1, explicitTurns)) end
     if type(recharge) == "string" and recharge ~= "" then
         if rechargeTurns then
             return math.min(cfg.COOLDOWN_MAX, math.max(1, rechargeTurns))
@@ -317,21 +327,15 @@ local function cooldownForSpell(name, stat, level, costs, damageScale)
         return cfg.COOLDOWN_SHORT_REST
     end
 
-    -- Class resources (Rage/Ki/SuperiorityDie/...) already limit the spell.
-    if hasClassResource(costs) then return 0 end
-
-    -- A lot of NPC/at-will abilities have no Level field. Treat those as
-    -- at-will rather than giving them a synthetic 3-turn cooldown. Explicit
-    -- cooldowns/recharges were already handled above.
-    local rawLevel = tonumber(U.SafeGet(stat, "Level"))
-    local suffix = name and name:match("_(%d)$")
-    if rawLevel == nil and not suffix and cfg.NO_LEVEL_SPELLS_AT_WILL then
-        return 0
+    -- Class resources and resource-free NPC abilities still receive the
+    -- one-turn floor; they are not default weapon attacks. Cantrips start at
+    -- exactly the floor instead of being bumped by the level table.
+    local base
+    if level <= 0 then
+        base = 1
+    else
+        base = cfg.COOLDOWN_BY_LEVEL[level + 1] or 3
     end
-
-    if level <= 0 then return 0 end
-
-    local base = cfg.COOLDOWN_BY_LEVEL[level + 1] or 3
     local hp = cfg.COOLDOWN_HP_BY_LEVEL[level + 1] or 15
     local damage = estimateDamage(stat) * (damageScale or 1)
     if hp > 0 and damage > 0 then
@@ -347,7 +351,7 @@ local function cooldownForSpell(name, stat, level, costs, damageScale)
         base = base + 2
     end
 
-    return math.min(cfg.COOLDOWN_MAX, math.max(0, base))
+    return math.min(cfg.COOLDOWN_MAX, math.max(1, base))
 end
 
 local function patchSpell(name, stat)
