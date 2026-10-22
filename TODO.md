@@ -71,6 +71,8 @@ ported `DOS2C_*` spells, while keeping BG3's native surface terrain VFX.
       version compatibility also needs verification. The effect graphs may be
       similar, but materials/textures/shaders differ between DE2 and FW4 and
       may still require re-authoring in the BG3 Toolkit.
+- [x] Emit a dependency manifest from each converted effect
+      (`dist/effects/<name>.deps.txt`).
 - [ ] Port the dependency chain for any reusable effect: `.lsfx` -> materials
       -> textures -> shaders; document which DOS2 shader types have BG3
       equivalents.

@@ -45,7 +45,16 @@ fi
 
 "$DIVINE" -a convert-resource -g bg3 -s "$(cygpath -w "$SRC")" \
     -d "$(cygpath -w "$OUT/$NAME.lsfx")" >/dev/null
+"$DIVINE" -a convert-resource -g bg3 -s "$(cygpath -w "$OUT/$NAME.lsfx")" \
+    -d "$(cygpath -w "$OUT/$NAME.lsx")" >/dev/null
 
-echo "port source: $REL"
-echo "wrote:       $OUT/$NAME.lsfx"
+DEPS="$OUT/$NAME.deps.txt"
+grep -oE 'id="Object"[^>]*value="[0-9a-fA-F-]{36}"' "$OUT/$NAME.lsx" \
+    | sed -E 's/.*value="([^"]+)"/\1/' | sort -u > "$DEPS"
+DEPCOUNT="$(wc -l < "$DEPS" | tr -d '[:space:]')"
+
+echo "port source:  $REL"
+echo "wrote:        $OUT/$NAME.lsfx"
+echo "wrote:        $OUT/$NAME.lsx"
+echo "dependencies: $DEPCOUNT (see $DEPS)"
 echo "next: remap material/texture dependencies and assign a BG3 effect UUID"
