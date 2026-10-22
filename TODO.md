@@ -47,8 +47,11 @@ too, but enemy cooldowns have not been audited separately.
       cooldowns.
 - [x] Ensure test surface spells are not unlocked on enemies; `DefaultBoosts`
       no longer receives `UnlockSpell(DOS2C_*)` and old entries are cleaned up.
-- [x] Register `SpellCastFinished` as a fallback for AI casts that do not emit
-      `SpellCast`; verify in-game that at least one event fires.
+- [x] Register the actual `SpellCast` arity 9 and `SpellCastFinished` arity 3
+      listener shapes, plus older arity fallbacks; verify in-game that at least
+      one event fires.
+- [x] Match creature-specific spell names against shared spellbook entries
+      (for example `Projectile_FireBolt` cast vs `Projectile_FireBolt_Goblin`).
 
 ## Surfaces
 
