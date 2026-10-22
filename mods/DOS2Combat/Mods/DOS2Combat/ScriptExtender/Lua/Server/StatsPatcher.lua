@@ -610,6 +610,9 @@ function S.PatchRuntimeAP(mode)
 
     local ok, entities = pcall(Ext.Entity.GetAllEntitiesWithComponent, "ActionResources")
     if not ok or type(entities) ~= "table" then return 0 end
+    if mode == "init" then
+        U.Log("runtime AP scan: %d ActionResources entities", #entities)
+    end
 
     local changed = 0
     for _, entity in ipairs(entities) do
