@@ -50,6 +50,11 @@ DOS2C.Config = {
     -- 3-turn cooldown for them unless they have an explicit cooldown,
     -- recharge value, class resource, or a level suffix in their name.
     NO_LEVEL_SPELLS_AT_WILL = true,
+    -- Optional encounter-specific overrides applied to non-party casters.
+    -- Use scripts/audit-enemy-cooldowns.py to inspect the defaults first.
+    ENEMY_COOLDOWN_OVERRIDES = {
+        -- ["Target_Multiattack_Gnoll_Flind_Melee"] = 4,
+    },
 
     -- Original DOS2 cooldowns for ported skills. These are intentionally not
     -- rebalanced; only BG3-native spells use the heuristics above.

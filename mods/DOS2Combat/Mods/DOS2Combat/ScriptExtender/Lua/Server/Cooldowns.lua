@@ -332,10 +332,17 @@ function C.OnSpellCast(caster, spell)
     if turns <= 0 then return end
 
     local cfg = DOS2C.Config
-    if not cfg.ENEMY_COOLDOWNS_ENABLED and not isPartyMember(caster) then
-        -- Enemy/NPC spells keep their native BG3 recharge behaviour until
-        -- enemy cooldowns have been audited.
+    local partyMember = isPartyMember(caster)
+    if not cfg.ENEMY_COOLDOWNS_ENABLED and not partyMember then
+        -- Enemy/NPC spells keep their native BG3 recharge behaviour when the
+        -- numeric overlay is disabled.
         return
+    end
+
+    if not partyMember then
+        local override = cfg.ENEMY_COOLDOWN_OVERRIDES
+            and cfg.ENEMY_COOLDOWN_OVERRIDES[name]
+        if override ~= nil then turns = override end
     end
 
     C.Apply(caster, name, turns)

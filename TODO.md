@@ -21,8 +21,9 @@ too, but enemy cooldowns have not been audited separately.
 
 - [x] Audit helper: `scripts/audit-enemy-cooldowns.py` lists all 183 spells
       with native cooldown/recharge limits and the numeric turns they map to.
-- [ ] Choose per-spell overrides for encounter-defining abilities that need
-      something other than the default mapping.
+- [x] Add  for encounter-specific tuning (hook wired
+      through ).
+- [ ] Choose the actual override values after in-game encounter testing.
 - [x] Enemies now use the numeric turn-cooldown overlay:
       `ENEMY_COOLDOWNS_ENABLED = true`.
 - [x] Native cast limits are converted to numeric cooldowns:
