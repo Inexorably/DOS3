@@ -25,19 +25,23 @@
 Goal: port the DOS2 **spell** visuals (prepare/cast/projectile/impact) for the
 ported `DOS2C_*` spells, while keeping BG3's native surface terrain VFX.
 
-- [ ] Build a DOS2 visual-reference table for each ported spell, using the
+- [x] Build a DOS2 visual-reference table for each ported spell, using the
       DOS2 `SkillData` fields:
       `PrepareEffect`, `CastEffect`, `HitEffect`, `PreviewEffect`,
       `RainEffect`, `PrepareAnimationInit/Loop`, `CastAnimation`, and sounds.
 - [ ] Map those references onto the BG3 `SpellData` fields:
       `PrepareEffect`, `CastEffect`, `HitEffect`, `SpellAnimation`,
       `Trajectories`, `CastSound`, `VocalComponentSound`, etc.
-- [ ] Extract the DOS2 `RS3_FX_*` effect resources and determine whether they
+- [x] Extract the DOS2 `RS3_FX_*` effect resources and determine whether they
       can be converted to BG3 effect resources. Both games use `.lsfx` effect
-      banks, so start with a proof-of-concept (DOS2 Fireball `CastEffect`) and
-      test loading it under a BG3 effect GUID. The effect graphs may be similar,
-      but materials/textures/shaders differ between DE2 and FW4, so this may
-      still require re-authoring in the BG3 Toolkit.
+      banks, and LSLib successfully converts DOS2 `.lsfx` -> BG3 `.lsfx`
+      (Fireball cast-hand proof of concept). Helper:
+      `scripts/port-dos2-effect.sh <DOS2 effect name>`.
+- [ ] Test loading a converted effect under a BG3 effect UUID. The converted
+      file still contains DOS2 material/texture GUIDs, so it will not render
+      correctly until those dependencies are ported or remapped. The effect
+      graphs may be similar, but materials/textures/shaders differ between
+      DE2 and FW4 and may still require re-authoring in the BG3 Toolkit.
 - [ ] Port the dependency chain for any reusable effect: `.lsfx` -> materials
       -> textures -> shaders; document which DOS2 shader types have BG3
       equivalents.
