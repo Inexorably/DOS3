@@ -9,9 +9,8 @@ local U = DOS2C.Utils
 
 local CUSTOM_SPELLS = {
     "DOS2C_Rain", "DOS2C_FossilStrike", "DOS2C_Contamination",
-    "DOS2C_Fireball", "DOS2C_GlobalCooling", "DOS2C_ElectricDischarge",
-    "DOS2C_Web", "DOS2C_SmokeCover", "DOS2C_AcidSpray", "DOS2C_PoisonCloud",
-}
+    "DOS2C_GlobalCooling", "DOS2C_ElectricDischarge",
+    "DOS2C_SmokeCover", "DOS2C_AcidSpray", }
 
 local EQUIPMENT_SLOTS = {
     "Helmet", "Breast", "Cloak", "Gloves", "Boots",

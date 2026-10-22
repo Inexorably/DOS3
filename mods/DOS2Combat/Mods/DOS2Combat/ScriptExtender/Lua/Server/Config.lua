@@ -64,13 +64,10 @@ DOS2C.Config = {
         DOS2C_ChaosBolt = 1,
         DOS2C_FossilStrike = 5,
         DOS2C_Contamination = 3,
-        DOS2C_Fireball = 4,
         DOS2C_GlobalCooling = 3,
         DOS2C_ElectricDischarge = 3,
-        DOS2C_Web = 1,
         DOS2C_SmokeCover = 5,
         DOS2C_AcidSpray = 5,
-        DOS2C_PoisonCloud = 4,
     },
 
     -- Explicit DOS2 AP costs for ported skills that differ from the BG3 level
@@ -103,13 +100,10 @@ DOS2C.Config = {
         "DOS2C_ChaosBolt",
         "DOS2C_FossilStrike",
         "DOS2C_Contamination",
-        "DOS2C_Fireball",
         "DOS2C_GlobalCooling",
         "DOS2C_ElectricDischarge",
-        "DOS2C_Web",
         "DOS2C_SmokeCover",
         "DOS2C_AcidSpray",
-        "DOS2C_PoisonCloud",
     },
     SURFACES_ENABLED = true,
     SURFACE_DAMAGE_HP_RATIO = 0.05, -- base tick damage as a fraction of max HP

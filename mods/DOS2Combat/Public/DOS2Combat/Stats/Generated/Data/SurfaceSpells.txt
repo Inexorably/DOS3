@@ -2,7 +2,7 @@
 -- BG3 spellbook/hotbar path; it is added only to party members by Lua.
 new entry "DOS2C_TestSpells"
 type "PassiveData"
-data "Boosts" "UnlockSpell(DOS2C_Rain);UnlockSpell(DOS2C_ChaosBolt);UnlockSpell(DOS2C_FossilStrike);UnlockSpell(DOS2C_Contamination);UnlockSpell(DOS2C_Fireball);UnlockSpell(DOS2C_GlobalCooling);UnlockSpell(DOS2C_ElectricDischarge);UnlockSpell(DOS2C_Web);UnlockSpell(DOS2C_SmokeCover);UnlockSpell(DOS2C_AcidSpray);UnlockSpell(DOS2C_PoisonCloud)"
+data "Boosts" "UnlockSpell(DOS2C_Rain);UnlockSpell(DOS2C_ChaosBolt);UnlockSpell(DOS2C_FossilStrike);UnlockSpell(DOS2C_Contamination);UnlockSpell(DOS2C_GlobalCooling);UnlockSpell(DOS2C_ElectricDischarge);UnlockSpell(DOS2C_SmokeCover);UnlockSpell(DOS2C_AcidSpray)"
 
 -- Runtime AP max boost for existing saves. A passive is used instead of
 -- DefaultBoosts so characters already spawned in a save can receive it.
@@ -25,7 +25,6 @@ data "Description" "hf61581b490255a9f9dbfc15eed804bf8"
 data "SpellContainerID" ""
 data "ContainerSpells" ""
 data "Icon" "DOS2C_Rain_DOS2Icon"
-data "CastEffect" "995f3dc2-367a-5b58-99b7-5cb2c3d5b11f"
 data "TargetRadius" "8"
 data "AreaRadius" "10"
 
@@ -37,8 +36,6 @@ data "Description" "ha8ea0fd82b215a53aef7b5381f64977d"
 data "SpellContainerID" ""
 data "ContainerSpells" ""
 data "Icon" "DOS2C_ChaosBolt_DOS2Icon"
-data "CastEffect" "64b7952a-2ee7-5994-9994-24ef1ae021d4"
-data "PrepareEffect" "0c09f622-8d73-554a-a592-6d9b26154df6"
 
 new entry "DOS2C_FossilStrike"
 type "SpellData"
@@ -54,13 +51,6 @@ data "DisplayName" "h93fa2818fda359c9a835cafeeab08163"
 data "Description" "h2b55d5e425b6579bba64a432da665394"
 data "Icon" "Spell_Conjuration_AcidSplash"
 
-new entry "DOS2C_Fireball"
-type "SpellData"
-using "Projectile_Fireball"
-data "DisplayName" "h777f8b6f58c3510b8d3562abd01c798f"
-data "Description" "h506a093dfeed5e4d9801cfdb12924a6c"
-data "Icon" "Spell_Evocation_Fireball"
-
 new entry "DOS2C_GlobalCooling"
 type "SpellData"
 using "Projectile_ChromaticOrb_Cold"
@@ -74,13 +64,6 @@ using "Projectile_ChromaticOrb_Lightning"
 data "DisplayName" "ha753492f592052bcb19d44f9ae013f60"
 data "Description" "hb68433f2242051f9b401176ec8ad63b7"
 data "Icon" "Spell_Evocation_ChromaticOrb_Lightning"
-
-new entry "DOS2C_Web"
-type "SpellData"
-using "Target_Web"
-data "DisplayName" "h1330f66548d357eba27f7135b36fffc4"
-data "Description" "h38bed2b4865a5ec085ae00dd92fb2e8c"
-data "Icon" "Spell_Conjuration_Web"
 
 new entry "DOS2C_SmokeCover"
 type "SpellData"
@@ -96,9 +79,3 @@ data "DisplayName" "h8a4166756a435785b4165e7fa55f307c"
 data "Description" "h754b88f4b8575ff8834e06566ade1e19"
 data "Icon" "Spell_Conjuration_AcidSplash"
 
-new entry "DOS2C_PoisonCloud"
-type "SpellData"
-using "Target_StinkingCloud"
-data "DisplayName" "hb705c1140be25a8fa162907e9ec1a341"
-data "Description" "h5f5e9db738c25ce596f69efe667dae56"
-data "Icon" "Spell_Conjuration_PoisonSpray"
