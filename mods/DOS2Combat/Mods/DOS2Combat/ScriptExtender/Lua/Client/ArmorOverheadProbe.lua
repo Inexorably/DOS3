@@ -98,7 +98,6 @@ local function probe(reason)
 
     Ext.UI.Defer(function()
         if logged then return end
-        logged = true
         local root
         local ok, value = pcall(Ext.UI.GetRoot)
         if ok then root = value end
@@ -106,6 +105,7 @@ local function probe(reason)
             Ext.Log.Print("[DOS2C] overhead probe: no UI root")
             return
         end
+        logged = true
 
         Ext.Log.Print(string.format("[DOS2C] overhead probe (%s): root type=%s children=%s",
             tostring(reason), typeOf(root), tostring(({ pcall(function() return root.ChildrenCount end) })[2])))
