@@ -31,9 +31,10 @@ too, but enemy cooldowns have not been audited separately.
 - [x] Numeric cooldowns now expire back to `Default` rather than restoring
       `OncePerCombat`/`OncePerRest`, so enemies are not limited to a fixed
       number of casts.
-- [ ] Choose appropriate numeric values for encounter-defining abilities;
-      `RechargeValues` currently maps to the generic 3-turn short-rest
-      cooldown and may need per-spell tuning.
+- [x] Convert `RechargeValues` to expected turn counts: `5-6` -> 6,
+      `4-6`/`3-6` -> 5, `2-6` -> 4, `6` -> 6.
+- [ ] Spot-check encounter-defining abilities against those values; some
+      bosses may need per-spell overrides.
 - [ ] If the same spell needs different cooldowns for players and enemies, add
       per-character cooldown values. `defs` is still keyed by spell name only.
 - [ ] Verify enemy AI behaves correctly with the 4 AP economy and numeric

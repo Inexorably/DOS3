@@ -231,6 +231,17 @@ local function rememberNativeCooldown(name, stat)
     end
 end
 
+local function rechargeToTurns(value)
+    if type(value) ~= "string" or value == "" then return nil end
+    local lo, hi = value:match("^%s*(%d+)%s*%-%s*(%d+)%s*$")
+    if lo then
+        return math.max(1, math.floor((tonumber(lo) + tonumber(hi)) / 2 + 0.5))
+    end
+    local single = value:match("^%s*(%d+)%s*$")
+    if single then return math.max(1, tonumber(single)) end
+    return nil
+end
+
 local function cooldownForSpell(name, stat, level, costs, damageScale)
     local cfg = DOS2C.Config
 
@@ -264,6 +275,12 @@ local function cooldownForSpell(name, stat, level, costs, damageScale)
     local recharge = remembered.RechargeValues
     if recharge == nil then recharge = U.SafeGet(stat, "RechargeValues") end
     if type(recharge) == "string" and recharge ~= "" then
+        -- Convert recharge dice (e.g. "5-6") to their expected turn count
+        -- instead of collapsing every enemy recharge ability to 3 turns.
+        local turns = rechargeToTurns(recharge)
+        if turns then
+            return math.min(cfg.COOLDOWN_MAX, math.max(1, turns))
+        end
         return cfg.COOLDOWN_SHORT_REST
     end
 
