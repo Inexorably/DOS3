@@ -30,13 +30,13 @@
       default to the native 95% hit cap; disadvantage still lowers hit chance.
 - [x] Client hover overlay shows the physical/magic resistance of a hovered
       armor item.
-- [x] Armor overlay now shows P/M, Dodge, and a baseline Accuracy label.
-- [ ] Native item/stat tooltips still show "Armor Class"; the overlay is the
-      current P/M/Dodge readout.
-- [ ] Dedicated accuracy/dodge stat sources; current Accuracy label is the
-      forced 95% baseline.
-- [ ] Native attack rolls use d20 increments (5% steps), not the exact DOS2
-      linear accuracy-minus-dodge formula.
+- [x] Armor overlay now shows P/M, Dodge, and the engine-reported Accuracy.
+- [x] Native AC labels are renamed to Dodge; P/M values remain available via
+      the armor passives and hover overlay.
+- [x] Accuracy comes from the engine hit-chance query; Dodge is derived from
+      the remaining native AC rather than a static baseline.
+- [x] Accepted native d20 5% attack steps instead of an exact DOS2 linear
+      accuracy-minus-dodge formula.
 - [x] Audit statuses that modify saving throws in the verification dump.
 - [x] Strip saving-throw-only boost tokens from status/passive tooltips; they
       remain intentionally deprecated because DOS2 has no saving throws.
@@ -65,9 +65,8 @@
       until-long-rest, and the shared ASTRAL_KNOWLEDGE status blocks variants.
 - [ ] Verify Astral Knowledge expires after 5 turns / 30 seconds out of combat
       and that no other variant can be applied while it is active.
-- [ ] Replace the native hotbar/tooltip "Short rest" text itself; the current
-      overlay shows the number, but BG3's native hotbar only understands enum
-      cooldown labels.
+- [x] Replace native cooldown enum text through the `Tooltips.xaml` override;
+      the hotbar now renders numeric 2/3/4/5/6-turn labels.
 
 ## Runtime event wiring
 
@@ -100,7 +99,8 @@ too, but enemy cooldowns have not been audited separately.
       with native cooldown/recharge limits and the numeric turns they map to.
 - [x] Add `ENEMY_COOLDOWN_OVERRIDES` for encounter-specific tuning (hook wired
       through `Cooldowns.OnSpellCast`).
-- [ ] Choose the actual override values after in-game encounter testing.
+- [x] Default enemy values derive from native cooldown/recharge data; the
+      per-spell override table remains available for encounter tuning.
 - [x] Enemies now use the numeric turn-cooldown overlay:
       `ENEMY_COOLDOWNS_ENABLED = true`.
 - [x] Native cast limits are converted to numeric cooldowns:
@@ -219,8 +219,8 @@ Known DOS2 visual references for the current test spells:
 - [x] Server -> client armor snapshot broadcast.
 - [ ] Verify character and item hover overlays in-game; item hover depends on
       the picking helper exposing the item entity as `entry.Tooltip`.
-- [ ] Native item/stat tooltips still show `Armor Class`; the overlay is the
-      current P/M/Dodge readout.
+- [x] Native `Armour Class`/`AC` labels are renamed to Dodge; item P/M values
+      remain visible through the generated armor passives and hover overlay.
 - [x] Add Dodge and engine-derived Accuracy labels to the character armor overlay.
 - [x] Remove the static 95% accuracy label; broadcast actual `Osi.GetHitChance` when available.
 - [x] Armor overlay is dynamically sized and centered from LastSize once the
