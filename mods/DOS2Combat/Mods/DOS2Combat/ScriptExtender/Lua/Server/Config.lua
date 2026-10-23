@@ -156,6 +156,9 @@ DOS2C.Config = {
     ARMOR_HEAVY_PHYSICAL_MULT = 1.25,
     ARMOR_HEAVY_MAGIC_MULT = 0.75,
     ARMOR_SHIELD_PHYSICAL_MULT = 1.5,
+    ENEMY_INNATE_ARMOR_ENABLED = true, -- enemies without gear use native AC
+    ENEMY_ARMOR_PER_AC = 1,            -- flat P resistance per AC above 9
+    ENEMY_MAGIC_PER_AC = 1,            -- flat M resistance per AC above 9
     ARMOR_RESET_ON_REST = true,
     -- Skill/status contributions to the DOS2-style pools.
     ARMOR_SKILL_BONUSES = {

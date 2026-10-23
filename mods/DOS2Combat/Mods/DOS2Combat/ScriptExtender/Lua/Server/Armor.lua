@@ -78,6 +78,77 @@ local function armorFromGear(handle)
     return physical, magic, pieces
 end
 
+local function isPartyCharacter(handle, entity)
+    local guid = U.GuidOf(handle)
+    if not guid then return true end
+    if entity and (entity.Player or entity.UserAvatar) then return true end
+    if Osi and Osi.GetHostCharacter then
+        local ok, host = pcall(Osi.GetHostCharacter)
+        if ok and host and tostring(host) == tostring(guid) then return true end
+    end
+
+    local sawPartyEntry = false
+    local function matches(value)
+        if type(value) == "table" then
+            for _, item in ipairs(value) do
+                sawPartyEntry = true
+                if tostring(item) == tostring(guid) then return true end
+            end
+        elseif value and tostring(value) ~= "" then
+            sawPartyEntry = true
+            if tostring(value) == tostring(guid) then return true end
+        end
+        return false
+    end
+    if Osi and Osi.GetPartyMembers then
+        local ok, a, b, c, d = pcall(Osi.GetPartyMembers)
+        if ok and (matches(a) or matches(b) or matches(c) or matches(d)) then return true end
+    end
+    if Osi and Osi.GetAllPartyMembers then
+        local ok, values = pcall(Osi.GetAllPartyMembers)
+        if ok and matches(values) then return true end
+    end
+    -- During early combat the party query can be empty. In that case do not
+    -- grant innate armor to characters; only treat known non-party entities as
+    -- enemies.
+    if not sawPartyEntry then return true end
+    return false
+end
+
+local function nativeArmorClass(handle, entity)
+    if entity and entity.Armor then
+        local ac = tonumber(entity.Armor.ArmorClass) or 0
+        if ac > 0 then return ac, entity.Armor end
+    end
+    if Osi and Osi.GetArmorClass then
+        local ok, ac = pcall(Osi.GetArmorClass, U.GuidOf(handle))
+        if ok and tonumber(ac) and tonumber(ac) > 0 then return tonumber(ac), nil end
+    end
+    return nil, nil
+end
+
+local function armorFromInnate(handle, entity, pieces)
+    local cfg = DOS2C.Config
+    if not cfg.ENEMY_INNATE_ARMOR_ENABLED then return 0, 0, nil end
+    if pieces > 0 or isPartyCharacter(handle, entity) then return 0, 0, nil end
+    local ac, armor = nativeArmorClass(handle, entity)
+    if not ac then return 0, 0, nil end
+    local gain = math.max(0, ac - 9)
+    if gain <= 0 then return 0, 0, ac end
+    local p = gain * cfg.ENEMY_ARMOR_PER_AC
+    local m = gain * cfg.ENEMY_MAGIC_PER_AC
+    local heavy = armor and (tonumber(armor.ArmorType) or 0) >= 6
+    if heavy then
+        p = p * cfg.ARMOR_HEAVY_PHYSICAL_MULT
+        m = m * cfg.ARMOR_HEAVY_MAGIC_MULT
+    end
+    if armor and armor.Shield then
+        p = p * cfg.ARMOR_SHIELD_PHYSICAL_MULT
+        m = 0
+    end
+    return p, m, ac
+end
+
 local function armorFromSkills(handle)
     local cfg = DOS2C.Config
     local physical, magic = 0, 0
@@ -94,14 +165,20 @@ local function computeResistance(handle)
     local cfg = DOS2C.Config
     local gearPhysical, gearMagic, pieces = armorFromGear(handle)
     local skillPhysical, skillMagic = armorFromSkills(handle)
+    local entity = U.EntityOf(handle)
+    local innatePhysical, innateMagic, innateAC = armorFromInnate(handle, entity, pieces)
     return {
-        physical = cfg.ARMOR_BASE_PHYSICAL + gearPhysical + skillPhysical,
-        magic = cfg.ARMOR_BASE_MAGIC + gearMagic + skillMagic,
+        physical = cfg.ARMOR_BASE_PHYSICAL + gearPhysical + skillPhysical + innatePhysical,
+        magic = cfg.ARMOR_BASE_MAGIC + gearMagic + skillMagic + innateMagic,
         gearPhysical = gearPhysical,
         gearMagic = gearMagic,
         skillPhysical = skillPhysical,
         skillMagic = skillMagic,
+        innatePhysical = innatePhysical,
+        innateMagic = innateMagic,
+        innateAC = innateAC,
         pieces = pieces,
+        enemyInnate = innateAC ~= nil,
     }
 end
 
@@ -113,12 +190,13 @@ local function getResistance(handle)
     if not resist then
         resist = computeResistance(handle)
         resistances[key] = resist
-        U.Log("armor resist init %s: physical=%s magic=%s (gear=%s/%s skills=%s/%s pieces=%s)",
+        U.Log("armor resist init %s: physical=%s magic=%s (gear=%s/%s skills=%s/%s innate=%s/%s ac=%s pieces=%s)",
             key,
             tostring(resist.physical), tostring(resist.magic),
             tostring(resist.gearPhysical), tostring(resist.gearMagic),
             tostring(resist.skillPhysical), tostring(resist.skillMagic),
-            tostring(resist.pieces))
+            tostring(resist.innatePhysical), tostring(resist.innateMagic),
+            tostring(resist.innateAC), tostring(resist.pieces))
     end
     return resist, key
 end
