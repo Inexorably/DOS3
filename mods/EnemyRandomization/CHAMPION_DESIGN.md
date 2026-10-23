@@ -146,14 +146,18 @@ branch and also covers any higher level.
 
 ## Summon VFX
 
-Both summon spells reuse the native lightning presentation:
+Both summon spells reuse native summon/lightning presentation:
 
 ```text
 PrepareEffect  77241e8c-ae8d-4402-92d8-a871ce64d86f
 CastEffect     10fc784a-4312-47a8-a6b8-6b529c646ac4
-TargetEffect   a3e2368b-f486-4cfc-b04a-b02e23383280
-PositionEffect de5e4e60-e2b7-44f4-aca8-c11390b4cc48
+TargetEffect   995013d2-ac87-400e-adfa-c7aa3f2b949d
+PositionEffect 4f0091aa-4560-42c8-9372-a6ce061eebd8
 ```
+
+`CastEffect` is on the caster; `TargetEffect` is the summon impact at the
+target; `PositionEffect` is the lightning-style ground effect at the summon
+location.
 
 ## Cooldown implementation
 

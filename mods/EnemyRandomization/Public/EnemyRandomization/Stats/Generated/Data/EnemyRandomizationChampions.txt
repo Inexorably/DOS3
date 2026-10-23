@@ -330,8 +330,8 @@ data "Description" "hddabd0832a685c8d8cd18d3bbf764a80"
 -- Reuse the native lightning summon presentation.
 data "PrepareEffect" "77241e8c-ae8d-4402-92d8-a871ce64d86f"
 data "CastEffect" "10fc784a-4312-47a8-a6b8-6b529c646ac4"
-data "TargetEffect" "a3e2368b-f486-4cfc-b04a-b02e23383280"
-data "PositionEffect" "de5e4e60-e2b7-44f4-aca8-c11390b4cc48"
+data "TargetEffect" "995013d2-ac87-400e-adfa-c7aa3f2b949d"
+data "PositionEffect" "4f0091aa-4560-42c8-9372-a6ce061eebd8"
 
 new entry "ENR_Summon_Crimson"
 type "SpellData"
@@ -349,8 +349,8 @@ data "Description" "hb23e0197eece5a07b2799c1c44027bad"
 -- Reuse the native lightning summon presentation.
 data "PrepareEffect" "77241e8c-ae8d-4402-92d8-a871ce64d86f"
 data "CastEffect" "10fc784a-4312-47a8-a6b8-6b529c646ac4"
-data "TargetEffect" "a3e2368b-f486-4cfc-b04a-b02e23383280"
-data "PositionEffect" "de5e4e60-e2b7-44f4-aca8-c11390b4cc48"
+data "TargetEffect" "995013d2-ac87-400e-adfa-c7aa3f2b949d"
+data "PositionEffect" "4f0091aa-4560-42c8-9372-a6ce061eebd8"
 
 new entry "ENR_CHAMPION_DINOSAURS"
 type "StatusData"

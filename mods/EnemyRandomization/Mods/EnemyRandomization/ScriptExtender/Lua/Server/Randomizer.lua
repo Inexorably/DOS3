@@ -160,7 +160,13 @@ local function grantSummonSpells(guid, champion)
         if not ok then
             ok, result = pcall(Osi.AddSpell, guid, spell, 0)
         end
-        log("champion spell grant: %s -> %s ok=%s result=%s", spell, guid, tostring(ok), tostring(result))
+        local has = false
+        if Osi.HasSpell then
+            local hasOk, hasResult = pcall(Osi.HasSpell, guid, spell)
+            has = hasOk and (hasResult == 1 or hasResult == true)
+        end
+        log("champion spell grant: %s -> %s ok=%s result=%s has=%s",
+            spell, guid, tostring(ok), tostring(result), tostring(has))
     end
 end
 
