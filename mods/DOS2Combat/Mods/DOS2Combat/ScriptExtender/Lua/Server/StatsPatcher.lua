@@ -39,8 +39,6 @@ local DAMAGE_FIELDS = {
     "TooltipDamageList",
     "DescriptionParams",
     "TooltipUpcastDescriptionParams",
-    "TooltipDamage",
-    "TooltipConditionalDamage",
     "ExtraDescriptionParams",
     "OriginSpellSuccess",
     "OriginSpellFail",
@@ -55,13 +53,9 @@ local STATUS_DAMAGE_FIELDS = {
     "OnApplySuccess",
     "OnApplyFail",
     "OnRemoveFunctors",
-    "OnTurnStartFunctors",
-    "OnTurnEndFunctors",
-    "Conditions",
     "DescriptionParams",
     "ExtraDescriptionParams",
     "TooltipDamageList",
-    "TooltipDamage",
     "Boosts",
 }
 
@@ -72,7 +66,6 @@ local PASSIVE_DAMAGE_FIELDS = {
     "DescriptionParams",
     "ExtraDescriptionParams",
     "TooltipDamageList",
-    "TooltipDamage",
 }
 
 local function isWeaponAttack(name)
