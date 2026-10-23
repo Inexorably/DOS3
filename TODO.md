@@ -278,3 +278,5 @@ Known DOS2 visual references for the current test spells:
       Strength/Dexterity/Constitution/Intelligence/Wisdom/Charisma values at
       summon time.
 - [ ] Verify summon skills cost 2 AP and still enforce the five-turn cooldown.
+- [ ] Champion enemies eventually drop guaranteed legendary loot. Defer this
+      until the champion loot pool has been expanded.
