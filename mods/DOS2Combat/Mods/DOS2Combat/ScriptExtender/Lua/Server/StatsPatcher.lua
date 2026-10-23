@@ -27,12 +27,43 @@ local originalRolls = {}
 local spellCooldowns = {}
 local nativeCooldownInfo = {}
 
+-- Damage compression is idempotent per stat object. Re-running PatchAll must
+-- not compress an already-compressed range a second time (1d12 -> 1d4+4 would
+-- otherwise become 1d2+5).
+local compressedFields = setmetatable({}, { __mode = "k" })
+
 local DAMAGE_FIELDS = {
     "SpellProperties",
     "SpellSuccess",
+    "SpellFail",
     "TooltipDamageList",
     "DescriptionParams",
+    "TooltipUpcastDescriptionParams",
+    "TooltipDamage",
+    "TooltipConditionalDamage",
+    "ExtraDescriptionParams",
+    "OriginSpellSuccess",
+    "OriginSpellFail",
     "Damage",
+}
+
+local STATUS_DAMAGE_FIELDS = {
+    "OnTickSuccess",
+    "OnTickFail",
+    "TickFunctors",
+    "OnApplyFunctors",
+    "OnApplySuccess",
+    "OnApplyFail",
+    "OnRemoveFunctors",
+    "OnTurnStartFunctors",
+    "OnTurnEndFunctors",
+    "Conditions",
+}
+
+local PASSIVE_DAMAGE_FIELDS = {
+    "StatsFunctors",
+    "Properties",
+    "Boosts",
 }
 
 local function isWeaponAttack(name)
@@ -189,6 +220,26 @@ local function flattenField(stat, field, changed)
     local flat = U.FlattenDice(value)
     if flat ~= value then
         if U.SafeSet(stat, field, flat) then changed = true end
+    end
+    return changed
+end
+
+local function compressField(stat, field, changed, direct)
+    local state = compressedFields[stat]
+    if state and state[field] then return changed end
+
+    local value = U.SafeGet(stat, field)
+    if type(value) ~= "string" or value == "" then return changed end
+
+    local cfg = DOS2C.Config
+    local compressed = direct
+        and U.CompressDamageValue(value, cfg.DAMAGE_RANGE_COMPRESSION)
+        or U.CompressDealDamage(value, cfg.DAMAGE_RANGE_COMPRESSION)
+    if compressed ~= value and U.SafeSet(stat, field, compressed) then
+        state = state or {}
+        state[field] = true
+        compressedFields[stat] = state
+        changed = true
     end
     return changed
 end
@@ -471,15 +522,10 @@ local function patchSpell(name, stat)
         end
     end
 
-    if cfg.FLATTEN_DAMAGE_DICE then
-        for _, field in ipairs(DAMAGE_FIELDS) do
-            changed = flattenField(stat, field, changed)
-        end
-    end
-
+    -- Ported spells are rescaled first so the compressed range is built around
+    -- the final target damage.
     if damageScale ~= 1 then
-        for _, field in ipairs({ "SpellProperties", "SpellSuccess", "SpellFail",
-            "TooltipDamageList", "DescriptionParams", "Damage" }) do
+        for _, field in ipairs(DAMAGE_FIELDS) do
             local value = U.SafeGet(stat, field)
             if type(value) == "string" and value ~= "" then
                 local scaled = U.ScaleDealDamage(value, damageScale)
@@ -491,16 +537,57 @@ local function patchSpell(name, stat)
         U.Log("ported damage scale: %s x%.3f", tostring(name), damageScale)
     end
 
+    if cfg.COMPRESS_DAMAGE_RANGES then
+        for _, field in ipairs(DAMAGE_FIELDS) do
+            changed = compressField(stat, field, changed, field == "Damage")
+        end
+    end
+
+    if cfg.FLATTEN_DAMAGE_DICE then
+        for _, field in ipairs(DAMAGE_FIELDS) do
+            changed = flattenField(stat, field, changed)
+        end
+    end
+
     return changed
 end
 
 local function patchWeapon(stat)
     local cfg = DOS2C.Config
-    if not cfg.FLATTEN_WEAPON_DICE then return false end
+    if not (cfg.COMPRESS_DAMAGE_RANGES or cfg.FLATTEN_WEAPON_DICE) then
+        return false
+    end
 
     local changed = false
-    for _, field in ipairs({ "Damage", "VersatileDamage" }) do
-        changed = flattenField(stat, field, changed)
+    for _, field in ipairs({ "Damage", "VersatileDamage", "WeaponFunctors" }) do
+        if cfg.COMPRESS_DAMAGE_RANGES then
+            changed = compressField(stat, field, changed, field == "Damage" or field == "VersatileDamage")
+        end
+        if cfg.FLATTEN_WEAPON_DICE then
+            changed = flattenField(stat, field, changed)
+        end
+    end
+    return changed
+end
+
+local function patchStatusDamage(stat)
+    local cfg = DOS2C.Config
+    if not cfg.COMPRESS_DAMAGE_RANGES then return false end
+
+    local changed = false
+    for _, field in ipairs(STATUS_DAMAGE_FIELDS) do
+        changed = compressField(stat, field, changed, false)
+    end
+    return changed
+end
+
+local function patchPassiveDamage(stat)
+    local cfg = DOS2C.Config
+    if not cfg.COMPRESS_DAMAGE_RANGES then return false end
+
+    local changed = false
+    for _, field in ipairs(PASSIVE_DAMAGE_FIELDS) do
+        changed = compressField(stat, field, changed, false)
     end
     return changed
 end
@@ -836,10 +923,16 @@ function S.PatchAll(runtime)
     local nWeapons = eachStat("Weapon", function(_, stat)
         return patchWeapon(stat)
     end)
+    local nStatuses = eachStat("StatusData", function(_, stat)
+        return patchStatusDamage(stat)
+    end)
+    local nPassives = eachStat("PassiveData", function(_, stat)
+        return patchPassiveDamage(stat)
+    end)
 
     if runtime then
         -- Stats changes made after module load must be replicated to clients.
-        for _, statType in ipairs({ "Character", "SpellData", "Weapon" }) do
+        for _, statType in ipairs({ "Character", "SpellData", "Weapon", "StatusData", "PassiveData" }) do
             local ok, names = pcall(Ext.Stats.GetStats, statType)
             if ok and type(names) == "table" then
                 for _, name in ipairs(names) do
@@ -863,7 +956,7 @@ function S.PatchAll(runtime)
         cdHist[4] or 0, cdHist[5] or 0, cdHist[6] or 0)
 
     S.Patched = true
-    U.Log("patched %d characters, %d spells, %d weapons", nCharacters, nSpells, nWeapons)
+    U.Log("patched %d characters, %d spells, %d weapons, %d statuses, %d passives", nCharacters, nSpells, nWeapons, nStatuses, nPassives)
 end
 
 if Ext.Events and Ext.Events.StatsLoaded then

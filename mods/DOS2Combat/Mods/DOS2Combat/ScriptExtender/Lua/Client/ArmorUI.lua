@@ -126,12 +126,23 @@ end
 -- TextBlock under the native HP bar. Populate it for the hovered character.
 local armorNode = nil
 local nodeLogged = false
+local nodeFoundLogged = false
+local setterErrorLogged = false
+local helperErrorLogged = false
+local lastTargetGuid = nil
+local lastText = nil
 
 local function setNodeText(node, text)
-    local ok = pcall(function() node.Text = text end)
+    local ok, err = pcall(function() node.Text = text end)
     if ok then return true end
-    local ok2 = pcall(function() node:SetProperty("Text", text) end)
-    return ok2
+    local ok2, err2 = pcall(function() node:SetProperty("Text", text) end)
+    if ok2 then return true end
+    if not setterErrorLogged then
+        setterErrorLogged = true
+        log("armor Text setter failed: direct=%s setProperty=%s",
+            tostring(err), tostring(err2))
+    end
+    return false
 end
 
 local function entityGuid(handle)
@@ -145,6 +156,10 @@ local function hoveredGuid()
     if not (Ext.UI and Ext.UI.GetPickingHelper) then return nil end
     for _, player in ipairs({ 1, 0 }) do
         local ok, helper = pcall(Ext.UI.GetPickingHelper, player)
+        if not ok and not helperErrorLogged then
+            helperErrorLogged = true
+            log("GetPickingHelper(%s) failed: %s", tostring(player), tostring(helper))
+        end
         if ok and helper then
             local inner = helper.Inner
             local entries = inner and inner.Inner
@@ -181,6 +196,10 @@ local function updateHoveredArmor()
             end
             return
         end
+        if not nodeFoundLogged then
+            nodeFoundLogged = true
+            log("DOS2ArmorText node found")
+        end
 
         local guid = hoveredGuid()
         local value = guid and values[guid]
@@ -188,6 +207,16 @@ local function updateHoveredArmor()
         if value then
             text = string.format("Physical Armor: %d    Magic Armor: %d",
                 math.floor(value.physical + 0.5), math.floor(value.magic + 0.5))
+        end
+        if guid ~= lastTargetGuid then
+            lastTargetGuid = guid
+            log("armor hover target=%s snapshot=%s", tostring(guid), tostring(value ~= nil))
+        end
+        if text ~= lastText then
+            lastText = text
+            if value then
+                log("armor text set: %s", text)
+            end
         end
         setNodeText(armorNode, text)
     end)

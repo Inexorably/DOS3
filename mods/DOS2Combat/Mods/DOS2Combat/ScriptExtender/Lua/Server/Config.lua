@@ -101,8 +101,13 @@ DOS2C.Config = {
     -- Determinism ----------------------------------------------------------
     REMOVE_ATTACK_ROLLS = true,  -- empty SpellRoll => auto-hit
     REMOVE_SAVING_THROWS = true, -- empty SpellRoll => no save
-    FLATTEN_DAMAGE_DICE = true,  -- 8d6 -> 28, 1d4+1 -> 3
-    FLATTEN_WEAPON_DICE = true,  -- weapon Damage/VersatileDamage -> average
+    -- Damage rolls stay random but are compressed around the average instead
+    -- of using the full die range. Default: 1/3 of the original range width,
+    -- so 1d12 (1-12) becomes 1d4+4 (5-8).
+    COMPRESS_DAMAGE_RANGES = true,
+    DAMAGE_RANGE_COMPRESSION = 1 / 3,
+    FLATTEN_DAMAGE_DICE = false,
+    FLATTEN_WEAPON_DICE = false,
 
     -- DOS2 surfaces ---------------------------------------------------------
     -- Test-only: unlock the DOS2 surface-setter spells on every party member.

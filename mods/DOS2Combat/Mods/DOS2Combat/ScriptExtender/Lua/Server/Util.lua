@@ -220,17 +220,132 @@ function U.MaxDiceAverage(value)
     return best
 end
 
--- Rescale the first numeric argument of DealDamage(...) calls. Used only for
--- ported DOS2 spells; native BG3 spells are left untouched.
+-- Parse a simple additive damage expression such as "1d12", "2d6+3" or
+-- "1d6+1d4" into its minimum, maximum and whether it contains dice.
+local function parseDamageExpression(expr)
+    if type(expr) ~= "string" then return nil end
+    local s = expr:gsub("%s+", "")
+    if s == "" then return nil end
+
+    local i = 1
+    local min, max = 0, 0
+    local sawDice = false
+    while i <= #s do
+        local sign = 1
+        local ch = s:sub(i, i)
+        if ch == "+" or ch == "-" then
+            sign = ch == "-" and -1 or 1
+            i = i + 1
+        end
+        if i > #s then return nil end
+
+        local rest = s:sub(i)
+        local token = rest:match("^%d*d%d+")
+        if token then
+            local countText, sidesText = token:match("^(%d*)d(%d+)$")
+            local count = tonumber(countText) or 1
+            local sides = tonumber(sidesText) or 0
+            if count <= 0 or sides <= 0 then return nil end
+            local lo, hi = count, count * sides
+            if sign < 0 then
+                min = min - hi
+                max = max - lo
+            else
+                min = min + lo
+                max = max + hi
+            end
+            sawDice = true
+            i = i + #token
+        else
+            local num = rest:match("^%d+")
+            if not num then return nil end
+            local value = (tonumber(num) or 0) * sign
+            min = min + value
+            max = max + value
+            i = i + #num
+        end
+
+        if i <= #s then
+            local nextChar = s:sub(i, i)
+            if nextChar ~= "+" and nextChar ~= "-" then return nil end
+        end
+    end
+
+    return min, max, sawDice
+end
+
+local function buildRangeExpression(min, max)
+    if max < min then return nil end
+    local count = max - min + 1
+    if count <= 1 then return tostring(min) end
+
+    local offset = min - 1
+    local base = "1d" .. tostring(count)
+    if offset > 0 then
+        return base .. "+" .. tostring(offset)
+    elseif offset < 0 then
+        return base .. "-" .. tostring(-offset)
+    end
+    return base
+end
+
+local function compressDamageExpression(expr, ratio)
+    local min, max, sawDice = parseDamageExpression(expr)
+    if not (min and max and sawDice) then return expr end
+    ratio = tonumber(ratio) or 0.3333
+    if ratio <= 0 or ratio >= 1 then return expr end
+
+    local originalCount = max - min + 1
+    local newCount = math.max(1, math.ceil(originalCount * ratio))
+    if newCount >= originalCount then return expr end
+
+    local center = (min + max) / 2
+    local newMin = math.floor(center - (newCount - 1) / 2 + 0.5)
+    local newMax = newMin + newCount - 1
+    if newMin < 0 then
+        newMax = newMax - newMin
+        newMin = 0
+    end
+    return buildRangeExpression(newMin, newMax) or expr
+end
+
+-- Compress all DealDamage(...) numeric expressions. A 1d12 (1-12) becomes
+-- 1d4+4 (5-8) at the default 1/3 range ratio.
+function U.CompressDealDamage(value, ratio)
+    if type(value) ~= "string" or value == "" then return value end
+    local ok, out = pcall(function()
+        return (value:gsub("DealDamage%(%s*([^,%(%)]+)%s*,", function(expr)
+            return "DealDamage(" .. compressDamageExpression(expr, ratio) .. ","
+        end))
+    end)
+    if ok then return out end
+    return value
+end
+
+-- Also handle plain damage fields such as Weapon.Damage = "1d8".
+function U.CompressDamageValue(value, ratio)
+    if type(value) ~= "string" or value == "" then return value end
+    local out = U.CompressDealDamage(value, ratio)
+    if out ~= value then return out end
+    return compressDamageExpression(value, ratio)
+end
+
+-- Rescale the damage expression inside DealDamage(...) calls. Used only for
+-- ported DOS2 spells. Dice expressions are converted to an equivalent range
+-- before scaling so this works even when dice flattening is disabled.
 function U.ScaleDealDamage(value, scale)
     if type(value) ~= "string" or value == "" or not scale or scale == 1 then
         return value
     end
     local ok, out = pcall(function()
-        return (value:gsub("DealDamage%(%s*(%d+)", function(raw)
-            local n = tonumber(raw) or 0
-            local scaled = math.max(1, math.floor(n * scale + 0.5))
-            return "DealDamage(" .. tostring(scaled)
+        return (value:gsub("DealDamage%(%s*([^,%(%)]+)%s*,", function(expr)
+            local min, max, sawDice = parseDamageExpression(expr)
+            if not min or not max then return "DealDamage(" .. expr .. "," end
+            local scaledMin = math.max(1, math.floor(min * scale + 0.5))
+            local scaledMax = math.max(scaledMin, math.floor(max * scale + 0.5))
+            if not sawDice then return "DealDamage(" .. tostring(scaledMin) .. "," end
+            return "DealDamage(" .. (buildRangeExpression(scaledMin, scaledMax)
+                or tostring(scaledMin)) .. ","
         end))
     end)
     if ok then return out end
