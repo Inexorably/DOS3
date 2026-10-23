@@ -226,6 +226,8 @@ Known DOS2 visual references for the current test spells:
 - [ ] Equipping armor changes P/M resistance but does not change hit chance.
 - [ ] Character armor overlay and armor-item hover overlay show correct P/M.
 - [ ] Item tooltip shows the real AC, not a normalized 10/0.
+- [ ] Item tooltip shows a `Physical Armor` / `Magic Armor` passive line with
+      the generated localization.
 - [ ] Cooldown enum mapping:
       `OncePerTurnNoRealtime=2`, `UntilShortRest=3`,
       `OncePerShortRestPerItem=4`, `UntilRest=5`,
