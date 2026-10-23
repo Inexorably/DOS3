@@ -118,6 +118,71 @@ local function pickBuff(guid)
     return available[#available].status
 end
 
+local function pickChampion()
+    local total = 0
+    local available = {}
+    for _, entry in ipairs(C.CHAMPIONS or {}) do
+        if entry.status then
+            local weight = tonumber(entry.weight) or 1
+            if weight > 0 then
+                total = total + weight
+                available[#available + 1] = entry
+            end
+        end
+    end
+    if #available == 0 or total <= 0 then return nil end
+    local roll = math.random() * total
+    local running = 0
+    for _, entry in ipairs(available) do
+        running = running + (tonumber(entry.weight) or 1)
+        if roll <= running then return entry end
+    end
+    return available[#available]
+end
+
+local function grantSummonSpells(guid, champion)
+    if not (Osi and Osi.AddSpell) then return end
+    for _, spell in ipairs(champion.spells or {}) do
+        local ok = pcall(Osi.AddSpell, guid, spell, 0, 1)
+        if not ok then pcall(Osi.AddSpell, guid, spell, 0) end
+    end
+end
+
+local function applyChampion(guid)
+    if not (C.CHAMPIONS and #C.CHAMPIONS > 0) then return false end
+    if hasStatus(guid, C.CHAMPION_MARKER) then return false end
+
+    -- Adopt a champion that survived without its separate roll marker.
+    for _, entry in ipairs(C.CHAMPIONS) do
+        if entry.status and hasStatus(guid, entry.status) then
+            pcall(Osi.ApplyStatus, guid, C.CHAMPION_MARKER, -1, 1)
+            grantSummonSpells(guid, entry)
+            return false
+        end
+    end
+
+    -- Persist the fact that this enemy was considered for a champion even when
+    -- the roll fails, so save/reload cannot reroll it.
+    if Osi and Osi.ApplyStatus then
+        pcall(Osi.ApplyStatus, guid, C.CHAMPION_MARKER, -1, 1)
+    end
+    if math.random() > (tonumber(C.CHAMPION_CHANCE) or 0.0) then
+        return false
+    end
+
+    local champion = pickChampion()
+    if not champion then return false end
+    local applied = Osi and Osi.ApplyStatus
+        and pcall(Osi.ApplyStatus, guid, champion.status, -1, 1)
+    if applied then
+        grantSummonSpells(guid, champion)
+        log("champion %s -> %s", champion.status, guid)
+        return true
+    end
+    log("champion apply failed %s -> %s", champion.status, guid)
+    return false
+end
+
 local function applyOne(entity, party)
     local guid = guidOf(entity)
     if not guid or buffed[guid] then return false end
@@ -127,43 +192,48 @@ local function applyOne(entity, party)
         return false
     end
 
-    if hasStatus(guid, C.MARKER_STATUS) then
-        buffed[guid] = true
-        return false
-    end
+    local applied = false
 
-    -- If a buff survived but the marker did not (older save or interrupted
-    -- write), adopt the existing state instead of stacking a new buff.
-    for _, entry in ipairs(C.BUFFS or {}) do
-        if entry.status and hasStatus(guid, entry.status) then
-            pcall(Osi.ApplyStatus, guid, C.MARKER_STATUS, -1, 1)
-            buffed[guid] = true
-            log("adopted existing buff %s for %s", entry.status, guid)
-            return false
+    -- Regular buff layer.
+    if not hasStatus(guid, C.MARKER_STATUS) then
+        local adopted = false
+        -- If a buff survived but the marker did not (older save or interrupted
+        -- write), adopt the existing state instead of stacking a new buff.
+        for _, entry in ipairs(C.BUFFS or {}) do
+            if entry.status and hasStatus(guid, entry.status) then
+                pcall(Osi.ApplyStatus, guid, C.MARKER_STATUS, -1, 1)
+                adopted = true
+                log("adopted existing buff %s for %s", entry.status, guid)
+                break
+            end
+        end
+
+        if not adopted then
+            -- Mark first. If the save happens immediately after this, reload
+            -- will not reroll the enemy even if the buff write was interrupted.
+            if Osi and Osi.ApplyStatus then
+                pcall(Osi.ApplyStatus, guid, C.MARKER_STATUS, -1, 1)
+            end
+            if math.random() <= (tonumber(C.BUFF_CHANCE) or 1.0) then
+                local status = pickBuff(guid)
+                if status and Osi and Osi.ApplyStatus then
+                    if pcall(Osi.ApplyStatus, guid, status, -1, 1) then
+                        applied = true
+                        log("random buff %s -> %s", status, guid)
+                    else
+                        log("buff apply failed %s -> %s", status, guid)
+                    end
+                end
+            end
         end
     end
 
-    -- Mark first. If the save happens immediately after this, reload will not
-    -- reroll the enemy even if the buff write was interrupted.
-    local marked = false
-    if Osi and Osi.ApplyStatus then
-        marked = pcall(Osi.ApplyStatus, guid, C.MARKER_STATUS, -1, 1)
-    end
+    -- Champion layer is independent so existing saves that already have a
+    -- regular-buff marker can still roll/adopt a champion.
+    if applyChampion(guid) then applied = true end
+
     buffed[guid] = true
-
-    if math.random() > (tonumber(C.BUFF_CHANCE) or 1.0) then
-        return false
-    end
-
-    local status = pickBuff(guid)
-    if not status then return false end
-    local applied = Osi and Osi.ApplyStatus and pcall(Osi.ApplyStatus, guid, status, -1, 1)
-    if applied then
-        log("random buff %s -> %s", status, guid)
-        return true
-    end
-    log("buff apply failed %s -> %s", status, guid)
-    return false
+    return applied
 end
 
 local function collectCombatants()

@@ -8,9 +8,17 @@ ER.Config = {
     -- 1.0 matches the DOS2 mod's default "always one regular buff".
     BUFF_CHANCE = 1.0,
 
-    -- Reserved for the DOS2 champion layer; disabled for the first BG3 pass.
-    CHAMPION_CHANCE = 0.0,
+    -- Champion layer. The DOS2 mod uses roughly a 1-in-8 champion chance.
+    CHAMPION_CHANCE = 0.125,
     CHAMPION_EXTRA_BUFFS = 1,
+    CHAMPION_MARKER = "ENR_CHAMPION_ROLLED",
+    CHAMPIONS = {
+        {
+            status = "ENR_CHAMPION_DINOSAURS",
+            spells = { "ENR_Summon_ChultAlioramus", "ENR_Summon_Crimson" },
+            weight = 1,
+        },
+    },
 
     -- A hidden persistent status marks enemies that were already randomized.
     -- This is what prevents rerolls after save/reload mid-combat and keeps
