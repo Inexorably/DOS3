@@ -159,8 +159,8 @@ local function setNativeCooldown(entity, name, turns)
         for i = 1, #comp.Cooldowns do
             local entry = comp.Cooldowns[i]
             if entryMatches(entry, name) then
-                entry.CooldownType = DEFAULT_COOLDOWN_TYPE
-                entry.CooldownType2 = DEFAULT_COOLDOWN_TYPE
+                entry.CooldownType = "UntilShortRest"
+                entry.CooldownType2 = "UntilShortRest"
                 entry.Cooldown = turns
                 entry.SpellCastGuid = ZERO_GUID
                 found = true
@@ -172,8 +172,8 @@ local function setNativeCooldown(entity, name, turns)
     if not found then
         list[#list + 1] = {
             SpellId = copySpellId(spell.Id),
-            CooldownType = DEFAULT_COOLDOWN_TYPE,
-            CooldownType2 = DEFAULT_COOLDOWN_TYPE,
+            CooldownType = "UntilShortRest",
+            CooldownType2 = "UntilShortRest",
             Cooldown = turns,
             SpellCastGuid = ZERO_GUID,
         }

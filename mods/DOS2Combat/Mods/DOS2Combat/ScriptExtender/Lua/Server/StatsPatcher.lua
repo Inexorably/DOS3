@@ -213,10 +213,11 @@ local function patchCharacter(stat)
 end
 
 local function flattenField(stat, field, changed)
-    local value = U.CompressLevelMapReferences(U.SafeGet(stat, field))
+    local original = U.SafeGet(stat, field)
+    local value = U.CompressLevelMapReferences(original)
     if type(value) ~= "string" or value == "" then return changed end
     local flat = U.FlattenDice(value)
-    if flat ~= value then
+    if flat ~= original then
         if U.SafeSet(stat, field, flat) then changed = true end
     end
     return changed
@@ -226,14 +227,15 @@ local function compressField(stat, field, changed, direct)
     local state = compressedFields[stat]
     if state and state[field] then return changed end
 
-    local value = U.CompressLevelMapReferences(U.SafeGet(stat, field))
+    local original = U.SafeGet(stat, field)
+    local value = U.CompressLevelMapReferences(original)
     if type(value) ~= "string" or value == "" then return changed end
 
     local cfg = DOS2C.Config
     local compressed = direct
         and U.CompressDamageValue(value, cfg.DAMAGE_RANGE_COMPRESSION)
         or U.CompressDealDamage(value, cfg.DAMAGE_RANGE_COMPRESSION)
-    if compressed ~= value and U.SafeSet(stat, field, compressed) then
+    if compressed ~= original and U.SafeSet(stat, field, compressed) then
         state = state or {}
         state[field] = true
         compressedFields[stat] = state
