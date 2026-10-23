@@ -57,6 +57,13 @@ DOS2C.Config = {
         -- ["Target_Multiattack_Gnoll_Flind_Melee"] = 4,
     },
 
+    -- Explicit overrides for BG3-native spells whose native data does not
+    -- describe their long-rest recharge (Astral Knowledge has no Cooldown
+    -- field at all, only an until-long-rest status).
+    COOLDOWN_OVERRIDES = {
+        Shout_AstralKnowledge = 5,
+    },
+
     -- Original DOS2 cooldowns for ported skills. These are intentionally not
     -- rebalanced; only BG3-native spells use the heuristics above.
     DOS2_COOLDOWNS = {

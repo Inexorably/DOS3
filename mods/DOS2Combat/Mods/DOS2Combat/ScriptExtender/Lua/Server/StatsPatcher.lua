@@ -302,6 +302,14 @@ local function cooldownForSpell(name, stat, level, costs, damageScale)
     -- spells go through the level/damage rebalancing below.
     if isDefaultAttack(name) then return 0 end
 
+    if type(cfg.COOLDOWN_OVERRIDES) == "table" then
+        for key, turns in pairs(cfg.COOLDOWN_OVERRIDES) do
+            if name == key or name:sub(1, #key + 1) == key .. "_" then
+                return math.min(cfg.COOLDOWN_MAX, math.max(1, tonumber(turns) or 1))
+            end
+        end
+    end
+
     local dos2Cooldown = cfg.DOS2_COOLDOWNS and cfg.DOS2_COOLDOWNS[name]
     if dos2Cooldown ~= nil then
         return math.min(cfg.COOLDOWN_MAX, math.max(1, dos2Cooldown))
@@ -379,10 +387,16 @@ local function patchSpell(name, stat)
     if cfg.CONVERT_NATIVE_COOLDOWNS then
         local currentCooldown = U.SafeGet(stat, "Cooldown")
         if currentCooldown ~= nil and currentCooldown ~= "" then
-            -- "Default" is not accepted by the SpellData Cooldown enum, and
-            -- an empty string cannot be written. OncePerTurn is a valid,
-            -- minimally restrictive value; the numeric overlay replaces it.
-            if U.SafeSet(stat, "Cooldown", "OncePerTurn") then changed = true end
+            -- SpellCooldownType.Default is enum value 0. Writing the numeric
+            -- value avoids the invalid "Default" label while preventing the
+            -- native tooltip from advertising a per-turn/rest cooldown that
+            -- no longer applies. Fall back to OncePerTurn only if the stats
+            -- field rejects numeric enum values.
+            if U.SafeSet(stat, "Cooldown", 0) then
+                changed = true
+            elseif U.SafeSet(stat, "Cooldown", "OncePerTurn") then
+                changed = true
+            end
         end
         if U.SafeGet(stat, "RechargeValues") ~= nil then
             if U.SafeSet(stat, "RechargeValues", "") then changed = true end

@@ -159,8 +159,8 @@ local function setNativeCooldown(entity, name, turns)
         for i = 1, #comp.Cooldowns do
             local entry = comp.Cooldowns[i]
             if entryMatches(entry, name) then
-                entry.CooldownType = "UntilShortRest"
-                entry.CooldownType2 = "UntilShortRest"
+                entry.CooldownType = DEFAULT_COOLDOWN_TYPE
+                entry.CooldownType2 = DEFAULT_COOLDOWN_TYPE
                 entry.Cooldown = turns
                 entry.SpellCastGuid = ZERO_GUID
                 found = true
@@ -172,8 +172,8 @@ local function setNativeCooldown(entity, name, turns)
     if not found then
         list[#list + 1] = {
             SpellId = copySpellId(spell.Id),
-            CooldownType = "UntilShortRest",
-            CooldownType2 = "UntilShortRest",
+            CooldownType = DEFAULT_COOLDOWN_TYPE,
+            CooldownType2 = DEFAULT_COOLDOWN_TYPE,
             Cooldown = turns,
             SpellCastGuid = ZERO_GUID,
         }
@@ -259,7 +259,7 @@ local function normalizeSpellbook(entity)
     end
 
     -- Drop native cooldown entries; keep only ordinary entries and numeric
-    -- UntilShortRest entries that this module is actively tracking.
+    -- Default-type numeric entries that this module is actively tracking.
     local comp = entity.SpellBookCooldowns
     if comp and comp.Cooldowns then
         local list = {}
@@ -343,7 +343,7 @@ function C.Apply(handle, name, turns)
     outOfCombatSeconds[guid] = 0
 
     setNativeCooldown(entity, name, turns)
-    setSpellbookCooldownType(entity, name, "UntilShortRest")
+    setSpellbookCooldownType(entity, name, DEFAULT_COOLDOWN_TYPE)
     U.Log("cooldown applied: %s for %d turns", tostring(name), turns)
     return true
 end
@@ -486,7 +486,7 @@ function C.ReapplyAll()
         if list then
             for name, remaining in pairs(list) do
                 setNativeCooldown(entity, name, remaining)
-                setSpellbookCooldownType(entity, name, "UntilShortRest")
+                setSpellbookCooldownType(entity, name, DEFAULT_COOLDOWN_TYPE)
             end
         end
     end

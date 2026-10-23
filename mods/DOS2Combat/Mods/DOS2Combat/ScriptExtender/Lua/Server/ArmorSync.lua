@@ -23,19 +23,62 @@ local function armorEntities()
     return entities
 end
 
-local function originalDisplayName(guid)
+local function resolveDisplayName(name)
+    if type(name) ~= "string" or name == "" then return name end
+    if name:sub(1, 7) ~= "ResStr_" then return name end
+    if Ext.Loca and Ext.Loca.GetTranslatedString then
+        local ok, text = pcall(Ext.Loca.GetTranslatedString, name)
+        if ok and text and tostring(text) ~= "" then return tostring(text) end
+    end
+    return name
+end
+
+local function originalDisplayName(entity, guid)
     if displayNames[guid] then return displayNames[guid] end
 
     local name
-    if Osi and Osi.GetDisplayName then
-        local ok, value = pcall(Osi.GetDisplayName, guid)
-        if ok and value and tostring(value) ~= "" then
-            name = tostring(value)
-        end
+    local list = entity and entity.ServerDisplayNameList
+    local first = list and list.Names and list.Names[1]
+    if first then
+        local ok, value = pcall(function() return first.Name end)
+        if ok and value and tostring(value) ~= "" then name = tostring(value) end
     end
+    if not name and Osi and Osi.GetDisplayName then
+        local ok, value = pcall(Osi.GetDisplayName, guid)
+        if ok and value and tostring(value) ~= "" then name = tostring(value) end
+    end
+    name = resolveDisplayName(name)
     if not name then name = guid end
     displayNames[guid] = name
     return name
+end
+
+local function setRuntimeDisplayName(entity, guid, text)
+    local applied = false
+
+    if Osi and Osi.SetDisplayName then
+        local ok, err = pcall(Osi.SetDisplayName, guid, text)
+        if ok then
+            applied = true
+        else
+            U.Log("Osi.SetDisplayName failed: %s", tostring(err))
+        end
+    end
+
+    -- Fallback for builds where SetDisplayName is not exposed through Osi.
+    -- The server display-name list is replicated to clients and is what the
+    -- native nameplate reads.
+    local list = entity and entity.ServerDisplayNameList
+    local first = list and list.Names and list.Names[1]
+    if first then
+        local ok = pcall(function() first.Name = text end)
+        if ok then
+            pcall(function() entity:Replicate("ServerDisplayNameList") end)
+            applied = true
+        end
+    end
+
+    return applied
 end
 
 function S.Snapshot(applyNames)
@@ -51,11 +94,12 @@ function S.Snapshot(applyNames)
                     local physical = math.floor(resist.physical + 0.5)
                     local magic = math.floor(resist.magic + 0.5)
                     parts[#parts + 1] = string.format("%s|%d|%d", guid, physical, magic)
-                    if applyNames and Osi and Osi.SetDisplayName then
-                        local base = originalDisplayName(guid)
+                    if applyNames then
+                        local base = originalDisplayName(entity, guid)
                         local text = string.format("%s  [P%d M%d]", base, physical, magic)
-                        local ok = pcall(Osi.SetDisplayName, guid, text)
-                        if ok then named = named + 1 end
+                        if setRuntimeDisplayName(entity, guid, text) then
+                            named = named + 1
+                        end
                     end
                 end
             end
