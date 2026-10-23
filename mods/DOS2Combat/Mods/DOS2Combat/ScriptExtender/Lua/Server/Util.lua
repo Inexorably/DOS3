@@ -309,6 +309,33 @@ local function compressDamageExpression(expr, ratio)
     return buildRangeExpression(newMin, newMax) or expr
 end
 
+-- LevelMap resource entries can only contain plain dice or integers, not
+-- dice+offset expressions. Replace level-map references with a compressed
+-- dice map plus an offset map, both added to LevelMapValues.lsx.
+local COMPRESSED_LEVEL_MAPS = {
+    "D4Cantrip",
+    "D6Cantrip",
+    "D8Cantrip",
+    "D10Cantrip",
+    "D12Cantrip",
+    "SneakAttack",
+    "BardicInspiration",
+    "SuperiorityDie",
+    "BreathWeapon",
+}
+
+function U.CompressLevelMapReferences(value)
+    if type(value) ~= "string" or value == "" then return value end
+    local out = value
+    for _, name in ipairs(COMPRESSED_LEVEL_MAPS) do
+        local custom = "DOS2C_" .. name
+        out = out:gsub("LevelMapValue%(%s*" .. name .. "%s*%)",
+            "(LevelMapValue(" .. custom .. "_Dice)+LevelMapValue("
+            .. custom .. "_Offset))")
+    end
+    return out
+end
+
 local DAMAGE_FUNCTORS = {
     "DealDamage",
     "DamageBonus",

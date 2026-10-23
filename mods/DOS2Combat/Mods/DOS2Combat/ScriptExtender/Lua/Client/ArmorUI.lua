@@ -190,6 +190,22 @@ local fallbackWindow = nil
 local fallbackText = nil
 local fallbackLogged = false
 
+local function fallbackPosition()
+    -- TargetInfo/HP info sits near the bottom center of the HUD. Anchor the
+    -- fallback there instead of on the far left.
+    if Ext.IMGUI and Ext.IMGUI.GetViewportSize then
+        local ok, vp = pcall(Ext.IMGUI.GetViewportSize)
+        if ok and vp then
+            local w = tonumber(vp[1]) or tonumber(vp.x) or tonumber(vp.X)
+            local h = tonumber(vp[2]) or tonumber(vp.y) or tonumber(vp.Y)
+            if w and h and w > 0 and h > 0 then
+                return { math.floor(w / 2) - 150, math.floor(h) - 300 }
+            end
+        end
+    end
+    return { 24, 260 }
+end
+
 local function updateFallback(text)
     if not (Ext.IMGUI and Ext.IMGUI.NewWindow) then return end
     if text == "" then
@@ -213,7 +229,7 @@ local function updateFallback(text)
     fallbackWindow.NoMove = true
     fallbackWindow.AlwaysAutoResize = true
     fallbackWindow.Open = true
-    pcall(function() fallbackWindow:SetPos({ 24, 260 }) end)
+    pcall(function() fallbackWindow:SetPos(fallbackPosition()) end)
     fallbackWindow:AddText(text)
     fallbackText = text
     if not fallbackLogged then

@@ -54,8 +54,6 @@ local STATUS_DAMAGE_FIELDS = {
     "OnApplyFail",
     "OnRemoveFunctors",
     "DescriptionParams",
-    "ExtraDescriptionParams",
-    "TooltipDamageList",
     "Boosts",
 }
 
@@ -64,8 +62,6 @@ local PASSIVE_DAMAGE_FIELDS = {
     "Properties",
     "Boosts",
     "DescriptionParams",
-    "ExtraDescriptionParams",
-    "TooltipDamageList",
 }
 
 local function isWeaponAttack(name)
@@ -217,7 +213,7 @@ local function patchCharacter(stat)
 end
 
 local function flattenField(stat, field, changed)
-    local value = U.SafeGet(stat, field)
+    local value = U.CompressLevelMapReferences(U.SafeGet(stat, field))
     if type(value) ~= "string" or value == "" then return changed end
     local flat = U.FlattenDice(value)
     if flat ~= value then
@@ -230,7 +226,7 @@ local function compressField(stat, field, changed, direct)
     local state = compressedFields[stat]
     if state and state[field] then return changed end
 
-    local value = U.SafeGet(stat, field)
+    local value = U.CompressLevelMapReferences(U.SafeGet(stat, field))
     if type(value) ~= "string" or value == "" then return changed end
 
     local cfg = DOS2C.Config
