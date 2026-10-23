@@ -2,7 +2,7 @@
 -- BG3 spellbook/hotbar path; it is added only to party members by Lua.
 new entry "DOS2C_TestSpells"
 type "PassiveData"
-data "Boosts" "UnlockSpell(DOS2C_Rain);UnlockSpell(DOS2C_ChaosBolt);UnlockSpell(DOS2C_FossilStrike);UnlockSpell(DOS2C_Contamination);UnlockSpell(DOS2C_GlobalCooling);UnlockSpell(DOS2C_ElectricDischarge);UnlockSpell(DOS2C_SmokeCover);UnlockSpell(DOS2C_AcidSpray)"
+data "Boosts" "UnlockSpell(DOS2C_Rain);UnlockSpell(DOS2C_FossilStrike);UnlockSpell(DOS2C_Contamination);UnlockSpell(DOS2C_GlobalCooling);UnlockSpell(DOS2C_ElectricDischarge);UnlockSpell(DOS2C_SmokeCover);UnlockSpell(DOS2C_AcidSpray)"
 
 -- Runtime AP max boost for existing saves. A passive is used instead of
 -- DefaultBoosts so characters already spawned in a save can receive it.
@@ -27,16 +27,6 @@ data "ContainerSpells" ""
 data "Icon" "DOS2C_Rain_DOS2Icon"
 data "TargetRadius" "8"
 data "AreaRadius" "10"
-
-new entry "DOS2C_ChaosBolt"
-type "SpellData"
-using "Projectile_ChromaticOrb_Poison"
-data "SpellAnimation" "3ff87abf-1ea1-4c32-aadf-c822d74c7dc0,,;,,;d30d2b40-c45a-45bd-94d7-9b2baaf0f77b,,;a601b33c-5320-455d-b4d4-74d6dc35b757,,;,,;,,;eadedcce-d01b-4fbb-a1ae-d218f13aa5d6,,;,,;,,"
-data "DisplayName" "habd460f6d1fd54ea9b0a92e264316b85"
-data "Description" "ha8ea0fd82b215a53aef7b5381f64977d"
-data "SpellContainerID" ""
-data "ContainerSpells" ""
-data "Icon" "DOS2C_ChaosBolt_DOS2Icon"
 
 new entry "DOS2C_FossilStrike"
 type "SpellData"
