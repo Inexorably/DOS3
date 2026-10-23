@@ -61,7 +61,19 @@ DOS2C.Config = {
     -- describe their long-rest recharge (Astral Knowledge has no Cooldown
     -- field at all, only an until-long-rest status).
     COOLDOWN_OVERRIDES = {
+        -- Long-rest/racial or class buffs whose native data is a persistent
+        -- status rather than a Cooldown/RechargeValues field.
         Shout_AstralKnowledge = 5,
+        Shout_AberrantShape = 5,
+        Shout_AspectOfTheElk = 5,
+        Shout_AspectOfTheWolf = 5,
+        Shout_Aid = 5,
+        Shout_AlterSelf = 5,
+        Shout_ArmorOfAgathys = 5,
+        Shout_ComprehendLanguages = 5,
+        Shout_DetectEvilAndGood = 5,
+        Shout_DetectThoughts = 5,
+        Shout_DisguiseSelf = 5,
     },
 
     -- Original DOS2 cooldowns for ported skills. These are intentionally not
