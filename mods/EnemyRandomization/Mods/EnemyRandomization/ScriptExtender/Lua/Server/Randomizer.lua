@@ -95,11 +95,24 @@ local function isParty(entity, guid, party)
     return false
 end
 
+-- Defensive guard: the configured buff table is curated as positive effects,
+-- but never allow obvious damage/control statuses if a future entry is added by
+-- mistake.
+local NEGATIVE_STATUSES = {
+    BLEEDING = true, BLINDED = true, BLOODLESS = true, BURNING = true,
+    CHILLED = true, FRIGHTENED = true, POISONED = true, PRONE = true,
+    SILENCED = true, SLOWED = true, STUNNED = true, WET = true,
+}
+
+local function isPositiveStatus(status)
+    return status ~= nil and not NEGATIVE_STATUSES[status]
+end
+
 local function pickBuff(guid)
     local total = 0
     local available = {}
     for _, entry in ipairs(C.BUFFS or {}) do
-        if entry.status and not hasStatus(guid, entry.status) then
+        if entry.status and isPositiveStatus(entry.status) and not hasStatus(guid, entry.status) then
             local weight = tonumber(entry.weight) or 1
             if weight > 0 then
                 total = total + weight

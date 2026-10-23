@@ -158,9 +158,17 @@ numeric remaining-turn counter per caster/spell, mirrors it into
 `SpellBookCooldowns`, decrements on `TurnStarted`, and clears the entry after
 5 turns.
 
+Some BG3 AI controllers ignore `SpellBookCooldowns` entries for custom spells,
+so the module also removes the summon skill from the caster's spellbook after a
+cast and restores it when the numeric cooldown expires. That is the actual
+enforcement path; the native cooldown entry is mainly for UI/state.
+
 The custom spell stat uses `UntilRest` so the DOS2Combat tooltip override can
 label it as a 5-turn cooldown; the numeric overlay handles the actual 5-turn
 duration.
+
+All random buffs must remain positive. `Randomizer.lua` has a defensive
+negative-status guard in addition to the curated buff list.
 
 ## Checklist for the next Champion of ... variant
 

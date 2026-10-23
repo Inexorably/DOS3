@@ -25,8 +25,10 @@ ER.Config = {
     -- multiplayer clients from seeing different results.
     MARKER_STATUS = "ENR_RANDOMIZED",
 
-    -- Native BG3 statuses used by the first pass. Add more entries as we
-    -- validate additional BG3 buffs.
+    -- Native BG3 statuses used by the first pass. Every entry here must be a
+    -- beneficial/positive status. Do not add Burning, Bleeding, Bloodless, or
+    -- other damaging/debuff statuses to this list. Add more entries only as we
+    -- validate additional positive BG3 buffs.
     BUFFS = {
         { status = "HASTE", weight = 1 },
         { status = "BLESS", weight = 1 },

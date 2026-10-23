@@ -150,6 +150,30 @@ local function clearNativeCooldown(entity, name)
     return writeCooldowns(entity, comp, list)
 end
 
+local function removeSpell(guid, name)
+    if not (Osi and Osi.RemoveSpell) then return false end
+    local ok = pcall(Osi.RemoveSpell, guid, name, 0)
+    if not ok then ok = pcall(Osi.RemoveSpell, guid, name) end
+    if ok then
+        log("summon spell removed from spellbook: %s (%s)", name, guid)
+    else
+        log("summon spell removal failed: %s (%s)", name, guid)
+    end
+    return ok
+end
+
+local function restoreSpell(guid, name)
+    if not (Osi and Osi.AddSpell) then return false end
+    local ok = pcall(Osi.AddSpell, guid, name, 0, 1)
+    if not ok then ok = pcall(Osi.AddSpell, guid, name, 0) end
+    if ok then
+        log("summon spell restored: %s (%s)", name, guid)
+    else
+        log("summon spell restore failed: %s (%s)", name, guid)
+    end
+    return ok
+end
+
 local function apply(handle, name)
     local entity = handle
     if type(handle) == "string" and Ext and Ext.Entity and Ext.Entity.Get then
@@ -161,8 +185,42 @@ local function apply(handle, name)
     active[guid] = active[guid] or {}
     active[guid][name] = TURNS
     setNativeCooldown(entity, name, TURNS)
+
+    -- Some BG3 AI controllers ignore SpellBookCooldowns entries for custom
+    -- spells. Temporarily remove the skill as well; it is restored by the
+    -- turn tick when the cooldown expires.
+    if Ext and Ext.Timer and Ext.Timer.WaitFor then
+        Ext.Timer.WaitFor(50, function() pcall(removeSpell, guid, name) end)
+    else
+        removeSpell(guid, name)
+    end
+
     log("summon cooldown applied: %s for %d turns (%s)", name, TURNS, guid)
     return true
+end
+
+local function recoverActive()
+    if not (Ext and Ext.Entity and Ext.Entity.GetAllEntitiesWithComponent) then return end
+    local ok, entities = pcall(Ext.Entity.GetAllEntitiesWithComponent, "SpellBookCooldowns")
+    if not ok or type(entities) ~= "table" then return end
+    for _, entity in ipairs(entities) do
+        local guid = guidOf(entity)
+        local comp = entity.SpellBookCooldowns
+        if guid and comp and comp.Cooldowns then
+            for i = 1, #comp.Cooldowns do
+                local entry = comp.Cooldowns[i]
+                local id = entry and entry.SpellId
+                local name = id and id.Prototype and tostring(id.Prototype)
+                if name and defs[name] then
+                    local turns = tonumber(entry.Cooldown) or TURNS
+                    if turns > 0 then
+                        active[guid] = active[guid] or {}
+                        active[guid][name] = turns
+                    end
+                end
+            end
+        end
+    end
 end
 
 local function onSpellCast(eventEntity)
@@ -191,6 +249,7 @@ local function onTurnStarted(character)
         if remaining <= 0 then
             active[guid][name] = nil
             clearNativeCooldown(entity, name)
+            restoreSpell(guid, name)
             log("summon cooldown expired: %s", name)
         else
             active[guid][name] = remaining
@@ -215,6 +274,13 @@ function C.Init()
     if Ext and Ext.Events and Ext.Events.SessionLoaded then
         Ext.Events.SessionLoaded:Subscribe(function()
             active = {}
+            if Ext.Timer and Ext.Timer.WaitFor then
+                for _, delay in ipairs({ 500, 1500, 3000 }) do
+                    Ext.Timer.WaitFor(delay, function() pcall(recoverActive) end)
+                end
+            else
+                pcall(recoverActive)
+            end
         end)
     end
 end
