@@ -61,10 +61,19 @@ local function onSummonCreated(eventEntity)
     -- The custom Character stats should already carry these values. If the
     -- engine did not apply them to the spawned Stats component, repair the
     -- ability array so per-level scaling is not silently lost.
-    if stats and stats:match("^ENR_") and stats:match("_L%d+$") then
+    local statsKey = stats and stats:match("^(ENR_.-)_L%d+$") or nil
+    local generated = ER.Generated or {}
+    local displayName = statsKey and generated.names and generated.names[statsKey] or nil
+    if displayName and Osi and Osi.SetDisplayName then
+        local guid = summon.Uuid and summon.Uuid.EntityUuid
+        if guid then pcall(Osi.SetDisplayName, tostring(guid), displayName) end
+    end
+
+    if statsKey then
         local levelFromStats = tonumber(stats:match("_L(%d+)$")) or level
         local offset = math.floor((levelFromStats - 1) / 4)
-        local base = { 19, 13, 17, 2, 12, 5 }
+        local base = (generated.abilities and generated.abilities[statsKey])
+            or { 19, 13, 17, 2, 12, 5 }
         local changed = false
         if summon.Stats and summon.Stats.Abilities then
             for i = 1, 6 do

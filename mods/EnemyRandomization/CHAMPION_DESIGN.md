@@ -12,6 +12,28 @@ This file is the reference for adding future **Champion of ...** variants.
 
 When testing is complete, restore a normal champion chance, e.g. `0.125`.
 
+## Summoning champion roster
+
+| Champion | Summons |
+| --- | --- |
+| Dinosaurs | Chult Alioramus, Crimson |
+| Spiders | Giant Spider, Phase Spider, Phase Spider Queen, Giant Spider Archer |
+| Goblins | Goblin, Goblin Boss, Goblin Caster, Goblin Ranger |
+| Ogres | Ogre, Ogre Captain |
+| Hell | Imp, Weak Imp, Hell Boar, Lesser Hell Boar |
+| Steel Watch | Steel Watcher, Hellfire Watcher |
+| Dragons | Red Dragon, Bronze Dragon |
+| Gnolls | Gnoll, Gnoll Fang of Yeenoghu, Gnoll Flind, Gnoll Flesh-Gnawer |
+| Mind Flayers | Mind Flayer, Mind Flayer Caster |
+| Bugbears | Bugbear, Bugbear Ninja, Bugbear Raider |
+| Redcaps | Redcap, Redcap Caster |
+| Constructs | Animated Armor, Adamantine Golem, Flesh Golem |
+| Owlbears | Owlbear, Armoured Owlbear, Owlbear Dad, Owlbear Cub |
+
+The generated roster is exported to
+`ScriptExtender/Lua/Server/GeneratedData.lua`, which supplies
+`Config.CHAMPIONS`, the cooldown registry, and summon ability/name data.
+
 ## Champion of Dinosaurs
 
 Status:
@@ -66,9 +88,12 @@ The generation is deterministic and creates one character root template and one
 Formulas used by `scripts/generate-enr-dinos.py`:
 
 ```text
-Vitality = round(51 * (1 + 0.18 * (level - 1)))
-Armor    = 13 + floor((level - 1) / 2)
+Vitality = round(source Vitality * (1 + 0.18 * (level - 1)))
+Armor    = source Armor + floor((level - 1) / 2)
 ```
+
+Each summon uses its own source `Character` stat block from BG3, so an ogre,
+dragon, and goblin do not share the dinosaur base values.
 
 Ability-score scaling uses a deterministic offset, not a percentage:
 
@@ -113,10 +138,15 @@ python scripts/generate-enr-dinos.py
 ./scripts/install.sh EnemyRandomization
 ```
 
-The generator requires the extracted source root templates:
+The generator requires both extracted root-template sets and the corresponding
+source character stats:
 
 ```text
+.analysis/rootsshared/Public/Shared/RootTemplates/_merged.lsx
 .analysis/roots/Public/SharedDev/RootTemplates/_merged.lsx
+.analysis/allstats/Public/Shared/Stats/Generated/Data/Character.txt
+.analysis/allstats/Public/SharedDev/Stats/Generated/Data/Character.txt
+.analysis/allstats/Public/Gustav/Stats/Generated/Data/Character.txt
 ```
 
 If missing, extract and convert them with LSLib/Divine:
@@ -186,12 +216,13 @@ so the module also removes the summon skill from the caster's spellbook after a
 cast and restores it when the numeric cooldown expires. That is the actual
 enforcement path; the native cooldown entry is mainly for UI/state.
 
-Each caster gets one hidden marker per skill:
+Each caster gets one hidden marker per skill, derived as:
 
 ```text
-ENR_COOLDOWN_ALIORAMUS
-ENR_COOLDOWN_CRIMSON
+ENR_COOLDOWN_<summon spell name>
 ```
+
+The generator creates these marker statuses for every summon skill.
 
 The marker persists through save/reload and lets the module recover an active
 cooldown even though Lua tables are session-local. A 1-second enforcement loop

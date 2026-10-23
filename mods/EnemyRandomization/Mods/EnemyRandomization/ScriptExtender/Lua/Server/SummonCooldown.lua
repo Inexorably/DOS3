@@ -20,16 +20,14 @@ local CFG = ER.Config
 local ZERO_GUID = "00000000-0000-0000-0000-000000000000"
 local SCAN_INTERVAL_MS = 1000
 
-local defs = {
-    ENR_Summon_ChultAlioramus = {
+local defs = {}
+local generated = ER.Generated or {}
+for _, spell in ipairs(generated.summons or {}) do
+    defs[spell] = {
         turns = 5,
-        marker = "ENR_COOLDOWN_ALIORAMUS",
-    },
-    ENR_Summon_Crimson = {
-        turns = 5,
-        marker = "ENR_COOLDOWN_CRIMSON",
-    },
-}
+        marker = "ENR_COOLDOWN_" .. spell,
+    }
+end
 
 local active = {} -- guid -> spell name -> remaining turns
 local periodicStarted = false

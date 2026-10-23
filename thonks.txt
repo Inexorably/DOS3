@@ -1,0 +1,42 @@
+Champion of Vitality
+- Animalistic Vitality
+- Warden of Vitality
+
+Champion of Lightning
+- Call Lightning
+- Crackling with Kereska's Lightning
+- Resistant to Lightning Damage
+- Static Discharge Aura
+
+Champion of Light
+- Resistant to Radiant Damage
+- Crusader's Mantle Aura
+- knows Radiant Sunbeam
+
+Champion of the Hunt
+- Aspect of the Elk Aura
+- Aspect of the Wolf Aura
+- knows Hunter's Mark
+- knows Rage: Tiger Heart
+- Pack Tactics
+
+Champion of Resilience
+- Crystal Skin
+- Muddy
+- Otiluke's Resilient Sphere
+
+Make like 10 more themed variants like this by picking themed conditions or spells to grant
+
+Summoning champion variants (give each variant a max of 4 possible granted enemy summoning skills):
+- Champion of Spiders
+- Champion of Goblins
+- It's Ogre // Summoning champion which summons Ogres.
+- Champion of Hell // summons Fiends like Imp / Hellsboar
+- Champion of the Steel Watch
+- Champion of Dragons
+- Champion of Gnolls
+- Champion of Mind Flayers
+- Champion of Bugbears
+- Champion of Redcaps
+- Champion of Constructs // non steel watch constructs
+- Champion of Owlbears
