@@ -165,9 +165,14 @@ PositionEffect 4f0091aa-4560-42c8-9372-a6ce061eebd8
 
 `CastEffect` is on the caster; `TargetEffect` is the summon impact at the
 target; `PositionEffect` is the lightning-style ground effect at the summon
-location. The summon functor is in `SpellSuccess` with a 500 ms target hit
-delay, so the dinosaur appears as the lightning presentation lands rather than
-before it starts.
+location.
+
+The summon functor must stay in `SpellProperties`. `SpellSuccess` does not
+reliably replace the inherited `SpellProperties` from
+`Target_SummonZombie_CorpseFlower`, which caused the imps to summon zombies
+instead of dinosaurs. The current implementation prioritizes correct dinosaur
+summoning; a delayed-summon presentation can be revisited with a dedicated
+Lua-timed path if needed.
 
 ## Cooldown implementation
 
