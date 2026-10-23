@@ -273,6 +273,9 @@ Known DOS2 visual references for the current test spells:
       cooldown markers, icons, and localization for every summoning champion.
 - [x] Implement 15 non-summoning themed champions using native BG3 statuses,
       passives, and granted spells.
+- [x] Make champion chance runtime-configurable and persist it in a ModVar.
+- [ ] Verify `!enemyrandom_chance` persistence across save/reload and that the
+      setting synchronizes to multiplayer clients.
 - [ ] Verify each non-summoning champion applies its listed statuses/passives
       and that all granted spell/status/passive names resolve in-game.
 - [ ] Verify each summoning champion grants its full 2-4 summon skill list and

@@ -1,3 +1,5 @@
+Ext.Require("Shared/Settings.lua")
+ER.Settings.Register()
 Ext.Require("Server/GeneratedData.lua")
 Ext.Require("Server/Config.lua")
 Ext.Require("Server/Randomizer.lua")

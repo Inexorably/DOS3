@@ -68,6 +68,23 @@ data. The closest native implementations are used:
 - Muddy -> `MUDMEPHIT_HARD` (AC and maximum-HP resilience), not the restrained
   mud-mephit condition.
 
+## Changing champion chance in game
+
+The champion chance is a persistent ModVar and can be changed without editing
+or rebuilding the mod. Open the Script Extender console with `Ctrl+F12` and use:
+
+```text
+!enemyrandom_chance 12.5
+!enemyrandom_chance 0.125
+!enemyrandom_chance 0
+!enemyrandom_status
+```
+
+`12.5` and `0.125` both mean 12.5%. The setting is stored in the savegame and
+synchronized to clients. It applies to enemies that have not already rolled
+their champion marker; existing champions and existing failed rolls are not
+rerolled.
+
 ## Champion of Dinosaurs
 
 Status:

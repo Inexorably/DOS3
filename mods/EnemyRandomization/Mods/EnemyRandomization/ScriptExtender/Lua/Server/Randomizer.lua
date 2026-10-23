@@ -131,6 +131,35 @@ local function pickBuff(guid)
     return available[#available].status
 end
 
+
+local function championChance()
+    if ER.Settings then
+        local saved = tonumber(ER.Settings.Get("ChampionChance", nil))
+        if saved then return math.max(0.0, math.min(1.0, saved)) end
+    end
+    return math.max(0.0, math.min(1.0, tonumber(C.CHAMPION_CHANCE) or 0.0))
+end
+
+local function setChampionChance(value)
+    local text = tostring(value or ""):gsub("%%", "")
+    local number = tonumber(text)
+    if not number then return nil end
+    if number > 1.0 then number = number / 100.0 end
+    number = math.max(0.0, math.min(1.0, number))
+    C.CHAMPION_CHANCE = number
+    if ER.Settings then ER.Settings.Set("ChampionChance", number) end
+    return number
+end
+
+local function notify(fmt, ...)
+    local text = string.format(fmt, ...)
+    if Ext and Ext.Utils and Ext.Utils.Print then
+        pcall(Ext.Utils.Print, LOG .. " " .. text)
+    elseif Ext and Ext.Log and Ext.Log.Print then
+        pcall(Ext.Log.Print, LOG .. " " .. text)
+    end
+end
+
 local function pickChampion()
     local total = 0
     local available = {}
@@ -200,7 +229,7 @@ local function applyChampion(guid)
     if Osi and Osi.ApplyStatus then
         pcall(Osi.ApplyStatus, guid, C.CHAMPION_MARKER, -1, 1)
     end
-    if math.random() > (tonumber(C.CHAMPION_CHANCE) or 0.0) then
+    if math.random() > championChance() then
         return false
     end
 
@@ -361,7 +390,22 @@ function R.Init()
     if Ext and Ext.RegisterConsoleCommand then
         pcall(Ext.RegisterConsoleCommand, "enemyrandom_apply", function()
             local n = R.ApplyAll()
-            log("manual apply: %d new buffs", n)
+            notify("manual apply: %d new buffs", n)
+        end)
+        pcall(Ext.RegisterConsoleCommand, "enemyrandom_chance", function(_, value)
+            if not value or tostring(value) == "" then
+                notify("champion chance is %.1f%%", championChance() * 100)
+                return
+            end
+            local chance = setChampionChance(value)
+            if chance then
+                notify("champion chance set to %.1f%% (persisted for future rolls)", chance * 100)
+            else
+                notify("usage: !enemyrandom_chance 0.125  or  !enemyrandom_chance 12.5%%")
+            end
+        end)
+        pcall(Ext.RegisterConsoleCommand, "enemyrandom_status", function()
+            notify("champion chance: %.1f%%", championChance() * 100)
         end)
     end
 

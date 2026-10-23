@@ -44,3 +44,14 @@ ER.Config = {
         { status = "VAMPIRIC_TOUCH", weight = 1 },
     },
 }
+
+
+-- Restore the persisted champion chance for existing saves. ModVars are
+-- registered by BootstrapServer before this file loads.
+if ER.Settings then
+    local saved = ER.Settings.Get("ChampionChance", nil)
+    local value = tonumber(saved)
+    if value then
+        ER.Config.CHAMPION_CHANCE = math.max(0.0, math.min(1.0, value))
+    end
+end
