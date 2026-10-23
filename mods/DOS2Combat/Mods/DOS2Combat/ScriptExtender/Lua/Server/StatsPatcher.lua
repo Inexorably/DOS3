@@ -364,11 +364,38 @@ local function cooldownForSpell(name, stat, level, costs, damageScale)
     return math.min(cfg.COOLDOWN_MAX, math.max(1, base))
 end
 
+-- Astral Knowledge is a long-rest racial buff in BG3. Its statuses are
+-- applied with duration -1 (until long rest), which lets the five ability
+-- variants stack indefinitely. Give the applied buff a five-turn duration and
+-- also apply the shared ASTRAL_KNOWLEDGE status so the spell's own
+-- "not HasActiveAstralKnowledge()" requirement blocks further variants.
+local function patchAstralKnowledge(name, stat)
+    if type(name) ~= "string" or name:sub(1, 21) ~= "Shout_AstralKnowledge" then
+        return false
+    end
+
+    local changed = false
+    for _, field in ipairs({ "SpellProperties", "TooltipStatusApply" }) do
+        local value = U.SafeGet(stat, field)
+        if type(value) == "string" and value ~= "" then
+            local updated = value:gsub("(ApplyStatus%([^,]+,[^,]+),%-1%)", "%1,5)")
+            if field == "SpellProperties" and name ~= "Shout_AstralKnowledge"
+                and not updated:find("ApplyStatus(ASTRAL_KNOWLEDGE,", 1, true) then
+                updated = updated .. ";ApplyStatus(ASTRAL_KNOWLEDGE,100,5)"
+            end
+            if updated ~= value and U.SafeSet(stat, field, updated) then
+                changed = true
+            end
+        end
+    end
+    return changed
+end
+
 local function patchSpell(name, stat)
     local cfg = DOS2C.Config
     local level = levelFor(name, stat)
     local apCost = costForSpell(name, level)
-    local changed = false
+    local changed = patchAstralKnowledge(name, stat)
 
     local costs = U.SafeGet(stat, "UseCosts")
     rememberNativeCooldown(name, stat)
