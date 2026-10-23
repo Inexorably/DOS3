@@ -219,6 +219,42 @@ local function findNamedNode(node, target, depth)
     return nil
 end
 
+local fallbackWindow = nil
+local fallbackText = nil
+local fallbackLogged = false
+
+local function updateFallback(text)
+    if not (Ext.IMGUI and Ext.IMGUI.NewWindow) then return end
+    if text == "" then
+        if fallbackWindow then
+            pcall(function() fallbackWindow:Destroy() end)
+            fallbackWindow = nil
+            fallbackText = nil
+        end
+        return
+    end
+    if text == fallbackText then return end
+
+    if fallbackWindow then
+        pcall(function() fallbackWindow:Destroy() end)
+        fallbackWindow = nil
+    end
+    fallbackWindow = Ext.IMGUI.NewWindow("DOS2 Armor")
+    fallbackWindow.NoTitleBar = true
+    fallbackWindow.NoDecoration = true
+    fallbackWindow.NoInputs = true
+    fallbackWindow.NoMove = true
+    fallbackWindow.AlwaysAutoResize = true
+    fallbackWindow.Open = true
+    pcall(function() fallbackWindow:SetPos({ 24, 260 }) end)
+    fallbackWindow:AddText(text)
+    fallbackText = text
+    if not fallbackLogged then
+        fallbackLogged = true
+        log("armor fallback window active: %s", text)
+    end
+end
+
 local function updateHoveredArmor()
     if not (Ext.UI and Ext.UI.Defer and Ext.UI.GetRoot) then return end
     Ext.UI.Defer(function()
@@ -232,17 +268,6 @@ local function updateHoveredArmor()
                     armorNode = findNamedNode(root, "DOS2ArmorText", 0)
                 end
             end
-        end
-        if not armorNode then
-            if not nodeLogged then
-                nodeLogged = true
-                log("DOS2ArmorText node not found in TargetInfo")
-            end
-            return
-        end
-        if not nodeFoundLogged then
-            nodeFoundLogged = true
-            log("DOS2ArmorText node found")
         end
 
         local guid = hoveredGuid()
@@ -262,6 +287,22 @@ local function updateHoveredArmor()
                 log("armor text set: %s", text)
             end
         end
+
+        if not armorNode then
+            if not nodeLogged then
+                nodeLogged = true
+                log("DOS2ArmorText node not found in TargetInfo")
+            end
+            -- Keep the feature usable even if a future game patch changes the
+            -- TargetInfo XAML name scope.
+            updateFallback(text)
+            return
+        end
+        if not nodeFoundLogged then
+            nodeFoundLogged = true
+            log("DOS2ArmorText node found")
+        end
+        updateFallback("")
         setNodeText(armorNode, text)
     end)
 end
