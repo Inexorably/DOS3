@@ -65,18 +65,9 @@ local function setRuntimeDisplayName(entity, guid, text)
         end
     end
 
-    -- Fallback for builds where SetDisplayName is not exposed through Osi.
-    -- The server display-name list is replicated to clients and is what the
-    -- native nameplate reads.
-    local list = entity and entity.ServerDisplayNameList
-    local first = list and list.Names and list.Names[1]
-    if first then
-        local ok = pcall(function() first.Name = text end)
-        if ok then
-            pcall(function() entity:Replicate("ServerDisplayNameList") end)
-            applied = true
-        end
-    end
+    -- ServerDisplayNameList has no replication mapping in this BG3SE build;
+    -- do not attempt to replicate it (it produces a log error for every
+    -- character on every snapshot).
 
     return applied
 end

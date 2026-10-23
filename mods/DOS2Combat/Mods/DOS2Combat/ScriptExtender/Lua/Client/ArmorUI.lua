@@ -122,6 +122,77 @@ local function parse(payload)
     applyAll()
 end
 
+-- TargetInfo.xaml is overridden by this mod with a named DOS2ArmorText
+-- TextBlock under the native HP bar. Populate it for the hovered character.
+local armorNode = nil
+local nodeLogged = false
+
+local function setNodeText(node, text)
+    local ok = pcall(function() node.Text = text end)
+    if ok then return true end
+    local ok2 = pcall(function() node:SetProperty("Text", text) end)
+    return ok2
+end
+
+local function entityGuid(handle)
+    if not handle then return nil end
+    local entity = Ext.Entity.Get(handle)
+    if not entity then return nil end
+    return guidOf(entity)
+end
+
+local function hoveredGuid()
+    if not (Ext.UI and Ext.UI.GetPickingHelper) then return nil end
+    for _, player in ipairs({ 1, 0 }) do
+        local ok, helper = pcall(Ext.UI.GetPickingHelper, player)
+        if ok and helper then
+            local inner = helper.Inner
+            local entries = inner and inner.Inner
+            if entries then
+                for i = 1, 2 do
+                    local entry = entries[i]
+                    if entry then
+                        local guid = entityGuid(entry.Character)
+                            or entityGuid(entry.DeadCharacter)
+                            or entityGuid(entry.Tooltip)
+                        if guid then return guid end
+                    end
+                end
+            end
+        end
+    end
+    return nil
+end
+
+local function updateHoveredArmor()
+    if not (Ext.UI and Ext.UI.Defer and Ext.UI.GetRoot) then return end
+    Ext.UI.Defer(function()
+        if not armorNode then
+            local root = Ext.UI.GetRoot()
+            if root then
+                local ok, node = pcall(function() return root:Find("DOS2ArmorText") end)
+                if ok and node then armorNode = node end
+            end
+        end
+        if not armorNode then
+            if not nodeLogged then
+                nodeLogged = true
+                log("DOS2ArmorText node not found in TargetInfo")
+            end
+            return
+        end
+
+        local guid = hoveredGuid()
+        local value = guid and values[guid]
+        local text = ""
+        if value then
+            text = string.format("Physical Armor: %d    Magic Armor: %d",
+                math.floor(value.physical + 0.5), math.floor(value.magic + 0.5))
+        end
+        setNodeText(armorNode, text)
+    end)
+end
+
 if Ext.Events and Ext.Events.NetMessage then
     Ext.Events.NetMessage:Subscribe(function(ev)
         if ev and ev.Channel == "DOS2C_Armor" then
@@ -135,6 +206,10 @@ end
 if Ext.Events and Ext.Events.Tick then
     Ext.Events.Tick:Subscribe(function()
         tickCount = tickCount + 1
+        if (tickCount % 30) == 0 then
+            local ok, err = pcall(updateHoveredArmor)
+            if not ok then log("armor target UI error: %s", tostring(err)) end
+        end
         if (tickCount % 120) == 0 then
             local ok, err = pcall(applyAll)
             if not ok then log("armor overlay refresh error: %s", tostring(err)) end
