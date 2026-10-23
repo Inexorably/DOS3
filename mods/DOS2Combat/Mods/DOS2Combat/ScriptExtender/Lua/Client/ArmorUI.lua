@@ -92,21 +92,19 @@ local function applyAll()
     local ok, entities = pcall(Ext.Entity.GetAllEntitiesWithComponent, "DisplayName")
     if not ok or type(entities) ~= "table" then return end
 
-    local applied = 0
+    -- The server updates the actual overhead display name through
+    -- Osi.SetDisplayName. Do not rewrite DisplayName here, or the suffix can
+    -- be duplicated when the server-replicated name arrives.
+    local seen = 0
     for _, entity in ipairs(entities) do
         if entity.Health then
             local guid = guidOf(entity)
-            local value = guid and values[guid]
-            if value then
-                if setOverheadName(entity, guid, value.physical, value.magic) then
-                    applied = applied + 1
-                end
-            end
+            if guid and values[guid] then seen = seen + 1 end
         end
     end
-    if not logged and applied > 0 then
+    if not logged and seen > 0 then
         logged = true
-        log("overhead armor readout active on %d characters", applied)
+        log("armor snapshot received for %d characters", seen)
     end
 end
 

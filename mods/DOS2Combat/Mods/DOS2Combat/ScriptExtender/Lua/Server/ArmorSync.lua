@@ -13,6 +13,8 @@ local U = DOS2C.Utils
 
 local CHANNEL = "DOS2C_Armor"
 local lastPayload = nil
+local displayNames = {}
+local namesLogged = false
 
 local function armorEntities()
     if not (Ext.Entity and Ext.Entity.GetAllEntitiesWithComponent) then return {} end
@@ -21,8 +23,24 @@ local function armorEntities()
     return entities
 end
 
-function S.Snapshot()
+local function originalDisplayName(guid)
+    if displayNames[guid] then return displayNames[guid] end
+
+    local name
+    if Osi and Osi.GetDisplayName then
+        local ok, value = pcall(Osi.GetDisplayName, guid)
+        if ok and value and tostring(value) ~= "" then
+            name = tostring(value)
+        end
+    end
+    if not name then name = guid end
+    displayNames[guid] = name
+    return name
+end
+
+function S.Snapshot(applyNames)
     local parts = {}
+    local named = 0
     for _, entity in ipairs(armorEntities()) do
         -- Only characters have Health; this skips item/status resource holders.
         if entity.Health then
@@ -30,18 +48,29 @@ function S.Snapshot()
             if guid then
                 local resist = A.Get(guid)
                 if resist then
-                    parts[#parts + 1] = string.format("%s|%d|%d",
-                        guid, math.floor(resist.physical + 0.5), math.floor(resist.magic + 0.5))
+                    local physical = math.floor(resist.physical + 0.5)
+                    local magic = math.floor(resist.magic + 0.5)
+                    parts[#parts + 1] = string.format("%s|%d|%d", guid, physical, magic)
+                    if applyNames and Osi and Osi.SetDisplayName then
+                        local base = originalDisplayName(guid)
+                        local text = string.format("%s  [P%d M%d]", base, physical, magic)
+                        local ok = pcall(Osi.SetDisplayName, guid, text)
+                        if ok then named = named + 1 end
+                    end
                 end
             end
         end
+    end
+    if applyNames and not namesLogged then
+        namesLogged = true
+        U.Log("armor overhead names: %d characters updated", named)
     end
     return table.concat(parts, ";")
 end
 
 function S.Broadcast(force)
     if not (Ext.Net and Ext.Net.BroadcastMessage) then return end
-    local payload = S.Snapshot()
+    local payload = S.Snapshot(true)
     if not force and payload == lastPayload then return end
     lastPayload = payload
     local ok, err = pcall(Ext.Net.BroadcastMessage, CHANNEL, payload)
