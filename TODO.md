@@ -201,9 +201,12 @@ Known DOS2 visual references for the current test spells:
 ## Armor
 
 - [x] Armor no longer depletes; it is flat per-hit physical/magic resistance.
-- [x] Resistance is derived from equipped armor and applicable statuses,
+- [x] Party resistance is derived from equipped armor and applicable statuses,
       not character level.
+- [x] Non-party enemies without equipment derive P/M armor from native AC.
+- [x] Enemy native AC is converted to armor and removed from attack rolls.
 - [x] Shields use their AC bonus rather than the base-AC-minus-10 formula.
+- [ ] Verify enemy innate armor and enemy AC removal in-game.
 - [x] A StatsDamage fallback handles damage paths where Hit.DamageList is
       empty.
 - [x] CC gating is intentionally skipped for now.

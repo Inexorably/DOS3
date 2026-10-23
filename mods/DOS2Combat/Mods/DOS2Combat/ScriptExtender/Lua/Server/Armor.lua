@@ -13,6 +13,8 @@ local A = DOS2C.Armor
 local U = DOS2C.Utils
 
 local resistances = {}
+local originalACs = {}
+local enemyACStripped = {}
 
 local ARMOR_SLOTS = {
     "Helmet", "Breast", "Cloak", "Gloves", "Boots",
@@ -115,6 +117,44 @@ local function isPartyCharacter(handle, entity)
     return false
 end
 
+local function stripEnemyAC(handle)
+    local cfg = DOS2C.Config
+    if not cfg.ENEMY_INNATE_ARMOR_ENABLED then return false end
+    local guid = U.GuidOf(handle)
+    if not guid or enemyACStripped[guid] then return true end
+
+    local applied = false
+    if Osi and Osi.SetArmorClass then
+        local ok = pcall(Osi.SetArmorClass, guid, 0)
+        applied = ok or applied
+    end
+    if Osi and Osi.SetArmorClassBoost then
+        pcall(Osi.SetArmorClassBoost, guid, 0)
+    end
+    if not applied and Osi and Osi.AddBoosts then
+        applied = pcall(Osi.AddBoosts, guid, "AC(-100)", "DOS2C_NoDodge")
+    end
+    if not applied and Osi and Osi.ApplyStatus then
+        local has = false
+        if Osi.HasStatus then
+            local ok, result = pcall(Osi.HasStatus, guid, "DOS2C_NoDodge")
+            has = ok and (result == 1 or result == true)
+        end
+        if not has then
+            applied = pcall(Osi.ApplyStatus, guid, "DOS2C_NoDodge", -1)
+        else
+            applied = true
+        end
+    end
+    if applied then
+        enemyACStripped[guid] = true
+        U.Log("enemy AC converted to armor: %s", guid)
+    else
+        U.Log("enemy AC could not be removed: %s", guid)
+    end
+    return applied
+end
+
 local function nativeArmorClass(handle, entity)
     if entity and entity.Armor then
         local ac = tonumber(entity.Armor.ArmorClass) or 0
@@ -131,7 +171,15 @@ local function armorFromInnate(handle, entity, pieces)
     local cfg = DOS2C.Config
     if not cfg.ENEMY_INNATE_ARMOR_ENABLED then return 0, 0, nil end
     if pieces > 0 or isPartyCharacter(handle, entity) then return 0, 0, nil end
-    local ac, armor = nativeArmorClass(handle, entity)
+    local guid = U.GuidOf(handle)
+    local ac, armor = nil, nil
+    if guid and originalACs[guid] then
+        ac = originalACs[guid]
+        armor = entity and entity.Armor or nil
+    else
+        ac, armor = nativeArmorClass(handle, entity)
+        if ac and guid then originalACs[guid] = ac end
+    end
     if not ac then return 0, 0, nil end
     local gain = math.max(0, ac - 9)
     if gain <= 0 then return 0, 0, ac end
@@ -167,6 +215,7 @@ local function computeResistance(handle)
     local skillPhysical, skillMagic = armorFromSkills(handle)
     local entity = U.EntityOf(handle)
     local innatePhysical, innateMagic, innateAC = armorFromInnate(handle, entity, pieces)
+    if not isPartyCharacter(handle, entity) then stripEnemyAC(handle) end
     return {
         physical = cfg.ARMOR_BASE_PHYSICAL + gearPhysical + skillPhysical + innatePhysical,
         magic = cfg.ARMOR_BASE_MAGIC + gearMagic + skillMagic + innateMagic,
