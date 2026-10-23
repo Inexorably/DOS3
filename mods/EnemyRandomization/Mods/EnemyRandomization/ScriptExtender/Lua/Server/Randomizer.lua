@@ -73,8 +73,14 @@ local function inCombat(entity, guid)
 end
 
 local function isSummon(entity)
-    return entity and (entity.Summon or entity.SummonContainer
-        or entity.SummonLifetime or entity.SummonCreatedEvent) ~= nil
+    if not entity then return false end
+    -- Do not access unknown components directly: BG3SE raises on invalid
+    -- EntityProxy component names and that would abort the whole scan.
+    for _, component in ipairs({ "SummonContainer", "SummonLifetime", "SummonCreatedEvent" }) do
+        local ok, value = pcall(function() return entity[component] end)
+        if ok and value ~= nil then return true end
+    end
+    return false
 end
 
 local function isParty(entity, guid, party)
