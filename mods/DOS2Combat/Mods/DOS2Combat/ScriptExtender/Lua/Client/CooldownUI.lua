@@ -53,26 +53,25 @@ local function rebuild()
         pcall(function() window:Destroy() end)
         window = nil
     end
-    if not ensureWindow() then return end
-
     local entity = localAvatar()
     local entries = entity and entity.SpellBookCooldowns
         and entity.SpellBookCooldowns.Cooldowns
 
-    local shown = 0
+    local active = {}
     if type(entries) == "table" then
         for _, entry in ipairs(entries) do
             local turns = tonumber(entry.Cooldown) or 0
-            if turns > 0 then
-                window:AddText(string.format("%s: %d turn%s",
-                    prettyName(nameOf(entry)), turns, turns == 1 and "" or "s"))
-                shown = shown + 1
-            end
+            if turns > 0 then active[#active + 1] = { entry = entry, turns = turns } end
         end
     end
 
-    if shown == 0 then
-        window:AddText("No active cooldowns")
+    -- Do not create the window at all when there is nothing active.
+    if #active == 0 then return end
+    if not ensureWindow() then return end
+    for _, item in ipairs(active) do
+        window:AddText(string.format("%s: %d turn%s",
+            prettyName(nameOf(item.entry)), item.turns,
+            item.turns == 1 and "" or "s"))
     end
 end
 
