@@ -13,6 +13,12 @@
       (e.g. native Fireball 5, Magic Missile 3).
 - [x] Add a client IMGUI overlay that reads replicated `SpellBookCooldowns`
       and lists the actual remaining turn count.
+- [x] Audited status-only spells whose native data has no Level/Cooldown;
+      added five-turn overrides for the player long-rest/class buffs.
+- [x] Astral Knowledge buff statuses now apply for 5 turns instead of
+      until-long-rest, and the shared ASTRAL_KNOWLEDGE status blocks variants.
+- [ ] Verify Astral Knowledge expires after 5 turns / 30 seconds out of combat
+      and that no other variant can be applied while it is active.
 - [ ] Replace the native hotbar/tooltip "Short rest" text itself; the current
       overlay shows the number, but BG3's native hotbar only understands enum
       cooldown labels.
