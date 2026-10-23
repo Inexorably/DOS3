@@ -16,11 +16,15 @@
       Prone/Restrained, cover, and high-ground attack modifiers work again.
 - [x] Keep saving throws removed for now; only saving-throw effects are
       unwrapped.
-- [ ] Native attack rolls still use BG3's d20 + attack bonus vs AC. This is an
-      accuracy-vs-dodge approximation, not the exact DOS2 linear
-      `clamp(Accuracy - Dodge, 5, 100)` formula.
-- [ ] Decide how AC should be converted to a dedicated Dodge value without
-      also making gear armor reduce hit chance.
+- [x] Cache equipment AC for flat armor resistance, then normalize the native
+      armor AC to 10 or 0 (shields) so gear no longer also acts as hit
+      avoidance.
+- [x] Native attack rolls now use the remaining AC as the Dodge value:
+      base 10 plus explicit Dodge/AC boosts.
+- [ ] Dedicated accuracy/dodge stat sources and UI labels; native AC still
+      appears as "Armor Class" in item/stat tooltips.
+- [ ] Native attack rolls use d20 increments (5% steps), not the exact DOS2
+      linear accuracy-minus-dodge formula.
 - [ ] Audit statuses that only modify saving throws; they currently do
       nothing because saving throws are removed.
 

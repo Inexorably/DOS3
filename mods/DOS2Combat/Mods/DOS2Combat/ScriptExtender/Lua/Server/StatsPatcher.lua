@@ -12,6 +12,7 @@
 
 DOS2C = DOS2C or {}
 DOS2C.Stats = DOS2C.Stats or {}
+DOS2C.ArmorOriginalAC = DOS2C.ArmorOriginalAC or {}
 
 local S = DOS2C.Stats
 local U = DOS2C.Utils
@@ -573,6 +574,32 @@ local function patchSpell(name, stat)
     return changed
 end
 
+-- Equipment AC is captured for the DOS2 flat-resistance calculation, then
+-- removed from the native AC used by attack rolls. The native AC that remains
+-- (base 10 plus any explicit Dodge/AC boosts) is the isolated Dodge value.
+local function patchArmor(name, stat)
+    local ac = tonumber(U.SafeGet(stat, "ArmorClass"))
+    if not ac or ac <= 0 then return false end
+    if not DOS2C.ArmorOriginalAC[name] then
+        DOS2C.ArmorOriginalAC[name] = ac
+    end
+    local original = DOS2C.ArmorOriginalAC[name]
+
+    local shield = tostring(U.SafeGet(stat, "Shield") or ""):lower() == "yes"
+    local normalized
+    if shield then
+        normalized = 0
+    elseif original >= 10 then
+        normalized = 10
+    else
+        normalized = original
+    end
+    if normalized ~= ac and U.SafeSet(stat, "ArmorClass", tostring(normalized)) then
+        return true
+    end
+    return false
+end
+
 local function patchWeapon(stat)
     local cfg = DOS2C.Config
     if not (cfg.COMPRESS_DAMAGE_RANGES or cfg.FLATTEN_WEAPON_DICE) then
@@ -946,6 +973,9 @@ function S.PatchAll(runtime)
     local nWeapons = eachStat("Weapon", function(_, stat)
         return patchWeapon(stat)
     end)
+    local nArmor = eachStat("Armor", function(name, stat)
+        return patchArmor(name, stat)
+    end)
     local nStatuses = eachStat("StatusData", function(_, stat)
         return patchStatusDamage(stat)
     end)
@@ -955,7 +985,7 @@ function S.PatchAll(runtime)
 
     if runtime then
         -- Stats changes made after module load must be replicated to clients.
-        for _, statType in ipairs({ "Character", "SpellData", "Weapon", "StatusData", "PassiveData" }) do
+        for _, statType in ipairs({ "Character", "SpellData", "Weapon", "Armor", "StatusData", "PassiveData" }) do
             local ok, names = pcall(Ext.Stats.GetStats, statType)
             if ok and type(names) == "table" then
                 for _, name in ipairs(names) do
@@ -979,7 +1009,7 @@ function S.PatchAll(runtime)
         cdHist[4] or 0, cdHist[5] or 0, cdHist[6] or 0)
 
     S.Patched = true
-    U.Log("patched %d characters, %d spells, %d weapons, %d statuses, %d passives", nCharacters, nSpells, nWeapons, nStatuses, nPassives)
+    U.Log("patched %d characters, %d spells, %d weapons, %d armor, %d statuses, %d passives", nCharacters, nSpells, nWeapons, nArmor, nStatuses, nPassives)
 end
 
 if Ext.Events and Ext.Events.StatsLoaded then

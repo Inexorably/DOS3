@@ -25,12 +25,22 @@ local function hasStatus(handle, status)
     return ok and (result == 1 or result == true)
 end
 
--- Convert an equipment piece's AC into flat resistance.
--- Normal armor treats AC 10 as 1 contribution point (AC 14 -> 5 points);
--- shields store their bonus directly (usually 2).
-local function addResistanceFromItem(armor, physical, magic, pieces)
+-- Equipment AC is stored for resistance use, then the native ArmorClass is
+-- normalized to 10 so equipment does not also act as hit avoidance. Native
+-- attack rolls use the remaining AC (base + Dodge) for hit chance.
+local function originalArmorClass(entity, armor)
+    local data = entity and entity.Data
+    local statName = data and data.StatsId
+    if statName ~= nil and DOS2C.ArmorOriginalAC then
+        local value = DOS2C.ArmorOriginalAC[tostring(statName)]
+        if value then return tonumber(value) or 0 end
+    end
+    return tonumber(armor.ArmorClass) or 0
+end
+
+local function addResistanceFromItem(armor, entity, physical, magic, pieces)
     local cfg = DOS2C.Config
-    local ac = tonumber(armor.ArmorClass) or 0
+    local ac = originalArmorClass(entity, armor)
     local gain = math.max(0, armor.Shield and ac or (ac - 9))
     if gain <= 0 then return physical, magic, pieces end
 
@@ -59,7 +69,7 @@ local function armorFromGear(handle)
             local entity = U.EntityOf(item)
             local armor = entity and entity.Armor
             if armor then
-                physical, magic, pieces = addResistanceFromItem(armor, physical, magic, pieces)
+                physical, magic, pieces = addResistanceFromItem(armor, entity, physical, magic, pieces)
             end
         end
     end
