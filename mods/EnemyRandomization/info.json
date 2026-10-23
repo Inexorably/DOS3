@@ -1,0 +1,13 @@
+{
+  "Mods": [
+    {
+      "Name": "Enemy Randomization",
+      "Author": "Shawn",
+      "Description": "Adds random BG3 buffs to enemies at combat start. Starts with native BG3 statuses; designed to be expanded with additional randomization rules.",
+      "Version": "0.1.0",
+      "UUID": "c96519b6-7413-463a-84c1-1d91eeb65208",
+      "Folder": "EnemyRandomization",
+      "Dependencies": []
+    }
+  ]
+}

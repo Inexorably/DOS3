@@ -4,24 +4,26 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -W)"
 DIVINE="$ROOT/tools/lslib/Packed/Tools/Divine.exe"
-MOD="$ROOT/mods/DOS2Combat"
+MODNAME="${1:-DOS2Combat}"
+MOD="$ROOT/mods/$MODNAME"
 
 python - <<PY
 import json, sys, xml.etree.ElementTree as ET
 mod = r"$MOD"
+modname = r"$MODNAME"
 with open(mod + r"/info.json", encoding="utf-8") as f:
     info = json.load(f)
-assert info["Mods"][0]["Folder"] == "DOS2Combat", info
-ET.parse(mod + r"/Mods/DOS2Combat/meta.lsx")
+assert info["Mods"][0]["Folder"] == modname, info
+ET.parse(mod + r"/Mods/" + modname + r"/meta.lsx")
 print("info.json ok; meta.lsx well-formed")
 PY
 
-if [[ -f "$ROOT/dist/DOS2Combat.pak" && -f "$DIVINE" ]]; then
+if [[ -f "$ROOT/dist/$MODNAME.pak" && -f "$DIVINE" ]]; then
     echo "Package contents:"
-    "$DIVINE" -a list-package -g bg3 -s "$ROOT/dist/DOS2Combat.pak"
+    "$DIVINE" -a list-package -g bg3 -s "$ROOT/dist/$MODNAME.pak"
 else
-    echo "dist/DOS2Combat.pak not built yet (run scripts/build.sh)."
+    echo "dist/$MODNAME.pak not built yet (run scripts/build.sh $MODNAME)."
 fi
 
 echo "Lua files:"
-find "$MOD/Mods/DOS2Combat/ScriptExtender/Lua" -name '*.lua' -print
+find "$MOD/Mods/$MODNAME/ScriptExtender/Lua" -name '*.lua' -print

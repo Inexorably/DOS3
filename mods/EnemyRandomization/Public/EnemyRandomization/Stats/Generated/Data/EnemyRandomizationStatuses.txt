@@ -1,0 +1,9 @@
+-- Persistent, hidden marker used to keep random assignments stable across
+-- save/reload and multiplayer synchronization.
+new entry "ENR_RANDOMIZED"
+type "StatusData"
+data "StatusType" "BOOST"
+data "DisplayName" "Randomized"
+data "Description" "This enemy has already received an Enemy Randomization buff."
+data "StackId" "ENR_RANDOMIZED"
+data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"

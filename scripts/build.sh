@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-# Build the DOS2Combat mod into dist/DOS2Combat.pak using LSLib.
+# Build a mod into dist/<mod>.pak using LSLib.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -W)"
 DIVINE="$ROOT/tools/lslib/Packed/Tools/Divine.exe"
-SRC="$ROOT/mods/DOS2Combat"
+MOD="${1:-DOS2Combat}"
+SRC="$ROOT/mods/$MOD"
 OUT="$ROOT/dist"
 
 if [[ ! -f "$DIVINE" ]]; then
@@ -14,6 +15,11 @@ if [[ ! -f "$DIVINE" ]]; then
 fi
 
 mkdir -p "$OUT"
+if [[ ! -d "$SRC" ]]; then
+    echo "Mod source directory not found: $SRC" >&2
+    echo "Usage: $0 [ModFolder]" >&2
+    exit 1
+fi
 echo "Packing $SRC"
-"$DIVINE" -a create-package -g bg3 -s "$SRC" -d "$OUT/DOS2Combat.pak"
-echo "Built: $OUT/DOS2Combat.pak"
+"$DIVINE" -a create-package -g bg3 -s "$SRC" -d "$OUT/$MOD.pak"
+echo "Built: $OUT/$MOD.pak"

@@ -1,0 +1,7 @@
+{
+    "RequiredVersion": 1,
+    "ModTable": "EnemyRandomization",
+    "FeatureFlags": [
+        "Lua"
+    ]
+}
