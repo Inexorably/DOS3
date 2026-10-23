@@ -36,6 +36,23 @@ local function printLine(text)
     end
 end
 
+local function entriesOf(value)
+    if type(value) == "table" then return value end
+    local list = {}
+    local ok, first = pcall(function() return value[1] end)
+    if ok and first ~= nil then
+        local lenOk, len = pcall(function() return #value end)
+        if lenOk and tonumber(len) then
+            for i = 1, tonumber(len) do
+                local itemOk, item = pcall(function() return value[i] end)
+                if itemOk and item ~= nil then list[#list + 1] = item end
+            end
+        end
+        if #list == 0 then list[1] = first end
+    end
+    return list
+end
+
 local function register(name, handler)
     if Ext and Ext.RegisterConsoleCommand then
         pcall(Ext.RegisterConsoleCommand, name, handler)
@@ -88,11 +105,11 @@ register("dos2c_rolls", function(_, value)
     local restore = tostring(value or ""):lower() == "on"
     if restore then
         DOS2C.Stats.RestoreRolls(true)
-        printLine("[DOS2C] original attack/save rolls restored")
+        printLine("[DOS2C] original attack rolls restored; saving throws remain removed")
     else
         DOS2C.Stats.Patched = false
         DOS2C.Stats.PatchAll(true)
-        printLine("[DOS2C] rolls cleared again (deterministic)")
+        printLine("[DOS2C] attack rolls re-patched")
     end
 end)
 
@@ -115,7 +132,7 @@ register("dos2c_ap", function()
         if label:lower():find("734cbcfb-8922-4b6d-8330-b2a7e4c14b6a", 1, true) then
             label = "ActionPoint"
         end
-        for _, entry in ipairs(entries) do
+        for _, entry in ipairs(entriesOf(entries)) do
             printLine(string.format("[DOS2C] resource %s amount=%s max=%s",
                 label, tostring(entry.Amount), tostring(entry.MaxAmount)))
         end

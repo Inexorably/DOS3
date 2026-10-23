@@ -13,6 +13,7 @@ Ext.Require("Server/Surfaces.lua")
 Ext.Require("Server/SurfaceSpells.lua")
 Ext.Require("Server/Commands.lua")
 Ext.Require("Server/Diagnostics.lua")
+Ext.Require("Server/Verify.lua")
 
 DOS2C.Utils.Log("server bootstrap complete (AP=%d, armor=%s)",
     DOS2C.Config.AP_MAX, tostring(DOS2C.Config.ARMOR_ENABLED))

@@ -505,6 +505,17 @@ function C.ReapplyAll()
     U.Log("cooldowns reapplied after short rest")
 end
 
+function C.Dump(guid)
+    local list = active[tostring(guid or "")]
+    if not list then return "none" end
+    local parts = {}
+    for name, remaining in pairs(list) do
+        parts[#parts + 1] = string.format("%s=%d", tostring(name), remaining)
+    end
+    table.sort(parts)
+    return #parts > 0 and table.concat(parts, ",") or "none"
+end
+
 function C.ClearAll()
     if not (Ext and Ext.Entity and Ext.Entity.GetAllEntitiesWithComponent) then return end
     local ok, entities = pcall(Ext.Entity.GetAllEntitiesWithComponent, "SpellBook")

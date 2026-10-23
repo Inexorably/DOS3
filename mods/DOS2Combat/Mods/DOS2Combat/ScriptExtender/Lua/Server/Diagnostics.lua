@@ -170,11 +170,13 @@ function D.Run()
                 local ar = entity.ActionResources
                 if ar and ar.Resources then
                     for key, value in pairs(ar.Resources) do
-                        local listValue = value
-                        if type(value) ~= "table" then
-                            listValue = { value }
+                        local first = nil
+                        if type(value) == "table" then
+                            first = value[1]
+                        else
+                            local firstOk, firstValue = pcall(function() return value[1] end)
+                            if firstOk then first = firstValue end
                         end
-                        local first = listValue[1]
                         U.Log("diag AR key=%s keyType=%s valueType=%s firstType=%s uuid=%s id=%s amount=%s max=%s",
                             tostring(key), type(key), type(value), type(first),
                             first and tostring(first.ResourceUUID) or "nil",
@@ -198,7 +200,7 @@ end
 if Ext and Ext.Events and Ext.Events.SessionLoaded then
     Ext.Events.SessionLoaded:Subscribe(function()
         if Ext.Timer and Ext.Timer.WaitFor then
-            for _, delay in ipairs({ 1000, 5000, 15000, 30000 }) do
+            for _, delay in ipairs({ 15000 }) do
                 Ext.Timer.WaitFor(delay, function()
                     local ok, err = pcall(D.Run)
                     if not ok then U.Log("diag error: %s", tostring(err)) end

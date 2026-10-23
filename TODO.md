@@ -21,6 +21,8 @@
       native hit chance.
 - [x] Native attack rolls now use the remaining AC as the Dodge value:
       base 10 plus explicit Dodge/AC boosts.
+- [x] Add `WeaponAttackRollBonus(20)` to every character so normal attacks
+      default to the native 95% hit cap; disadvantage still lowers hit chance.
 - [x] Client hover overlay shows the physical/magic resistance of a hovered
       armor item.
 - [ ] Native item/stat tooltips still show "Armor Class"; the separate armor
@@ -215,8 +217,10 @@ Known DOS2 visual references for the current test spells:
       that range.
 - [ ] Other level-map spells (cantrips, Sneak Attack, Bardic Inspiration,
       Superiority Die, Breath Weapon) have valid tooltips and damage.
-- [ ] Attack rolls are no longer auto-hit; Blinded/Frightened/Prone/cover
-      affect hit chance.
+- [ ] Attack rolls are no longer auto-hit; normal attacks show about 95%
+      and Blinded/Frightened/Prone/cover affect hit chance.
+- [ ] `[DOS2C][VERIFY]` appears once after session load and reports host AP,
+      Firebolt fields, cooldowns, and equipped-armor AC/boosts/passives.
 - [ ] Equipping armor changes P/M resistance but does not change hit chance.
 - [ ] Character armor overlay and armor-item hover overlay show correct P/M.
 - [ ] Armor label is not truncated at any physical/magic value.
