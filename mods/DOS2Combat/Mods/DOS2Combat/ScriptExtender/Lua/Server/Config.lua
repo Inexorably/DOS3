@@ -109,6 +109,8 @@ DOS2C.Config = {
     -- dodge/defense side of the native d20 check for now.
     REMOVE_ATTACK_ROLLS = false,
     BASE_ATTACK_ROLL_BONUS = 100, -- pushes normal attacks to the 100% cap
+    ATTACK_DEBUFF_CANCELS_BASELINE = true, -- Blinded etc. offset the baseline
+
     REMOVE_SAVING_THROWS = true, -- DOS2 has no saving throws
     STRIP_DEAD_SAVING_THROW_BOOSTS = true,
     -- Damage rolls stay random but are compressed around the average instead

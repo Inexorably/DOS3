@@ -125,14 +125,17 @@ local function stripEnemyAC(handle)
 
     local applied = false
     if Osi and Osi.SetArmorClass then
-        local ok = pcall(Osi.SetArmorClass, guid, 0)
+        local ok = pcall(Osi.SetArmorClass, guid, 10)
         applied = ok or applied
     end
     if Osi and Osi.SetArmorClassBoost then
         pcall(Osi.SetArmorClassBoost, guid, 0)
     end
     if not applied and Osi and Osi.AddBoosts then
-        applied = pcall(Osi.AddBoosts, guid, "AC(-100)", "DOS2C_NoDodge")
+        local original = originalACs[guid] or 0
+        local delta = math.max(0, original - 10)
+        if delta <= 0 then delta = 100 end
+        applied = pcall(Osi.AddBoosts, guid, string.format("AC(-%d)", delta), "DOS2C_NoDodge")
     end
     if not applied and Osi and Osi.ApplyStatus then
         local has = false

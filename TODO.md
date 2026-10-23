@@ -27,8 +27,9 @@
 - [x] Native attack rolls now use the remaining AC as the Dodge value:
       base 10 plus explicit Dodge/AC boosts.
 - [x] Add `WeaponAttackRollBonus(100)` to every character so normal attacks
-      default to the native 100% hit cap. Disadvantage no longer lowers the
-      result while this baseline is active.
+      default to the native 100% hit cap.
+- [x] Statuses with `Disadvantage(AttackRoll)` append
+      `WeaponAttackRollBonus(-100)`, so Blinded and similar effects can miss.
 - [x] Client hover overlay shows the physical/magic resistance of a hovered
       armor item.
 - [x] Armor overlay now shows P/M, Dodge, and the engine-reported Accuracy.
@@ -242,8 +243,8 @@ Known DOS2 visual references for the current test spells:
       that range.
 - [ ] Other level-map spells (cantrips, Sneak Attack, Bardic Inspiration,
       Superiority Die, Breath Weapon) have valid tooltips and damage.
-- [ ] Normal attacks show 100% hit chance by default; verify how the large
-      baseline bonus interacts with Blinded/Frightened/Prone/cover.
+- [ ] Normal attacks show 100% hit chance by default, while Blinded and other
+      `Disadvantage(AttackRoll)` statuses can produce misses again.
 - [ ] `[DOS2C][VERIFY]` appears once after session load and reports host AP,
       Firebolt fields, cooldowns, and equipped-armor AC/boosts/passives.
 - [ ] Equipping armor changes P/M resistance but does not change hit chance.

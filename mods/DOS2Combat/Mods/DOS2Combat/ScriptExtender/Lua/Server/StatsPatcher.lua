@@ -723,8 +723,28 @@ local function stripDeadSavingThrowBoosts(stat)
     return false
 end
 
+-- The base attack bonus is intentionally huge so unmodified attacks hit.
+-- Attack-roll disadvantage would otherwise be invisible. For statuses such as
+-- Blinded, offset the baseline so disadvantage actually produces misses.
+local function patchAttackDisadvantage(stat)
+    local cfg = DOS2C.Config
+    if not cfg.ATTACK_DEBUFF_CANCELS_BASELINE then return false end
+    local current = U.SafeGet(stat, "Boosts")
+    if type(current) ~= "string" or current == "" then return false end
+    if not current:find("Disadvantage%(AttackRoll") then return false end
+    local token = string.format("WeaponAttackRollBonus(-%d)", cfg.BASE_ATTACK_ROLL_BONUS)
+    if current:find(token, 1, true) then return false end
+    local updated = current .. ";" .. token
+    if U.SafeSet(stat, "Boosts", updated) then
+        U.Log("attack disadvantage baseline offset applied")
+        return true
+    end
+    return false
+end
+
 local function patchStatusDamage(stat)
     local changed = stripDeadSavingThrowBoosts(stat)
+    if patchAttackDisadvantage(stat) then changed = true end
     if DOS2C.Config.COMPRESS_DAMAGE_RANGES then
         for _, field in ipairs(STATUS_DAMAGE_FIELDS) do
             changed = compressField(stat, field, changed, false)
