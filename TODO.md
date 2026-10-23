@@ -9,6 +9,8 @@
 - [x] Level-map damage is approximated with integer midpoints to minimize RNG;
       Bardic Inspiration and Superiority Dice remain dice so their resource
       semantics are preserved.
+- [x] Patch existing `eoc::WeaponComponent` Rolls/VersatileRolls so weapons
+      from existing saves use compressed dice plus offsets.
 - [ ] Verify in-game that damage tooltips show the integer/compressed values and
       that DoT/status damage uses them.
 
@@ -215,10 +217,9 @@ Known DOS2 visual references for the current test spells:
 - [ ] Native item/stat tooltips still show `Armor Class`; the overlay is the
       current P/M/Dodge readout.
 - [x] Add Dodge and baseline Accuracy labels to the character armor overlay.
-- [ ] Verify the widened 1100px armor label; the previous 420px width
-      truncated `Magic Armor` even at 0 physical armor. If it still truncates
-      at high UI scale, measure the rendered text instead of using a constant
-      width.
+- [x] Armor overlay is dynamically sized and centered from LastSize once the
+      layout exists.
+- [ ] Verify dynamic sizing no longer clips the bottom or becomes too wide.
 - [x] Add `!dos2c_armorui on|off` to broadcast the armor UI visibility toggle.
 
 ## Verification checklist
