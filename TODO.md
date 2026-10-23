@@ -193,25 +193,46 @@ Known DOS2 visual references for the current test spells:
 - [x] Shields use their AC bonus rather than the base-AC-minus-10 formula.
 - [x] A StatsDamage fallback handles damage paths where Hit.DamageList is
       empty.
-- [x] CC gating and rest-based reset are intentionally skipped for now.
+- [x] CC gating is intentionally skipped for now.
+- [x] Short/long-rest hooks reset cooldown state and armor caches.
 - [ ] Verify gear-to-resistance values and the StatsDamage fallback in-game.
-- [ ] Replace the native AC display and AC-boosting passives with DOS2 armor
-      values where needed.
+- [x] Keep the real item AC for display/resistance and cancel its native
+      attack-roll contribution with a matching negative AC boost.
+- [ ] Verify the negative AC boost cancels gear AC from hit chance without
+      changing the displayed item AC.
 
 ## Armor UI
 
-- [ ] Add a party/character armor readout to the stat screen or a client
-      overlay: `Physical resist` and `Magic resist`.
-- [ ] Enemy armor must be visible too; a party-only panel is insufficient.
-      Prefer the native overhead HP label or enemy examine tooltip.
-- [ ] Probe the Noesis overhead HP control tree in-game and map character
-      entities to their overhead labels.
-- [x] Add a server -> client armor snapshot broadcast.
-- [x] Added a server-side display-name POC that appends `[P# M#]` through
-      `Osi.SetDisplayName`; this targets the native overhead nameplate.
-- [ ] Verify the server display-name suffix in-game and replace it with a
-      proper overhead bar/label if the native name label is not sufficient.
-- [ ] Noesis UI injection or camera-projection math remains an option for a
-      cleaner overhead display.
-- [ ] Add a compact combat HUD/tooltip showing the values next to AC/health.
+- [x] Client armor overlay shows `Physical Armor` and `Magic Armor` for the
+      hovered character.
+- [x] The same overlay calculates and shows P/M resistance for a hovered armor
+      item.
+- [x] Server -> client armor snapshot broadcast.
+- [ ] Verify character and item hover overlays in-game; item hover depends on
+      the picking helper exposing the item entity as `entry.Tooltip`.
+- [ ] Native item/stat tooltips still show `Armor Class`; the overlay is the
+      current P/M readout.
+- [ ] Add a dedicated Dodge label/readout instead of showing it as AC.
 - [ ] Add an in-game toggle to show/hide the armor UI.
+
+## Verification checklist
+
+- [ ] Firebolt tooltip shows a compressed range and actual damage stays within
+      that range.
+- [ ] Other level-map spells (cantrips, Sneak Attack, Bardic Inspiration,
+      Superiority Die, Breath Weapon) have valid tooltips and damage.
+- [ ] Attack rolls are no longer auto-hit; Blinded/Frightened/Prone/cover
+      affect hit chance.
+- [ ] Equipping armor changes P/M resistance but does not change hit chance.
+- [ ] Character armor overlay and armor-item hover overlay show correct P/M.
+- [ ] Item tooltip shows the real AC, not a normalized 10/0.
+- [ ] Cooldown enum mapping:
+      `OncePerTurnNoRealtime=2`, `UntilShortRest=3`,
+      `OncePerShortRestPerItem=4`, `UntilRest=5`,
+      `UntilPerRestPerItem=6`.
+- [ ] Numeric cooldowns apply after casting, including Fossil Strike = 5.
+- [ ] Short rest refreshes native cooldown labels; long rest clears numeric
+      cooldowns and armor caches.
+- [ ] AP economy remains 4 start / 6 max / +4 per turn.
+- [ ] No repeated Script Extender log spam during a session.
+- [ ] Existing saves can be loaded without component/persistence errors.
