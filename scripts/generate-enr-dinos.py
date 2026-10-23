@@ -78,43 +78,43 @@ def template_guid(tag):
 NATIVE_LEVELS = {
     'ChultAlioramus': 1,
     'Crimson': 1,
-    'GiantSpider': 2,
+    'GiantSpider': 3,
     'PhaseSpider': 3,
     'PhaseSpiderQueen': 5,
-    'GiantSpiderArcher': 2,
+    'GiantSpiderArcher': 3,
     'Goblin': 1,
     'GoblinBoss': 3,
     'GoblinCaster': 2,
-    'GoblinRanger': 2,
+    'GoblinRanger': 1,
     'Ogre': 4,
     'OgreCaptain': 5,
-    'Imp': 2,
+    'Imp': 1,
     'ImpWeak': 1,
     'HellBoar': 3,
-    'HellBoarLesser': 2,
-    'SteelWatcher': 8,
-    'HellfireWatcher': 10,
+    'HellBoarLesser': 3,
+    'SteelWatcher': 11,
+    'HellfireWatcher': 11,
     'SteelWatcherTitan': 12,
-    'RedDragon': 12,
-    'BronzeDragon': 10,
+    'RedDragon': 17,
+    'BronzeDragon': 17,
     'Gnoll': 3,
     'GnollFang': 5,
     'GnollFlind': 6,
     'GnollFleshGnawer': 4,
-    'MindFlayer': 7,
+    'MindFlayer': 8,
     'MindFlayerCaster': 8,
     'Bugbear': 3,
     'BugbearNinja': 4,
     'BugbearRaider': 4,
     'Redcap': 4,
-    'RedcapCaster': 5,
+    'RedcapCaster': 4,
     'AnimatedArmor': 4,
     'AdamantineGolem': 10,
-    'FleshGolem': 6,
-    'Owlbear': 5,
-    'ArmouredOwlbear': 7,
-    'OwlbearDad': 6,
-    'OwlbearCub': 2,
+    'FleshGolem': 4,
+    'Owlbear': 3,
+    'ArmouredOwlbear': 3,
+    'OwlbearDad': 3,
+    'OwlbearCub': 1,
 }
 
 def summon(key, name, stats, source, icon):
@@ -385,6 +385,55 @@ def load_root_templates():
     return by_name, version
 
 
+def apply_source_native_levels():
+    """Use the source root template's LevelOverride when present.
+
+    BG3's Character stat blocks usually do not carry a Level field. The
+    encounter template's LevelOverride is the authoritative native level when
+    one exists; otherwise NATIVE_LEVELS is the explicit tuning fallback.
+    """
+    by_name = {}
+    by_key = {}
+    for path in ROOT_SOURCES:
+        root = ET.parse(path).getroot()
+        for go in root.findall('.//node[@id="GameObjects"]'):
+            attrs = {a.get('id'): a.get('value') for a in go.findall('attribute')}
+            name = (attrs.get('Name') or '').strip()
+            key = attrs.get('MapKey')
+            if name and name not in by_name:
+                by_name[name] = attrs
+            if key and key not in by_key:
+                by_key[key] = attrs
+
+    def resolve_level(attrs):
+        seen = set()
+        while attrs:
+            raw = (attrs.get('LevelOverride') or '').strip()
+            try:
+                value = int(raw)
+            except ValueError:
+                value = 0
+            if value > 0:
+                return value, attrs.get('Name', '')
+            key = attrs.get('ParentTemplateId')
+            if not key or key in seen:
+                break
+            seen.add(key)
+            attrs = by_key.get(key)
+        return None, ''
+
+    for champion in CHAMPIONS:
+        for item in champion['summons']:
+            item['native_level'] = item.get('native_level', 1)
+            attrs = by_name.get(item['source'].strip())
+            level, origin = resolve_level(attrs) if attrs else (None, '')
+            if level:
+                item['native_level'] = level
+                item['native_level_source'] = origin
+            else:
+                item['native_level_source'] = 'fallback'
+
+
 def build_root_templates(stats_by_tag):
     by_name, version = load_root_templates()
     out = ET.Element('save')
@@ -614,9 +663,14 @@ def build_stats_and_loca(guids, stats_by_tag):
 
 
 def main():
+    apply_source_native_levels()
     stats_by_tag = load_character_stats()
     guids = build_root_templates(stats_by_tag)
     build_stats_and_loca(guids, stats_by_tag)
+    for champion in CHAMPIONS:
+        for item in champion['summons']:
+            print('native level: %-24s %2d (%s)' % (
+                item['tag'], item.get('native_level', 1), item.get('native_level_source', 'fallback')))
     print('generated %d champions, %d summon skills, %d template bands' % (
         len(CHAMPIONS), sum(len(c['summons']) for c in CHAMPIONS), len(guids)))
     print('wrote', STATS)

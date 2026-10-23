@@ -93,6 +93,51 @@ the absolute ability scores.
 Each summon uses its own source `Character` stat block from BG3, so an ogre,
 dragon, and goblin do not share the dinosaur base values.
 
+### Native levels
+
+| Summon | Native level | Source |
+| --- | ---: | --- |
+| Chult Alioramus | 1 | fallback (cut/shared content) |
+| Crimson | 1 | fallback (cut/shared content) |
+| Giant Spider | 3 | fallback (companion template uses 3) |
+| Phase Spider | 3 | fallback |
+| Phase Spider Queen | 5 | fallback |
+| Giant Spider Archer | 3 | fallback |
+| Goblin | 1 | fallback |
+| Goblin Boss | 3 | LevelOverride |
+| Goblin Caster | 2 | LevelOverride |
+| Goblin Ranger | 1 | LevelOverride |
+| Ogre | 4 | fallback (Ogres_Male = 4) |
+| Ogre Captain | 5 | fallback |
+| Imp | 1 | LevelOverride |
+| Weak Imp | 1 | inherited from Imp |
+| Hell Boar | 3 | LevelOverride |
+| Lesser Hell Boar | 3 | inherited from Hell Boar |
+| Steel Watcher | 11 | LevelOverride |
+| Hellfire Watcher | 11 | inherited from Steel Watcher |
+| Steel Watch Titan | 12 | fallback |
+| Red Dragon | 17 | fallback (Dragon_Red = 17) |
+| Bronze Dragon | 17 | fallback (Dragon_Skeletal = 17) |
+| Gnoll | 3 | fallback |
+| Gnoll Fang | 5 | fallback |
+| Gnoll Flind | 6 | fallback |
+| Gnoll Flesh-Gnawer | 4 | fallback |
+| Mind Flayer | 8 | fallback (Mindflayer = 8) |
+| Mind Flayer Caster | 8 | LevelOverride |
+| Bugbear | 3 | fallback (Bugbears_Male = 3) |
+| Bugbear Ninja | 4 | fallback |
+| Bugbear Raider | 4 | fallback |
+| Redcap | 4 | fallback |
+| Redcap Caster | 4 | LevelOverride |
+| Animated Armor | 4 | LevelOverride |
+| Adamantine Golem | 10 | LevelOverride |
+| Flesh Golem | 4 | LevelOverride |
+| Owlbear | 3 | fallback |
+| Armoured Owlbear | 3 | fallback |
+| Owlbear Dad | 3 | LevelOverride |
+| Owlbear Cub | 1 | LevelOverride |
+
+`LevelOverride` means the value came from the source root template (following parent templates when needed). Fallback means the source template did not define a fixed encounter level, so the generator uses the explicit `NATIVE_LEVELS` tuning value.
 This affects native derived behavior implicitly:
 
 - Strength affects `UnarmedMeleeAbilityModifier` used by Alioramus and
