@@ -577,6 +577,11 @@ end
 -- Equipment AC is captured for the DOS2 flat-resistance calculation, then
 -- removed from the native AC used by attack rolls. The native AC that remains
 -- (base 10 plus any explicit Dodge/AC boosts) is the isolated Dodge value.
+local HEAVY_ARMOR_TYPES = {
+    ChainShirt = true, ScaleMail = true, BreastPlate = true, HalfPlate = true,
+    RingMail = true, ChainMail = true, Splint = true, Plate = true,
+}
+
 local function patchArmor(name, stat)
     local ac = tonumber(U.SafeGet(stat, "ArmorClass"))
     if not ac or ac <= 0 then return false end
@@ -590,15 +595,47 @@ local function patchArmor(name, stat)
     -- boosts) as the hit-chance defense without displaying a fake AC value.
     local shield = tostring(U.SafeGet(stat, "Shield") or ""):lower() == "yes"
     local delta = shield and -ac or -math.max(0, ac - 10)
-    if delta == 0 then return false end
 
     local boosts = U.SafeGet(stat, "Boosts")
     if type(boosts) ~= "string" then boosts = "" end
-    local token = "AC(" .. tostring(delta) .. ")"
-    if boosts:find(token, 1, true) then return false end
-    local updated = boosts ~= "" and (boosts .. ";" .. token) or token
-    if U.SafeSet(stat, "Boosts", updated) then return true end
-    return false
+    local updatedBoosts = boosts
+    if delta ~= 0 then
+        local token = "AC(" .. tostring(delta) .. ")"
+        if not boosts:find(token, 1, true) then
+            updatedBoosts = boosts ~= "" and (boosts .. ";" .. token) or token
+        end
+    end
+
+    local cfg = DOS2C.Config
+    local gain = math.max(0, shield and ac or (ac - 9))
+    local passivePhysical = gain * cfg.ARMOR_PHYSICAL_PER_AC
+    local passiveMagic = gain * cfg.ARMOR_MAGIC_PER_AC
+    local heavy = HEAVY_ARMOR_TYPES[tostring(U.SafeGet(stat, "ArmorType") or "")] == true
+    if heavy then
+        passivePhysical = passivePhysical * cfg.ARMOR_HEAVY_PHYSICAL_MULT
+        passiveMagic = passiveMagic * cfg.ARMOR_HEAVY_MAGIC_MULT
+    end
+    if shield then
+        passivePhysical = passivePhysical * cfg.ARMOR_SHIELD_PHYSICAL_MULT
+        passiveMagic = 0
+    end
+    local passive = string.format("DOS2C_ArmorInfo_P%d_M%d",
+        math.floor(passivePhysical + 0.5), math.floor(passiveMagic + 0.5))
+    local passives = U.SafeGet(stat, "PassivesOnEquip")
+    if type(passives) ~= "string" then passives = "" end
+    local updatedPassives = passives
+    if not passives:find(passive, 1, true) then
+        updatedPassives = passives ~= "" and (passives .. ";" .. passive) or passive
+    end
+
+    local changed = false
+    if updatedBoosts ~= boosts and U.SafeSet(stat, "Boosts", updatedBoosts) then
+        changed = true
+    end
+    if updatedPassives ~= passives and U.SafeSet(stat, "PassivesOnEquip", updatedPassives) then
+        changed = true
+    end
+    return changed
 end
 
 local function patchWeapon(stat)
