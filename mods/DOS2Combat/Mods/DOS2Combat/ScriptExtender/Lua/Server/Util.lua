@@ -309,23 +309,43 @@ local function compressDamageExpression(expr, ratio)
     return buildRangeExpression(newMin, newMax) or expr
 end
 
--- Compress all DealDamage(...) numeric expressions. A 1d12 (1-12) becomes
--- 1d4+4 (5-8) at the default 1/3 range ratio.
-function U.CompressDealDamage(value, ratio)
+local DAMAGE_FUNCTORS = {
+    "DealDamage",
+    "DamageBonus",
+    "WeaponDamage",
+    "CharacterWeaponDamage",
+    "CharacterUnarmedDamage",
+    "EntityThrowDamage",
+    "WeaponDamageDieOverride",
+}
+
+-- Compress every damage-roll functor, not only DealDamage. Some BG3 damage
+-- riders use DamageBonus/CharacterWeaponDamage/WeaponDamage, and their
+-- tooltip DescriptionParams use the same functor names.
+function U.CompressDamageFunctors(value, ratio)
     if type(value) ~= "string" or value == "" then return value end
-    local ok, out = pcall(function()
-        return (value:gsub("DealDamage%(%s*([^,%(%)]+)%s*,", function(expr)
-            return "DealDamage(" .. compressDamageExpression(expr, ratio) .. ","
-        end))
-    end)
-    if ok then return out end
-    return value
+    local out = value
+    for _, fn in ipairs(DAMAGE_FUNCTORS) do
+        local ok, updated = pcall(function()
+            return (out:gsub("%f[%a]" .. fn .. "%(%s*([^,%)]+)%s*([,)])",
+                function(expr, delimiter)
+                    return fn .. "(" .. compressDamageExpression(expr, ratio) .. delimiter
+                end))
+        end)
+        if ok then out = updated end
+    end
+    return out
+end
+
+-- Backwards-compatible name used by StatsPatcher.
+function U.CompressDealDamage(value, ratio)
+    return U.CompressDamageFunctors(value, ratio)
 end
 
 -- Also handle plain damage fields such as Weapon.Damage = "1d8".
 function U.CompressDamageValue(value, ratio)
     if type(value) ~= "string" or value == "" then return value end
-    local out = U.CompressDealDamage(value, ratio)
+    local out = U.CompressDamageFunctors(value, ratio)
     if out ~= value then return out end
     return compressDamageExpression(value, ratio)
 end

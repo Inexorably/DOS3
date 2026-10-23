@@ -58,12 +58,21 @@ local STATUS_DAMAGE_FIELDS = {
     "OnTurnStartFunctors",
     "OnTurnEndFunctors",
     "Conditions",
+    "DescriptionParams",
+    "ExtraDescriptionParams",
+    "TooltipDamageList",
+    "TooltipDamage",
+    "Boosts",
 }
 
 local PASSIVE_DAMAGE_FIELDS = {
     "StatsFunctors",
     "Properties",
     "Boosts",
+    "DescriptionParams",
+    "ExtraDescriptionParams",
+    "TooltipDamageList",
+    "TooltipDamage",
 }
 
 local function isWeaponAttack(name)
@@ -242,6 +251,12 @@ local function compressField(stat, field, changed, direct)
         changed = true
     end
     return changed
+end
+
+local function patchCharacterDamage(stat)
+    local cfg = DOS2C.Config
+    if not cfg.COMPRESS_DAMAGE_RANGES then return false end
+    return compressField(stat, "DefaultBoosts", false, false)
 end
 
 local function levelFor(name, stat)
@@ -559,7 +574,7 @@ local function patchWeapon(stat)
     end
 
     local changed = false
-    for _, field in ipairs({ "Damage", "VersatileDamage", "WeaponFunctors" }) do
+    for _, field in ipairs({ "Damage", "VersatileDamage", "WeaponFunctors", "DefaultBoosts" }) do
         if cfg.COMPRESS_DAMAGE_RANGES then
             changed = compressField(stat, field, changed, field == "Damage" or field == "VersatileDamage")
         end
@@ -915,7 +930,9 @@ function S.PatchAll(runtime)
     if not (Ext and Ext.Stats) then return end
 
     local nCharacters = eachStat("Character", function(_, stat)
-        return patchCharacter(stat)
+        local ap = patchCharacter(stat)
+        local damage = patchCharacterDamage(stat)
+        return ap or damage
     end)
     local nSpells = eachStat("SpellData", function(name, stat)
         return patchSpell(name, stat)
