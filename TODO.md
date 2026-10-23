@@ -221,7 +221,8 @@ Known DOS2 visual references for the current test spells:
       the picking helper exposing the item entity as `entry.Tooltip`.
 - [ ] Native item/stat tooltips still show `Armor Class`; the overlay is the
       current P/M/Dodge readout.
-- [x] Add Dodge and baseline Accuracy labels to the character armor overlay.
+- [x] Add Dodge and engine-derived Accuracy labels to the character armor overlay.
+- [x] Remove the static 95% accuracy label; broadcast actual `Osi.GetHitChance` when available.
 - [x] Armor overlay is dynamically sized and centered from LastSize once the
       layout exists; the last nonzero width is cached for re-shown labels.
 - [ ] Verify dynamic sizing no longer clips the bottom or becomes too wide.
