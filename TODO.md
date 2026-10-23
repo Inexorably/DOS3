@@ -145,6 +145,10 @@ too, but enemy cooldowns have not been audited separately.
 
 ## DOS2 spell visuals
 
+**Status: deferred asset-conversion project.** This does not block the combat
+rules layer and is not required for the current `DOS2C_*` test spells, which
+retain BG3-native effects.
+
 Goal: port the DOS2 **spell** visuals (prepare/cast/projectile/impact) for the
 ported `DOS2C_*` spells, while keeping BG3's native surface terrain VFX.
 
