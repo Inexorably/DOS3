@@ -72,33 +72,26 @@ The generation is deterministic and creates one character root template and one
 bands and not only the level-12 player cap. Enemy/NPC levels can exceed the
 player cap in encounter data, so level 20 is the terminal summon band.
 
-Formulas used by `scripts/generate-enr-dinos.py`:
+BG3 does **not** normalize a source creature's ability scores by level. The
+source `Character` block is an absolute authored baseline intended for an
+approximate native encounter level. The generator therefore tracks a
+`native_level` for every summon and scales relative to that level:
 
 ```text
-Vitality = round(source Vitality * (1 + 0.18 * (level - 1)))
-Armor    = source Armor + floor((level - 1) / 2)
+delta    = target level - native level
+Vitality = round(source Vitality * (1 + 0.18 * delta))
+Armor    = source Armor + floor(delta / 2)
+offset   = floor((target level - 1) / 4) - floor((native level - 1) / 4)
+Ability  = source Ability + offset
 ```
+
+For example, a goblin authored around level 1 gets much more growth by level 10
+than a Steel Watcher authored around level 8 does. The native levels are
+explicit tuning values in `NATIVE_LEVELS` in the generator, not inferred from
+the absolute ability scores.
 
 Each summon uses its own source `Character` stat block from BG3, so an ogre,
 dragon, and goblin do not share the dinosaur base values.
-
-Ability-score scaling uses a deterministic offset, not a percentage:
-
-```text
-Ability offset = floor((level - 1) / 4)
-```
-
-| Levels | Offset to all six ability scores |
-| --- | --- |
-| 1-4 | +0 |
-| 5-8 | +1 |
-| 9-12 | +2 |
-| 13-16 | +3 |
-| 17-20 | +4 |
-
-The base Strength/Dexterity/Constitution/Intelligence/Wisdom/Charisma values
-come from each summon's source BG3 `Character` stat block; the offset is added
-to every level band.
 
 This affects native derived behavior implicitly:
 

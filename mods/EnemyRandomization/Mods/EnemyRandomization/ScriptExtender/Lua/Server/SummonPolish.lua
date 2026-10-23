@@ -71,7 +71,8 @@ local function onSummonCreated(eventEntity)
 
     if statsKey then
         local levelFromStats = tonumber(stats:match("_L(%d+)$")) or level
-        local offset = math.floor((levelFromStats - 1) / 4)
+        local nativeLevel = (generated.nativeLevels and generated.nativeLevels[statsKey]) or 1
+        local offset = math.floor((levelFromStats - 1) / 4) - math.floor((nativeLevel - 1) / 4)
         local base = (generated.abilities and generated.abilities[statsKey])
             or { 19, 13, 17, 2, 12, 5 }
         local changed = false

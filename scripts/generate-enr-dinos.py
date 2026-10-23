@@ -75,6 +75,48 @@ def template_guid(tag):
     return str(uuid.uuid5(NS, 'EnemyRandomization/template/' + tag))
 
 
+NATIVE_LEVELS = {
+    'ChultAlioramus': 1,
+    'Crimson': 1,
+    'GiantSpider': 2,
+    'PhaseSpider': 3,
+    'PhaseSpiderQueen': 5,
+    'GiantSpiderArcher': 2,
+    'Goblin': 1,
+    'GoblinBoss': 3,
+    'GoblinCaster': 2,
+    'GoblinRanger': 2,
+    'Ogre': 4,
+    'OgreCaptain': 5,
+    'Imp': 2,
+    'ImpWeak': 1,
+    'HellBoar': 3,
+    'HellBoarLesser': 2,
+    'SteelWatcher': 8,
+    'HellfireWatcher': 10,
+    'SteelWatcherTitan': 12,
+    'RedDragon': 12,
+    'BronzeDragon': 10,
+    'Gnoll': 3,
+    'GnollFang': 5,
+    'GnollFlind': 6,
+    'GnollFleshGnawer': 4,
+    'MindFlayer': 7,
+    'MindFlayerCaster': 8,
+    'Bugbear': 3,
+    'BugbearNinja': 4,
+    'BugbearRaider': 4,
+    'Redcap': 4,
+    'RedcapCaster': 5,
+    'AnimatedArmor': 4,
+    'AdamantineGolem': 10,
+    'FleshGolem': 6,
+    'Owlbear': 5,
+    'ArmouredOwlbear': 7,
+    'OwlbearDad': 6,
+    'OwlbearCub': 2,
+}
+
 def summon(key, name, stats, source, icon):
     return {
         'key': key,
@@ -85,6 +127,7 @@ def summon(key, name, stats, source, icon):
         'spell': 'ENR_Summon_' + key,
         'stack': 'ENR_' + key + 'Stack',
         'tag': key,
+        'native_level': NATIVE_LEVELS.get(key, 1),
     }
 
 
@@ -294,13 +337,15 @@ def load_character_stats():
     return resolved
 
 
-def level_band(base, level):
-    # Ability scores use an offset, not a percentage. HP uses a conservative
-    # per-level growth from the source stat block. Armor grows in small steps.
-    offset = (level - 1) // 4
+def level_band(base, level, native_level):
+    # Source stat blocks are authored for an approximate native encounter level,
+    # not normalized to level 1. Scale from that native level so a level-3
+    # creature and a level-10 creature do not receive the same flat bonus.
+    delta = level - native_level
+    offset = (level - 1) // 4 - (native_level - 1) // 4
     return {
-        'vitality': max(1, int(round(base['vitality'] * (1.0 + 0.18 * (level - 1))))),
-        'armor': base['armor'] + ((level - 1) // 2),
+        'vitality': max(1, int(round(base['vitality'] * (1.0 + 0.18 * delta)))),
+        'armor': max(1, base['armor'] + (delta // 2)),
         'abilities': [max(1, value + offset) for value in base['abilities']],
     }
 
@@ -420,7 +465,7 @@ def build_stats_and_loca(guids, stats_by_tag):
         for item in champion['summons']:
             base = stats_by_tag[item['tag']]
             for level in LEVELS:
-                band = level_band(base, level)
+                band = level_band(base, level, item.get('native_level', 1))
                 lines += [
                     'new entry "ENR_%s_L%d"' % (item['tag'], level),
                     'type "Character"',
@@ -556,6 +601,10 @@ def build_stats_and_loca(guids, stats_by_tag):
         for item in champion['summons']:
             base = stats_by_tag[item['tag']]['abilities']
             lua.append('    [%s] = { %s },' % (json.dumps('ENR_' + item['tag']), ', '.join(str(v) for v in base)))
+    lua += ['  },', '  nativeLevels = {']
+    for champion in CHAMPIONS:
+        for item in champion['summons']:
+            lua.append('    [%s] = %d,' % (json.dumps('ENR_' + item['tag']), item.get('native_level', 1)))
     lua += ['  },', '  names = {']
     for champion in CHAMPIONS:
         for item in champion['summons']:

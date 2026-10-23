@@ -273,6 +273,9 @@ Known DOS2 visual references for the current test spells:
       cooldown markers, icons, and localization for every summoning champion.
 - [ ] Verify each summoning champion grants its full 2-4 summon skill list and
       that each summon appears at the correct level from 1 through 20.
+- [ ] Tune `NATIVE_LEVELS` per summon in the generator; these are the
+      approximate normal encounter levels used to scale source ability
+      scores/HP/armor relative to the summon's target level.
 - [ ] Boss enemies receive **two guaranteed champion conditions**.
 - [ ] The two boss champion conditions must be non-duplicate; do not grant the
       same champion variant twice.
