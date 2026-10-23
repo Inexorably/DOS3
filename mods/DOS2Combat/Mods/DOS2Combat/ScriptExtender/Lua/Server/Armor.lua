@@ -26,12 +26,12 @@ local function hasStatus(handle, status)
 end
 
 -- Convert an equipment piece's AC into flat resistance.
--- Normal armor uses AC above 10 (AC 14 -> 4 contribution points); shields
--- store their bonus directly (usually 2).
+-- Normal armor treats AC 10 as 1 contribution point (AC 14 -> 5 points);
+-- shields store their bonus directly (usually 2).
 local function addResistanceFromItem(armor, physical, magic, pieces)
     local cfg = DOS2C.Config
     local ac = tonumber(armor.ArmorClass) or 0
-    local gain = math.max(0, armor.Shield and ac or (ac - 10))
+    local gain = math.max(0, armor.Shield and ac or (ac - 9))
     if gain <= 0 then return physical, magic, pieces end
 
     local heavy = (tonumber(armor.ArmorType) or 0) >= 6
