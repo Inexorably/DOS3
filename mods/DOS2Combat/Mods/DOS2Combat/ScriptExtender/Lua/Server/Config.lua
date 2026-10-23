@@ -104,8 +104,11 @@ DOS2C.Config = {
     PORTED_DAMAGE_MAX_SCALE = 1.00,
 
     -- Determinism ----------------------------------------------------------
-    REMOVE_ATTACK_ROLLS = true,  -- empty SpellRoll => auto-hit
-    REMOVE_SAVING_THROWS = true, -- empty SpellRoll => no save
+    -- Keep native attack rolls so attack-roll statuses (Blinded,
+    -- Frightened, Prone, etc.) still affect hit chance. AC is used as the
+    -- dodge/defense side of the native d20 check for now.
+    REMOVE_ATTACK_ROLLS = false,
+    REMOVE_SAVING_THROWS = true, -- DOS2 has no saving throws
     -- Damage rolls stay random but are compressed around the average instead
     -- of using the full die range. Default: 1/3 of the original range width,
     -- so 1d12 (1-12) becomes 1d4+4 (5-8).

@@ -9,6 +9,21 @@
 - [ ] Verify in-game that damage tooltips show compressed ranges and that
       DoT/status damage uses the compressed values.
 
+## Hit chance
+
+- [x] Stop removing native attack rolls. `SpellRoll` attack expressions and
+      `IF(Attack(...))` effect gates are preserved, so Blinded, Frightened,
+      Prone/Restrained, cover, and high-ground attack modifiers work again.
+- [x] Keep saving throws removed for now; only saving-throw effects are
+      unwrapped.
+- [ ] Native attack rolls still use BG3's d20 + attack bonus vs AC. This is an
+      accuracy-vs-dodge approximation, not the exact DOS2 linear
+      `clamp(Accuracy - Dodge, 5, 100)` formula.
+- [ ] Decide how AC should be converted to a dedicated Dodge value without
+      also making gear armor reduce hit chance.
+- [ ] Audit statuses that only modify saving throws; they currently do
+      nothing because saving throws are removed.
+
 ## Spell cooldowns
 
 - [x] Spells that recharge on a **short rest** get a **3-turn cooldown**.

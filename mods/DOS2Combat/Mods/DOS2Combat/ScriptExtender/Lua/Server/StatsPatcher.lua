@@ -3,7 +3,7 @@
 -- Runs once on StatsLoaded and rewrites:
 --   * Character.ActionResources : 4 AP, no bonus action, keep class resources
 --   * SpellData.UseCosts        : AP costs derived from spell level
---   * SpellData.SpellRoll       : emptied => deterministic resolution
+--   * SpellData.SpellRoll       : attack rolls preserved; saving throws removed
 --   * damage dice               : replaced with their averages
 --   * Weapon.Damage             : replaced with its average
 --
@@ -508,17 +508,25 @@ local function patchSpell(name, stat)
 
     if cfg.REMOVE_ATTACK_ROLLS or cfg.REMOVE_SAVING_THROWS then
         local roll = U.SafeGet(stat, "SpellRoll")
-        if roll ~= nil then
-            if originalRolls[name] == nil then
-                originalRolls[name] = roll
+        local clearRoll = false
+        if type(roll) == "string" and roll ~= "" then
+            local hasAttack = roll:find("Attack%(") ~= nil
+            local hasSave = roll:find("SavingThrow%(") ~= nil
+            if hasAttack then
+                clearRoll = cfg.REMOVE_ATTACK_ROLLS
+            elseif hasSave then
+                clearRoll = cfg.REMOVE_SAVING_THROWS
             end
+        end
+        if clearRoll then
+            if originalRolls[name] == nil then originalRolls[name] = roll end
             if U.SafeSet(stat, "SpellRoll", "") then changed = true end
-        end
-        if U.SafeGet(stat, "TooltipAttackSave") ~= nil then
-            if U.SafeSet(stat, "TooltipAttackSave", "") then changed = true end
-        end
-        if U.SafeGet(stat, "TooltipOnSave") ~= nil then
-            if U.SafeSet(stat, "TooltipOnSave", "") then changed = true end
+            if U.SafeGet(stat, "TooltipAttackSave") ~= nil then
+                if U.SafeSet(stat, "TooltipAttackSave", "") then changed = true end
+            end
+            if U.SafeGet(stat, "TooltipOnSave") ~= nil then
+                if U.SafeSet(stat, "TooltipOnSave", "") then changed = true end
+            end
         end
     end
 
@@ -526,7 +534,8 @@ local function patchSpell(name, stat)
         for _, field in ipairs({ "SpellProperties", "SpellSuccess", "SpellFail" }) do
             local value = U.SafeGet(stat, field)
             if type(value) == "string" and value ~= "" then
-                local neutral = U.NeutralizeRolls(value)
+                local neutral = U.NeutralizeRolls(value,
+                    cfg.REMOVE_ATTACK_ROLLS, cfg.REMOVE_SAVING_THROWS)
                 if neutral ~= value and U.SafeSet(stat, field, neutral) then
                     changed = true
                 end

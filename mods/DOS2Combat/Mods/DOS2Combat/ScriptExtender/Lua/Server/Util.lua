@@ -141,8 +141,10 @@ end
 --   IF(Attack(...)):Effect            -> Effect (attack always hits)
 -- Unwrapping the IF() is safer than inventing a boolean literal, because the
 -- stats functor language has no True/False constants.
-function U.NeutralizeRolls(value)
+function U.NeutralizeRolls(value, removeAttack, removeSaving)
     if type(value) ~= "string" or value == "" then return value end
+    if removeAttack == nil then removeAttack = true end
+    if removeSaving == nil then removeSaving = true end
 
     local ok, out = pcall(function()
         local text = value
@@ -190,8 +192,8 @@ function U.NeutralizeRolls(value)
             end
         end
 
-        unwrap("IF(not SavingThrow(", "SavingThrow")
-        unwrap("IF(Attack(", "Attack")
+        if removeSaving then unwrap("IF(not SavingThrow(", "SavingThrow") end
+        if removeAttack then unwrap("IF(Attack(", "Attack") end
         return text
     end)
 
