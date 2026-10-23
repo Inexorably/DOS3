@@ -6,8 +6,11 @@
       At the default 1/3 range ratio, `1d12` becomes `1d4+4` (5-8).
 - [x] Apply compression to spell, weapon, status-tick, and passive damage
       functors, including tooltip damage fields.
-- [ ] Verify in-game that damage tooltips show compressed ranges and that
-      DoT/status damage uses the compressed values.
+- [x] Level-map damage is approximated with integer midpoints to minimize RNG;
+      Bardic Inspiration and Superiority Dice remain dice so their resource
+      semantics are preserved.
+- [ ] Verify in-game that damage tooltips show the integer/compressed values and
+      that DoT/status damage uses them.
 
 ## Hit chance
 
