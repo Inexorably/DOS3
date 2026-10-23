@@ -11,7 +11,7 @@ local C = ER.SummonCooldown
 local CFG = ER.Config
 
 local ZERO_GUID = "00000000-0000-0000-0000-000000000000"
-local TURNS = 3
+local TURNS = 5
 
 local defs = {
     ENR_Summon_ChultAlioramus = TURNS,
@@ -113,8 +113,8 @@ local function setNativeCooldown(entity, name, turns)
         for i = 1, #comp.Cooldowns do
             local entry = comp.Cooldowns[i]
             if entryMatches(entry, name) then
-                entry.CooldownType = "UntilShortRest"
-                entry.CooldownType2 = "UntilShortRest"
+                entry.CooldownType = "UntilRest"
+                entry.CooldownType2 = "UntilRest"
                 entry.Cooldown = turns
                 entry.SpellCastGuid = ZERO_GUID
                 found = true
@@ -125,8 +125,8 @@ local function setNativeCooldown(entity, name, turns)
     if not found then
         list[#list + 1] = {
             SpellId = copySpellId(spell.Id),
-            CooldownType = "UntilShortRest",
-            CooldownType2 = "UntilShortRest",
+            CooldownType = "UntilRest",
+            CooldownType2 = "UntilRest",
             Cooldown = turns,
             SpellCastGuid = ZERO_GUID,
         }
