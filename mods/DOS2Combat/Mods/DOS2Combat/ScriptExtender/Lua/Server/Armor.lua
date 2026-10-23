@@ -16,7 +16,8 @@ local resistances = {}
 
 local ARMOR_SLOTS = {
     "Helmet", "Breast", "Cloak", "Gloves", "Boots",
-    "Amulet", "Ring", "Ring2", "OffHand",
+    "Amulet", "Ring", "Ring2", "MainHand", "OffHand",
+    "MeleeMainHand", "MeleeOffHand", "RangedMainHand", "RangedOffHand",
 }
 
 local function hasStatus(handle, status)

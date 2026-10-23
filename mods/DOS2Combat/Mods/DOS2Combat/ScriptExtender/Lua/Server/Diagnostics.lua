@@ -15,6 +15,7 @@ local CUSTOM_SPELLS = {
 local EQUIPMENT_SLOTS = {
     "Helmet", "Breast", "Cloak", "Gloves", "Boots",
     "Amulet", "Ring", "Ring2", "MainHand", "OffHand",
+    "MeleeMainHand", "MeleeOffHand", "RangedMainHand", "RangedOffHand",
 }
 
 local function addValue(list, seen, value)

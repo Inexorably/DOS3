@@ -97,7 +97,8 @@ end
 local function dumpEquipment(guid)
     if not (Osi and Osi.GetEquippedItem) then return end
     local slots = { "Helmet", "Breast", "Cloak", "Gloves", "Boots",
-        "Amulet", "Ring", "Ring2", "MainHand", "OffHand" }
+        "Amulet", "Ring", "Ring2", "MainHand", "OffHand",
+        "MeleeMainHand", "MeleeOffHand", "RangedMainHand", "RangedOffHand" }
     for _, slot in ipairs(slots) do
         local ok, item = pcall(Osi.GetEquippedItem, guid, slot)
         if ok and item then
