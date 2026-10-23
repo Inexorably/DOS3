@@ -63,8 +63,72 @@ Vitality = round(51 * (1 + 0.18 * (level - 1)))
 Armor    = 13 + floor((level - 1) / 2)
 ```
 
+Ability-score scaling uses a deterministic offset, not a percentage:
+
+```text
+Ability offset = floor((level - 1) / 4)
+```
+
+| Levels | Offset to all six ability scores |
+| --- | --- |
+| 1-4 | +0 |
+| 5-8 | +1 |
+| 9-12 | +2 |
+
+The base Strength/Dexterity/Constitution/Intelligence/Wisdom/Charisma values
+are the original dinosaur values; the offset is added to every level band.
+
+This affects native derived behavior implicitly:
+
+- Strength affects `UnarmedMeleeAbilityModifier` used by Alioramus and
+  Dilophosaurus bite attacks, so bite damage scales through the ability score.
+- Dexterity can affect AC and initiative.
+- Constitution affects durability-related derived values.
+- Dilophosaurus Corrosive Spit uses `LevelMapValue(WildShapeDamageMedium)`, so
+  its damage is tied to the level map rather than Strength; do not assume every
+  dinosaur ability scales through the same ability modifier.
+
 The UUIDs are deterministic UUIDv5 values derived from the template names, so
 rebuilding the mod does not change the root-template GUIDs.
+
+## Generator usage
+
+Run from the repository root:
+
+```bash
+python scripts/generate-enr-dinos.py
+./scripts/build.sh EnemyRandomization
+./scripts/install.sh EnemyRandomization
+```
+
+The generator requires the extracted source root templates:
+
+```text
+.analysis/roots/Public/SharedDev/RootTemplates/_merged.lsx
+```
+
+If missing, extract and convert them with LSLib/Divine:
+
+```bash
+tools/lslib/Packed/Tools/Divine.exe -a extract-package -g bg3 \
+  -s "D:/SteamLibrary/steamapps/common/Baldurs Gate 3/Data/Shared.pak" \
+  -x "Public/SharedDev/RootTemplates/_merged.lsf" -d .analysis/roots
+
+tools/lslib/Packed/Tools/Divine.exe -a convert-resource -g bg3 \
+  -s .analysis/roots/Public/SharedDev/RootTemplates/_merged.lsf \
+  -d .analysis/roots/Public/SharedDev/RootTemplates/_merged.lsx
+```
+
+The generator overwrites:
+
+```text
+Public/EnemyRandomization/RootTemplates/_merged.lsf
+Public/EnemyRandomization/Stats/Generated/Data/EnemyRandomizationChampions.txt
+Localization/English/EnemyRandomization.loca
+```
+
+Do not hand-edit those three generated outputs. Change `LEVELS`, `DINOS`, or
+`band_for()` in the generator instead, then rerun it.
 
 Templates are written to:
 

@@ -1,3 +1,30 @@
+"""Generate deterministic level-banded dinosaur summons.
+
+Usage (from the repository root):
+
+    python scripts/generate-enr-dinos.py
+    ./scripts/build.sh EnemyRandomization
+    ./scripts/install.sh EnemyRandomization
+
+The generator expects the extracted SharedDev root templates at:
+    .analysis/roots/Public/SharedDev/RootTemplates/_merged.lsx
+
+If that file is missing, extract it with LSLib/Divine from BG3's Shared.pak:
+    tools/lslib/Packed/Tools/Divine.exe -a extract-package -g bg3 \
+      -s "D:/SteamLibrary/steamapps/common/Baldurs Gate 3/Data/Shared.pak" \
+      -x "Public/SharedDev/RootTemplates/_merged.lsf" -d .analysis/roots
+    tools/lslib/Packed/Tools/Divine.exe -a convert-resource -g bg3 \
+      -s .analysis/roots/Public/SharedDev/RootTemplates/_merged.lsf \
+      -d .analysis/roots/Public/SharedDev/RootTemplates/_merged.lsx
+
+What it writes:
+    Public/EnemyRandomization/RootTemplates/_merged.lsf
+    Public/EnemyRandomization/Stats/Generated/Data/EnemyRandomizationChampions.txt
+    Localization/English/EnemyRandomization.loca
+
+Edit LEVELS, DINOS, and band_for() to change the generated data. UUIDs are
+derived with UUIDv5 from stable names, so rebuilding does not change template IDs.
+"""
 import copy
 import pathlib
 import struct
@@ -30,9 +57,16 @@ LEVELS = list(range(1, 13))
 
 
 def band_for(level):
+    # Ability scores use an offset, not a percentage. This is a deliberately
+    # conservative 5e/BG3-like tier progression: +0 at levels 1-4, +1 at
+    # levels 5-8, and +2 at levels 9-12. Strength/Dexterity/Constitution also
+    # flow into native attack, AC, HP/save, and damage expressions such as
+    # UnarmedMeleeAbilityModifier.
+    ability_offset = (level - 1) // 4
     return {
         'vitality': int(round(51 * (1.0 + 0.18 * (level - 1)))),
         'armor': 13 + ((level - 1) // 2),
+        'ability_offset': ability_offset,
     }
 DINOS = {
     'Alioramus': {
@@ -43,6 +77,14 @@ DINOS = {
         'spell': 'ENR_Summon_ChultAlioramus',
         'stack': 'ENR_DinoAlioramusStack',
         'tag': 'Alioramus',
+        'abilities': {
+            'Strength': 19,
+            'Dexterity': 13,
+            'Constitution': 17,
+            'Intelligence': 2,
+            'Wisdom': 12,
+            'Charisma': 5,
+        },
     },
     'Crimson': {
         'source': 'Dilophosaurus_A',
@@ -52,6 +94,14 @@ DINOS = {
         'spell': 'ENR_Summon_Crimson',
         'stack': 'ENR_DinoCrimsonStack',
         'tag': 'Crimson',
+        'abilities': {
+            'Strength': 19,
+            'Dexterity': 13,
+            'Constitution': 17,
+            'Intelligence': 2,
+            'Wisdom': 12,
+            'Charisma': 5,
+        },
     },
 }
 
@@ -163,6 +213,10 @@ def build_stats_and_loca(guids):
                 'data "Level" "%d"' % level,
                 'data "Vitality" "%d"' % band['vitality'],
                 'data "Armor" "%d"' % band['armor'],
+            ]
+            for ability, value in dino['abilities'].items():
+                lines.append('data "%s" "%d"' % (ability, value + band['ability_offset']))
+            lines += [
                 '',
             ]
 
