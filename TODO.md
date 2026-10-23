@@ -1,5 +1,14 @@
 # DOS2 Combat Overhaul TODO
 
+## Damage variance
+
+- [x] Replace deterministic damage flattening with centered range compression.
+      At the default 1/3 range ratio, `1d12` becomes `1d4+4` (5-8).
+- [x] Apply compression to spell, weapon, status-tick, and passive damage
+      functors, including tooltip damage fields.
+- [ ] Verify in-game that damage tooltips show compressed ranges and that
+      DoT/status damage uses the compressed values.
+
 ## Spell cooldowns
 
 - [x] Spells that recharge on a **short rest** get a **3-turn cooldown**.
