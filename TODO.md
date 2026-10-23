@@ -263,3 +263,18 @@ Known DOS2 visual references for the current test spells:
 - [ ] AP economy remains 4 start / 6 max / +4 per turn.
 - [ ] No repeated Script Extender log spam during a session.
 - [ ] Existing saves can be loaded without component/persistence errors.
+
+## Enemy Randomization
+
+- [ ] Boss enemies receive **two guaranteed champion conditions**.
+- [ ] The two boss champion conditions must be non-duplicate; do not grant the
+      same champion variant twice.
+- [ ] For each future summoning champion, use one of its possible summon
+      portraits as the condition icon, following the Champion of Dinosaurs
+      pattern.
+- [ ] Verify boss double-champion application, persistence across save/reload,
+      and multiplayer replication.
+- [ ] Verify per-level dinosaur `Character` stats actually apply the scaled
+      Strength/Dexterity/Constitution/Intelligence/Wisdom/Charisma values at
+      summon time.
+- [ ] Verify summon skills cost 2 AP and still enforce the five-turn cooldown.

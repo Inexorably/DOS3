@@ -33,12 +33,15 @@ status boost immediately re-granting it.
 
 Both skills:
 
-- Cost `1` AP.
+- Cost `2` AP.
 - Have a `5` turn numeric cooldown enforced by `Server/SummonCooldown.lua`.
 - Use distinct summon stack IDs:
   - `ENR_DinoAlioramusStack`
   - `ENR_DinoCrimsonStack`
 - Use native summon presentation plus lightning VFX on the summon location.
+- Use the `Action_WildShape_Dilophosaurus` icon for the Champion of Dinosaurs
+  condition, matching the pattern of using one possible summon's portrait for
+  each future summoning champion.
 
 ## Per-level templates
 
@@ -91,6 +94,11 @@ This affects native derived behavior implicitly:
 - Dilophosaurus Corrosive Spit uses `LevelMapValue(WildShapeDamageMedium)`, so
   its damage is tied to the level map rather than Strength; do not assume every
   dinosaur ability scales through the same ability modifier.
+
+`Server/SummonPolish.lua` logs the spawned actor's `StatsId`, level, HP, AC, and
+six `Stats.Abilities` values. If the engine fails to apply the custom Character
+block, it repairs the ability array from the selected `ENR_*_L<n>` template and
+logs the before/after values.
 
 The UUIDs are deterministic UUIDv5 values derived from the template names, so
 rebuilding the mod does not change the root-template GUIDs.

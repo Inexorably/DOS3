@@ -83,6 +83,14 @@ DOS2C.Config = {
 
     -- Original DOS2 cooldowns for ported skills. These are intentionally not
     -- rebalanced; only BG3-native spells use the heuristics above.
+    -- External Enemy Randomization summon skills are intentionally kept at
+    -- 2 AP when both mods are loaded; DOS2Combat's default spell-level mapping
+    -- would otherwise reduce these custom spells to 1 AP.
+    DOS2_AP_COSTS = {
+        ENR_Summon_ChultAlioramus = 2,
+        ENR_Summon_Crimson = 2,
+    },
+
     DOS2_COOLDOWNS = {
         DOS2C_Rain = 6,
         DOS2C_FossilStrike = 5,
