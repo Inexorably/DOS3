@@ -157,7 +157,9 @@ PositionEffect 4f0091aa-4560-42c8-9372-a6ce061eebd8
 
 `CastEffect` is on the caster; `TargetEffect` is the summon impact at the
 target; `PositionEffect` is the lightning-style ground effect at the summon
-location.
+location. The summon functor is in `SpellSuccess` with a 500 ms target hit
+delay, so the dinosaur appears as the lightning presentation lands rather than
+before it starts.
 
 ## Cooldown implementation
 
