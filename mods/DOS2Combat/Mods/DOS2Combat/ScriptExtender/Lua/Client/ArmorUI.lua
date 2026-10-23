@@ -232,8 +232,8 @@ end
 local fallbackWindow = nil
 local fallbackText = nil
 local fallbackLogged = false
-local FALLBACK_WIDTH = 420
-local FALLBACK_HEIGHT = 28
+local FALLBACK_WIDTH = 760
+local FALLBACK_HEIGHT = 30
 
 local function viewportSize()
     if Ext.IMGUI and Ext.IMGUI.GetViewportSize then

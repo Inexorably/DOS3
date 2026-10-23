@@ -161,6 +161,22 @@ local function removeAPBoost(stat)
     return false
 end
 
+local function addBaseAttackBonus(stat, cfg)
+    if cfg.BASE_ATTACK_ROLL_BONUS == nil or cfg.BASE_ATTACK_ROLL_BONUS == 0 then
+        return false
+    end
+    local current = U.SafeGet(stat, "DefaultBoosts")
+    if type(current) ~= "string" then current = "" end
+    local bonus = tonumber(cfg.BASE_ATTACK_ROLL_BONUS) or 0
+    local token = string.format("WeaponAttackRollBonus(%d)", bonus)
+    if current:find(token, 1, true) then return false end
+    -- Remove an older configured value if it changed.
+    local cleaned = current:gsub("%s*;?%s*WeaponAttackRollBonus%(%s*%d+%s*%)", "")
+    cleaned = cleaned:gsub("^%s*;%s*", ""):gsub("%s*;%s*$", "")
+    local updated = cleaned ~= "" and (cleaned .. ";" .. token) or token
+    return U.SafeSet(stat, "DefaultBoosts", updated)
+end
+
 local function ensureAPPassive(entity)
     if not (Osi and Osi.AddPassive) then return false end
     local okUuid, uuid = pcall(function() return entity.Uuid.EntityUuid end)
@@ -209,6 +225,7 @@ local function patchCharacter(stat)
     -- AP max is provided by the DOS2C_APBoost passive at runtime so existing
     -- saves receive it too; remove any old DefaultBoosts AP boost.
     if removeAPBoost(stat) then applied = true end
+    if addBaseAttackBonus(stat, cfg) then applied = true end
     if cleanTestSpellUnlocks(stat) then applied = true end
     return applied
 end

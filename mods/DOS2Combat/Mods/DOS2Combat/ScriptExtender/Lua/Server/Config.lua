@@ -108,6 +108,7 @@ DOS2C.Config = {
     -- Frightened, Prone, etc.) still affect hit chance. AC is used as the
     -- dodge/defense side of the native d20 check for now.
     REMOVE_ATTACK_ROLLS = false,
+    BASE_ATTACK_ROLL_BONUS = 20, -- pushes normal attacks to the 95% cap
     REMOVE_SAVING_THROWS = true, -- DOS2 has no saving throws
     -- Damage rolls stay random but are compressed around the average instead
     -- of using the full die range. Default: 1/3 of the original range width,

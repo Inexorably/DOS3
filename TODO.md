@@ -176,15 +176,6 @@ Known DOS2 visual references for the current test spells:
 | `DOS2C_AcidSpray` | `Projectile_AcidSpores` | `RS3_FX_Skills_Earth_Cast_Target_Air_Hand_01` |
 | `DOS2C_PoisonCloud` | `Projectile_PoisonDartStart` | `RS3_FX_Skills_Earth_Cast_Throw_Line_Hand_01` |
 
-## Movement AP
-
-- [ ] DOS2 movement costs **1 AP per 5 units of distance**.
-- [ ] Bridge BG3's native `Movement` resource to `ActionPoint`; currently
-      movement does not consume AP (`MOVEMENT_AP_ENABLED = false`), so this is
-      unimplemented rather than bugged.
-- [ ] Decide how to handle fractional distance/AP and prevent movement once AP
-      is exhausted.
-
 ## Armor
 
 - [x] Armor no longer depletes; it is flat per-hit physical/magic resistance.
@@ -213,6 +204,9 @@ Known DOS2 visual references for the current test spells:
 - [ ] Native item/stat tooltips still show `Armor Class`; the overlay is the
       current P/M readout.
 - [ ] Add a dedicated Dodge label/readout instead of showing it as AC.
+- [ ] Verify the widened 760px armor label; the previous 420px width truncated
+      `Magic Armor` even at 0 physical armor. If it still truncates at high UI
+      scale, measure the rendered text instead of using a constant width.
 - [ ] Add an in-game toggle to show/hide the armor UI.
 
 ## Verification checklist
@@ -225,6 +219,7 @@ Known DOS2 visual references for the current test spells:
       affect hit chance.
 - [ ] Equipping armor changes P/M resistance but does not change hit chance.
 - [ ] Character armor overlay and armor-item hover overlay show correct P/M.
+- [ ] Armor label is not truncated at any physical/magic value.
 - [ ] Item tooltip shows the real AC, not a normalized 10/0.
 - [ ] Item tooltip shows a `Physical Armor` / `Magic Armor` passive line with
       the generated localization.

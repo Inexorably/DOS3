@@ -315,15 +315,6 @@ end
 -- dice+offset expressions. Replace level-map references with a compressed
 -- dice map plus an offset map, both added to LevelMapValues.lsx.
 local COMPRESSED_LEVEL_MAPS = {
-    "D4Cantrip",
-    "D6Cantrip",
-    "D8Cantrip",
-    "D10Cantrip",
-    "D12Cantrip",
-    "SneakAttack",
-    "BardicInspiration",
-    "SuperiorityDie",
-    "BreathWeapon",
 }
 
 function U.CompressLevelMapReferences(value)
