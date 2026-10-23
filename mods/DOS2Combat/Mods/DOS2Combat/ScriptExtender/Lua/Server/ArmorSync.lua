@@ -83,6 +83,17 @@ local function dodgeOf(entity, guid)
     return 0
 end
 
+local function hitChanceFor(guid)
+    if not (Osi and Osi.GetHitChance and Osi.GetHostCharacter) then return nil end
+    local hostOk, host = pcall(Osi.GetHostCharacter)
+    if not hostOk or not host or tostring(host) == tostring(guid) then return nil end
+    local ok, chance = pcall(Osi.GetHitChance, host, guid)
+    if ok and tonumber(chance) then
+        return math.max(0, math.min(100, math.floor(tonumber(chance) + 0.5)))
+    end
+    return nil
+end
+
 function S.Snapshot(applyNames)
     local parts = {}
     local named = 0
@@ -96,8 +107,10 @@ function S.Snapshot(applyNames)
                     local physical = math.floor(resist.physical + 0.5)
                     local magic = math.floor(resist.magic + 0.5)
                     local dodge = dodgeOf(entity, guid)
-                    parts[#parts + 1] = string.format("%s|%d|%d|%s", guid, physical, magic,
-                        dodge ~= nil and tostring(dodge) or "")
+                    local hit = hitChanceFor(guid)
+                    parts[#parts + 1] = string.format("%s|%d|%d|%s|%s", guid, physical, magic,
+                        dodge ~= nil and tostring(dodge) or "",
+                        hit ~= nil and tostring(hit) or "")
                     if applyNames then
                         local base = originalDisplayName(entity, guid)
                         local text

@@ -119,6 +119,7 @@ local function parse(payload)
                 physical = tonumber(fields[2]) or 0,
                 magic = tonumber(fields[3]) or 0,
                 dodge = tonumber(fields[4]),
+                hit = tonumber(fields[5]),
             }
         end
     end
@@ -236,7 +237,6 @@ local fallbackWindow = nil
 local fallbackText = nil
 local fallbackLogged = false
 local FALLBACK_WIDTH = 420
-local ACCURACY_DISPLAY = 95
 local enabled = true
 local lastFallbackWidth = nil
 
@@ -339,14 +339,14 @@ local function updateHoveredArmor()
         if item then
             text = itemArmorText(item)
         elseif value then
+            local accuracy = value.hit and string.format("    Accuracy: %d%%", value.hit) or ""
             if value.dodge then
-                text = string.format("Physical Armor: %d    Magic Armor: %d    Dodge: %d    Accuracy: %d%%",
+                text = string.format("Physical Armor: %d    Magic Armor: %d    Dodge: %d%s",
                     math.floor(value.physical + 0.5), math.floor(value.magic + 0.5),
-                    math.floor(value.dodge + 0.5), ACCURACY_DISPLAY)
+                    math.floor(value.dodge + 0.5), accuracy)
             else
-                text = string.format("Physical Armor: %d    Magic Armor: %d    Accuracy: %d%%",
-                    math.floor(value.physical + 0.5), math.floor(value.magic + 0.5),
-                    ACCURACY_DISPLAY)
+                text = string.format("Physical Armor: %d    Magic Armor: %d%s",
+                    math.floor(value.physical + 0.5), math.floor(value.magic + 0.5), accuracy)
             end
         end
         if guid ~= lastTargetGuid then
