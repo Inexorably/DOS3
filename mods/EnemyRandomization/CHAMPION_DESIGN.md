@@ -34,6 +34,40 @@ The generated roster is exported to
 `ScriptExtender/Lua/Server/GeneratedData.lua`, which supplies
 `Config.CHAMPIONS`, the cooldown registry, and summon ability/name data.
 
+## Non-summoning champion roster
+
+These champions use a visual champion status only. At application time,
+`Randomizer.lua` applies their listed statuses, passives, and granted spells to
+the enemy.
+
+| Champion | Intended boons |
+| --- | --- |
+| Vitality | Aura of Vitality, Aura of Vitality aura, Aid |
+| Lightning | Lightning resistance, Static Discharge Aura, Elemental Adept: Lightning, Call Lightning |
+| Light | Radiant resistance, Crusader's Mantle, Sunbeam |
+| the Hunt | Aspect of the Elk, Aspect of the Wolf, Tiger Heart rage, Pack Tactics, Hunter's Mark |
+| Resilience | Crystal Skin, mud-hardened resilience, Otiluke's Resilient Sphere |
+| Fire | Fire resistance, Fireball |
+| Frost | Cold resistance, Armor of Agathys, Ice Storm |
+| Venom | Poison resistance, Cloudkill, Stinking Cloud |
+| Death | Necrotic resistance, Animate Dead, Blight |
+| Thunder | Thunder resistance, Thunderwave |
+| the Mind | Psychic resistance, Mind Blast |
+| the Arcane | Mage Armor, Shield, Magic Missile |
+| War | Bless, Crusader's Mantle, Thunderwave |
+| the Wild | Barkskin, Aspect of the Elk, Pack Tactics, Hunter's Mark |
+| the Sun | Radiant resistance, Crusader's Mantle, Sunbeam |
+
+Some requested names are not exposed as standalone BG3 effects in the extracted
+data. The closest native implementations are used:
+
+- Animalistic Vitality / Warden of Vitality -> `AURA_OF_VITALITY`,
+  `AURA_OF_VITALITY_AURA`, and `AID`.
+- Crackling with Kereska's Lightning -> `STATIC_DISCHARGE_AURA` plus the
+  Elemental Adept: Lightning passive.
+- Muddy -> `MUDMEPHIT_HARD` (AC and maximum-HP resilience), not the restrained
+  mud-mephit condition.
+
 ## Champion of Dinosaurs
 
 Status:

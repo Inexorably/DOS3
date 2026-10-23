@@ -285,6 +285,149 @@ CHAMPIONS = [
 ]
 
 
+# Non-summoning champion variants. Their champion status is only a visual
+# marker; Randomizer applies the listed statuses, passives, and spells.
+NON_SUMMON_CHAMPIONS = [
+    {
+        'key': 'VITALITY',
+        'name': 'Champion of Vitality',
+        'icon': 'Spell_Evocation_AuraOfVitality',
+        'statuses': ['AURA_OF_VITALITY', 'AURA_OF_VITALITY_AURA', 'AID'],
+        'passives': [],
+        'spells': [],
+        'summary': 'This champion is empowered by Animalistic Vitality and Warden of Vitality.',
+    },
+    {
+        'key': 'LIGHTNING',
+        'name': 'Champion of Lightning',
+        'icon': 'Spell_Conjuration_CallLightning',
+        'statuses': ['RESISTANCE_LIGHTNING', 'STATIC_DISCHARGE_AURA'],
+        'passives': ['ElementalAdept_Lightning'],
+        'spells': ['Target_CallLightning'],
+        'summary': 'This champion crackles with Kereska-like lightning, resists lightning, and radiates Static Discharge.',
+    },
+    {
+        'key': 'LIGHT',
+        'name': 'Champion of Light',
+        'icon': 'Spell_Evocation_Sunbeam',
+        'statuses': ['RESISTANCE_RADIANT', 'CRUSADERS_MANTLE'],
+        'passives': [],
+        'spells': ['Zone_Sunbeam'],
+        'summary': 'This champion resists radiant damage, projects Crusader\'s Mantle, and knows Radiant Sunbeam.',
+    },
+    {
+        'key': 'HUNT',
+        'name': 'Champion of the Hunt',
+        'icon': 'Action_AspectOfTheElk',
+        'statuses': ['ASPECT_OF_THE_ELK', 'ASPECT_OF_THE_WOLF', 'RAGE_TOTEM_TIGER'],
+        'passives': ['PackTactics'],
+        'spells': ['Target_HuntersMark'],
+        'summary': 'This champion carries the elk and wolf aspects, Tiger Heart rage, Hunter\'s Mark, and Pack Tactics.',
+    },
+    {
+        'key': 'RESILIENCE',
+        'name': 'Champion of Resilience',
+        'icon': 'Spell_Evocation_OtilukesResilientSphere',
+        'statuses': ['CRYSTALSKIN', 'MUDMEPHIT_HARD'],
+        'passives': [],
+        'spells': ['Target_ResilientSphere'],
+        'summary': 'This champion is protected by Crystal Skin, mud-hardened resilience, and Otiluke\'s Resilient Sphere.',
+    },
+    {
+        'key': 'FIRE',
+        'name': 'Champion of Fire',
+        'icon': 'Spell_Evocation_Fireball',
+        'statuses': ['RESISTANCE_FIRE'],
+        'passives': [],
+        'spells': ['Projectile_Fireball'],
+        'summary': 'This champion resists fire and knows Fireball.',
+    },
+    {
+        'key': 'FROST',
+        'name': 'Champion of Frost',
+        'icon': 'Spell_Evocation_ConeOfCold',
+        'statuses': ['RESISTANCE_COLD', 'ARMOR_OF_AGATHYS'],
+        'passives': [],
+        'spells': ['Target_IceStorm'],
+        'summary': 'This champion resists cold, wears Armor of Agathys, and knows Ice Storm.',
+    },
+    {
+        'key': 'VENOM',
+        'name': 'Champion of Venom',
+        'icon': 'Spell_Conjuration_Cloudkill',
+        'statuses': ['RESISTANCE_POISON'],
+        'passives': [],
+        'spells': ['Target_Cloudkill', 'Target_StinkingCloud'],
+        'summary': 'This champion resists poison and knows Cloudkill and Stinking Cloud.',
+    },
+    {
+        'key': 'DEATH',
+        'name': 'Champion of Death',
+        'icon': 'Spell_Necromancy_AnimateDead',
+        'statuses': ['RESISTANCE_NECROTIC'],
+        'passives': [],
+        'spells': ['Target_AnimateDead', 'Target_Blight'],
+        'summary': 'This champion resists necrotic damage and knows Animate Dead and Blight.',
+    },
+    {
+        'key': 'THUNDER',
+        'name': 'Champion of Thunder',
+        'icon': 'Spell_Evocation_Thunderwave',
+        'statuses': ['RESISTANCE_THUNDER'],
+        'passives': [],
+        'spells': ['Zone_Thunderwave'],
+        'summary': 'This champion resists thunder and knows Thunderwave.',
+    },
+    {
+        'key': 'MIND',
+        'name': 'Champion of the Mind',
+        'icon': 'GenericIcon_Intent_Buff',
+        'statuses': ['RESISTANCE_PSYCHIC'],
+        'passives': [],
+        'spells': ['Zone_MindBlast_MindFlayer'],
+        'summary': 'This champion resists psychic damage and knows Mind Blast.',
+    },
+    {
+        'key': 'ARCANE',
+        'name': 'Champion of the Arcane',
+        'icon': 'Spell_Abjuration_MageArmor',
+        'statuses': ['MAGE_ARMOR', 'SHIELD'],
+        'passives': [],
+        'spells': ['Projectile_MagicMissile'],
+        'summary': 'This champion is guarded by Mage Armor and Shield and knows Magic Missile.',
+    },
+    {
+        'key': 'WAR',
+        'name': 'Champion of War',
+        'icon': 'Spell_Evocation_CrusadersMantle',
+        'statuses': ['BLESS', 'CRUSADERS_MANTLE'],
+        'passives': [],
+        'spells': ['Zone_Thunderwave'],
+        'summary': 'This champion is blessed, projects Crusader\'s Mantle, and knows Thunderwave.',
+    },
+    {
+        'key': 'WILD',
+        'name': 'Champion of the Wild',
+        'icon': 'Action_AspectOfTheElk',
+        'statuses': ['BARKSKIN', 'ASPECT_OF_THE_ELK'],
+        'passives': ['PackTactics'],
+        'spells': ['Target_HuntersMark'],
+        'summary': 'This champion is protected by Barkskin, the elk aspect, and Pack Tactics.',
+    },
+    {
+        'key': 'SUN',
+        'name': 'Champion of the Sun',
+        'icon': 'Spell_Evocation_Sunbeam',
+        'statuses': ['RESISTANCE_RADIANT', 'CRUSADERS_MANTLE'],
+        'passives': [],
+        'spells': ['Zone_Sunbeam'],
+        'summary': 'This champion resists radiant damage, projects Crusader\'s Mantle, and knows Sunbeam.',
+    },
+]
+
+ALL_CHAMPIONS = CHAMPIONS + NON_SUMMON_CHAMPIONS
+
+
 def load_character_stats():
     entries = {}
     for p in CHARACTER_SOURCES:
@@ -552,7 +695,7 @@ def build_stats_and_loca(guids, stats_by_tag):
             ]
 
     # Champion status conditions.
-    for champion in CHAMPIONS:
+    for champion in ALL_CHAMPIONS:
         status = 'ENR_CHAMPION_' + champion['key']
         lines += [
             'new entry "%s"' % status,
@@ -595,15 +738,19 @@ def build_stats_and_loca(guids, stats_by_tag):
     # Localization.
     texts = []
     seen = set()
-    for champion in CHAMPIONS:
+    for champion in ALL_CHAMPIONS:
         status = 'ENR_CHAMPION_' + champion['key']
-        names = [s['name'] for s in champion['summons']]
-        desc = 'This champion can summon ' + ', '.join(names[:-1])
-        if len(names) > 1:
-            desc += ', and ' + names[-1]
+        summons = champion.get('summons') or []
+        if summons:
+            names = [item['name'] for item in summons]
+            desc = 'This champion can summon ' + ', '.join(names[:-1])
+            if len(names) > 1:
+                desc += ', and ' + names[-1]
+            else:
+                desc = 'This champion can summon ' + names[0]
+            desc += '.'
         else:
-            desc = 'This champion can summon ' + names[0]
-        desc += '.'
+            desc = champion.get('summary', 'This champion has a themed set of boons.')
         for tag, value in [
             (status + '_Name', champion['name']),
             (status + '_Desc', desc),
@@ -611,7 +758,7 @@ def build_stats_and_loca(guids, stats_by_tag):
             if tag not in seen:
                 texts.append((tag, value))
                 seen.add(tag)
-        for item in champion['summons']:
+        for item in summons:
             for tag, value in [
                 ('ENR_' + item['tag'] + '_Name', item['name']),
                 ('%s_Name' % item['spell'], 'Summon ' + item['name']),
@@ -637,10 +784,17 @@ def build_stats_and_loca(guids, stats_by_tag):
 
     # Data consumed by Randomizer, SummonCooldown, and SummonPolish.
     lua = ['ER = ER or {}', 'ER.Generated = {', '  champions = {']
-    for champion in CHAMPIONS:
+    for champion in ALL_CHAMPIONS:
         status = 'ENR_CHAMPION_' + champion['key']
-        spells = ', '.join(json.dumps(item['spell']) for item in champion['summons'])
-        lua.append('    { status = %s, spells = { %s }, weight = 1 },' % (json.dumps(status), spells))
+        if champion.get('spells') is not None:
+            spell_list = champion['spells']
+        else:
+            spell_list = [item['spell'] for item in champion.get('summons', [])]
+        spells = ', '.join(json.dumps(item) for item in spell_list)
+        statuses = ', '.join(json.dumps(item) for item in champion.get('statuses', []))
+        passives = ', '.join(json.dumps(item) for item in champion.get('passives', []))
+        lua.append('    { status = %s, spells = { %s }, statuses = { %s }, passives = { %s }, weight = 1 },'
+                   % (json.dumps(status), spells, statuses, passives))
     lua += ['  },', '  summons = {']
     for champion in CHAMPIONS:
         for item in champion['summons']:
@@ -671,8 +825,8 @@ def main():
         for item in champion['summons']:
             print('native level: %-24s %2d (%s)' % (
                 item['tag'], item.get('native_level', 1), item.get('native_level_source', 'fallback')))
-    print('generated %d champions, %d summon skills, %d template bands' % (
-        len(CHAMPIONS), sum(len(c['summons']) for c in CHAMPIONS), len(guids)))
+    print('generated %d summon champions, %d non-summon champions, %d summon skills, %d template bands' % (
+        len(CHAMPIONS), len(NON_SUMMON_CHAMPIONS), sum(len(c['summons']) for c in CHAMPIONS), len(guids)))
     print('wrote', STATS)
     print('wrote', LOCA)
     print('wrote', ROOT_LSF)

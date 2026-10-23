@@ -153,7 +153,19 @@ local function pickChampion()
     return available[#available]
 end
 
-local function grantSummonSpells(guid, champion)
+local function grantChampionEffects(guid, champion)
+    if Osi and Osi.ApplyStatus then
+        for _, status in ipairs(champion.statuses or {}) do
+            local ok = pcall(Osi.ApplyStatus, guid, status, -1, 1)
+            log("champion status grant: %s -> %s ok=%s", status, guid, tostring(ok))
+        end
+    end
+    if Osi and Osi.AddPassive then
+        for _, passive in ipairs(champion.passives or {}) do
+            local ok = pcall(Osi.AddPassive, guid, passive)
+            log("champion passive grant: %s -> %s ok=%s", passive, guid, tostring(ok))
+        end
+    end
     if not (Osi and Osi.AddSpell) then return end
     for _, spell in ipairs(champion.spells or {}) do
         local ok, result = pcall(Osi.AddSpell, guid, spell, 0, 1)
@@ -178,7 +190,7 @@ local function applyChampion(guid)
     for _, entry in ipairs(C.CHAMPIONS) do
         if entry.status and hasStatus(guid, entry.status) then
             pcall(Osi.ApplyStatus, guid, C.CHAMPION_MARKER, -1, 1)
-            grantSummonSpells(guid, entry)
+            grantChampionEffects(guid, entry)
             return false
         end
     end
@@ -197,7 +209,7 @@ local function applyChampion(guid)
     local applied = Osi and Osi.ApplyStatus
         and pcall(Osi.ApplyStatus, guid, champion.status, -1, 1)
     if applied then
-        grantSummonSpells(guid, champion)
+        grantChampionEffects(guid, champion)
         log("champion %s -> %s", champion.status, guid)
         return true
     end
