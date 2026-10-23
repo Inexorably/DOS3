@@ -56,7 +56,7 @@ The generation is deterministic and creates one character root template and one
 | 11 | `ENR_Alioramus_L11`, `ENR_Crimson_L11` | 143 | 18 |
 | 12 | `ENR_Alioramus_L12`, `ENR_Crimson_L12` | 152 | 18 |
 
-Formulas used by `.analysis/build_enr_dinos.py`:
+Formulas used by `scripts/generate-enr-dinos.py`:
 
 ```text
 Vitality = round(51 * (1 + 0.18 * (level - 1)))
