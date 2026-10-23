@@ -169,9 +169,12 @@ Known DOS2 visual references for the current test spells:
       Prefer the native overhead HP label or enemy examine tooltip.
 - [ ] Probe the Noesis overhead HP control tree in-game and map character
       entities to their overhead labels.
-- [ ] Add above-character combat labels for physical/magic resistance.
-      BG3SE does not expose a simple world-to-screen helper, so this likely
-      requires Noesis UI injection or camera-projection math and needs an
-      in-game proof of concept.
+- [x] Add a server -> client armor snapshot broadcast.
+- [x] Add an above-character POC that appends `[P# M#]` to the native
+      overhead name via `CustomName` for party members and enemies.
+- [ ] Verify the `CustomName` overhead suffix in-game and replace it with a
+      proper overhead bar/label if the native name label is not sufficient.
+- [ ] Noesis UI injection or camera-projection math remains an option for a
+      cleaner overhead display.
 - [ ] Add a compact combat HUD/tooltip showing the values next to AC/health.
 - [ ] Add an in-game toggle to show/hide the armor UI.

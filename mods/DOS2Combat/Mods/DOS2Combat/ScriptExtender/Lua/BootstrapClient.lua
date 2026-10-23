@@ -3,6 +3,7 @@
 -- cooldown readout and (later) the armor/AP UI.
 
 Ext.Require("Client/CooldownUI.lua")
+Ext.Require("Client/ArmorUI.lua")
 Ext.Require("Client/ArmorOverheadProbe.lua")
 Ext.Require("Client/UIDump.lua")
 
