@@ -343,7 +343,7 @@ function C.Apply(handle, name, turns)
     outOfCombatSeconds[guid] = 0
 
     setNativeCooldown(entity, name, turns)
-    setSpellbookCooldownType(entity, name, DEFAULT_COOLDOWN_TYPE)
+    setSpellbookCooldownType(entity, name, "UntilShortRest")
     U.Log("cooldown applied: %s for %d turns", tostring(name), turns)
     return true
 end
@@ -486,7 +486,7 @@ function C.ReapplyAll()
         if list then
             for name, remaining in pairs(list) do
                 setNativeCooldown(entity, name, remaining)
-                setSpellbookCooldownType(entity, name, DEFAULT_COOLDOWN_TYPE)
+                setSpellbookCooldownType(entity, name, "UntilShortRest")
             end
         end
     end

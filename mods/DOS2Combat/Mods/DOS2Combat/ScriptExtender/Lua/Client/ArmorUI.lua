@@ -190,20 +190,40 @@ local fallbackWindow = nil
 local fallbackText = nil
 local fallbackLogged = false
 
-local function fallbackPosition()
-    -- The enemy HP/nameplate is displayed near the top center. Anchor the
-    -- fallback below it instead of on the left.
+local function viewportSize()
     if Ext.IMGUI and Ext.IMGUI.GetViewportSize then
         local ok, vp = pcall(Ext.IMGUI.GetViewportSize)
         if ok and vp then
             local w = tonumber(vp[1]) or tonumber(vp.x) or tonumber(vp.X)
             local h = tonumber(vp[2]) or tonumber(vp.y) or tonumber(vp.Y)
-            if w and h and w > 0 and h > 0 then
-                return { math.floor(w / 2) - 150, 180 }
-            end
+            if w and h and w > 0 and h > 0 then return w, h end
         end
     end
-    return { 24, 260 }
+    return nil, nil
+end
+
+local function centerFallback()
+    if not fallbackWindow then return end
+    local w, h = viewportSize()
+    if not w then return end
+
+    -- LastSize is populated after the auto-sized window has been laid out.
+    -- Use it so x is the window's centered left edge, not a guessed offset.
+    local nodeWidth = nil
+    local ok, size = pcall(function() return fallbackWindow.LastSize end)
+    if ok and size then
+        local okWidth, width = pcall(function()
+            return tonumber(size[1]) or tonumber(size.x) or tonumber(size.X)
+        end)
+        if okWidth then nodeWidth = width end
+    end
+    if not nodeWidth or nodeWidth <= 0 then nodeWidth = 300 end
+
+    local x = math.floor((w - nodeWidth) / 2)
+    if x < 0 then x = 0 end
+    local y = 360
+    if h and y > h - 80 then y = math.max(0, h - 80) end
+    pcall(function() fallbackWindow:SetPos({ x, y }) end)
 end
 
 local function updateFallback(text)
@@ -229,9 +249,9 @@ local function updateFallback(text)
     fallbackWindow.NoMove = true
     fallbackWindow.AlwaysAutoResize = true
     fallbackWindow.Open = true
-    pcall(function() fallbackWindow:SetPos(fallbackPosition()) end)
     fallbackWindow:AddText(text)
     fallbackText = text
+    centerFallback()
     if not fallbackLogged then
         fallbackLogged = true
         log("armor fallback window active: %s", text)
@@ -281,6 +301,7 @@ local function updateHoveredArmor()
             -- Keep the feature usable even if a future game patch changes the
             -- TargetInfo XAML name scope.
             updateFallback(text)
+            centerFallback()
             return
         end
         if not nodeFoundLogged then
