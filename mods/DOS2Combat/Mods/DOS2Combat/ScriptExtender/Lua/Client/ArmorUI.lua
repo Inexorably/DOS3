@@ -237,6 +237,7 @@ local fallbackText = nil
 local fallbackLogged = false
 local FALLBACK_WIDTH = 1100
 local ACCURACY_DISPLAY = 95
+local enabled = true
 local FALLBACK_HEIGHT = 30
 
 local function viewportSize()
@@ -299,6 +300,11 @@ end
 
 local function updateHoveredArmor()
     if not (Ext.UI and Ext.UI.Defer and Ext.UI.GetRoot) then return end
+    if not enabled then
+        updateFallback("")
+        if armorNode then setNodeText(armorNode, "") end
+        return
+    end
     Ext.UI.Defer(function()
         if not armorNode and searchAttempts < MAX_SEARCH_ATTEMPTS
             and (tickCount - lastSearchTick) >= SEARCH_INTERVAL_TICKS then
@@ -362,11 +368,24 @@ local function updateHoveredArmor()
     end)
 end
 
+function UI.SetEnabled(value)
+    enabled = value and true or false
+    if not enabled then
+        updateFallback("")
+        if armorNode then setNodeText(armorNode, "") end
+        log("armor UI disabled")
+    else
+        log("armor UI enabled")
+    end
+end
+
 if Ext.Events and Ext.Events.NetMessage then
     Ext.Events.NetMessage:Subscribe(function(ev)
         if ev and ev.Channel == "DOS2C_Armor" then
             local ok, err = pcall(parse, ev.Payload)
             if not ok then log("armor overlay parse error: %s", tostring(err)) end
+        elseif ev and ev.Channel == "DOS2C_ArmorToggle" then
+            UI.SetEnabled(tostring(ev.Payload or "") ~= "off")
         end
     end)
 end

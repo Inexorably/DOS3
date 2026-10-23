@@ -215,7 +215,7 @@ Known DOS2 visual references for the current test spells:
       truncated `Magic Armor` even at 0 physical armor. If it still truncates
       at high UI scale, measure the rendered text instead of using a constant
       width.
-- [ ] Add an in-game toggle to show/hide the armor UI.
+- [x] Add `!dos2c_armorui on|off` to broadcast the armor UI visibility toggle.
 
 ## Verification checklist
 

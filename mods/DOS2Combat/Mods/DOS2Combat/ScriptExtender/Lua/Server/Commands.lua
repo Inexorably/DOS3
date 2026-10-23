@@ -113,6 +113,17 @@ register("dos2c_rolls", function(_, value)
     end
 end)
 
+register("dos2c_armorui", function(_, value)
+    local state = tostring(value or ""):lower()
+    local enabled = state ~= "off" and state ~= "0" and state ~= "false"
+    if Ext and Ext.Net and Ext.Net.BroadcastMessage then
+        local ok, err = pcall(Ext.Net.BroadcastMessage, "DOS2C_ArmorToggle",
+            enabled and "on" or "off")
+        if not ok then printLine("[DOS2C] armor UI toggle failed: " .. tostring(err)) end
+    end
+    printLine("[DOS2C] armor UI " .. (enabled and "on" or "off"))
+end)
+
 register("dos2c_debug", function(_, value)
     local enabled = tostring(value or ""):lower() == "on"
     DOS2C.Config.DEBUG = enabled
