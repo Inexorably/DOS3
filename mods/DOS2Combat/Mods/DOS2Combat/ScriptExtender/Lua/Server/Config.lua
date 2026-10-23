@@ -110,6 +110,7 @@ DOS2C.Config = {
     REMOVE_ATTACK_ROLLS = false,
     BASE_ATTACK_ROLL_BONUS = 20, -- pushes normal attacks to the 95% cap
     REMOVE_SAVING_THROWS = true, -- DOS2 has no saving throws
+    STRIP_DEAD_SAVING_THROW_BOOSTS = true,
     -- Damage rolls stay random but are compressed around the average instead
     -- of using the full die range. Default: 1/3 of the original range width,
     -- so 1d12 (1-12) becomes 1d4+4 (5-8).

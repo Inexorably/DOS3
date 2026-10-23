@@ -111,11 +111,14 @@ end
 local function parse(payload)
     values = {}
     for part in tostring(payload or ""):gmatch("[^;]+") do
-        local guid, physical, magic = part:match("^([^|]+)|([^|]+)|(.+)$")
-        if guid then
+        local fields = {}
+        for field in part:gmatch("[^|]*") do fields[#fields + 1] = field end
+        local guid = fields[1]
+        if guid and guid ~= "" then
             values[guid] = {
-                physical = tonumber(physical) or 0,
-                magic = tonumber(magic) or 0,
+                physical = tonumber(fields[2]) or 0,
+                magic = tonumber(fields[3]) or 0,
+                dodge = tonumber(fields[4]),
             }
         end
     end
@@ -232,7 +235,8 @@ end
 local fallbackWindow = nil
 local fallbackText = nil
 local fallbackLogged = false
-local FALLBACK_WIDTH = 760
+local FALLBACK_WIDTH = 1100
+local ACCURACY_DISPLAY = 95
 local FALLBACK_HEIGHT = 30
 
 local function viewportSize()
@@ -317,8 +321,15 @@ local function updateHoveredArmor()
         if item then
             text = itemArmorText(item)
         elseif value then
-            text = string.format("Physical Armor: %d    Magic Armor: %d",
-                math.floor(value.physical + 0.5), math.floor(value.magic + 0.5))
+            if value.dodge then
+                text = string.format("Physical Armor: %d    Magic Armor: %d    Dodge: %d    Accuracy: %d%%",
+                    math.floor(value.physical + 0.5), math.floor(value.magic + 0.5),
+                    math.floor(value.dodge + 0.5), ACCURACY_DISPLAY)
+            else
+                text = string.format("Physical Armor: %d    Magic Armor: %d    Accuracy: %d%%",
+                    math.floor(value.physical + 0.5), math.floor(value.magic + 0.5),
+                    ACCURACY_DISPLAY)
+            end
         end
         if guid ~= lastTargetGuid then
             lastTargetGuid = guid

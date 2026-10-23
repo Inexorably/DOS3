@@ -673,24 +673,42 @@ local function patchWeapon(stat)
     return changed
 end
 
-local function patchStatusDamage(stat)
-    local cfg = DOS2C.Config
-    if not cfg.COMPRESS_DAMAGE_RANGES then return false end
+-- Saving throws are removed, so saving-throw-only modifiers would otherwise
+-- remain visible on status/passive tooltips while doing nothing. Strip those
+-- dead boost tokens. SavingThrow(...) functors/conditions are left alone.
+local function stripDeadSavingThrowBoosts(stat)
+    if not DOS2C.Config.STRIP_DEAD_SAVING_THROW_BOOSTS then return false end
+    local current = U.SafeGet(stat, "Boosts")
+    if type(current) ~= "string" or current == "" then return false end
+    local cleaned = current
+    cleaned = cleaned:gsub(";?%s*Advantage%(AllSavingThrows%)", "")
+    cleaned = cleaned:gsub(";?%s*Disadvantage%(AllSavingThrows%)", "")
+    cleaned = cleaned:gsub(";?%s*Advantage%(SavingThrow[^)]*%)", "")
+    cleaned = cleaned:gsub(";?%s*Disadvantage%(SavingThrow[^)]*%)", "")
+    cleaned = cleaned:gsub(";?%s*RollBonus%(SavingThrow[^)]*%)", "")
+    cleaned = cleaned:gsub(";?%s*ModifySavingThrowDisadvantage%(%),?", "")
+    cleaned = cleaned:gsub("^%s*;%s*", ""):gsub("%s*;%s*$", "")
+    cleaned = cleaned:gsub(";%s*;", ";")
+    if cleaned ~= current then return U.SafeSet(stat, "Boosts", cleaned) end
+    return false
+end
 
-    local changed = false
-    for _, field in ipairs(STATUS_DAMAGE_FIELDS) do
-        changed = compressField(stat, field, changed, false)
+local function patchStatusDamage(stat)
+    local changed = stripDeadSavingThrowBoosts(stat)
+    if DOS2C.Config.COMPRESS_DAMAGE_RANGES then
+        for _, field in ipairs(STATUS_DAMAGE_FIELDS) do
+            changed = compressField(stat, field, changed, false)
+        end
     end
     return changed
 end
 
 local function patchPassiveDamage(stat)
-    local cfg = DOS2C.Config
-    if not cfg.COMPRESS_DAMAGE_RANGES then return false end
-
-    local changed = false
-    for _, field in ipairs(PASSIVE_DAMAGE_FIELDS) do
-        changed = compressField(stat, field, changed, false)
+    local changed = stripDeadSavingThrowBoosts(stat)
+    if DOS2C.Config.COMPRESS_DAMAGE_RANGES then
+        for _, field in ipairs(PASSIVE_DAMAGE_FIELDS) do
+            changed = compressField(stat, field, changed, false)
+        end
     end
     return changed
 end

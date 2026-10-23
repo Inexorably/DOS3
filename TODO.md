@@ -25,14 +25,16 @@
       default to the native 95% hit cap; disadvantage still lowers hit chance.
 - [x] Client hover overlay shows the physical/magic resistance of a hovered
       armor item.
-- [ ] Native item/stat tooltips still show "Armor Class"; the separate armor
-      overlay is the current P/M readout.
-- [ ] Dedicated accuracy/dodge stat sources and UI labels.
+- [x] Armor overlay now shows P/M, Dodge, and a baseline Accuracy label.
+- [ ] Native item/stat tooltips still show "Armor Class"; the overlay is the
+      current P/M/Dodge readout.
+- [ ] Dedicated accuracy/dodge stat sources; current Accuracy label is the
+      forced 95% baseline.
 - [ ] Native attack rolls use d20 increments (5% steps), not the exact DOS2
       linear accuracy-minus-dodge formula.
 - [x] Audit statuses that modify saving throws in the verification dump.
-- [ ] Convert or explicitly deprecate saving-throw-only modifiers; they still
-      do nothing because saving throws are removed.
+- [x] Strip saving-throw-only boost tokens from status/passive tooltips; they
+      remain intentionally deprecated because DOS2 has no saving throws.
 
 ## Spell cooldowns
 
@@ -207,11 +209,12 @@ Known DOS2 visual references for the current test spells:
 - [ ] Verify character and item hover overlays in-game; item hover depends on
       the picking helper exposing the item entity as `entry.Tooltip`.
 - [ ] Native item/stat tooltips still show `Armor Class`; the overlay is the
-      current P/M readout.
-- [ ] Add a dedicated Dodge label/readout instead of showing it as AC.
-- [ ] Verify the widened 760px armor label; the previous 420px width truncated
-      `Magic Armor` even at 0 physical armor. If it still truncates at high UI
-      scale, measure the rendered text instead of using a constant width.
+      current P/M/Dodge readout.
+- [x] Add Dodge and baseline Accuracy labels to the character armor overlay.
+- [ ] Verify the widened 1100px armor label; the previous 420px width
+      truncated `Magic Armor` even at 0 physical armor. If it still truncates
+      at high UI scale, measure the rendered text instead of using a constant
+      width.
 - [ ] Add an in-game toggle to show/hide the armor UI.
 
 ## Verification checklist
