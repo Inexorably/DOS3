@@ -74,16 +74,16 @@ The champion chance is a persistent ModVar and can be changed without editing
 or rebuilding the mod. Open the Script Extender console with `Ctrl+F12` and use:
 
 ```text
-!enemyrandom_chance 12.5
 !enemyrandom_chance 0.125
 !enemyrandom_chance 0
 !enemyrandom_status
 ```
 
-`12.5` and `0.125` both mean 12.5%. The setting is stored in the savegame and
-synchronized to clients. It applies to enemies that have not already rolled
-their champion marker; existing champions and existing failed rolls are not
-rerolled.
+The value must be between `0` and `1`, inclusive. `0.125` means 12.5%, `0`
+disables champions, and `1` means 100%. Values such as `12.5` are rejected. The
+setting is stored in the savegame and synchronized to clients. It applies to
+enemies that have not already rolled their champion marker; existing champions
+and existing failed rolls are not rerolled.
 
 ## Champion of Dinosaurs
 

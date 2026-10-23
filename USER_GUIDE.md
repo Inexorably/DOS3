@@ -1,0 +1,207 @@
+# DOS3 User Guide
+
+This repository contains two Baldur's Gate 3 mods:
+
+| Mod | Folder | Purpose |
+| --- | --- | --- |
+| DOS2 Combat Overhaul | `mods/DOS2Combat` | DOS2-style AP, deterministic damage, armor resistance, and turn cooldowns |
+| Enemy Randomization | `mods/EnemyRandomization` | Random enemy buffs and themed champion variants |
+
+Both mods require **Baldur's Gate 3 Script Extender (BG3SE)**.
+
+## Installation
+
+1. Install BG3SE so that `DWrite.dll` is present in the game's `bin` folder.
+2. Build or obtain the `.pak` files.
+3. Copy the `.pak` files into:
+
+   ```text
+   %LOCALAPPDATA%\Larian Studios\Baldur's Gate 3\Mods
+   ```
+
+4. Enable the mods in BG3 Mod Manager or the in-game Mods menu.
+5. Start a save. The mods apply their runtime rules automatically.
+
+For a local source build:
+
+```bash
+./scripts/build.sh DOS2Combat
+./scripts/install.sh DOS2Combat
+
+./scripts/build.sh EnemyRandomization
+./scripts/install.sh EnemyRandomization
+```
+
+## Script Extender Console
+
+Open the BG3SE console with **Ctrl+F12**. Console commands are prefixed with
+`!`:
+
+```text
+!enemyrandom_status
+```
+
+The console is also where command results and diagnostics are printed.
+
+## Enemy Randomization
+
+### What it does
+
+Eligible enemies can receive:
+
+- One positive random status from the configured buff list.
+- A themed champion condition, subject to the champion chance.
+
+The randomizer runs on the host and applies results through normal BG3 statuses
+and spells, so multiplayer clients see the same result.
+
+### Champion chance
+
+The champion chance is a value from **0.0 to 1.0**:
+
+```text
+0.0   = champions disabled
+0.125 = 12.5% chance
+0.5   = 50% chance
+1.0   = every eligible enemy becomes a champion
+```
+
+Change it at any time in game:
+
+```text
+!enemyrandom_chance 0.125
+```
+
+Show the current value:
+
+```text
+!enemyrandom_status
+```
+
+Examples:
+
+```text
+!enemyrandom_chance 0
+!enemyrandom_chance 0.05
+!enemyrandom_chance 0.125
+!enemyrandom_chance 1
+```
+
+Only values in the inclusive range `0..1` are accepted. Values such as `12.5`
+are rejected. To use a percentage, convert it to a decimal first:
+
+```text
+12.5% -> 0.125
+```
+
+The setting is persisted in the savegame and synchronized from the host to
+multiplayer clients.
+
+Changing the chance does not reroll enemies that have already been marked as
+randomized. It affects enemies that have not yet rolled their champion.
+
+The default configuration is currently **`1.0`** for testing. A normal gameplay
+value is approximately **`0.125`**.
+
+### Champion types
+
+There are two champion families:
+
+- **Summoning champions** grant themed summon spells. Their summons are
+  generated with level-appropriate Character stats and root templates.
+- **Non-summoning champions** grant statuses, passives, and spells directly.
+
+Examples of summoning themes include Dinosaurs, Spiders, Goblins, Ogres, Hell,
+Steel Watch, Dragons, Gnolls, Mind Flayers, Bugbears, Redcaps, Constructs, and
+Owlbears.
+
+Examples of non-summoning themes include Vitality, Lightning, Light, the Hunt,
+Resilience, Fire, Frost, Venom, Death, Thunder, the Mind, the Arcane, War, the
+Wild, and the Sun.
+
+Summoned champions use a five-turn cooldown for each granted summon skill and
+cost 2 AP per summon. The enemy AI may temporarily lose access to a summon
+skill while it is on cooldown.
+
+### Saves, reloads, and multiplayer
+
+- A hidden marker prevents an enemy from rerolling after save/reload.
+- Existing buffs and champions are adopted instead of rerolled.
+- Champion and random-buff rolls are host-authoritative.
+- The champion chance ModVar is synchronized to clients.
+- Save/reload behavior is designed so clients do not see a different champion
+  than the host.
+
+## DOS2 Combat Overhaul
+
+### Combat rules
+
+- Characters use a 4 AP starting pool, 6 AP maximum, and 4 AP regeneration per
+  turn with carryover capped by the maximum.
+- Basic weapon attacks cost 2 AP.
+- Spells use DOS2-style level-based AP costs.
+- Non-default spells have at least a one-turn cooldown.
+- Cooldowns use DOS2-style turn counts. Out of combat, one turn is six seconds.
+- Attack rolls are preserved, but the base attack bonus is raised so normal
+  attacks usually have a very high hit chance. Accuracy-reducing conditions can
+  still cause misses.
+- Saving throws are removed from spell resolution.
+- Physical and magic armor are flat per-hit resistance sourced from equipment
+  and effects. Armor does not deplete.
+- Enemy native AC is converted into armor resistance rather than continuing to
+  act as hit avoidance.
+
+### Useful DOS2 Combat commands
+
+```text
+!dos2c_status
+!dos2c_ap
+!dos2c_armor [guid]
+!dos2c_setarmor <physical> <magic>
+!dos2c_resetarmor
+!dos2c_patch
+!dos2c_fixap
+!dos2c_rolls on|off
+!dos2c_armorui on|off
+!dos2c_debug on|off
+```
+
+Use `!dos2c_status` first when diagnosing a problem.
+
+## Troubleshooting
+
+### The console does not open
+
+- Confirm BG3SE is installed in the game's `bin` folder.
+- Confirm both `.pak` files are enabled in Mod Manager.
+- Check the Script Extender log directory:
+
+  ```text
+  %LOCALAPPDATA%\Larian Studios\Baldur's Gate 3\Script Extender Logs
+  ```
+
+### A command is not recognized
+
+Commands are registered by the server-side Lua files. Make sure the relevant mod
+is enabled before loading the save.
+
+### Champion chance did not take effect
+
+- Confirm the command reported the new value.
+- Remember that enemies which already have the champion marker do not reroll.
+- Use a new encounter or a save made before the encounter rolled its champion.
+
+### Multiplayer differences
+
+The host is authoritative. If a client appears out of sync:
+
+1. Confirm the host has the same mod version installed.
+2. Have the host run `!enemyrandom_status`.
+3. Reload the save on the client after the host has loaded it.
+
+## Developer Notes
+
+Design details and implementation notes are in:
+
+- `TODO.md` - current work and verification checklist
+- `mods/EnemyRandomization/CHAMPION_DESIGN.md` - champion and summon architecture

@@ -141,11 +141,8 @@ local function championChance()
 end
 
 local function setChampionChance(value)
-    local text = tostring(value or ""):gsub("%%", "")
-    local number = tonumber(text)
-    if not number then return nil end
-    if number > 1.0 then number = number / 100.0 end
-    number = math.max(0.0, math.min(1.0, number))
+    local number = tonumber(tostring(value or ""))
+    if not number or number < 0.0 or number > 1.0 then return nil end
     C.CHAMPION_CHANCE = number
     if ER.Settings then ER.Settings.Set("ChampionChance", number) end
     return number
@@ -401,7 +398,7 @@ function R.Init()
             if chance then
                 notify("champion chance set to %.1f%% (persisted for future rolls)", chance * 100)
             else
-                notify("usage: !enemyrandom_chance 0.125  or  !enemyrandom_chance 12.5%%")
+                notify("usage: !enemyrandom_chance <0-1>  (for example 0.125 = 12.5%%)")
             end
         end)
         pcall(Ext.RegisterConsoleCommand, "enemyrandom_status", function()
