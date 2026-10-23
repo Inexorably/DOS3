@@ -170,9 +170,9 @@ Known DOS2 visual references for the current test spells:
 - [ ] Probe the Noesis overhead HP control tree in-game and map character
       entities to their overhead labels.
 - [x] Add a server -> client armor snapshot broadcast.
-- [x] Add an above-character POC that appends `[P# M#]` to the native
-      overhead name via `CustomName` for party members and enemies.
-- [ ] Verify the `CustomName` overhead suffix in-game and replace it with a
+- [x] Added a server-side display-name POC that appends `[P# M#]` through
+      `Osi.SetDisplayName`; this targets the native overhead nameplate.
+- [ ] Verify the server display-name suffix in-game and replace it with a
       proper overhead bar/label if the native name label is not sufficient.
 - [ ] Noesis UI injection or camera-projection math remains an option for a
       cleaner overhead display.
