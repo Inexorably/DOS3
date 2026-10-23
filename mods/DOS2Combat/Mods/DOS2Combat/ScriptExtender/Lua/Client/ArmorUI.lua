@@ -11,6 +11,7 @@ DOS2C.ArmorUI = DOS2C.ArmorUI or {}
 local UI = DOS2C.ArmorUI
 local values = {}
 local originals = {}
+local lastText = {}
 local tickCount = 0
 local logged = false
 
@@ -49,7 +50,13 @@ local function setOverheadName(entity, guid, physical, magic)
     local base = originalName(entity, guid)
     local text = string.format("%s  [P%d M%d]", base,
         math.floor(physical + 0.5), math.floor(magic + 0.5))
+    if lastText[guid] == text then return true end
 
+    local applied = false
+
+    -- CustomName is used by player-authored names, but the native overhead
+    -- widget may prefer DisplayName. Set both so the suffix is visible whether
+    -- the entity is a party member or an enemy.
     local name = entity.CustomName
     if not name then
         local ok, created = pcall(function()
@@ -57,10 +64,27 @@ local function setOverheadName(entity, guid, physical, magic)
         end)
         if ok then name = created end
     end
-    if not name then return false end
+    if name then
+        local ok = pcall(function() name.Name = text end)
+        if ok then applied = true end
+    end
 
-    local ok = pcall(function() name.Name = text end)
-    return ok
+    -- Build a per-entity translated-string handle and point DisplayName at it.
+    -- This targets the actual label used by the native overhead HP widget.
+    if entity.DisplayName and entity.DisplayName.Name and Ext.Loca then
+        local key = "DOS2C_ARMOR_" .. tostring(guid):gsub("[^%w_]", "_")
+        local ok, updated = pcall(Ext.Loca.UpdateTranslatedString, key, text)
+        if ok and updated then
+            local handleOk = pcall(function()
+                entity.DisplayName.Name.Handle.Handle = key
+                entity.DisplayName.Name.Handle.Version = 0
+            end)
+            if handleOk then applied = true end
+        end
+    end
+
+    if applied then lastText[guid] = text end
+    return applied
 end
 
 local function applyAll()
