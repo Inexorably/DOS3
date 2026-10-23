@@ -136,6 +136,9 @@ DOS2C.Config = {
     SURFACE_STATUS_DURATION = 2,    -- turns
     SURFACE_TICK_DAMAGE = true,
     SURFACE_DOUSE_FIRE = true,      -- water removes BURNING (DOS2 douse rule)
+    SURFACE_COMBOS_ENABLED = true,
+    SURFACE_OIL_FIRE_BONUS = 1.0,   -- extra damage multiplier for oiled + fire
+    SURFACE_POISON_FIRE_BONUS = 0.5,
 
     -- Movement (TODO: not wired to BG3's native Movement resource yet) -----
     MOVEMENT_AP_ENABLED = false,

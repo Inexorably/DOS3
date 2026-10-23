@@ -100,19 +100,42 @@ local function hasStatus(handle, status)
     return ok and (result == 1 or result == true)
 end
 
+local function removeStatus(handle, status)
+    if not (Osi and Osi.RemoveStatus) then return false end
+    return pcall(Osi.RemoveStatus, handle, status)
+end
+
+-- Returns an extra damage multiplier fraction for DOS2 surface combinations.
 local function applySurfaceInteraction(handle, key)
     local cfg = DOS2C.Config
-    if not cfg.SURFACE_DOUSE_FIRE then return end
+    local bonus = 0
 
-    -- DOS2: water douses burning characters. BG3's native surface system
-    -- handles the terrain interaction, but a burning character standing in
-    -- water still keeps BURNING without this rule.
-    if (key == "water" or key == "deepwater" or key == "waterfrozen") then
-        if hasStatus(handle, "BURNING") and Osi and Osi.RemoveStatus then
-            local ok = pcall(Osi.RemoveStatus, handle, "BURNING")
-            if ok then U.Log("surface combo: water doused BURNING") end
+    if cfg.SURFACE_DOUSE_FIRE then
+        -- DOS2: water douses burning characters. BG3's native surface system
+        -- handles the terrain interaction, but a burning character standing in
+        -- water still keeps BURNING without this rule.
+        if key == "water" or key == "deepwater" or key == "waterfrozen" then
+            if hasStatus(handle, "BURNING") then
+                if removeStatus(handle, "BURNING") then
+                    U.Log("surface combo: water doused BURNING")
+                end
+            end
         end
     end
+
+    if cfg.SURFACE_COMBOS_ENABLED and key:find("fire", 1, true) then
+        if hasStatus(handle, "OILED") then
+            bonus = bonus + (cfg.SURFACE_OIL_FIRE_BONUS or 0)
+            removeStatus(handle, "OILED")
+            U.Log("surface combo: oil + fire")
+        elseif hasStatus(handle, "POISONED") then
+            bonus = bonus + (cfg.SURFACE_POISON_FIRE_BONUS or 0)
+            removeStatus(handle, "POISONED")
+            U.Log("surface combo: poison + fire")
+        end
+    end
+
+    return bonus
 end
 
 local function applySurface(handle, surfaceType)
@@ -131,13 +154,14 @@ local function applySurface(handle, surfaceType)
         end
     end
 
+    local comboBonus = applySurfaceInteraction(handle, key)
+
     local damage = 0
     if cfg.SURFACE_TICK_DAMAGE and rule.damage then
-        damage = math.max(1, math.floor(maxHP(handle) * cfg.SURFACE_DAMAGE_HP_RATIO * (rule.ratio or 1.0)))
+        local multiplier = (rule.ratio or 1.0) * (1.0 + comboBonus)
+        damage = math.max(1, math.floor(maxHP(handle) * cfg.SURFACE_DAMAGE_HP_RATIO * multiplier))
         pcall(Osi.DealDamage, handle, damage, rule.damage)
     end
-
-    applySurfaceInteraction(handle, key)
 
     U.Log("surface tick: %s -> %s (status=%s damage=%d/%s)",
         tostring(surfaceType), tostring(key), tostring(statusApplied),

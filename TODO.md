@@ -123,8 +123,10 @@ too, but enemy cooldowns have not been audited separately.
 - [x] Reuse BG3-native surface terrain VFX/decals; do not port DOS2 surface
       terrain visuals.
 - [x] DOS2 douse rule: water removes BURNING from characters standing in it.
-- [ ] Port remaining DOS2 surface combination rules (fire+oil, fire+poison,
-      water+lightning, etc.) where BG3 does not already handle them.
+- [x] Add fire+oil and fire+poison surface combinations.
+- [x] Water douse rule for BURNING characters.
+- [ ] Verify native water+lightning/freezing combinations where BG3 already
+      handles them.
 - [ ] Tune surface damage after in-game testing.
 
 ## DOS2 spell visuals
