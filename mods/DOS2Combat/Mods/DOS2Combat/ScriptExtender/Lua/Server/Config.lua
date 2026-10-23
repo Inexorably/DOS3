@@ -26,9 +26,14 @@ DOS2C.Config = {
     -- TODO: cooldowns are not implemented yet.
     -- SpellData cooldown sources should be inspected; short-rest recharge
     -- spells get a 3-turn cooldown, long-rest recharge spells get 5 turns.
+    COOLDOWN_ONCE_PER_TURN = 1,
+    COOLDOWN_ONCE_PER_TURN_NO_REALTIME = 2,
+    COOLDOWN_UNTIL_SHORT_REST = 3,
+    COOLDOWN_ONCE_PER_SHORT_REST_PER_ITEM = 4,
+    COOLDOWN_UNTIL_REST = 5,
+    COOLDOWN_UNTIL_PER_REST_PER_ITEM = 6,
     COOLDOWN_SHORT_REST = 3,
     COOLDOWN_LONG_REST = 5,
-    COOLDOWN_ONCE_PER_TURN = 1,
     COOLDOWN_ONCE_PER_COMBAT = 5,
     -- These values are for rebalancing BG3-native spells. Ported DOS2 spells
     -- use their original DOS2 cooldown from DOS2_COOLDOWNS below.

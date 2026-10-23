@@ -338,16 +338,22 @@ end
 
 local function explicitCooldownToTurns(explicit, cfg)
     if type(explicit) ~= "string" or explicit == "" then return nil end
-    if explicit == "OncePerTurn" or explicit == "OncePerTurnNoRealtime" then
+    if explicit == "OncePerTurn" then
         return cfg.COOLDOWN_ONCE_PER_TURN
-    elseif explicit == "OncePerShortRest" or explicit == "OncePerShortRestPerItem"
-        or explicit == "UntilShortRest" then
-        return cfg.COOLDOWN_SHORT_REST
+    elseif explicit == "OncePerTurnNoRealtime" then
+        return cfg.COOLDOWN_ONCE_PER_TURN_NO_REALTIME
+    elseif explicit == "OncePerShortRest" or explicit == "UntilShortRest" then
+        return cfg.COOLDOWN_UNTIL_SHORT_REST
+    elseif explicit == "OncePerShortRestPerItem" then
+        return cfg.COOLDOWN_ONCE_PER_SHORT_REST_PER_ITEM
     elseif explicit == "OncePerCombat" then
         return cfg.COOLDOWN_ONCE_PER_COMBAT
-    elseif explicit == "OncePerRest" or explicit == "OncePerRestPerItem"
-        or explicit == "UntilRest" then
-        return cfg.COOLDOWN_LONG_REST
+    elseif explicit == "OncePerRest" or explicit == "OncePerRestPerItem" then
+        return cfg.COOLDOWN_UNTIL_REST
+    elseif explicit == "UntilRest" then
+        return cfg.COOLDOWN_UNTIL_REST
+    elseif explicit == "UntilPerRestPerItem" or explicit == "UntilRestPerItem" then
+        return cfg.COOLDOWN_UNTIL_PER_REST_PER_ITEM
     end
     return nil
 end

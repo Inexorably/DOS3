@@ -189,6 +189,8 @@ end
 local fallbackWindow = nil
 local fallbackText = nil
 local fallbackLogged = false
+local FALLBACK_WIDTH = 420
+local FALLBACK_HEIGHT = 28
 
 local function viewportSize()
     if Ext.IMGUI and Ext.IMGUI.GetViewportSize then
@@ -207,19 +209,7 @@ local function centerFallback()
     local w, h = viewportSize()
     if not w then return end
 
-    -- LastSize is populated after the auto-sized window has been laid out.
-    -- Use it so x is the window's centered left edge, not a guessed offset.
-    local nodeWidth = nil
-    local ok, size = pcall(function() return fallbackWindow.LastSize end)
-    if ok and size then
-        local okWidth, width = pcall(function()
-            return tonumber(size[1]) or tonumber(size.x) or tonumber(size.X)
-        end)
-        if okWidth then nodeWidth = width end
-    end
-    if not nodeWidth or nodeWidth <= 0 then nodeWidth = 300 end
-
-    local x = math.floor((w - nodeWidth) / 2)
+    local x = math.floor((w - FALLBACK_WIDTH) / 2)
     if x < 0 then x = 0 end
     local y = 360
     if h and y > h - 80 then y = math.max(0, h - 80) end
@@ -247,8 +237,10 @@ local function updateFallback(text)
     fallbackWindow.NoDecoration = true
     fallbackWindow.NoInputs = true
     fallbackWindow.NoMove = true
-    fallbackWindow.AlwaysAutoResize = true
+    fallbackWindow.NoResize = true
+    fallbackWindow.AlwaysAutoResize = false
     fallbackWindow.Open = true
+    pcall(function() fallbackWindow:SetSize({ FALLBACK_WIDTH, FALLBACK_HEIGHT }) end)
     fallbackWindow:AddText(text)
     fallbackText = text
     centerFallback()

@@ -18,6 +18,18 @@ local active = {}     -- character guid -> { [spell name] = remaining turns }
 local charDefs = {}   -- character guid -> { [spell name] = override turns }
 local originals = {}  -- character guid -> { [spell name] = original CooldownType }
 
+-- The native tooltip only understands enum labels. Map our numeric turn
+-- counts onto the closest supported enum so the hotbar shows a cooldown.
+local function cooldownTypeForTurns(turns)
+    turns = tonumber(turns) or 1
+    if turns >= 6 then return "UntilPerRestPerItem" end
+    if turns >= 5 then return "UntilRest" end
+    if turns >= 4 then return "OncePerShortRestPerItem" end
+    if turns >= 3 then return "UntilShortRest" end
+    if turns >= 2 then return "OncePerTurnNoRealtime" end
+    return "OncePerTurn"
+end
+
 local function normalize(name)
     return tostring(name or ""):lower()
 end
@@ -159,8 +171,8 @@ local function setNativeCooldown(entity, name, turns)
         for i = 1, #comp.Cooldowns do
             local entry = comp.Cooldowns[i]
             if entryMatches(entry, name) then
-                entry.CooldownType = "UntilShortRest"
-                entry.CooldownType2 = "UntilShortRest"
+                entry.CooldownType = cooldownTypeForTurns(turns)
+                entry.CooldownType2 = cooldownTypeForTurns(turns)
                 entry.Cooldown = turns
                 entry.SpellCastGuid = ZERO_GUID
                 found = true
@@ -172,8 +184,8 @@ local function setNativeCooldown(entity, name, turns)
     if not found then
         list[#list + 1] = {
             SpellId = copySpellId(spell.Id),
-            CooldownType = "UntilShortRest",
-            CooldownType2 = "UntilShortRest",
+            CooldownType = cooldownTypeForTurns(turns),
+            CooldownType2 = cooldownTypeForTurns(turns),
             Cooldown = turns,
             SpellCastGuid = ZERO_GUID,
         }
@@ -343,7 +355,7 @@ function C.Apply(handle, name, turns)
     outOfCombatSeconds[guid] = 0
 
     setNativeCooldown(entity, name, turns)
-    setSpellbookCooldownType(entity, name, "UntilShortRest")
+    setSpellbookCooldownType(entity, name, cooldownTypeForTurns(turns))
     U.Log("cooldown applied: %s for %d turns", tostring(name), turns)
     return true
 end
@@ -486,7 +498,7 @@ function C.ReapplyAll()
         if list then
             for name, remaining in pairs(list) do
                 setNativeCooldown(entity, name, remaining)
-                setSpellbookCooldownType(entity, name, "UntilShortRest")
+                setSpellbookCooldownType(entity, name, cooldownTypeForTurns(remaining))
             end
         end
     end
