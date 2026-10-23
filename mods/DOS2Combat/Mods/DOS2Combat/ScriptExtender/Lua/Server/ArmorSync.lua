@@ -15,6 +15,7 @@ local CHANNEL = "DOS2C_Armor"
 local lastPayload = nil
 local displayNames = {}
 local namesLogged = false
+local snapshotLogged = false
 
 local function armorEntities()
     if not (Ext.Entity and Ext.Entity.GetAllEntitiesWithComponent) then return {} end
@@ -99,6 +100,10 @@ function S.Snapshot(applyNames)
     if applyNames and not namesLogged then
         namesLogged = true
         U.Log("armor overhead names: %d characters updated", named)
+    end
+    if not snapshotLogged and #parts > 0 then
+        snapshotLogged = true
+        U.Log("armor snapshot: %d characters", #parts)
     end
     return table.concat(parts, ";")
 end

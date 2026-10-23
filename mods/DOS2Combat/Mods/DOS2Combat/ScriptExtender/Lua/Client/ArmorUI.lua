@@ -119,6 +119,9 @@ local function parse(payload)
             }
         end
     end
+    local count = 0
+    for _ in pairs(values) do count = count + 1 end
+    log("armor snapshot values=%d", count)
     applyAll()
 end
 
