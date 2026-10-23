@@ -241,7 +241,7 @@
                             <Control x:Name="HPBarContainer" HorizontalAlignment="Center" DataContext="{Binding CurrentPlayer.CurrentRegularOrCombatTurnTarget}" Template="{StaticResource TargetHealthBarTemplate}"/>
 
                             <!-- DOS2 Combat Overhaul: armor readout for the hovered target. -->
-                            <TextBlock x:Name="DOS2ArmorText" Text="" HorizontalAlignment="Center"
+                            <TextBlock x:Name="DOS2ArmorText" Text="[DOS2 Armor]" HorizontalAlignment="Center"
                                        FontSize="{StaticResource ScaledSmallishFontSize}"
                                        Foreground="{StaticResource LS_PrimaryColor}"
                                        noesis:Text.Stroke="Black" noesis:Text.StrokeThickness="3"

@@ -183,17 +183,37 @@ local function hoveredGuid()
 end
 
 local function findNamedNode(node, target, depth)
-    if not node or depth > 14 then return nil end
+    if not node or depth > 16 then return nil end
     local okName, name = pcall(function() return node:GetProperty("Name") end)
     if okName and tostring(name) == target then return node end
 
+    -- x:Name inside a DataTemplate is not always visible through Name, so
+    -- also identify the added TextBlock by its initial placeholder text.
+    local okText, text = pcall(function() return node:GetProperty("Text") end)
+    if okText and tostring(text) == "[DOS2 Armor]" then return node end
+
+    -- TargetInfo's template is custom-drawn. The added TextBlock can live in
+    -- the visual tree even when the logical ChildrenCount is zero, so search
+    -- both trees.
     local okCount, count = pcall(function() return node.ChildrenCount end)
-    if not okCount or not tonumber(count) then return nil end
-    for i = 1, tonumber(count) do
-        local okChild, child = pcall(function() return node:Child(i) end)
-        if okChild and child then
-            local found = findNamedNode(child, target, depth + 1)
-            if found then return found end
+    if okCount and tonumber(count) then
+        for i = 1, tonumber(count) do
+            local okChild, child = pcall(function() return node:Child(i) end)
+            if okChild and child then
+                local found = findNamedNode(child, target, depth + 1)
+                if found then return found end
+            end
+        end
+    end
+
+    local okVisualCount, visualCount = pcall(function() return node.VisualChildrenCount end)
+    if okVisualCount and tonumber(visualCount) then
+        for i = 1, tonumber(visualCount) do
+            local okChild, child = pcall(function() return node:VisualChild(i) end)
+            if okChild and child then
+                local found = findNamedNode(child, target, depth + 1)
+                if found then return found end
+            end
         end
     end
     return nil
