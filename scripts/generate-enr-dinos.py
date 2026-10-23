@@ -55,7 +55,7 @@ CHARACTER_SOURCES = [
     ROOT / '.analysis/allstats/Public/Gustav/Stats/Generated/Data/Character.txt',
 ]
 
-LEVELS = list(range(1, 13))
+LEVELS = list(range(1, 21))
 ABILITIES = ['Strength', 'Dexterity', 'Constitution', 'Intelligence', 'Wisdom', 'Charisma']
 
 # Base values used only if a source stat block is incomplete. The full values
@@ -167,6 +167,7 @@ CHAMPIONS = [
         'summons': [
             summon('SteelWatcher', 'Steel Watcher', 'Steel_Watcher_Biped', 'SteelWatcher_Biped_A', 'Action_EndGameAlly_SteelWatcherSummon'),
             summon('HellfireWatcher', 'Hellfire Watcher', 'Steel_Watcher_Biped_Hellfire', 'SteelWatcher_Biped_C', 'Action_EndGameAlly_SteelWatcherSummon'),
+            summon('SteelWatcherTitan', 'Steel Watch Titan', 'Steel_Watcher_Quadruped', 'BASE_WATCHER_Steel_Quadruped_A', 'Action_EndGameAlly_SteelWatcherSummon'),
         ],
     },
     {

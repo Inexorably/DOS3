@@ -268,11 +268,11 @@ Known DOS2 visual references for the current test spells:
 
 - [x] Implement the summoning champion roster: Dinosaurs, Spiders, Goblins,
       Ogres, Hell, Steel Watch, Dragons, Gnolls, Mind Flayers, Bugbears,
-      Redcaps, Constructs, and Owlbears.
+      Redcaps, Constructs, and Owlbears. Steel Watch also has the Steel Watch Titan.
 - [x] Generate per-level root templates, Character stats, summon spells,
       cooldown markers, icons, and localization for every summoning champion.
 - [ ] Verify each summoning champion grants its full 2-4 summon skill list and
-      that each summon appears at the correct level.
+      that each summon appears at the correct level from 1 through 20.
 - [ ] Boss enemies receive **two guaranteed champion conditions**.
 - [ ] The two boss champion conditions must be non-duplicate; do not grant the
       same champion variant twice.

@@ -21,7 +21,7 @@ When testing is complete, restore a normal champion chance, e.g. `0.125`.
 | Goblins | Goblin, Goblin Boss, Goblin Caster, Goblin Ranger |
 | Ogres | Ogre, Ogre Captain |
 | Hell | Imp, Weak Imp, Hell Boar, Lesser Hell Boar |
-| Steel Watch | Steel Watcher, Hellfire Watcher |
+| Steel Watch | Steel Watcher, Hellfire Watcher, Steel Watch Titan |
 | Dragons | Red Dragon, Bronze Dragon |
 | Gnolls | Gnoll, Gnoll Fang of Yeenoghu, Gnoll Flind, Gnoll Flesh-Gnawer |
 | Mind Flayers | Mind Flayer, Mind Flayer Caster |
@@ -68,22 +68,9 @@ Both skills:
 ## Per-level templates
 
 The generation is deterministic and creates one character root template and one
-`Character` stat block **per level**, not coarse five-level bands.
-
-| Level | Template names | Vitality | Armor |
-| --- | --- | --- | --- |
-| 1 | `ENR_Alioramus_L1`, `ENR_Crimson_L1` | 51 | 13 |
-| 2 | `ENR_Alioramus_L2`, `ENR_Crimson_L2` | 60 | 13 |
-| 3 | `ENR_Alioramus_L3`, `ENR_Crimson_L3` | 69 | 14 |
-| 4 | `ENR_Alioramus_L4`, `ENR_Crimson_L4` | 79 | 14 |
-| 5 | `ENR_Alioramus_L5`, `ENR_Crimson_L5` | 88 | 15 |
-| 6 | `ENR_Alioramus_L6`, `ENR_Crimson_L6` | 97 | 15 |
-| 7 | `ENR_Alioramus_L7`, `ENR_Crimson_L7` | 106 | 16 |
-| 8 | `ENR_Alioramus_L8`, `ENR_Crimson_L8` | 115 | 16 |
-| 9 | `ENR_Alioramus_L9`, `ENR_Crimson_L9` | 124 | 17 |
-| 10 | `ENR_Alioramus_L10`, `ENR_Crimson_L10` | 134 | 17 |
-| 11 | `ENR_Alioramus_L11`, `ENR_Crimson_L11` | 143 | 18 |
-| 12 | `ENR_Alioramus_L12`, `ENR_Crimson_L12` | 152 | 18 |
+`Character` stat block **per level from 1 through 20**, not coarse five-level
+bands and not only the level-12 player cap. Enemy/NPC levels can exceed the
+player cap in encounter data, so level 20 is the terminal summon band.
 
 Formulas used by `scripts/generate-enr-dinos.py`:
 
@@ -106,9 +93,12 @@ Ability offset = floor((level - 1) / 4)
 | 1-4 | +0 |
 | 5-8 | +1 |
 | 9-12 | +2 |
+| 13-16 | +3 |
+| 17-20 | +4 |
 
 The base Strength/Dexterity/Constitution/Intelligence/Wisdom/Charisma values
-are the original dinosaur values; the offset is added to every level band.
+come from each summon's source BG3 `Character` stat block; the offset is added
+to every level band.
 
 This affects native derived behavior implicitly:
 
@@ -179,7 +169,7 @@ Public/EnemyRandomization/RootTemplates/_merged.lsf
 ```
 
 The summon `SpellProperties` contain a `CharacterLevelGreaterThan` branch for
-each level 1-12, selecting the matching root template. Level 12 is the terminal
+each level 1-20, selecting the matching root template. Level 20 is the terminal
 branch and also covers any higher level.
 
 ## Summon VFX
