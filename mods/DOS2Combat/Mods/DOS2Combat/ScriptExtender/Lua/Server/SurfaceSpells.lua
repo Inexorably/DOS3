@@ -68,9 +68,34 @@ local function hasSpell(guid, spell)
     return ok and (result == 1 or result == true)
 end
 
+-- When the test unlock flag is disabled, remove the old passive/spells that
+-- may still exist on a save created while testing was enabled.
+function S.RemoveFromParty()
+    local members = partyMembers()
+    local removed = 0
+    for _, guid in ipairs(members) do
+        if Osi and Osi.RemovePassive then
+            local ok = pcall(Osi.RemovePassive, guid, "DOS2C_TestSpells")
+            if ok then removed = removed + 1 end
+        end
+        if Osi and Osi.RemoveSpell then
+            for _, spell in ipairs(DOS2C.Config.TEST_SURFACE_SPELLS or {}) do
+                pcall(Osi.RemoveSpell, guid, spell)
+            end
+        end
+    end
+    if removed > 0 then
+        U.Log("removed test spell passive from %d party members", removed)
+    end
+    return removed
+end
+
 function S.UnlockForParty()
     local cfg = DOS2C.Config
-    if not cfg.UNLOCK_TEST_SURFACE_SPELLS then return 0 end
+    if not cfg.UNLOCK_TEST_SURFACE_SPELLS then
+        S.RemoveFromParty()
+        return 0
+    end
     if not (Osi and Osi.AddSpell) then return 0 end
 
     local members = partyMembers()

@@ -124,7 +124,7 @@ DOS2C.Config = {
     -- DOS2 surfaces ---------------------------------------------------------
     -- Test-only: unlock the DOS2 surface-setter spells on every party member.
     -- Set this to false for release builds.
-    UNLOCK_TEST_SURFACE_SPELLS = true,
+    UNLOCK_TEST_SURFACE_SPELLS = false,
     TEST_SURFACE_SPELLS = {
         "DOS2C_Rain",
         "DOS2C_FossilStrike",
