@@ -30,8 +30,9 @@
 - [ ] Dedicated accuracy/dodge stat sources and UI labels.
 - [ ] Native attack rolls use d20 increments (5% steps), not the exact DOS2
       linear accuracy-minus-dodge formula.
-- [ ] Audit statuses that only modify saving throws; they currently do
-      nothing because saving throws are removed.
+- [x] Audit statuses that modify saving throws in the verification dump.
+- [ ] Convert or explicitly deprecate saving-throw-only modifiers; they still
+      do nothing because saving throws are removed.
 
 ## Spell cooldowns
 
