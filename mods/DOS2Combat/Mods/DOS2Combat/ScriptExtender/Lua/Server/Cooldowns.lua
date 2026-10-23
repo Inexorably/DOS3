@@ -14,6 +14,7 @@ local U = DOS2C.Utils
 local ZERO_GUID = "00000000-0000-0000-0000-000000000000"
 local DEFAULT_COOLDOWN_TYPE = "Default"
 local defs = {}       -- spell name -> turns
+local defTypes = {}   -- spell name -> runtime cooldown subtype
 local active = {}     -- character guid -> { [spell name] = remaining turns }
 local charDefs = {}   -- character guid -> { [spell name] = override turns }
 local originals = {}  -- character guid -> { [spell name] = original CooldownType }
@@ -22,9 +23,9 @@ local originals = {}  -- character guid -> { [spell name] = original CooldownTyp
 -- counts onto the closest supported enum so the hotbar shows a cooldown.
 local function cooldownTypeForTurns(turns)
     turns = tonumber(turns) or 1
-    if turns >= 6 then return "UntilPerRestPerItem" end
+    if turns >= 6 then return "UntilRestPerItem" end
     if turns >= 5 then return "UntilRest" end
-    if turns >= 4 then return "OncePerShortRestPerItem" end
+    if turns >= 4 then return "UntilShortRestPerItem" end
     if turns >= 3 then return "UntilShortRest" end
     if turns >= 2 then return "OncePerTurnNoRealtime" end
     return "OncePerTurn"
@@ -152,7 +153,7 @@ local function entryMatches(entry, name)
     return namesMatch(id.Prototype, name)
 end
 
-local function setNativeCooldown(entity, name, turns)
+local function setNativeCooldown(entity, name, turns, cooldownType)
     local spell = findSpell(entity, name)
     if not spell then
         U.Log("cooldown: spell %s not found in spellbook", tostring(name))
@@ -171,8 +172,9 @@ local function setNativeCooldown(entity, name, turns)
         for i = 1, #comp.Cooldowns do
             local entry = comp.Cooldowns[i]
             if entryMatches(entry, name) then
-                entry.CooldownType = cooldownTypeForTurns(turns)
-                entry.CooldownType2 = cooldownTypeForTurns(turns)
+                local runtimeType = cooldownType or cooldownTypeForTurns(turns)
+                entry.CooldownType = runtimeType
+                entry.CooldownType2 = runtimeType
                 entry.Cooldown = turns
                 entry.SpellCastGuid = ZERO_GUID
                 found = true
@@ -184,8 +186,8 @@ local function setNativeCooldown(entity, name, turns)
     if not found then
         list[#list + 1] = {
             SpellId = copySpellId(spell.Id),
-            CooldownType = cooldownTypeForTurns(turns),
-            CooldownType2 = cooldownTypeForTurns(turns),
+            CooldownType = cooldownType or cooldownTypeForTurns(turns),
+            CooldownType2 = cooldownType or cooldownTypeForTurns(turns),
             Cooldown = turns,
             SpellCastGuid = ZERO_GUID,
         }
@@ -311,9 +313,20 @@ local function normalizeSpellbook(entity)
     return changed
 end
 
-function C.Set(name, turns)
+function C.Set(name, turns, cooldownType)
     if type(name) ~= "string" or name == "" then return end
-    defs[normalize(name)] = tonumber(turns) or 0
+    local key = normalize(name)
+    defs[key] = tonumber(turns) or 0
+    if type(cooldownType) == "string" and cooldownType ~= "" then
+        defTypes[key] = cooldownType
+    else
+        defTypes[key] = nil
+    end
+end
+
+function C.GetType(name)
+    local key = normalize(name)
+    return defTypes[key] or defTypes[baseName(key)]
 end
 
 function C.Get(name)
@@ -345,7 +358,7 @@ function C.GetFor(handle, name)
     return C.Get(name)
 end
 
-function C.Apply(handle, name, turns)
+function C.Apply(handle, name, turns, cooldownType)
     local entity = U.EntityOf(handle)
     local guid = U.GuidOf(handle)
     if not entity or not guid then return false end
@@ -354,8 +367,9 @@ function C.Apply(handle, name, turns)
     active[guid][normalize(name)] = turns
     outOfCombatSeconds[guid] = 0
 
-    setNativeCooldown(entity, name, turns)
-    setSpellbookCooldownType(entity, name, cooldownTypeForTurns(turns))
+    local runtimeType = cooldownType or C.GetType(name) or cooldownTypeForTurns(turns)
+    setNativeCooldown(entity, name, turns, runtimeType)
+    setSpellbookCooldownType(entity, name, runtimeType)
     U.Log("cooldown applied: %s for %d turns", tostring(name), turns)
     return true
 end
@@ -379,7 +393,7 @@ function C.OnSpellCast(caster, spell)
         if override ~= nil then turns = override end
     end
 
-    C.Apply(caster, name, turns)
+    C.Apply(caster, name, turns, C.GetType(name))
 end
 
 function C.OnTurnStarted(handle)
@@ -402,7 +416,7 @@ function C.OnTurnStarted(handle)
             U.Log("cooldown expired: %s", tostring(name))
         else
             list[name] = remaining
-            setNativeCooldown(entity, name, remaining)
+            setNativeCooldown(entity, name, remaining, defTypes[normalize(name)] or defTypes[baseName(normalize(name))])
             U.Log("cooldown tick: %s %d turns left", tostring(name), remaining)
         end
     end
@@ -441,7 +455,7 @@ local function tickOutOfCombat()
                             U.Log("out-of-combat cooldown expired: %s", tostring(name))
                         else
                             list[name] = remaining
-                            setNativeCooldown(entity, name, remaining)
+                            setNativeCooldown(entity, name, remaining, defTypes[normalize(name)] or defTypes[baseName(normalize(name))])
                             U.Log("out-of-combat cooldown tick: %s %d turns left",
                                 tostring(name), remaining)
                         end
@@ -497,7 +511,7 @@ function C.ReapplyAll()
         local list = guid and active[guid]
         if list then
             for name, remaining in pairs(list) do
-                setNativeCooldown(entity, name, remaining)
+                setNativeCooldown(entity, name, remaining, defTypes[normalize(name)] or defTypes[baseName(normalize(name))])
                 setSpellbookCooldownType(entity, name, cooldownTypeForTurns(remaining))
             end
         end

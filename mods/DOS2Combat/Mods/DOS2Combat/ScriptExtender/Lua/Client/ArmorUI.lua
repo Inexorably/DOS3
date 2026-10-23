@@ -238,6 +238,7 @@ local fallbackLogged = false
 local FALLBACK_WIDTH = 420
 local ACCURACY_DISPLAY = 95
 local enabled = true
+local lastFallbackWidth = nil
 
 local function viewportSize()
     if Ext.IMGUI and Ext.IMGUI.GetViewportSize then
@@ -264,7 +265,11 @@ local function centerFallback()
         end)
         if widthOk then width = value end
     end
-    if not width or width <= 0 then width = FALLBACK_WIDTH end
+    if width and width > 0 then
+        lastFallbackWidth = width
+    else
+        width = lastFallbackWidth or FALLBACK_WIDTH
+    end
     local x = math.floor((w - width) / 2)
     if x < 0 then x = 0 end
     local y = 360

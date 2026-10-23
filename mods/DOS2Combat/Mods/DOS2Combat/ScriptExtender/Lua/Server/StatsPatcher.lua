@@ -376,6 +376,32 @@ local function explicitCooldownToTurns(explicit, cfg)
     return nil
 end
 
+-- Map a native stats cooldown label to the runtime SpellBookCooldowns
+-- subtype consumed by Tooltips.xaml. Keep explicit types when the computed
+-- numeric duration did not come from a longer recharge rule.
+local function runtimeCooldownType(explicit, explicitTurns, turns, recharge)
+    if type(explicit) ~= "string" or explicit == "" then return nil end
+    if explicitTurns and explicitTurns ~= turns then return nil end
+    if type(recharge) == "string" and recharge ~= "" then
+        local rechargeTurns = rechargeToTurns(recharge)
+        if rechargeTurns and explicitTurns and rechargeTurns > explicitTurns then return nil end
+    end
+    local map = {
+        OncePerTurn = "OncePerTurn",
+        OncePerTurnNoRealtime = "OncePerTurnNoRealtime",
+        OncePerCombat = "OncePerCombat",
+        OncePerShortRest = "UntilShortRest",
+        UntilShortRest = "UntilShortRest",
+        OncePerShortRestPerItem = "UntilShortRestPerItem",
+        UntilShortRestPerItem = "UntilShortRestPerItem",
+        OncePerRest = "OncePerRest",
+        UntilRest = "UntilRest",
+        UntilPerRestPerItem = "UntilRestPerItem",
+        UntilRestPerItem = "UntilRestPerItem",
+    }
+    return map[explicit]
+end
+
 local function cooldownForSpell(name, stat, level, costs, damageScale)
     local cfg = DOS2C.Config
 
@@ -484,10 +510,14 @@ local function patchSpell(name, stat)
     if cfg.PORTED_DAMAGE_RESCALE and name:match("^DOS2C_") then
         damageScale = portedDamageScale(stat, level)
     end
+    local explicitCooldown = U.SafeGet(stat, "Cooldown")
+    local explicitTurns = explicitCooldownToTurns(explicitCooldown, cfg)
+    local recharge = U.SafeGet(stat, "RechargeValues")
     local cooldown = cooldownForSpell(name, stat, level, costs, damageScale)
+    local cooldownType = runtimeCooldownType(explicitCooldown, explicitTurns, cooldown, recharge)
     spellCooldowns[name] = cooldown
     if DOS2C.Cooldowns then
-        DOS2C.Cooldowns.Set(name, cooldown)
+        DOS2C.Cooldowns.Set(name, cooldown, cooldownType)
     end
 
     -- Replace native cast limits with the numeric turn-cooldown overlay.

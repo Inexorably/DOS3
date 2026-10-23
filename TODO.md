@@ -56,6 +56,11 @@
       and lists the actual remaining turn count.
 - [x] Audited status-only spells whose native data has no Level/Cooldown;
       added five-turn overrides for the player long-rest/class buffs.
+- [x] Override cooldown tooltip labels per subtype: 2/3/4/5/6-turn labels.
+- [x] Align runtime SpellBookCooldowns enum names with the Tooltips.xaml
+      subtypes (`UntilShortRestPerItem`, `UntilRestPerItem`).
+- [x] Hide the cooldown IMGUI window when no cooldowns are active.
+- [ ] Verify the Tooltips.xaml override loads and all five labels render.
 - [x] Astral Knowledge buff statuses now apply for 5 turns instead of
       until-long-rest, and the shared ASTRAL_KNOWLEDGE status blocks variants.
 - [ ] Verify Astral Knowledge expires after 5 turns / 30 seconds out of combat
@@ -218,7 +223,7 @@ Known DOS2 visual references for the current test spells:
       current P/M/Dodge readout.
 - [x] Add Dodge and baseline Accuracy labels to the character armor overlay.
 - [x] Armor overlay is dynamically sized and centered from LastSize once the
-      layout exists.
+      layout exists; the last nonzero width is cached for re-shown labels.
 - [ ] Verify dynamic sizing no longer clips the bottom or becomes too wide.
 - [x] Add `!dos2c_armorui on|off` to broadcast the armor UI visibility toggle.
 
