@@ -117,9 +117,28 @@ local function dumpEquipment(guid)
     end
 end
 
+local function auditSavingThrowStatuses()
+    if not (Ext and Ext.Stats and Ext.Stats.GetStats) then return end
+    local ok, names = pcall(Ext.Stats.GetStats, "StatusData")
+    if not ok or type(names) ~= "table" then return end
+    local count, examples = 0, {}
+    for _, name in ipairs(names) do
+        local got, stat = pcall(Ext.Stats.Get, name)
+        if got and stat then
+            local boosts = U.SafeGet(stat, "Boosts")
+            if type(boosts) == "string" and boosts:find("SavingThrow", 1, true) then
+                count = count + 1
+                if #examples < 8 then examples[#examples + 1] = tostring(name) end
+            end
+        end
+    end
+    log("saving-throw statuses=%d examples=%s", count, table.concat(examples, ","))
+end
+
 function V.Verify(guid)
     log("begin")
     local cfg = DOS2C.Config
+    auditSavingThrowStatuses()
     log("config AP=%d/%d regen=%d attackRollBonus=%s armor=%s",
         cfg.AP_START, cfg.AP_MAX, cfg.AP_REGEN,
         tostring(cfg.BASE_ATTACK_ROLL_BONUS), tostring(cfg.ARMOR_ENABLED))
