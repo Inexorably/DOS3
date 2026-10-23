@@ -16,13 +16,16 @@
       Prone/Restrained, cover, and high-ground attack modifiers work again.
 - [x] Keep saving throws removed for now; only saving-throw effects are
       unwrapped.
-- [x] Cache equipment AC for flat armor resistance, then normalize the native
-      armor AC to 10 or 0 (shields) so gear no longer also acts as hit
-      avoidance.
+- [x] Keep the real equipment AC on the item for tooltip/resistance use, and
+      add a matching negative `AC(...)` boost so gear no longer contributes to
+      native hit chance.
 - [x] Native attack rolls now use the remaining AC as the Dodge value:
       base 10 plus explicit Dodge/AC boosts.
-- [ ] Dedicated accuracy/dodge stat sources and UI labels; native AC still
-      appears as "Armor Class" in item/stat tooltips.
+- [x] Client hover overlay shows the physical/magic resistance of a hovered
+      armor item.
+- [ ] Native item/stat tooltips still show "Armor Class"; the separate armor
+      overlay is the current P/M readout.
+- [ ] Dedicated accuracy/dodge stat sources and UI labels.
 - [ ] Native attack rolls use d20 increments (5% steps), not the exact DOS2
       linear accuracy-minus-dodge formula.
 - [ ] Audit statuses that only modify saving throws; they currently do

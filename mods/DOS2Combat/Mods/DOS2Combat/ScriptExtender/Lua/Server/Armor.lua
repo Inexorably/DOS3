@@ -25,9 +25,10 @@ local function hasStatus(handle, status)
     return ok and (result == 1 or result == true)
 end
 
--- Equipment AC is stored for resistance use, then the native ArmorClass is
--- normalized to 10 so equipment does not also act as hit avoidance. Native
--- attack rolls use the remaining AC (base + Dodge) for hit chance.
+-- Equipment AC remains on the item for display and resistance. A matching
+-- negative AC boost cancels its native attack-roll contribution, so equipment
+-- does not also act as hit avoidance. Native attack rolls use base AC plus
+-- explicit Dodge/AC boosts for hit chance.
 local function originalArmorClass(entity, armor)
     local data = entity and entity.Data
     local statName = data and data.StatsId

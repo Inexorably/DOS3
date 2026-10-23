@@ -159,6 +159,49 @@ local function entityGuid(handle)
     return guidOf(entity)
 end
 
+local function hoveredItemEntity()
+    if not (Ext.UI and Ext.UI.GetPickingHelper) then return nil end
+    for _, player in ipairs({ 1, 0 }) do
+        local ok, helper = pcall(Ext.UI.GetPickingHelper, player)
+        if ok and helper then
+            local inner = helper.Inner
+            local entries = inner and inner.Inner
+            if entries then
+                for i = 1, 2 do
+                    local entry = entries[i]
+                    local handle = entry and entry.Tooltip
+                    if handle then
+                        local entity = Ext.Entity.Get(handle)
+                        if entity and entity.Armor then return entity end
+                    end
+                end
+            end
+        end
+    end
+    return nil
+end
+
+local function itemArmorText(entity)
+    local armor = entity and entity.Armor
+    if not armor then return "" end
+    local ac = tonumber(armor.ArmorClass) or 0
+    local gain = math.max(0, armor.Shield and ac or (ac - 9))
+    if gain <= 0 then return "" end
+    local heavy = (tonumber(armor.ArmorType) or 0) >= 6
+    local physical = gain
+    local magic = gain
+    if heavy then
+        physical = physical * 1.25
+        magic = magic * 0.75
+    end
+    if armor.Shield then
+        physical = physical * 1.5
+        magic = 0
+    end
+    return string.format("Physical Armor: %d    Magic Armor: %d",
+        math.floor(physical + 0.5), math.floor(magic + 0.5))
+end
+
 local function hoveredGuid()
     if not (Ext.UI and Ext.UI.GetPickingHelper) then return nil end
     for _, player in ipairs({ 1, 0 }) do
@@ -270,7 +313,10 @@ local function updateHoveredArmor()
         local guid = hoveredGuid()
         local value = guid and values[guid]
         local text = ""
-        if value then
+        local item = hoveredItemEntity()
+        if item then
+            text = itemArmorText(item)
+        elseif value then
             text = string.format("Physical Armor: %d    Magic Armor: %d",
                 math.floor(value.physical + 0.5), math.floor(value.magic + 0.5))
         end
