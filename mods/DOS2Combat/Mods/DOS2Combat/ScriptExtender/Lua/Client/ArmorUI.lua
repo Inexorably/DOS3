@@ -182,6 +182,23 @@ local function hoveredGuid()
     return nil
 end
 
+local function findNamedNode(node, target, depth)
+    if not node or depth > 14 then return nil end
+    local okName, name = pcall(function() return node:GetProperty("Name") end)
+    if okName and tostring(name) == target then return node end
+
+    local okCount, count = pcall(function() return node.ChildrenCount end)
+    if not okCount or not tonumber(count) then return nil end
+    for i = 1, tonumber(count) do
+        local okChild, child = pcall(function() return node:Child(i) end)
+        if okChild and child then
+            local found = findNamedNode(child, target, depth + 1)
+            if found then return found end
+        end
+    end
+    return nil
+end
+
 local function updateHoveredArmor()
     if not (Ext.UI and Ext.UI.Defer and Ext.UI.GetRoot) then return end
     Ext.UI.Defer(function()
@@ -189,7 +206,11 @@ local function updateHoveredArmor()
             local root = Ext.UI.GetRoot()
             if root then
                 local ok, node = pcall(function() return root:Find("DOS2ArmorText") end)
-                if ok and node then armorNode = node end
+                if ok and node then
+                    armorNode = node
+                else
+                    armorNode = findNamedNode(root, "DOS2ArmorText", 0)
+                end
             end
         end
         if not armorNode then
