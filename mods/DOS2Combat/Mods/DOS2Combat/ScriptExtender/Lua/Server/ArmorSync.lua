@@ -105,7 +105,7 @@ end
 
 function S.Broadcast(force)
     if not (Ext.Net and Ext.Net.BroadcastMessage) then return end
-    local payload = S.Snapshot(true)
+    local payload = S.Snapshot(false)
     if not force and payload == lastPayload then return end
     lastPayload = payload
     local ok, err = pcall(Ext.Net.BroadcastMessage, CHANNEL, payload)
