@@ -4,8 +4,10 @@
 
 Ext.Require("Client/CooldownUI.lua")
 Ext.Require("Client/ArmorUI.lua")
-Ext.Require("Client/ArmorOverheadProbe.lua")
-Ext.Require("Client/UIDump.lua")
+-- Diagnostic probes are disabled: they query every Noesis node and BG3SE
+-- logs an error for each missing property, which makes the main menu unusable.
+-- Ext.Require("Client/ArmorOverheadProbe.lua")
+-- Ext.Require("Client/UIDump.lua")
 
 Ext.Events.SessionLoaded:Subscribe(function()
     if Ext.Utils and Ext.Utils.Print then
