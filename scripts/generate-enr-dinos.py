@@ -251,7 +251,6 @@ def build_stats_and_loca(guids):
         'data "Description" "%s"' % handle('ENR_CHAMPION_DINOSAURS_Desc'),
         'data "Icon" "GenericIcon_Intent_Summon"',
         'data "StackId" "ENR_CHAMPION_DINOSAURS"',
-        'data "Boosts" "UnlockSpell(ENR_Summon_ChultAlioramus);UnlockSpell(ENR_Summon_Crimson)"',
         '',
         'new entry "ENR_CHAMPION_ROLLED"',
         'type "StatusData"',

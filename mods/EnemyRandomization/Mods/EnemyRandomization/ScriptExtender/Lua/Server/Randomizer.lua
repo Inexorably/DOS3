@@ -156,8 +156,11 @@ end
 local function grantSummonSpells(guid, champion)
     if not (Osi and Osi.AddSpell) then return end
     for _, spell in ipairs(champion.spells or {}) do
-        local ok = pcall(Osi.AddSpell, guid, spell, 0, 1)
-        if not ok then pcall(Osi.AddSpell, guid, spell, 0) end
+        local ok, result = pcall(Osi.AddSpell, guid, spell, 0, 1)
+        if not ok then
+            ok, result = pcall(Osi.AddSpell, guid, spell, 0)
+        end
+        log("champion spell grant: %s -> %s ok=%s result=%s", spell, guid, tostring(ok), tostring(result))
     end
 end
 

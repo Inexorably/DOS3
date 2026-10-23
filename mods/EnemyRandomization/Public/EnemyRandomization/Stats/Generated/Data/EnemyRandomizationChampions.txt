@@ -359,7 +359,6 @@ data "DisplayName" "he72407f771d5502986e11c348388f0bf"
 data "Description" "hbc91155a0d9957dd92b3d10faa568712"
 data "Icon" "GenericIcon_Intent_Summon"
 data "StackId" "ENR_CHAMPION_DINOSAURS"
-data "Boosts" "UnlockSpell(ENR_Summon_ChultAlioramus);UnlockSpell(ENR_Summon_Crimson)"
 
 new entry "ENR_CHAMPION_ROLLED"
 type "StatusData"

@@ -27,6 +27,10 @@ ENR_Summon_ChultAlioramus
 ENR_Summon_Crimson
 ```
 
+The champion status does **not** use `UnlockSpell` boosts. Both skills are granted
+directly through `Osi.AddSpell` so the cooldown module can remove one without a
+status boost immediately re-granting it.
+
 Both skills:
 
 - Cost `1` AP.
@@ -162,6 +166,17 @@ Some BG3 AI controllers ignore `SpellBookCooldowns` entries for custom spells,
 so the module also removes the summon skill from the caster's spellbook after a
 cast and restores it when the numeric cooldown expires. That is the actual
 enforcement path; the native cooldown entry is mainly for UI/state.
+
+Each caster gets one hidden marker per skill:
+
+```text
+ENR_COOLDOWN_ALIORAMUS
+ENR_COOLDOWN_CRIMSON
+```
+
+The marker persists through save/reload and lets the module recover an active
+cooldown even though Lua tables are session-local. A 1-second enforcement loop
+re-removes the skill if something grants it again.
 
 The custom spell stat uses `UntilRest` so the DOS2Combat tooltip override can
 label it as a 5-turn cooldown; the numeric overlay handles the actual 5-turn
