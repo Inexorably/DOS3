@@ -73,9 +73,10 @@
       receive 6 max AP; current AP is re-applied after the passive is added,
       with resource-id and Osiris setter fallbacks.
 - [x] Client overlay no longer uses the BG3SE-sandboxed `os` library.
-- [ ] `ShortRestFinished` / `LongRestFinished` are not Osiris events in this
-      build. Find a working rest event so numeric cooldowns and armor can reset
-      on rests; currently they reset on session load only.
+- [x] `ShortRestFinished` / `LongRestFinished` are not Osiris events in this
+      build. Replaced them with the ECS `ServerShortRestResultEvent` and a
+      `LongRestState` poll; cooldowns and armor caches now reset on rests.
+- [ ] Verify the ECS rest hooks in-game.
 
 ## Enemy / NPC spell cooldowns
 
