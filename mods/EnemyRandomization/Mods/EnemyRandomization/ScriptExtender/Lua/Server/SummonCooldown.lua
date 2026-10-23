@@ -1,8 +1,15 @@
--- Three-turn cooldowns for champion summon skills.
+-- Robust five-turn cooldowns for champion summon skills.
 --
--- BG3's spell stats only expose enum cooldowns, so this keeps a per-character
--- numeric counter and mirrors it into SpellBookCooldowns. The native entry is
--- removed when the counter reaches zero.
+-- BG3's numeric SpellBookCooldowns overlay is respected by the player hotbar
+-- but not reliably by enemy AI. The enforcement path is therefore:
+--   * persistent hidden marker status,
+--   * SpellBookCooldowns entry for UI/state,
+--   * remove the summon skill from the caster's spellbook,
+--   * periodically re-remove it if a status boost grants it again,
+--   * restore it when the turn counter expires.
+--
+-- The marker status is what makes the cooldown survive save/reload and
+-- multiplayer synchronization; Lua tables alone are not persisted.
 
 ER = ER or {}
 ER.SummonCooldown = ER.SummonCooldown or {}
@@ -11,13 +18,21 @@ local C = ER.SummonCooldown
 local CFG = ER.Config
 
 local ZERO_GUID = "00000000-0000-0000-0000-000000000000"
-local TURNS = 5
+local SCAN_INTERVAL_MS = 1000
 
 local defs = {
-    ENR_Summon_ChultAlioramus = TURNS,
-    ENR_Summon_Crimson = TURNS,
+    ENR_Summon_ChultAlioramus = {
+        turns = 5,
+        marker = "ENR_COOLDOWN_ALIORAMUS",
+    },
+    ENR_Summon_Crimson = {
+        turns = 5,
+        marker = "ENR_COOLDOWN_CRIMSON",
+    },
 }
+
 local active = {} -- guid -> spell name -> remaining turns
+local periodicStarted = false
 
 local function log(fmt, ...)
     if not CFG.DEBUG then return end
@@ -35,13 +50,23 @@ local function guidOf(entity)
     return nil
 end
 
+local function entityOf(handle)
+    if type(handle) ~= "string" then return handle end
+    if Ext and Ext.Entity and Ext.Entity.Get then
+        local ok, entity = pcall(Ext.Entity.Get, handle)
+        if ok then return entity end
+    end
+    return nil
+end
+
 local function normalize(name)
     return tostring(name or ""):lower()
 end
 
 local function namesMatch(a, b)
     local na, nb = normalize(a), normalize(b)
-    return na ~= "" and nb ~= "" and (na == nb or na:gsub("_%d+$", "") == nb:gsub("_%d+$", ""))
+    if na == "" or nb == "" then return false end
+    return na == nb or na:gsub("_%d+$", "") == nb:gsub("_%d+$", "")
 end
 
 local function spellName(value)
@@ -63,6 +88,26 @@ local function findSpell(entity, name)
         end
     end
     return nil
+end
+
+local function hasStatus(guid, status)
+    if not (Osi and Osi.HasStatus) then return false end
+    local ok, result = pcall(Osi.HasStatus, guid, status)
+    return ok and (result == 1 or result == true)
+end
+
+local function applyMarker(guid, status)
+    if not (Osi and Osi.ApplyStatus and status) then return false end
+    local ok = pcall(Osi.ApplyStatus, guid, status, -1, 1)
+    if not ok then log("summon cooldown marker apply failed: %s", status) end
+    return ok
+end
+
+local function clearMarker(guid, status)
+    if not (Osi and Osi.RemoveStatus and status) then return false end
+    local ok = pcall(Osi.RemoveStatus, guid, status)
+    if ok then log("summon cooldown marker cleared: %s", status) end
+    return ok
 end
 
 local function copySpellId(id)
@@ -98,17 +143,25 @@ local function entryMatches(entry, name)
     return id and id.Prototype and namesMatch(id.Prototype, name)
 end
 
+local function nativeTurns(entity, name, fallback)
+    local comp = entity and entity.SpellBookCooldowns
+    if comp and comp.Cooldowns then
+        for i = 1, #comp.Cooldowns do
+            local entry = comp.Cooldowns[i]
+            if entryMatches(entry, name) then
+                return tonumber(entry.Cooldown) or fallback
+            end
+        end
+    end
+    return fallback
+end
+
 local function setNativeCooldown(entity, name, turns)
     local spell = findSpell(entity, name)
-    if not spell then
-        log("summon cooldown: %s not found in spellbook", tostring(name))
-        return false
-    end
     local comp = getCooldownComponent(entity)
     if not comp then return false end
 
-    local list = {}
-    local found = false
+    local list, found = {}, false
     if comp.Cooldowns then
         for i = 1, #comp.Cooldowns do
             local entry = comp.Cooldowns[i]
@@ -122,7 +175,11 @@ local function setNativeCooldown(entity, name, turns)
             list[#list + 1] = entry
         end
     end
+
     if not found then
+        -- The skill is deliberately absent from the spellbook while cooling
+        -- down; only create a new entry when we can still resolve its spell ID.
+        if not spell then return false end
         list[#list + 1] = {
             SpellId = copySpellId(spell.Id),
             CooldownType = "UntilRest",
@@ -150,73 +207,109 @@ local function clearNativeCooldown(entity, name)
     return writeCooldowns(entity, comp, list)
 end
 
-local function removeSpell(guid, name)
-    if not (Osi and Osi.RemoveSpell) then return false end
-    local ok = pcall(Osi.RemoveSpell, guid, name, 0)
-    if not ok then ok = pcall(Osi.RemoveSpell, guid, name) end
-    if ok then
-        log("summon spell removed from spellbook: %s (%s)", name, guid)
-    else
-        log("summon spell removal failed: %s (%s)", name, guid)
+local function filterSpellbook(entity, name)
+    local book = entity and entity.SpellBook
+    if not book or not book.Spells then return false end
+    local list, changed = {}, false
+    for i = 1, #book.Spells do
+        local spell = book.Spells[i]
+        local id = spell and spell.Id
+        if id and id.Prototype and namesMatch(id.Prototype, name) then
+            changed = true
+        else
+            list[#list + 1] = spell
+        end
     end
+    if not changed then return true end
+    local ok = pcall(function() book.Spells = list end)
+    if ok then pcall(function() entity:Replicate("SpellBook") end) end
     return ok
+end
+
+local function removeSpell(guid, name)
+    local entity = entityOf(guid)
+    if not entity then return false end
+    if not findSpell(entity, name) then return true end
+
+    if Osi and Osi.RemoveSpell then
+        pcall(Osi.RemoveSpell, guid, name, 0)
+        if not findSpell(entity, name) then
+            log("summon spell removed from spellbook: %s (%s)", name, guid)
+            return true
+        end
+        pcall(Osi.RemoveSpell, guid, name)
+        if not findSpell(entity, name) then
+            log("summon spell removed from spellbook: %s (%s)", name, guid)
+            return true
+        end
+    end
+
+    if filterSpellbook(entity, name) then
+        log("summon spell removed via SpellBook filter: %s (%s)", name, guid)
+        return true
+    end
+    log("summon spell removal failed: %s (%s)", name, guid)
+    return false
 end
 
 local function restoreSpell(guid, name)
+    local entity = entityOf(guid)
+    if not entity then return false end
+    if findSpell(entity, name) then return true end
     if not (Osi and Osi.AddSpell) then return false end
+
     local ok = pcall(Osi.AddSpell, guid, name, 0, 1)
     if not ok then ok = pcall(Osi.AddSpell, guid, name, 0) end
-    if ok then
+    if ok and findSpell(entity, name) then
         log("summon spell restored: %s (%s)", name, guid)
-    else
-        log("summon spell restore failed: %s (%s)", name, guid)
+        return true
     end
-    return ok
+    log("summon spell restore failed: %s (%s)", name, guid)
+    return false
 end
 
 local function apply(handle, name)
-    local entity = handle
-    if type(handle) == "string" and Ext and Ext.Entity and Ext.Entity.Get then
-        entity = Ext.Entity.Get(handle)
-    end
+    local entity = entityOf(handle)
     local guid = entity and guidOf(entity)
-    if not entity or not guid then return false end
+    local def = defs[name]
+    if not entity or not guid or not def then return false end
 
     active[guid] = active[guid] or {}
-    active[guid][name] = TURNS
-    setNativeCooldown(entity, name, TURNS)
+    active[guid][name] = def.turns
 
-    -- Some BG3 AI controllers ignore SpellBookCooldowns entries for custom
-    -- spells. Temporarily remove the skill as well; it is restored by the
-    -- turn tick when the cooldown expires.
-    if Ext and Ext.Timer and Ext.Timer.WaitFor then
-        Ext.Timer.WaitFor(50, function() pcall(removeSpell, guid, name) end)
-    else
-        removeSpell(guid, name)
-    end
+    applyMarker(guid, def.marker)
+    setNativeCooldown(entity, name, def.turns)
+    removeSpell(guid, name)
 
-    log("summon cooldown applied: %s for %d turns (%s)", name, TURNS, guid)
+    log("summon cooldown applied: %s for %d turns (%s)", name, def.turns, guid)
     return true
+end
+
+local function enforceActive()
+    for guid, list in pairs(active) do
+        for name in pairs(list) do
+            -- A persistent champion status may grant the spell again after
+            -- removal. Re-remove it until the counter expires.
+            removeSpell(guid, name)
+        end
+    end
 end
 
 local function recoverActive()
     if not (Ext and Ext.Entity and Ext.Entity.GetAllEntitiesWithComponent) then return end
-    local ok, entities = pcall(Ext.Entity.GetAllEntitiesWithComponent, "SpellBookCooldowns")
+    local ok, entities = pcall(Ext.Entity.GetAllEntitiesWithComponent, "SpellBook")
     if not ok or type(entities) ~= "table" then return end
+
     for _, entity in ipairs(entities) do
         local guid = guidOf(entity)
-        local comp = entity.SpellBookCooldowns
-        if guid and comp and comp.Cooldowns then
-            for i = 1, #comp.Cooldowns do
-                local entry = comp.Cooldowns[i]
-                local id = entry and entry.SpellId
-                local name = id and id.Prototype and tostring(id.Prototype)
-                if name and defs[name] then
-                    local turns = tonumber(entry.Cooldown) or TURNS
-                    if turns > 0 then
-                        active[guid] = active[guid] or {}
-                        active[guid][name] = turns
-                    end
+        if guid then
+            for name, def in pairs(defs) do
+                if hasStatus(guid, def.marker) then
+                    local turns = nativeTurns(entity, name, def.turns)
+                    active[guid] = active[guid] or {}
+                    active[guid][name] = turns
+                    removeSpell(guid, name)
+                    log("summon cooldown recovered: %s %d turns (%s)", name, turns, guid)
                 end
             end
         end
@@ -237,10 +330,7 @@ local function onSpellCast(eventEntity)
 end
 
 local function onTurnStarted(character)
-    local entity = character
-    if type(character) == "string" and Ext and Ext.Entity and Ext.Entity.Get then
-        entity = Ext.Entity.Get(character)
-    end
+    local entity = entityOf(character)
     local guid = entity and guidOf(entity)
     if not entity or not guid or not active[guid] then return end
 
@@ -249,14 +339,30 @@ local function onTurnStarted(character)
         if remaining <= 0 then
             active[guid][name] = nil
             clearNativeCooldown(entity, name)
+            clearMarker(guid, defs[name] and defs[name].marker)
             restoreSpell(guid, name)
             log("summon cooldown expired: %s", name)
         else
             active[guid][name] = remaining
             setNativeCooldown(entity, name, remaining)
+            removeSpell(guid, name)
             log("summon cooldown tick: %s %d turns left", name, remaining)
         end
     end
+    if next(active[guid]) == nil then active[guid] = nil end
+end
+
+local function startPeriodicScan()
+    if periodicStarted then return end
+    periodicStarted = true
+    local function tick()
+        local ok, err = pcall(enforceActive)
+        if not ok then log("summon cooldown enforce error: %s", tostring(err)) end
+        if Ext and Ext.Timer and Ext.Timer.WaitFor then
+            Ext.Timer.WaitFor(SCAN_INTERVAL_MS, tick)
+        end
+    end
+    tick()
 end
 
 function C.Init()
@@ -265,12 +371,14 @@ function C.Init()
         pcall(Ext.Entity.OnCreate, "SpellCastFinishedEvent", onSpellCast)
         log("summon SpellCastEvent listener registered: %s", tostring(ok))
     end
+
     if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
         pcall(Ext.Osiris.RegisterListener, "TurnStarted", 1, "after", function(character)
             local ok, err = pcall(onTurnStarted, character)
             if not ok then log("summon cooldown turn error: %s", tostring(err)) end
         end)
     end
+
     if Ext and Ext.Events and Ext.Events.SessionLoaded then
         Ext.Events.SessionLoaded:Subscribe(function()
             active = {}
@@ -281,6 +389,7 @@ function C.Init()
             else
                 pcall(recoverActive)
             end
+            startPeriodicScan()
         end)
     end
 end
