@@ -45,6 +45,10 @@
       saving throws are removed.
 - [ ] Verify the casting-ability spell damage is applied and is reflected in
       the combat log; native spell tooltips do not include this hidden bonus.
+- [ ] Update spell tooltips to show the casting-ability damage bonus. Add the
+      conditional ability modifier to the relevant TooltipDamageList,
+      DescriptionParams, and upcast tooltip fields for damaging spells, while
+      avoiding weapon tooltips, zero/negative modifiers, and double-counting.
 - [x] Strip saving-throw-only boost tokens from status/passive tooltips; they
       remain intentionally deprecated because DOS2 has no saving throws.
 
