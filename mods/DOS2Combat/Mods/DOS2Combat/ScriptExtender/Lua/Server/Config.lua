@@ -40,12 +40,14 @@ DOS2C.Config = {
     -- BG3-native spell rebalancing only; ported DOS2 spells use DOS2_COOLDOWNS.
     -- DOS2 player skills cluster around 3-5 turn cooldowns, with the biggest
     -- effects at 6. Indexed by spell level (0 = cantrip).
-    COOLDOWN_BY_LEVEL = { 0, 3, 3, 4, 5, 5, 6, 6, 6, 6, 6 },
+    -- Level-based fallback: cooldown turns = Level + 1.
+    -- Level 0 cantrips therefore receive 1 turn; level 6 receives 7.
+    COOLDOWN_BY_LEVEL = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
     -- Rough BG3 HP baseline per spell level, used only for the damage bump.
     COOLDOWN_HP_BY_LEVEL = { 10, 15, 25, 35, 45, 55, 65, 75, 85, 95, 105 },
     COOLDOWN_DAMAGE_BUMP_RATIO = 0.80,   -- >= 80% of baseline HP -> +1 turn
     COOLDOWN_DAMAGE_BUMP_HIGH_RATIO = 1.5, -- >= 150% -> +2 turns
-    COOLDOWN_MAX = 6,
+    COOLDOWN_MAX = 7,
     OUT_OF_COMBAT_TURN_SECONDS = 6, -- DOS2: 1 turn-based turn == 6 seconds
 
     -- Enemies can chain-cast on DOS2-style numeric cooldowns instead of

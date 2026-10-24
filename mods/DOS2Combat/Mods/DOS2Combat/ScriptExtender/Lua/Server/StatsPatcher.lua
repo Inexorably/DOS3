@@ -454,31 +454,12 @@ local function cooldownForSpell(name, stat, level, costs, damageScale)
         return cfg.COOLDOWN_SHORT_REST
     end
 
-    -- Class resources and resource-free NPC abilities still receive the
-    -- one-turn floor; they are not default weapon attacks. Cantrips start at
-    -- exactly the floor instead of being bumped by the level table.
-    local base
-    if level <= 0 then
-        base = 1
-    else
-        base = cfg.COOLDOWN_BY_LEVEL[level + 1] or 3
-    end
-    local hp = cfg.COOLDOWN_HP_BY_LEVEL[level + 1] or 15
-    local damage = estimateDamage(stat) * (damageScale or 1)
-    if hp > 0 and damage > 0 then
-        local ratio = damage / hp
-        if ratio >= cfg.COOLDOWN_DAMAGE_BUMP_HIGH_RATIO then
-            base = base + 2
-        elseif ratio >= cfg.COOLDOWN_DAMAGE_BUMP_RATIO then
-            base = base + 1
-        end
-    elseif damage <= 0 and hasSurfaceEffect(stat) then
-        -- DOS2 surface-setup skills (Rain, Grease, Fog Cloud, ...) have
-        -- long cooldowns even though they deal no direct damage.
-        base = base + 2
-    end
-
-    return math.min(cfg.COOLDOWN_MAX, math.max(1, base))
+    -- Level-based fallback: cooldown turns = Level + 1.
+    -- Cantrips are level 0, so they get exactly one turn instead of zero.
+    -- Explicit cooldown/recharge fields and the ported-DOS2 override tables
+    -- above still take precedence when they carry intentional rest timing.
+    local base = math.max(1, math.floor((tonumber(level) or 0) + 1))
+    return math.min(cfg.COOLDOWN_MAX, base)
 end
 
 -- Astral Knowledge is a long-rest racial buff in BG3. Its statuses are
