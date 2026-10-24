@@ -87,6 +87,11 @@ local function costForSpell(name, level)
     if isWeaponAttack(name) then
         return cfg.BASIC_ATTACK_COST
     end
+    -- Enemy Randomization summon skills are dynamically added to enemy
+    -- spellbooks and do not always carry a usable Level field. Their intended
+    -- cost is always 2 AP; do not let the level-based fallback turn them into
+    -- 1 AP spells.
+    if name and name:find("^ENR_Summon_") then return 2 end
     local explicit = cfg.DOS2_AP_COSTS and cfg.DOS2_AP_COSTS[name]
     if explicit ~= nil then return tonumber(explicit) or 1 end
     local lvl = tonumber(level) or 0
