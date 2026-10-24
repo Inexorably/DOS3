@@ -123,6 +123,14 @@ table and spawns one item.
 The default configuration is currently **`1.0`** for testing. A normal gameplay
 value is approximately **`0.125`**.
 
+Print every summoning champion and its complete summon list in the console:
+
+```text
+!enemyrandom_summons
+```
+
+The same list is maintained in `CHAMPION_DESIGN.md`.
+
 ### Champion types
 
 There are two champion families:

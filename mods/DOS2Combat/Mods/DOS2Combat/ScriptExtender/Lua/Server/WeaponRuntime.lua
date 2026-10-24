@@ -66,7 +66,10 @@ local function compressRoll(roll)
     local lo = count + add
     local hi = count * sides + add
     local width = hi - lo + 1
-    if width <= 2 then return false end
+    -- Widths of 3-4 are already the result of a previous compression pass.
+    -- Skipping them makes the runtime pass idempotent across save/reload and
+    -- separate game launches, where the in-memory `patched` table is reset.
+    if width <= 4 then return false end
 
     local ratio = tonumber(DOS2C.Config.DAMAGE_RANGE_COMPRESSION) or (1 / 3)
     local newCount = math.max(1, math.ceil(width * ratio))
@@ -101,10 +104,10 @@ end
 local function patchEntity(entity)
     local guid = U.GuidOf(entity) or tostring(entity)
     if patched[guid] then return 0 end
-    patched[guid] = true
 
     local weapon = entity.Weapon
     if not weapon then return 0 end
+    patched[guid] = true
     local changed = 0
     for _, mapName in ipairs({ "Rolls", "VersatileRolls" }) do
         local map = weapon[mapName]
@@ -140,7 +143,9 @@ function W.Init()
     end
     if Ext.Events and Ext.Events.SessionLoaded then
         Ext.Events.SessionLoaded:Subscribe(function()
-            patched = {}
+            -- Do not clear patched. Saved weapon roll components already have
+            -- the compressed values; re-compressing them on every load
+            -- progressively narrows them and corrupts the display/attack.
             if Ext.Timer and Ext.Timer.WaitFor then
                 for _, delay in ipairs({ 1000, 5000, 15000, 30000 }) do
                     Ext.Timer.WaitFor(delay, function()

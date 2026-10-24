@@ -601,6 +601,19 @@ function R.Init()
         pcall(Ext.RegisterConsoleCommand, "enemyrandom_status", function()
             notify("champion chance: %.1f%%", championChance() * 100)
         end)
+        pcall(Ext.RegisterConsoleCommand, "enemyrandom_summons", function()
+            local names = (ER.Generated and ER.Generated.names) or {}
+            for _, entry in ipairs(C.CHAMPIONS or {}) do
+                if entry.spells and #entry.spells > 0 then
+                    local labels = {}
+                    for _, spell in ipairs(entry.spells) do
+                        local tag = tostring(spell):gsub("^ENR_Summon_", "")
+                        labels[#labels + 1] = names["ENR_" .. tag] or spell
+                    end
+                    notify("%s: %s", entry.status, table.concat(labels, ", "))
+                end
+            end
+        end)
     end
 
     if Ext and Ext.Events and Ext.Events.SessionLoaded then

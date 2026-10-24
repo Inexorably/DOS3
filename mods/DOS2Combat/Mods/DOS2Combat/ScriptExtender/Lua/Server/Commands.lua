@@ -150,6 +150,43 @@ register("dos2c_ap", function()
     end
 end)
 
+register("dos2c_weapon", function()
+    local guid = hostCharacter()
+    local entity = guid and Ext.Entity.Get(guid)
+    local weapon = entity and entity.Weapon
+    if not weapon then
+        printLine("[DOS2C] no Weapon component on host")
+        return
+    end
+    local statsId = nil
+    pcall(function() statsId = tostring(entity.Data.StatsId) end)
+    printLine("[DOS2C] weapon statsId=" .. tostring(statsId))
+    if statsId and Ext.Stats and Ext.Stats.Get then
+        local ok, stat = pcall(Ext.Stats.Get, statsId)
+        if ok and stat then
+            local dmgOk, dmg = pcall(function() return stat.Damage end)
+            local vdmgOk, vdmg = pcall(function() return stat.VersatileDamage end)
+            printLine(string.format("[DOS2C] stat Damage=%s VersatileDamage=%s",
+                dmgOk and tostring(dmg) or "error",
+                vdmgOk and tostring(vdmg) or "error"))
+        end
+    end
+    for _, mapName in ipairs({ "Rolls", "Rolls2", "VersatileRolls" }) do
+        local map = weapon[mapName]
+        if map then
+            for dtype, rolls in pairs(map) do
+                for _, roll in ipairs(entriesOf(rolls)) do
+                    printLine(string.format(
+                        "[DOS2C] %s %s dice=%s sides=%s add=%s neg=%s",
+                        mapName, tostring(dtype), tostring(roll.AmountOfDices),
+                        tostring(roll.DiceValue), tostring(roll.DiceAdditionalValue),
+                        tostring(roll.DiceNegative)))
+                end
+            end
+        end
+    end
+end)
+
 register("dos2c_status", function()
     local cfg = DOS2C.Config
     printLine(string.format(
