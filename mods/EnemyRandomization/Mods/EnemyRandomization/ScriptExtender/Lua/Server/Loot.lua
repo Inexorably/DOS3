@@ -83,6 +83,33 @@ local RARITY_ENUM = {
     Legendary = 4,
 }
 
+local function itemsByTemplate(target, template)
+    local function unpackResult(a, b)
+        if type(a) == "table" then return a end
+        if type(b) == "table" then return b end
+        return {}
+    end
+
+    if Osi and Osi.GetInventoryItemsByTemplate then
+        local ok, a, b = pcall(Osi.GetInventoryItemsByTemplate, target, template)
+        if ok then
+            local items = unpackResult(a, b)
+            if #items > 0 then return items end
+        end
+    end
+
+    if Ext and Ext.Osiris and Ext.Osiris.CallFunction then
+        local ok, result = pcall(Ext.Osiris.CallFunction, "GetInventoryItemsByTemplate", target, template)
+        if ok then
+            if type(result) == "table" then
+                if type(result[1]) == "table" then return result[1] end
+                return result
+            end
+        end
+    end
+    return {}
+end
+
 local function createItem(target, variant)
     if not (Osi and Osi.TemplateAddTo) then
         return nil, "TemplateAddTo unavailable"
@@ -91,9 +118,29 @@ local function createItem(target, variant)
         return nil, "variant has no base template"
     end
 
-    local ok, item = pcall(Osi.TemplateAddTo, variant.template, target, 1, 1)
-    if not ok or not item or item == "" then
-        return nil, string.format("TemplateAddTo(%s) returned %s", tostring(variant.template), tostring(item))
+    local before = {}
+    for _, item in ipairs(itemsByTemplate(target, variant.template)) do
+        before[item] = true
+    end
+
+    -- TemplateAddTo is an Osiris call, not a query. It returns no item UID in
+    -- this build, so query the target inventory before/after to locate it.
+    local ok, err = pcall(Osi.TemplateAddTo, variant.template, target, 1, 1)
+    if not ok then
+        return nil, "TemplateAddTo failed: " .. tostring(err)
+    end
+
+    local after = itemsByTemplate(target, variant.template)
+    local item = nil
+    for _, candidate in ipairs(after) do
+        if not before[candidate] then
+            item = candidate
+            break
+        end
+    end
+    if not item and #after > 0 then item = after[#after] end
+    if not item then
+        return nil, string.format("TemplateAddTo(%s) produced no queryable item", tostring(variant.template))
     end
 
     local statsOk = false
