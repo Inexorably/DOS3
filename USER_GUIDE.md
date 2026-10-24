@@ -105,6 +105,21 @@ reroll manually:
 !enemyrandom_reset
 ```
 
+Spawn a champion loot item at the host player's feet for testing:
+
+```text
+!enemyrandom_loot
+!enemyrandom_loot rare
+!enemyrandom_loot legendary 5
+!enemyrandom_loot boss
+!enemyrandom_loot boss 2
+```
+
+`!enemyrandom_drop` is an alias. The optional rarity is
+`uncommon`, `rare`, `veryrare`, `legendary`, or `boss`. The second number is the
+spawn count, capped at 20. Without arguments it uses the normal champion rarity
+table and spawns one item.
+
 The default configuration is currently **`1.0`** for testing. A normal gameplay
 value is approximately **`0.125`**.
 

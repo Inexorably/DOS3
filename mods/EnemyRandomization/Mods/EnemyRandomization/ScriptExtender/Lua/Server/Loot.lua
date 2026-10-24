@@ -128,6 +128,111 @@ local function onDied(entity)
     end
 end
 
+local function notify(fmt, ...)
+    local text = string.format(fmt, ...)
+    if Ext and Ext.Utils and Ext.Utils.Print then
+        pcall(Ext.Utils.Print, LOG .. " " .. text)
+    elseif Ext and Ext.Log and Ext.Log.Print then
+        pcall(Ext.Log.Print, LOG .. " " .. text)
+    end
+end
+
+local function hostGuid()
+    if Osi and Osi.GetHostCharacter then
+        local ok, guid = pcall(Osi.GetHostCharacter)
+        if ok and guid and tostring(guid) ~= "" then return tostring(guid) end
+    end
+    return nil
+end
+
+local function positionOf(guid)
+    if not (Osi and Osi.GetPosition) then return nil end
+    local ok, a, b, c = pcall(Osi.GetPosition, guid)
+    if not ok then return nil end
+    if type(a) == "table" then
+        a, b, c = a[1] or a.x, a[2] or a.y, a[3] or a.z
+    end
+    a, b, c = tonumber(a), tonumber(b), tonumber(c)
+    if a and b and c then return a, b, c end
+    return nil
+end
+
+local function dropItem(item, x, y, z)
+    if not item or item == "" then return false end
+    if Osi and Osi.Drop then
+        local ok = pcall(Osi.Drop, item, x, y, z)
+        if ok then return true end
+    end
+    if Osi and Osi.ItemDrop then
+        local ok = pcall(Osi.ItemDrop, item, x, y, z)
+        if ok then return true end
+    end
+    return false
+end
+
+local function parseRarity(arg)
+    if not arg or arg == "" then return nil, false end
+    local text = tostring(arg):lower()
+    if text == "boss" then return nil, true end
+    local names = {
+        uncommon = "Uncommon",
+        rare = "Rare",
+        veryrare = "VeryRare",
+        ["very rare"] = "VeryRare",
+        legendary = "Legendary",
+    }
+    return names[text], false
+end
+
+function L.SpawnAtPlayer(rarity, count, boss)
+    local host = hostGuid()
+    if not host then return 0, "no host character" end
+    if not (Osi and Osi.TemplateAddTo) then return 0, "TemplateAddTo unavailable" end
+
+    count = math.max(1, math.min(20, tonumber(count) or 1))
+    local x, y, z = positionOf(host)
+    local spawned = 0
+    for i = 1, count do
+        local chosen = rarity or pickRarity(boss == true)
+        local variant = pickVariant(chosen)
+        if not variant then
+            return spawned, "no variant for rarity " .. tostring(chosen)
+        end
+        local ok, item = pcall(Osi.TemplateAddTo, variant.template, host, 1)
+        if not ok or not item or item == "" then
+            log("command loot spawn failed: %s error=%s", tostring(variant.template), tostring(item))
+        else
+            local dropped = false
+            if x and y and z then dropped = dropItem(item, x, y, z) end
+            spawned = spawned + 1
+            log("command loot spawned: %s [%s] base=%s dropped=%s pos=%s,%s,%s",
+                tostring(variant.template), tostring(chosen), tostring(variant.name),
+                tostring(dropped), tostring(x), tostring(y), tostring(z))
+        end
+    end
+    return spawned, nil
+end
+
+local function registerCommands()
+    if not (Ext and Ext.RegisterConsoleCommand) then return end
+    local function handler(_, arg1, arg2)
+        local rarity, boss = parseRarity(arg1)
+        local count = tonumber(arg2) or 1
+        if rarity == nil and not boss and arg1 and tonumber(arg1) then
+            count, rarity, boss = tonumber(arg1), nil, false
+        end
+        local spawned, err = L.SpawnAtPlayer(rarity, count, boss)
+        if err then
+            notify("loot spawn: %s", err)
+        else
+            notify("spawned %d champion loot item(s) at the host", spawned)
+        end
+    end
+    pcall(Ext.RegisterConsoleCommand, "enemyrandom_loot", handler)
+    pcall(Ext.RegisterConsoleCommand, "enemyrandom_drop", handler)
+    notify("loot test commands ready: !enemyrandom_loot [uncommon|rare|veryrare|legendary|boss] [count]")
+end
+
 function L.Init()
     if Ext and Ext.Entity and Ext.Entity.OnCreate then
         local ok = pcall(Ext.Entity.OnCreate, "DiedEvent", function(entity)
@@ -136,6 +241,7 @@ function L.Init()
         end)
         log("loot DiedEvent listener registered: %s", tostring(ok))
     end
+    registerCommands()
 end
 
 L.Init()

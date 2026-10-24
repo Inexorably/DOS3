@@ -279,6 +279,8 @@ Known DOS2 visual references for the current test spells:
 - [x] Add `!enemyrandom_reset` and clear champion markers when the chance changes.
 - [x] Guard `IsBoss` access and use the CombatParticipant Flags bit instead.
 - [x] Stop treating ordinary imps as summons during champion candidate scans.
+- [x] Add `!enemyrandom_loot` / `!enemyrandom_drop` test commands that spawn champion loot at the host player.
+- [x] Add  /  test commands that spawn champion loot at the host player.
 - [ ] Verify champion statuses remain permanent for the whole fight and do not
       rotate through auras or native status remove events.
 - [ ] Verify enemy AC/ACOverrideFormula grants no hit chance and is converted
