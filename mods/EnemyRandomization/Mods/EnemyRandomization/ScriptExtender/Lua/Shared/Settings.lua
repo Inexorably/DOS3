@@ -47,14 +47,12 @@ function S.Get(key, fallback)
 end
 
 function S.Set(key, value)
-    if not (Ext and Ext.Vars and Ext.Vars.GetModVariables) then return false end
+    PersistentVars = PersistentVars or {}
+    pcall(function() PersistentVars[key] = value end)
+    if not (Ext and Ext.Vars and Ext.Vars.GetModVariables) then return true end
     local ok, vars = pcall(Ext.Vars.GetModVariables, MODULE_UUID)
-    if not ok or not vars then return false end
+    if not ok or not vars then return true end
     local wrote = pcall(function() vars[key] = value end)
-    if wrote then
-        PersistentVars = PersistentVars or {}
-        pcall(function() PersistentVars[key] = value end)
-    end
     if wrote and Ext.Vars.SyncModVariables then
         pcall(Ext.Vars.SyncModVariables, MODULE_UUID)
     end

@@ -115,7 +115,7 @@ DOS2C.Config = {
     -- Keep native attack rolls so attack-roll statuses (Blinded,
     -- Frightened, Prone, etc.) still affect hit chance. AC is used as the
     -- dodge/defense side of the native d20 check for now.
-    REMOVE_ATTACK_ROLLS = false,
+    REMOVE_ATTACK_ROLLS = true,
     BASE_ATTACK_ROLL_BONUS = 100, -- pushes normal attacks to the 100% cap
     ATTACK_DEBUFF_CANCELS_BASELINE = true, -- Blinded etc. offset the baseline
 

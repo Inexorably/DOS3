@@ -361,6 +361,33 @@ local function collectCombatants()
     return list
 end
 
+function R.ResetChampionMarkers()
+    local seen, count = {}, 0
+    local function clear(entity)
+        if not entity then return end
+        local guid = guidOf(entity)
+        if not guid or seen[guid] then return end
+        seen[guid] = true
+        if isParty(entity, guid, partySet()) or isSummon(entity) then return end
+        if Osi and Osi.RemoveStatus then
+            pcall(Osi.RemoveStatus, guid, C.CHAMPION_MARKER)
+        end
+        buffed[guid] = nil
+        count = count + 1
+    end
+
+    if Ext and Ext.Entity and Ext.Entity.GetAllEntitiesWithComponent then
+        for _, component in ipairs({ "CombatParticipant", "ActionResources", "IsInCombat" }) do
+            local ok, entities = pcall(Ext.Entity.GetAllEntitiesWithComponent, component)
+            if ok and type(entities) == "table" then
+                for _, entity in ipairs(entities) do clear(entity) end
+            end
+        end
+    end
+    log("champion markers reset for %d combatants", count)
+    return count
+end
+
 function R.ApplyAll()
     if not (Ext and Ext.Entity) then return 0 end
     local party = partySet()
@@ -430,10 +457,17 @@ function R.Init()
             end
             local chance = setChampionChance(value)
             if chance then
-                notify("champion chance set to %.1f%% (persisted for future rolls)", chance * 100)
+                R.ResetChampionMarkers()
+                pcall(R.ApplyAll)
+                notify("champion chance set to %.1f%%; existing enemies may roll again", chance * 100)
             else
                 notify("usage: !enemyrandom_chance <0-1>  (for example 0.125 = 12.5%%)")
             end
+        end)
+        pcall(Ext.RegisterConsoleCommand, "enemyrandom_reset", function()
+            local count = R.ResetChampionMarkers()
+            pcall(R.ApplyAll)
+            notify("reset champion markers for %d combatants", count)
         end)
         pcall(Ext.RegisterConsoleCommand, "enemyrandom_status", function()
             notify("champion chance: %.1f%%", championChance() * 100)

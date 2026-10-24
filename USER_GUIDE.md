@@ -97,8 +97,13 @@ are rejected. To use a percentage, convert it to a decimal first:
 The setting is persisted in the savegame and synchronized from the host to
 multiplayer clients.
 
-Changing the chance does not reroll enemies that have already been marked as
-randomized. It affects enemies that have not yet rolled their champion.
+Changing the chance clears the champion-roll marker on current combatants so
+they can roll again, then immediately rescans. Use this command to force a
+reroll manually:
+
+```text
+!enemyrandom_reset
+```
 
 The default configuration is currently **`1.0`** for testing. A normal gameplay
 value is approximately **`0.125`**.
@@ -180,9 +185,8 @@ regenerates and packages them automatically.
 - Spells use DOS2-style level-based AP costs.
 - Non-default spells have at least a one-turn cooldown.
 - Cooldowns use DOS2-style turn counts. Out of combat, one turn is six seconds.
-- Attack rolls are preserved, but the base attack bonus is raised so normal
-  attacks usually have a very high hit chance. Accuracy-reducing conditions can
-  still cause misses.
+- Attack rolls are removed, so weapon and spell attacks cannot miss.
+- Accuracy and AC no longer determine hit chance.
 - Saving throws are removed from spell resolution.
 - Physical and magic armor are flat per-hit resistance sourced from equipment
   and effects. Armor does not deplete.

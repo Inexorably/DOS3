@@ -45,10 +45,10 @@ the enemy.
 | Vitality | Aid, Bless |
 | Lightning | Lightning resistance, Elemental Adept: Lightning, Call Lightning |
 | Light | Radiant resistance, Bless, Sunbeam |
-| the Hunt | Tiger Heart rage, Pack Tactics, Hunter's Mark |
+| the Hunt | Aid, Bless, Pack Tactics, Hunter's Mark |
 | Resilience | Crystal Skin, mud-hardened resilience, Otiluke's Resilient Sphere |
 | Fire | Fire resistance, Fireball |
-| Frost | Cold resistance, Armor of Agathys, Ice Storm |
+| Frost | Cold resistance, Aid, Ice Storm |
 | Venom | Poison resistance, Cloudkill, Stinking Cloud |
 | Death | Necrotic resistance, Animate Dead, Blight |
 | Thunder | Thunder resistance, Thunderwave |

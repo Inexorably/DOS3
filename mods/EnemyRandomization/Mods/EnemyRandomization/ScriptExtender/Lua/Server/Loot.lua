@@ -110,7 +110,8 @@ local function onDied(entity)
     end
 
     local isBoss = #conditions > 1
-    if entity.CombatParticipant and entity.CombatParticipant.IsBoss then
+    local okParticipant, participant = pcall(function() return entity.CombatParticipant end)
+    if okParticipant and participant ~= nil and participant.IsBoss == true then
         isBoss = true
     end
     log("loot roll: %s champions=%d boss=%s", guid, #conditions, tostring(isBoss))
