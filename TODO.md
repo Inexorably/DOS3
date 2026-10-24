@@ -334,6 +334,10 @@ Known DOS2 visual references for the current test spells:
 - [x] Stopped scaling summoned-enemy ability scores by level; generated
       templates preserve the source Ability values and scale HP/armor only.
 - [ ] Verify summon skills cost 2 AP and still enforce the five-turn cooldown.
+- [ ] Evaluate polymorph/wildshape statuses as a separate opt-in loot category.
+      Use at most one form per item, likely Legendary-only, and verify model,
+      equipment, spellcasting, removal, and save/reload behavior before
+      adding them to the normal random condition pool.
 
 
 ## Respec Anywhere
