@@ -31,6 +31,48 @@ end
 -- story procedure, not by an OpenRespecUI Lua function. The procedure has no
 -- Withers-unlocked prerequisite; it only checks whether the character is
 -- already in the respec state.
+local function userIdNumber(value)
+    local number = tonumber(value)
+    if number then return number end
+    local text = tostring(value or "")
+    local digits = text:match("(%d+)")
+    return digits and tonumber(digits) or nil
+end
+
+local function guidOfEntity(entity)
+    local ok, uuid = pcall(function() return entity.Uuid.EntityUuid end)
+    if ok and uuid then return tostring(uuid) end
+    local ok2, value = pcall(function() return entity.Uuid end)
+    if ok2 and value then return tostring(value) end
+    return nil
+end
+
+-- A multiplayer request must target the requesting player's own character.
+-- Never fall back to the host character when a request carries a user ID.
+local function characterForUser(userId)
+    local wanted = userIdNumber(userId)
+    if wanted == nil then return nil end
+
+    local ok, entities = pcall(Ext.Entity.GetAllEntitiesWithComponent, "UserAvatar")
+    if ok and type(entities) == "table" then
+        for _, entity in ipairs(entities) do
+            local comp = entity.UserAvatar
+            if comp then
+                local candidate = userIdNumber(comp.UserID)
+                if candidate == wanted then
+                    local guid = guidOfEntity(entity)
+                    if guid then
+                        log("[RSA] respec user %s -> character %s (UserAvatar)",
+                            tostring(userId), guid)
+                        return guid
+                    end
+                end
+            end
+        end
+    end
+    return nil
+end
+
 local function launchRespec(guid)
     local reason = "RespecAnywhere"
     local attempts = {
@@ -54,7 +96,14 @@ local function launchRespec(guid)
     return false
 end
 
-local function requestOpen(guid)
+local function requestOpen(guid, userId)
+    if not guid and userId ~= nil then
+        guid = characterForUser(userId)
+        if not guid then
+            log("[RSA] respec: no character found for user %s", tostring(userId))
+            return false
+        end
+    end
     guid = guid or hostCharacter()
     if not guid then
         log("[RSA] respec: no host character")
@@ -78,7 +127,7 @@ end
 if Ext and Ext.Events and Ext.Events.NetMessage then
     Ext.Events.NetMessage:Subscribe(function(ev)
         if ev and ev.Channel == REQUEST_CHANNEL then
-            requestOpen(hostCharacter())
+            requestOpen(nil, ev.UserID)
         end
     end)
 end
