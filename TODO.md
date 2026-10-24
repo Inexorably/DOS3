@@ -45,6 +45,11 @@
 
 ## Spell cooldowns
 
+- [x] Audited cooldown assignment for spell levels **0-6** (43/78/52/78/62/52/67
+      entries respectively); fixed explicit `Level 0` precedence and added a
+      runtime level/cooldown histogram.
+- [x] Remove concentration from every spell in DOS2Combat by stripping
+      `IsConcentration` from `SpellFlags` and clearing `ConcentrationSpellID`.
 - [x] Spells that recharge on a **short rest** get a **3-turn cooldown**.
 - [x] Spells that recharge on a **long rest** get a **5-turn cooldown**.
 - [x] All non-default spells have a **minimum 1-turn cooldown**.

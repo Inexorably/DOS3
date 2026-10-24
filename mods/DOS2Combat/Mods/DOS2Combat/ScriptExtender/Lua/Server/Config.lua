@@ -140,6 +140,7 @@ DOS2C.Config = {
     -- Frightened, Prone, etc.) still affect hit chance. AC is used as the
     -- dodge/defense side of the native d20 check for now.
     REMOVE_ATTACK_ROLLS = true,
+    REMOVE_CONCENTRATION = true, -- DOS2 has no concentration; strip it from every skill
     BASE_ATTACK_ROLL_BONUS = 100, -- pushes normal attacks to the 100% cap
     ATTACK_DEBUFF_CANCELS_BASELINE = true, -- Blinded etc. offset the baseline
 

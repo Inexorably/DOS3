@@ -26,6 +26,8 @@ local SLOT_RESOURCES = {
 
 local originalRolls = {}
 local spellCooldowns = {}
+local spellLevels = {}
+local concentrationRemoved = {}
 local nativeCooldownInfo = {}
 
 -- Damage compression is idempotent per stat object. Re-running PatchAll must
@@ -275,10 +277,13 @@ end
 
 local function levelFor(name, stat)
     local level = tonumber(U.SafeGet(stat, "Level"))
-    if level and level > 0 then return level end
+    -- Trust an explicit Level 0 before the name suffix: a cantrip variant can
+    -- have a _3 suffix without actually being a level-3 spell.
+    if level ~= nil then
+        if level >= 0 then return level end
+    end
     local suffix = name and name:match("_(%d)$")
     if suffix then return tonumber(suffix) end
-    if level == 0 then return 0 end
     -- Most SpellData entries omit Level. They are not cantrips (those have an
     -- explicit Level 0), so treat them as level 1 rather than level 0.
     return 1
@@ -503,11 +508,44 @@ local function patchAstralKnowledge(name, stat)
     return changed
 end
 
+local function patchConcentration(name, stat)
+    local cfg = DOS2C.Config
+    if not cfg.REMOVE_CONCENTRATION then return false end
+
+    local changed = false
+    local flags = U.SafeGet(stat, "SpellFlags")
+    if type(flags) == "string" and flags ~= "" then
+        local parts = {}
+        for raw in flags:gmatch("[^;]+") do
+            local token = raw:gsub("^%s+", ""):gsub("%s+$", "")
+            if token ~= "" and token:lower() ~= "isconcentration" then
+                parts[#parts + 1] = token
+            end
+        end
+        local updated = table.concat(parts, ";")
+        if updated ~= flags and U.SafeSet(stat, "SpellFlags", updated) then
+            changed = true
+        end
+    end
+
+    -- Linked recast/activate spells keep a concentration link even when the
+    -- main spell is no longer a concentration spell.
+    local concentrationSpell = U.SafeGet(stat, "ConcentrationSpellID")
+    if type(concentrationSpell) == "string" and concentrationSpell ~= ""
+        and U.SafeSet(stat, "ConcentrationSpellID", "") then
+        changed = true
+    end
+
+    if changed then concentrationRemoved[name] = true end
+    return changed
+end
+
 local function patchSpell(name, stat)
     local cfg = DOS2C.Config
     local level = levelFor(name, stat)
     local apCost = costForSpell(name, level)
     local changed = patchAstralKnowledge(name, stat)
+    changed = patchConcentration(name, stat) or changed
 
     local costs = U.SafeGet(stat, "UseCosts")
     rememberNativeCooldown(name, stat)
@@ -519,6 +557,7 @@ local function patchSpell(name, stat)
     local explicitTurns = explicitCooldownToTurns(explicitCooldown, cfg)
     local recharge = U.SafeGet(stat, "RechargeValues")
     local cooldown = cooldownForSpell(name, stat, level, costs, damageScale)
+    spellLevels[name] = level
     local cooldownType = runtimeCooldownType(explicitCooldown, explicitTurns, cooldown, recharge)
     spellCooldowns[name] = cooldown
     if DOS2C.Cooldowns then
@@ -1132,12 +1171,28 @@ function S.PatchAll(runtime)
         cdCount = cdCount + 1
         cdHist[turns] = (cdHist[turns] or 0) + 1
     end
-    U.Log("cooldowns: %d spells (0:%d 1:%d 3:%d 4:%d 5:%d 6:%d)",
-        cdCount, cdHist[0] or 0, cdHist[1] or 0, cdHist[3] or 0,
-        cdHist[4] or 0, cdHist[5] or 0, cdHist[6] or 0)
+    U.Log("cooldowns: %d spells (0:%d 1:%d 2:%d 3:%d 4:%d 5:%d 6:%d)",
+        cdCount, cdHist[0] or 0, cdHist[1] or 0, cdHist[2] or 0,
+        cdHist[3] or 0, cdHist[4] or 0, cdHist[5] or 0, cdHist[6] or 0)
 
+    local levelHist = {}
+    local levelCount = 0
+    for _, rawLevel in pairs(spellLevels) do
+        local level = tonumber(rawLevel) or 1
+        if level < 0 then level = 0 end
+        if level > 6 then level = 6 end
+        levelHist[level] = (levelHist[level] or 0) + 1
+        levelCount = levelCount + 1
+    end
+    U.Log("spell levels: %d spells (0:%d 1:%d 2:%d 3:%d 4:%d 5:%d 6:%d)",
+        levelCount, levelHist[0] or 0, levelHist[1] or 0, levelHist[2] or 0,
+        levelHist[3] or 0, levelHist[4] or 0, levelHist[5] or 0, levelHist[6] or 0)
+
+    local concentrationCount = 0
+    for _ in pairs(concentrationRemoved) do concentrationCount = concentrationCount + 1 end
     S.Patched = true
-    U.Log("patched %d characters, %d spells, %d weapons, %d armor, %d statuses, %d passives", nCharacters, nSpells, nWeapons, nArmor, nStatuses, nPassives)
+    U.Log("patched %d characters, %d spells, %d weapons, %d armor, %d statuses, %d passives; concentration removed from %d spells",
+        nCharacters, nSpells, nWeapons, nArmor, nStatuses, nPassives, concentrationCount)
 end
 
 if Ext.Events and Ext.Events.StatsLoaded then
