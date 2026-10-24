@@ -221,7 +221,8 @@ across all 717 base equipment roots.
 
 Each variant gets:
 
-- A unique item stat and root template
+- A unique item stat
+- A native base root template for reliable spawning
 - The base item's name, icon, and visual
 - The rolled modded rarity overriding the base item's rarity
 - A random ability boost of +1/+2/+3/+4 capped at 20
@@ -237,11 +238,12 @@ Generated files:
 ```text
 Public/EnemyRandomization/Stats/Generated/Data/EnemyRandomizationLoot.txt
 ScriptExtender/Lua/Server/GeneratedLoot.lua
-.analysis/enr_loot_roots.lsx
 ```
 
-The first two are gitignored build outputs. The root XML is merged into the
-single `RootTemplates/_merged.lsf` by `generate-enr-dinos.py`.
+Both are gitignored build outputs. Loot no longer generates custom root
+templates: it spawns the native base root with `Osi.TemplateAddTo`, then swaps
+the item instance to the generated stat with `Osi.SetItemStats` and sets its
+rarity with `Osi.SetItemRarity`.
 
 At runtime, `Server/Loot.lua` listens for `DiedEvent`. It rolls one item per
 champion condition. Normal champions use 60/20/15/5 Uncommon/Rare/Very

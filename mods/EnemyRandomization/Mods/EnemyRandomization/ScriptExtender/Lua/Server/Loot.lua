@@ -75,20 +75,56 @@ local function pickVariant(rarity)
     return list[math.random(#list)]
 end
 
-local function spawnVariant(guid, variant, rarity, condition)
+local RARITY_ENUM = {
+    Common = 0,
+    Uncommon = 1,
+    Rare = 2,
+    VeryRare = 3,
+    Legendary = 4,
+}
+
+local function createItem(target, variant)
     if not (Osi and Osi.TemplateAddTo) then
-        log("loot: TemplateAddTo unavailable")
-        return false
+        return nil, "TemplateAddTo unavailable"
     end
-    local ok, result = pcall(Osi.TemplateAddTo, variant.template, guid, 1, 1)
-    if ok then
-        log("loot dropped: %s [%s] base=%s condition=%s -> %s",
-            variant.template, rarity, tostring(variant.name),
-            tostring(condition), guid)
+    if not variant or not variant.template then
+        return nil, "variant has no base template"
+    end
+
+    local ok, item = pcall(Osi.TemplateAddTo, variant.template, target, 1, 1)
+    if not ok or not item or item == "" then
+        return nil, string.format("TemplateAddTo(%s) returned %s", tostring(variant.template), tostring(item))
+    end
+
+    local statsOk = false
+    if variant.stats and Osi.SetItemStats then
+        statsOk = pcall(Osi.SetItemStats, item, variant.stats)
+        if not statsOk then
+            log("loot SetItemStats failed: item=%s stats=%s", tostring(item), tostring(variant.stats))
+        end
+    end
+    if variant.rarity and Osi.SetItemRarity then
+        local rarityValue = RARITY_ENUM[variant.rarity] or 0
+        local rarityOk = pcall(Osi.SetItemRarity, item, rarityValue)
+        if not rarityOk then
+            log("loot SetItemRarity failed: item=%s rarity=%s", tostring(item), tostring(variant.rarity))
+        end
+    end
+    return item, nil, statsOk
+end
+
+local function spawnVariant(guid, variant, rarity, condition)
+    local item, err, statsOk = createItem(guid, variant)
+    if item then
+        log("loot dropped: root=%s stats=%s [%s] base=%s condition=%s item=%s statsOk=%s -> %s",
+            tostring(variant.template), tostring(variant.stats), tostring(rarity),
+            tostring(variant.name), tostring(condition), tostring(item),
+            tostring(statsOk), guid)
         return true
     end
-    log("loot spawn failed: %s [%s] -> %s error=%s",
-        variant.template, rarity, guid, tostring(result))
+    log("loot spawn failed: root=%s stats=%s [%s] -> %s error=%s",
+        tostring(variant and variant.template), tostring(variant and variant.stats),
+        tostring(rarity), guid, tostring(err))
     return false
 end
 
@@ -199,16 +235,18 @@ function L.SpawnAtPlayer(rarity, count, boss)
         if not variant then
             return spawned, "no variant for rarity " .. tostring(chosen)
         end
-        local ok, item = pcall(Osi.TemplateAddTo, variant.template, host, 1, 1)
-        if not ok or not item or item == "" then
-            lastError = string.format("template %s failed: %s", tostring(variant.template), tostring(item))
-            log("command loot spawn failed: %s", lastError)
+        local item, itemErr, statsOk = createItem(host, variant)
+        if not item then
+            lastError = tostring(itemErr)
+            log("command loot spawn failed: root=%s stats=%s error=%s",
+                tostring(variant.template), tostring(variant.stats), tostring(itemErr))
         else
             local dropped = false
             if x and y and z then dropped = dropItem(item, x, y, z) end
             spawned = spawned + 1
-            log("command loot spawned: %s [%s] base=%s item=%s dropped=%s pos=%s,%s,%s",
-                tostring(variant.template), tostring(chosen), tostring(variant.name), tostring(item),
+            log("command loot spawned: root=%s stats=%s [%s] base=%s item=%s statsOk=%s dropped=%s pos=%s,%s,%s",
+                tostring(variant.template), tostring(variant.stats), tostring(chosen),
+                tostring(variant.name), tostring(item), tostring(statsOk),
                 tostring(dropped), tostring(x), tostring(y), tostring(z))
         end
     end
@@ -233,6 +271,12 @@ local function registerCommands()
     end
     pcall(Ext.RegisterConsoleCommand, "enemyrandom_loot", handler)
     pcall(Ext.RegisterConsoleCommand, "enemyrandom_drop", handler)
+    notify("loot APIs: TemplateAddTo=%s SetItemStats=%s SetItemRarity=%s Drop=%s ItemDrop=%s",
+        tostring(Osi and Osi.TemplateAddTo ~= nil),
+        tostring(Osi and Osi.SetItemStats ~= nil),
+        tostring(Osi and Osi.SetItemRarity ~= nil),
+        tostring(Osi and Osi.Drop ~= nil),
+        tostring(Osi and Osi.ItemDrop ~= nil))
     notify("loot test commands ready: !enemyrandom_loot [uncommon|rare|veryrare|legendary|boss] [count]")
 end
 
