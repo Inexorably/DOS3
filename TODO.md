@@ -43,12 +43,13 @@
 - [x] Give mental ability scores combat value again by adding the
       casting-ability modifier to spell damage now that attack rolls and
       saving throws are removed.
-- [ ] Verify the casting-ability spell damage is applied and is reflected in
-      the combat log; native spell tooltips do not include this hidden bonus.
-- [ ] Update spell tooltips to show the casting-ability damage bonus. Add the
-      conditional ability modifier to the relevant TooltipDamageList,
-      DescriptionParams, and upcast tooltip fields for damaging spells, while
-      avoiding weapon tooltips, zero/negative modifiers, and double-counting.
+- [ ] Verify the casting-ability spell damage is applied and that the updated
+      TooltipDamageList/DescriptionParams tooltips show the same bonus.
+- [x] Update spell tooltips to show the casting-ability damage bonus. The
+      relevant TooltipDamageList, DescriptionParams, ExtraDescriptionParams,
+      and TooltipUpcastDescriptionParams fields now receive a separate
+      DealDamage(max(0,SpellCastingAbilityModifier), <type>) expression while
+      weapon tooltips and already-patched fields are skipped.
 - [x] Strip saving-throw-only boost tokens from status/passive tooltips; they
       remain intentionally deprecated because DOS2 has no saving throws.
 
