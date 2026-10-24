@@ -83,83 +83,26 @@ local RARITY_ENUM = {
     Legendary = 4,
 }
 
-local function itemsByTemplate(target, template)
-    local function unpackResult(a, b)
-        if type(a) == "table" then return a end
-        if type(b) == "table" then return b end
-        if type(a) == "string" and a ~= "" then return { a } end
-        return {}
-    end
+local pending = {}
+local dropItem
 
-    if Osi and Osi.GetInventoryItemsByTemplate then
-        local ok, a, b = pcall(Osi.GetInventoryItemsByTemplate, target, template)
-        if ok then
-            local items = unpackResult(a, b)
-            if #items > 0 then return items end
-        end
-    end
-
-    if Ext and Ext.Osiris and Ext.Osiris.CallFunction then
-        local ok, result = pcall(Ext.Osiris.CallFunction, "GetInventoryItemsByTemplate", target, template)
-        if ok then
-            if type(result) == "table" then
-                if type(result[1]) == "table" then return result[1] end
-                return result
-            end
-        end
-    end
-    return {}
+local function templateMatches(eventTemplate, expected)
+    local actual = tostring(eventTemplate or ""):lower()
+    expected = tostring(expected or ""):lower()
+    return actual == expected or (expected ~= "" and actual:sub(-#expected) == expected)
 end
 
-local function createItem(target, variant)
-    if not (Osi and Osi.TemplateAddTo) then
-        return nil, "TemplateAddTo unavailable"
-    end
-    if not variant or not variant.template then
-        return nil, "variant has no base template"
-    end
-
-    local function queryVariant()
-        local result, seen = {}, {}
-        for _, key in ipairs({ variant.template, variant.stats }) do
-            if key then
-                for _, item in ipairs(itemsByTemplate(target, key)) do
-                    if not seen[item] then
-                        seen[item] = true
-                        result[#result + 1] = item
-                    end
-                end
-            end
-        end
-        return result
-    end
-
-    local before = {}
-    for _, item in ipairs(queryVariant()) do
-        before[item] = true
-    end
-
-    -- TemplateAddTo is an Osiris call, not a query. It returns no item UID in
-    -- this build, so query the target inventory before/after to locate it.
-    local ok, err = pcall(Osi.TemplateAddTo, variant.template, target, 1, 1)
-    if not ok then
-        return nil, "TemplateAddTo failed: " .. tostring(err)
-    end
-
-    local after = queryVariant()
-    local item = nil
-    for _, candidate in ipairs(after) do
-        if not before[candidate] then
-            item = candidate
-            break
-        end
-    end
-    if not item and #after > 0 then item = after[#after] end
-    if not item then
-        return nil, string.format("TemplateAddTo(%s) produced no queryable item", tostring(variant.template))
+local function applyItem(item, entry)
+    local variant = entry.variant
+    if not item or item == "" then
+        log("loot event had no item GUID for template %s", tostring(variant and variant.template))
+        return false
     end
 
     local statsOk = false
+    if variant.stats and not Osi.SetItemStats then
+        log("loot SetItemStats unavailable for stats=%s", tostring(variant.stats))
+    end
     if variant.stats and Osi.SetItemStats then
         statsOk = pcall(Osi.SetItemStats, item, variant.stats)
         if not statsOk then
@@ -173,16 +116,74 @@ local function createItem(target, variant)
             log("loot SetItemRarity failed: item=%s rarity=%s", tostring(item), tostring(variant.rarity))
         end
     end
-    return item, nil, statsOk
+
+    local dropped = false
+    local drop = entry.drop
+    if drop and drop.x and drop.y and drop.z then
+        dropped = dropItem(item, drop.x, drop.y, drop.z)
+    end
+    log("loot item ready: root=%s stats=%s [%s] item=%s statsOk=%s dropped=%s",
+        tostring(variant.template), tostring(variant.stats), tostring(variant.rarity),
+        tostring(item), tostring(statsOk), tostring(dropped))
+    return true
+end
+
+local function onTemplateAdded(template, item, owner, source)
+    if not item or item == "" then return end
+    local ownerText = tostring(owner or "")
+    for i, entry in ipairs(pending) do
+        if entry.target == ownerText and templateMatches(template, entry.variant.template) then
+            table.remove(pending, i)
+            local ok, err = pcall(applyItem, item, entry)
+            if not ok then log("loot item apply error: %s", tostring(err)) end
+            return
+        end
+    end
+end
+
+local function queueCreate(target, variant, drop)
+    if not (Osi and Osi.TemplateAddTo) then
+        return nil, "TemplateAddTo unavailable"
+    end
+    if not variant or not variant.template then
+        return nil, "variant has no base template"
+    end
+
+    local entry = {
+        target = tostring(target),
+        variant = variant,
+        drop = drop,
+    }
+    pending[#pending + 1] = entry
+    local ok, err = pcall(Osi.TemplateAddTo, variant.template, target, 1, 1)
+    if not ok then
+        for i, queued in ipairs(pending) do
+            if queued == entry then table.remove(pending, i) break end
+        end
+        return nil, "TemplateAddTo failed: " .. tostring(err)
+    end
+
+    if Ext and Ext.Timer and Ext.Timer.WaitFor then
+        Ext.Timer.WaitFor(3000, function()
+            for i, queued in ipairs(pending) do
+                if queued == entry then
+                    table.remove(pending, i)
+                    log("loot TemplateAddedTo event did not arrive: root=%s stats=%s target=%s",
+                        tostring(variant.template), tostring(variant.stats), tostring(target))
+                    break
+                end
+            end
+        end)
+    end
+    return true
 end
 
 local function spawnVariant(guid, variant, rarity, condition)
-    local item, err, statsOk = createItem(guid, variant)
-    if item then
-        log("loot dropped: root=%s stats=%s [%s] base=%s condition=%s item=%s statsOk=%s -> %s",
+    local ok, err = queueCreate(guid, variant)
+    if ok then
+        log("loot queued: root=%s stats=%s [%s] base=%s condition=%s -> %s",
             tostring(variant.template), tostring(variant.stats), tostring(rarity),
-            tostring(variant.name), tostring(condition), tostring(item),
-            tostring(statsOk), guid)
+            tostring(variant.name), tostring(condition), guid)
         return true
     end
     log("loot spawn failed: root=%s stats=%s [%s] -> %s error=%s",
@@ -256,7 +257,7 @@ local function positionOf(guid)
     return nil
 end
 
-local function dropItem(item, x, y, z)
+dropItem = function(item, x, y, z)
     if not item or item == "" then return false end
     if Osi and Osi.Drop then
         local ok = pcall(Osi.Drop, item, x, y, z)
@@ -298,19 +299,18 @@ function L.SpawnAtPlayer(rarity, count, boss)
         if not variant then
             return spawned, "no variant for rarity " .. tostring(chosen)
         end
-        local item, itemErr, statsOk = createItem(host, variant)
-        if not item then
+        local drop = nil
+        if x and y and z then drop = { x = x, y = y, z = z } end
+        local queued, itemErr = queueCreate(host, variant, drop)
+        if not queued then
             lastError = tostring(itemErr)
             log("command loot spawn failed: root=%s stats=%s error=%s",
                 tostring(variant.template), tostring(variant.stats), tostring(itemErr))
         else
-            local dropped = false
-            if x and y and z then dropped = dropItem(item, x, y, z) end
             spawned = spawned + 1
-            log("command loot spawned: root=%s stats=%s [%s] base=%s item=%s statsOk=%s dropped=%s pos=%s,%s,%s",
+            log("command loot queued: root=%s stats=%s [%s] base=%s pos=%s,%s,%s",
                 tostring(variant.template), tostring(variant.stats), tostring(chosen),
-                tostring(variant.name), tostring(item), tostring(statsOk),
-                tostring(dropped), tostring(x), tostring(y), tostring(z))
+                tostring(variant.name), tostring(x), tostring(y), tostring(z))
         end
     end
     if spawned == 0 then return 0, lastError or "no item was created" end
@@ -334,16 +334,14 @@ local function registerCommands()
     end
     pcall(Ext.RegisterConsoleCommand, "enemyrandom_loot", handler)
     pcall(Ext.RegisterConsoleCommand, "enemyrandom_drop", handler)
-    notify("loot APIs: TemplateAddTo=%s SetItemStats=%s SetItemRarity=%s Drop=%s ItemDrop=%s",
-        tostring(Osi and Osi.TemplateAddTo ~= nil),
-        tostring(Osi and Osi.SetItemStats ~= nil),
-        tostring(Osi and Osi.SetItemRarity ~= nil),
-        tostring(Osi and Osi.Drop ~= nil),
-        tostring(Osi and Osi.ItemDrop ~= nil))
     notify("loot test commands ready: !enemyrandom_loot [uncommon|rare|veryrare|legendary|boss] [count]")
 end
 
 function L.Init()
+    if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
+        local ok = pcall(Ext.Osiris.RegisterListener, "TemplateAddedTo", 4, "after", onTemplateAdded)
+        log("loot TemplateAddedTo listener registered: %s", tostring(ok))
+    end
     if Ext and Ext.Entity and Ext.Entity.OnCreate then
         local ok = pcall(Ext.Entity.OnCreate, "DiedEvent", function(entity)
             local success, err = pcall(onDied, entity)
