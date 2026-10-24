@@ -28,7 +28,7 @@ When testing is complete, restore a normal champion chance, e.g. `0.125`.
 | Bugbears | Bugbear, Bugbear Ninja, Bugbear Raider |
 | Redcaps | Redcap, Redcap Caster |
 | Constructs | Animated Armor, Adamantine Golem, Flesh Golem |
-| Bulettes | Bulette |
+| Bulettes | Bulette, Hook Horror |
 | Owlbears | Owlbear, Armoured Owlbear, Owlbear Dad, Owlbear Cub |
 
 The generated roster is exported to

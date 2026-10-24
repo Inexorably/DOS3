@@ -124,6 +124,7 @@ NATIVE_LEVELS = {
     'OwlbearDad': 3,
     'OwlbearCub': 1,
     'Bulette': 5,
+    'HookHorror': 4,
 }
 
 def summon(key, name, stats, source, icon):
@@ -286,6 +287,7 @@ CHAMPIONS = [
         'icon': 'Icon_Bulette',
         'summons': [
             summon('Bulette', 'Bulette', 'Bulette', 'Bulette', 'Icon_Bulette'),
+            summon('HookHorror', 'Hook Horror', 'HookHorror', 'HookHorror_A', 'Icon_HookHorror'),
         ],
     },
     {

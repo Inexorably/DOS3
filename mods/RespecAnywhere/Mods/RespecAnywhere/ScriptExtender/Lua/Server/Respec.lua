@@ -9,9 +9,14 @@ RSA.Respec = RSA.Respec or {}
 local REQUEST_CHANNEL = "RespecAnywhere_Request"
 local OPEN_CHANNEL = "RespecAnywhere_Open"
 
-local function log(text)
+local function log(text, ...)
+    local message = text
+    if select('#', ...) > 0 then
+        local ok, formatted = pcall(string.format, text, ...)
+        if ok then message = formatted end
+    end
     if Ext and Ext.Utils and Ext.Utils.Print then
-        pcall(Ext.Utils.Print, text)
+        pcall(Ext.Utils.Print, message)
     end
 end
 
@@ -54,22 +59,42 @@ local function characterForUser(userId)
     if wanted == nil then return nil end
 
     local ok, entities = pcall(Ext.Entity.GetAllEntitiesWithComponent, "UserAvatar")
+    local candidates = {}
     if ok and type(entities) == "table" then
         for _, entity in ipairs(entities) do
-            local comp = entity.UserAvatar
-            if comp then
-                local candidate = userIdNumber(comp.UserID)
-                if candidate == wanted then
-                    local guid = guidOfEntity(entity)
-                    if guid then
-                        log("[RSA] respec user %s -> character %s (UserAvatar)",
-                            tostring(userId), guid)
-                        return guid
-                    end
-                end
+            local compOk, comp = pcall(function() return entity.UserAvatar end)
+            local guid = guidOfEntity(entity)
+            local raw = compOk and comp and comp.UserID or nil
+            local candidate = userIdNumber(raw)
+            log("[RSA] UserAvatar candidate guid=%s raw=%s numeric=%s wanted=%s",
+                tostring(guid), tostring(raw), tostring(candidate), tostring(wanted))
+            if guid then
+                candidates[#candidates + 1] = { guid = guid, numeric = candidate }
             end
         end
+    else
+        log("[RSA] UserAvatar component scan failed: %s", tostring(entities))
     end
+
+    for _, candidate in ipairs(candidates) do
+        if candidate.numeric == wanted then
+            log("[RSA] respec user %s -> character %s (UserAvatar)",
+                tostring(userId), candidate.guid)
+            return candidate.guid
+        end
+    end
+
+    -- Single-player and host-local requests can have a UserId that does not
+    -- numerically match the UserAvatar slot. With exactly one avatar there is
+    -- no ambiguity; never use this fallback when multiple players are present.
+    if #candidates == 1 then
+        log("[RSA] respec user %s -> sole UserAvatar %s",
+            tostring(userId), candidates[1].guid)
+        return candidates[1].guid
+    end
+
+    log("[RSA] respec user %s could not be mapped among %d UserAvatars",
+        tostring(userId), #candidates)
     return nil
 end
 
