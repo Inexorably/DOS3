@@ -87,6 +87,7 @@ local function itemsByTemplate(target, template)
     local function unpackResult(a, b)
         if type(a) == "table" then return a end
         if type(b) == "table" then return b end
+        if type(a) == "string" and a ~= "" then return { a } end
         return {}
     end
 
@@ -118,8 +119,23 @@ local function createItem(target, variant)
         return nil, "variant has no base template"
     end
 
+    local function queryVariant()
+        local result, seen = {}, {}
+        for _, key in ipairs({ variant.template, variant.stats }) do
+            if key then
+                for _, item in ipairs(itemsByTemplate(target, key)) do
+                    if not seen[item] then
+                        seen[item] = true
+                        result[#result + 1] = item
+                    end
+                end
+            end
+        end
+        return result
+    end
+
     local before = {}
-    for _, item in ipairs(itemsByTemplate(target, variant.template)) do
+    for _, item in ipairs(queryVariant()) do
         before[item] = true
     end
 
@@ -130,7 +146,7 @@ local function createItem(target, variant)
         return nil, "TemplateAddTo failed: " .. tostring(err)
     end
 
-    local after = itemsByTemplate(target, variant.template)
+    local after = queryVariant()
     local item = nil
     for _, candidate in ipairs(after) do
         if not before[candidate] then
