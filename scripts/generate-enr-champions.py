@@ -123,6 +123,7 @@ NATIVE_LEVELS = {
     'ArmouredOwlbear': 3,
     'OwlbearDad': 3,
     'OwlbearCub': 1,
+    'Bulette': 5,
 }
 
 def summon(key, name, stats, source, icon):
@@ -277,6 +278,14 @@ CHAMPIONS = [
             summon('AnimatedArmor', 'Animated Armor', 'AnimatedArmor', 'AnimatedArmor', 'statIcons_MageAnimated'),
             summon('AdamantineGolem', 'Adamantine Golem', 'AdamantineGolem', 'AdamantineGolem_A', 'statIcons_MageAnimated'),
             summon('FleshGolem', 'Flesh Golem', 'FleshGolem', 'Construct_FleshGolem', 'statIcons_MageAnimated'),
+        ],
+    },
+    {
+        'key': 'BULETTES',
+        'name': 'Champion of Bulettes',
+        'icon': 'Icon_Bulette',
+        'summons': [
+            summon('Bulette', 'Bulette', 'Bulette', 'Bulette', 'Icon_Bulette'),
         ],
     },
     {
