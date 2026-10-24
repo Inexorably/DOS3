@@ -350,11 +350,10 @@ def main():
 
                 tag = '%s_%s_%d' % (base_slug, rarity['name'], index)
                 stats_name = 'ENR_Loot_' + tag
-                # Spawn from the native base root, then swap the item's stats
-                # with Osi.SetItemStats. Custom root-template GUIDs were not
-                # resolving reliably through Osi.TemplateAddTo.
-                root_guid = base.get('root_guid')
-                if not root_guid:
+                base_root_guid = base.get('root_guid')
+                root_guid = template_guid(tag)
+                custom_root_name = 'ENR_Loot_' + tag
+                if not base_root_guid:
                     continue
 
                 boosts = base['boosts'] or ''
@@ -381,8 +380,15 @@ def main():
                     item_lines.append('data "PassivesOnEquip" "%s"' % passives)
                 item_lines.append('')
 
+                node = copy.deepcopy(base['root_node'])
+                set_attr(node, 'MapKey', root_guid)
+                set_attr(node, 'Name', custom_root_name)
+                set_attr(node, 'Stats', stats_name)
+                root_children.append(node)
+
                 loot_by_rarity[rarity['name']].append({
                     'template': root_guid,
+                    'fallback_template': base_root_guid,
                     'stats': stats_name,
                     'rarity': rarity['name'],
                     'name': base['root_name'],
@@ -430,18 +436,18 @@ def main():
     region = ET.SubElement(root_out, 'region', {'id': 'Templates'})
     templates = ET.SubElement(region, 'node', {'id': 'Templates'})
     children = ET.SubElement(templates, 'children')
-    # Loot no longer needs custom root templates. Do not leave a stale loot
-    # root XML for the champion generator to merge into _merged.lsf.
+    for node in root_children:
+        children.append(node)
     ROOT_XML.parent.mkdir(parents=True, exist_ok=True)
-    if ROOT_XML.exists():
-        ROOT_XML.unlink()
+    ET.ElementTree(root_out).write(ROOT_XML, encoding='utf-8', xml_declaration=True)
 
     lua = ['ER = ER or {}', 'ER.GeneratedLoot = { byRarity = {']
     for rarity in RARITIES:
         lua.append('  %s = {' % rarity['name'])
         for entry in loot_by_rarity[rarity['name']]:
-            lua.append('    { template = %s, stats = %s, rarity = %s, name = %s },' % (
+            lua.append('    { template = %s, fallback_template = %s, stats = %s, rarity = %s, name = %s },' % (
                 json.dumps(entry['template']),
+                json.dumps(entry['fallback_template']),
                 json.dumps(entry['stats']),
                 json.dumps(entry['rarity']),
                 json.dumps(entry['name']),
