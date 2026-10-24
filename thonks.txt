@@ -44,10 +44,18 @@ Summoning champion variants (give each variant a max of 4 possible granted enemy
 // Gear
 
 Base game has 4 rarity levels
-Uncommon ..... 1 spell (levels 0-3), ability score boost granted
-Rare  ..... 1 spell (levels 0-4), condition, ability score boost granted
-Very Rare ..... 2 spell (levels 0-5), condition, ability score boost granted
-Legendary ..... 2 spell (levels 2-6), condition, ability score boost granted
+Uncommon ..... 1 spell or condition or ability score boost granted (+1)
+Rare  ..... 2 of the following: 1 spell or condition or ability score boost granted (+1)
+Very Rare ..... 1 spell, 2 condition, ability score boost granted (+1)
+Legendary ..... 2 spell, 2 conditions, ability score boost granted (+2)
+
+Possible granted spell levels depend on the level of the player:
+• Level 0 : 1 Spells: Unlocked at Player Level 1
+• Level 0 : 2 Spells: Unlocked at Player Level 3
+• Level 0 : 3 Spells: Unlocked at Player Level 5
+• Level 0 : 4 Spells: Unlocked at Player Level 7
+• Level 0 : 5 Spells: Unlocked at Player Level 9
+• Level 0 : 6 Spells: Unlocked at Player Level 11
 
 Champion will drop 1 piece of such modded gear garaunteed.  Chances for each rarity to drop from champion: 60/20/15/5.
 
