@@ -149,23 +149,38 @@ local function applyItem(item, entry)
 
     logStatInfo(variant.stats)
     local statsOk = false
-    if variant.stats and not Osi.SetItemStats then
-        log("loot SetItemStats unavailable for stats=%s", tostring(variant.stats))
-    end
-    if variant.stats and Osi.SetItemStats then
-        statsOk = pcall(Osi.SetItemStats, item, variant.stats)
-        if not statsOk then
-            log("loot SetItemStats failed: item=%s stats=%s", tostring(item), tostring(variant.stats))
+    if variant.stats then
+        local attempts = {
+            { name = "Osi.ItemSetStats", call = function() return Osi.ItemSetStats(item, variant.stats) end },
+            { name = "Osi.SetItemStats", call = function() return Osi.SetItemStats(item, variant.stats) end },
+            { name = "Ext.Osiris.CallFunction(ItemSetStats)", call = function()
+                return Ext.Osiris.CallFunction("ItemSetStats", item, variant.stats)
+            end },
+        }
+        for _, attempt in ipairs(attempts) do
+            local ok, err = pcall(attempt.call)
+            log("loot item stats api: %s item=%s stats=%s ok=%s err=%s",
+                attempt.name, tostring(item), tostring(variant.stats), tostring(ok), tostring(err))
+            if ok then statsOk = true break end
         end
     end
     logItemInfo(item)
-    if variant.rarity and Osi.SetItemRarity then
+    if variant.rarity then
         local rarityValue = RARITY_ENUM[variant.rarity] or 0
-        local rarityOk = pcall(Osi.SetItemRarity, item, rarityValue)
-        log("loot SetItemRarity: item=%s rarity=%s value=%d ok=%s",
-            tostring(item), tostring(variant.rarity), rarityValue, tostring(rarityOk))
+        local attempts = {
+            { name = "Osi.ItemSetRarity(string)", call = function() return Osi.ItemSetRarity(item, variant.rarity) end },
+            { name = "Osi.ItemSetRarity(number)", call = function() return Osi.ItemSetRarity(item, rarityValue) end },
+            { name = "Osi.SetItemRarity(number)", call = function() return Osi.SetItemRarity(item, rarityValue) end },
+        }
+        local rarityOk = false
+        for _, attempt in ipairs(attempts) do
+            local ok, err = pcall(attempt.call)
+            log("loot item rarity api: %s item=%s rarity=%s ok=%s err=%s",
+                attempt.name, tostring(item), tostring(variant.rarity), tostring(ok), tostring(err))
+            if ok then rarityOk = true break end
+        end
         if not rarityOk then
-            log("loot SetItemRarity failed: item=%s rarity=%s", tostring(item), tostring(variant.rarity))
+            log("loot item rarity failed: item=%s rarity=%s", tostring(item), tostring(variant.rarity))
         end
     end
 
