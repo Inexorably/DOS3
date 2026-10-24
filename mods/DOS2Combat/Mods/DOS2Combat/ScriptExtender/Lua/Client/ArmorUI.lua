@@ -340,14 +340,8 @@ local function updateHoveredArmor()
             text = itemArmorText(item)
         elseif value then
             local accuracy = value.hit and string.format("    Accuracy: %d%%", value.hit) or ""
-            if value.dodge then
-                text = string.format("Physical Armor: %d    Magic Armor: %d    Dodge: %d%s",
-                    math.floor(value.physical + 0.5), math.floor(value.magic + 0.5),
-                    math.floor(value.dodge + 0.5), accuracy)
-            else
-                text = string.format("Physical Armor: %d    Magic Armor: %d%s",
-                    math.floor(value.physical + 0.5), math.floor(value.magic + 0.5), accuracy)
-            end
+            text = string.format("Physical Armor: %d    Magic Armor: %d%s",
+                math.floor(value.physical + 0.5), math.floor(value.magic + 0.5), accuracy)
         end
         if guid ~= lastTargetGuid then
             lastTargetGuid = guid

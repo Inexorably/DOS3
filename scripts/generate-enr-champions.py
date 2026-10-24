@@ -194,10 +194,10 @@ CHAMPIONS = [
     {
         'key': 'OGRES',
         'name': 'Champion of Ogres',
-        'icon': 'GenericIcon_Intent_Summon',
+        'icon': 'Action_Throw',
         'summons': [
-            summon('Ogre', 'Ogre', 'Ogre', 'BASE_Ogres', 'GenericIcon_Intent_Summon'),
-            summon('OgreCaptain', 'Ogre Captain', 'FOR_OgreCaptain', 'BASE_Ogres_Crowd', 'GenericIcon_Intent_Summon'),
+            summon('Ogre', 'Ogre', 'Ogre', 'BASE_Ogres', 'Action_Throw'),
+            summon('OgreCaptain', 'Ogre Captain', 'FOR_OgreCaptain', 'BASE_Ogres_Crowd', 'Action_Throw'),
         ],
     },
     {
@@ -244,10 +244,10 @@ CHAMPIONS = [
     {
         'key': 'MIND_FLAYERS',
         'name': 'Champion of Mind Flayers',
-        'icon': 'GenericIcon_Intent_Summon',
+        'icon': 'TadpoleSuperPower_MindBlast',
         'summons': [
-            summon('MindFlayer', 'Mind Flayer', 'MindFlayer', 'BASE_Mindflayer', 'GenericIcon_Intent_Summon'),
-            summon('MindFlayerCaster', 'Mind Flayer Caster', 'MindFlayer_Caster', 'MindFlayer_Caster', 'GenericIcon_Intent_Summon'),
+            summon('MindFlayer', 'Mind Flayer', 'MindFlayer', 'BASE_Mindflayer', 'TadpoleSuperPower_MindBlast'),
+            summon('MindFlayerCaster', 'Mind Flayer Caster', 'MindFlayer_Caster', 'MindFlayer_Caster', 'TadpoleSuperPower_MindBlast'),
         ],
     },
     {
@@ -263,10 +263,10 @@ CHAMPIONS = [
     {
         'key': 'REDCAPS',
         'name': 'Champion of Redcaps',
-        'icon': 'GenericIcon_Intent_Summon',
+        'icon': 'Spell_Enchantment_HoldPerson',
         'summons': [
-            summon('Redcap', 'Redcap', 'RedCap', 'BASE_Bipedal_Fey_Redcap', 'GenericIcon_Intent_Summon'),
-            summon('RedcapCaster', 'Redcap Caster', 'RedCap_Caster', 'Redcap_Caster_A', 'GenericIcon_Intent_Summon'),
+            summon('Redcap', 'Redcap', 'RedCap', 'BASE_Bipedal_Fey_Redcap', 'Spell_Enchantment_HoldPerson'),
+            summon('RedcapCaster', 'Redcap Caster', 'RedCap_Caster', 'Redcap_Caster_A', 'Spell_Enchantment_HoldPerson'),
         ],
     },
     {

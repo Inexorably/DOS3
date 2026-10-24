@@ -10,6 +10,7 @@ ER.Config = {
 
     -- Champion layer. The DOS2 mod uses roughly a 1-in-8 champion chance.
     CHAMPION_CHANCE = 1.0, -- set to 1.0 for first-encounter testing
+    CONTAINER_LOOT_CHANCE = 0.05,
     CHAMPION_EXTRA_BUFFS = 1,
     CHAMPION_MARKER = "ENR_CHAMPION_ROLLED",
     CHAMPION_HP_MULTIPLIER = 1.5,

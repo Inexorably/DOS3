@@ -1,13 +1,14 @@
 # DOS3 User Guide
 
-This repository contains two Baldur's Gate 3 mods:
+This repository contains three Baldur's Gate 3 mods:
 
 | Mod | Folder | Purpose |
 | --- | --- | --- |
 | DOS2 Combat Overhaul | `mods/DOS2Combat` | DOS2-style AP, deterministic damage, armor resistance, and turn cooldowns |
 | Enemy Randomization | `mods/EnemyRandomization` | Random enemy buffs and themed champion variants |
+| Respec Anywhere | `mods/RespecAnywhere` | Withers respec UI from anywhere in-game |
 
-Both mods require **Baldur's Gate 3 Script Extender (BG3SE)**.
+All three mods require **Baldur's Gate 3 Script Extender (BG3SE)**.
 
 ## Installation
 
@@ -30,6 +31,9 @@ For a local source build:
 
 ./scripts/build.sh EnemyRandomization
 ./scripts/install.sh EnemyRandomization
+
+./scripts/build.sh RespecAnywhere
+./scripts/install.sh RespecAnywhere
 ```
 
 ## Script Extender Console
@@ -230,16 +234,25 @@ regenerates and packages them automatically.
 !dos2c_rolls on|off
 !dos2c_armorui on|off
 !dos2c_debug on|off
-!dos2c_respec
 !dos2c_weapon
 ```
 
-`!dos2c_respec` opens Withers' respec UI for the host character from anywhere an
-in-game console is available. The **DOS2 Tools** panel also has a
-**Respec character** button. The main menu cannot respec because no character is
-loaded there.
-
 Use `!dos2c_status` first when diagnosing a problem.
+
+## Respec Anywhere
+
+**Respec Anywhere** is a separate mod. It adds a small **DOS2 Tools** panel with
+a **Respec character** button and a console command:
+
+```text
+!respec
+```
+
+The command opens Withers' native respec UI for the host character from anywhere
+in-game. The main menu cannot respec because no character is loaded there.
+
+This mod must be enabled separately in BG3 Mod Manager or the in-game Mods
+menu.
 
 ## Troubleshooting
 

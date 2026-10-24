@@ -13,6 +13,7 @@ local C = ER.Config
 local LOG = C.LOG_PREFIX
 
 local lootRolled = {}
+local containerRolled = {}
 local loggedMissingCatalog = false
 
 local function log(fmt, ...)
@@ -488,6 +489,45 @@ local function onDied(entity)
     end
 end
 
+-- Ordinary containers use the same pre-generated item catalog at a much lower
+-- chance. HasOpened is added when a container is first opened, so this fires
+-- exactly once per container during normal play.
+local function isContainerEntity(entity)
+    if not entity then return false end
+    local healthOk, health = pcall(function() return entity.Health end)
+    if healthOk and health ~= nil then return false end
+    local inventoryOk, inventory = pcall(function() return entity.InventoryOwner end)
+    return inventoryOk and inventory ~= nil
+end
+
+local function onContainerOpened(entity)
+    local guid = guidOf(entity)
+    if not guid or containerRolled[guid] then return false end
+    containerRolled[guid] = true
+
+    if not isContainerEntity(entity) then return false end
+    local chance = tonumber(C.CONTAINER_LOOT_CHANCE) or 0
+    if chance <= 0 or math.random() > chance then return false end
+
+    local rarity = pickRarity(false)
+    local variant = pickVariant(rarity, currentLevelBand())
+    if not variant then
+        log("container loot: no variant for rarity %s", tostring(rarity))
+        return false
+    end
+
+    local ok, err = queueCreate(guid, variant)
+    if ok then
+        log("container loot queued: root=%s stats=%s [%s] base=%s -> %s",
+            tostring(variant.template), tostring(variant.stats), tostring(rarity),
+            tostring(variant.name), guid)
+        return true
+    end
+    log("container loot failed: root=%s stats=%s -> %s error=%s",
+        tostring(variant.template), tostring(variant.stats), guid, tostring(err))
+    return false
+end
+
 local deadPollTicks = 0
 
 local function scanDeadChampions()
@@ -657,6 +697,11 @@ function L.Init()
             if not success then log("loot death error: %s", tostring(err)) end
         end)
         log("loot DiedEvent listener registered: %s", tostring(ok))
+        local openedOk = pcall(Ext.Entity.OnCreate, "HasOpened", function(entity)
+            local success, err = pcall(onContainerOpened, entity)
+            if not success then log("loot container open error: %s", tostring(err)) end
+        end)
+        log("loot HasOpened listener registered: %s", tostring(openedOk))
     end
     local sample = ER.GeneratedLoot
         and ER.GeneratedLoot.byRarity

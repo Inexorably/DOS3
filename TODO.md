@@ -230,8 +230,8 @@ Known DOS2 visual references for the current test spells:
       the picking helper exposing the item entity as `entry.Tooltip`.
 - [x] Native `Armour Class`/`AC` labels are renamed to Dodge; item P/M values
       remain visible through the generated armor passives and hover overlay.
-- [ ] Remove Dodge from the armor widget; show only Physical and Magic armor.
-- [x] Add Dodge and engine-derived Accuracy labels to the character armor overlay.
+- [x] Remove Dodge from the armor widget; show only Physical and Magic armor.
+- [x] Show engine-derived Accuracy in the character armor overlay.
 - [x] Remove the static 95% accuracy label; broadcast actual `Osi.GetHitChance` when available.
 - [x] Armor overlay is dynamically sized and centered from LastSize once the
       layout exists; the last nonzero width is cached for re-shown labels.
@@ -267,6 +267,7 @@ Known DOS2 visual references for the current test spells:
 
 ## Enemy Randomization
 
+- [ ] Rename the `Champion of Ogres` condition display name to **It's Ogre**.
 - [x] Implement the summoning champion roster: Dinosaurs, Spiders, Goblins,
       Ogres, Hell, Steel Watch, Dragons, Gnolls, Mind Flayers, Bugbears,
       Redcaps, Constructs, and Owlbears. Steel Watch also has the Steel Watch Titan.
@@ -281,8 +282,10 @@ Known DOS2 visual references for the current test spells:
 - [x] Guard `IsBoss` access and use the CombatParticipant Flags bit instead.
 - [x] Stop treating ordinary imps as summons during champion candidate scans.
 - [x] Add `!enemyrandom_loot` / `!enemyrandom_drop` test commands that spawn champion loot at the host player.
-- [ ] Give ordinary containers a small chance to include this modded loot in
-      addition to their native rolls.
+- [x] Give ordinary containers a small chance to include this modded loot in
+      addition to their native rolls (HasOpened, 5% default).
+- [ ] Verify ordinary-container loot drops inside the opened container and does
+      not reroll after save/reload.
 - [ ] Verify champion statuses remain permanent for the whole fight and do not
       rotate through auras or native status remove events.
 - [ ] Verify enemy AC/ACOverrideFormula grants no hit chance and is converted
@@ -296,9 +299,8 @@ Known DOS2 visual references for the current test spells:
       scores/HP/armor relative to the summon's target level.
 - [x] Boss enemies receive **two guaranteed champion conditions**.
 - [x] The two boss champion conditions are selected non-duplicately.
-- [ ] For each future summoning champion, use one of its possible summon
-      portraits as the condition icon, following the Champion of Dinosaurs
-      pattern.
+- [x] Use a distinct summon-related icon for every current summoning champion
+      condition; retain the same pattern for future champions.
 - [ ] Verify boss double-champion application, persistence across save/reload,
       and multiplayer replication.
 - [x] Generate the deterministic gear catalog for all equipment roots and
@@ -311,3 +313,14 @@ Known DOS2 visual references for the current test spells:
       Strength/Dexterity/Constitution/Intelligence/Wisdom/Charisma values at
       summon time.
 - [ ] Verify summon skills cost 2 AP and still enforce the five-turn cooldown.
+
+
+## Respec Anywhere
+
+- [x] Move the respec shortcut out of DOS2Combat into a separate
+      `RespecAnywhere` mod.
+- [x] Add a client **DOS2 Tools** panel and `!respec` command.
+- [x] Route the button request through `PostMessageToServer` and have the
+      server reply to the host client with `PostMessageToClient`.
+- [ ] Verify the button and `!respec` command open the native respec UI
+      in-game.
