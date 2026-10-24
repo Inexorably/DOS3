@@ -207,6 +207,28 @@ local function ensureAPPassive(entity)
     return pcall(Osi.AddPassive, guid, "DOS2C_APBoost")
 end
 
+local CASTING_DAMAGE_TOKEN =
+    "IF(IsSpell() and HasDamageEffectFlag(DamageFlags.Hit)):" ..
+    "DamageBonus(max(0,SpellCastingAbilityModifier))"
+
+local function addCastingAbilityDamage(stat)
+    local cfg = DOS2C.Config
+    if not cfg.CASTING_ABILITY_SPELL_DAMAGE then return false end
+
+    local current = U.SafeGet(stat, "DefaultBoosts")
+    if type(current) ~= "string" then current = "" end
+    if current:find(CASTING_DAMAGE_TOKEN, 1, true) then return false end
+
+    -- Remove an older copy before appending so repeated patch passes stay
+    -- idempotent.
+    current = current:gsub("%s*;?%s*IF%(%s*IsSpell%(%)%s*and%s*" ..
+        "HasDamageEffectFlag%(%s*DamageFlags%.Hit%s*%)%s*%)%s*:%s*" ..
+        "DamageBonus%(%s*max%(%s*0%s*,%s*SpellCastingAbilityModifier%s*%)%s*%)", "")
+    current = current:gsub("^%s*;%s*", ""):gsub("%s*;%s*$", "")
+    if current ~= "" then current = current .. ";" end
+    return U.SafeSet(stat, "DefaultBoosts", current .. CASTING_DAMAGE_TOKEN)
+end
+
 local function patchCharacter(stat)
     local cfg = DOS2C.Config
     local resources = U.SafeGet(stat, "ActionResources")
@@ -243,6 +265,7 @@ local function patchCharacter(stat)
     -- saves receive it too; remove any old DefaultBoosts AP boost.
     if removeAPBoost(stat) then applied = true end
     if addBaseAttackBonus(stat, cfg) then applied = true end
+    if addCastingAbilityDamage(stat) then applied = true end
     if cleanTestSpellUnlocks(stat) then applied = true end
     return applied
 end

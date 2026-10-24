@@ -148,6 +148,7 @@ DOS2C.Config = {
     ATTACK_DEBUFF_CANCELS_BASELINE = true, -- Blinded etc. offset the baseline
 
     REMOVE_SAVING_THROWS = true, -- DOS2 has no saving throws
+    CASTING_ABILITY_SPELL_DAMAGE = true, -- give Int/Wis/Cha combat value
     STRIP_DEAD_SAVING_THROW_BOOSTS = true,
     -- Damage rolls stay random but are compressed around the average instead
     -- of using the full die range. Default: 1/3 of the original range width,

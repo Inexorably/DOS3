@@ -40,6 +40,11 @@
 - [x] Accepted native d20 5% attack steps instead of an exact DOS2 linear
       accuracy-minus-dodge formula.
 - [x] Audit statuses that modify saving throws in the verification dump.
+- [x] Give mental ability scores combat value again by adding the
+      casting-ability modifier to spell damage now that attack rolls and
+      saving throws are removed.
+- [ ] Verify the casting-ability spell damage is applied and is reflected in
+      the combat log; native spell tooltips do not include this hidden bonus.
 - [x] Strip saving-throw-only boost tokens from status/passive tooltips; they
       remain intentionally deprecated because DOS2 has no saving throws.
 
