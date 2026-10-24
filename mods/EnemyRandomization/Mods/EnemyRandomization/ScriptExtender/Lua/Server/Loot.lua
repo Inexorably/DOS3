@@ -221,6 +221,30 @@ local function ownerGuidOfInventory(inventory)
     return nil
 end
 
+local function inventoryGuidOf(inventory)
+    if not inventory then return nil end
+    if type(inventory) == "string" then
+        if inventory:match("^%x%x%x%x%x%x%x%x%-") then return inventory end
+        return nil
+    end
+    if not (Ext and Ext.Entity and Ext.Entity.Get) then return nil end
+    local ok, entity = pcall(Ext.Entity.Get, inventory)
+    if ok and entity then
+        local guidOk, guid = pcall(function() return entity.Uuid.EntityUuid end)
+        if guidOk and guid then return tostring(guid) end
+    end
+    return nil
+end
+
+local function targetInventoryGuid(target)
+    if not (Ext and Ext.Entity and Ext.Entity.Get) then return nil end
+    local ok, entity = pcall(Ext.Entity.Get, target)
+    if not ok or not entity then return nil end
+    local ownerOk, owner = pcall(function() return entity.InventoryOwner end)
+    if not ownerOk or not owner then return nil end
+    return inventoryGuidOf(owner.PrimaryInventory)
+end
+
 local function onInventoryMember(entity, quiet)
     if not entity then return false end
     local okMember, member = pcall(function() return entity.InventoryMember end)
@@ -237,8 +261,11 @@ local function onInventoryMember(entity, quiet)
         return false
     end
 
+    local itemInventoryGuid = inventoryGuidOf(member.Inventory)
     for i, entry in ipairs(pending) do
-        if entry.target == ownerGuid then
+        local sameOwner = entry.target == ownerGuid
+        local sameInventory = entry.targetInventory ~= nil and entry.targetInventory == itemInventoryGuid
+        if sameOwner or sameInventory then
             table.remove(pending, i)
             local applied, err = pcall(applyItem, tostring(itemGuid), entry)
             if not applied then log("loot inventory member apply error: %s", tostring(err)) end
@@ -276,6 +303,7 @@ local function queueCreate(target, variant, drop)
 
     local entry = {
         target = tostring(target),
+        targetInventory = targetInventoryGuid(target),
         variant = variant,
         drop = drop,
     }
