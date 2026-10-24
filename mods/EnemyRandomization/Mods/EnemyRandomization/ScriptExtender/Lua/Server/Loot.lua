@@ -92,6 +92,54 @@ local function templateMatches(eventTemplate, expected)
     return actual == expected or (expected ~= "" and actual:sub(-#expected) == expected)
 end
 
+local function parseQueryItem(a, b)
+    if type(a) == "string" and a ~= "" then return a end
+    if type(b) == "string" and b ~= "" then return b end
+    if type(a) == "table" then
+        if type(a[1]) == "string" and a[1] ~= "" then return a[1] end
+        if type(a.Item) == "string" and a.Item ~= "" then return a.Item end
+        if type(a.NewItem) == "string" and a.NewItem ~= "" then return a.NewItem end
+    end
+    return nil
+end
+
+local function logStatInfo(name)
+    if not (Ext and Ext.Stats and Ext.Stats.Get) then
+        log("loot stats lookup unavailable for %s", tostring(name))
+        return
+    end
+    local ok, stat = pcall(Ext.Stats.Get, name)
+    if not ok or not stat then
+        log("loot custom stat MISSING: %s (ok=%s)", tostring(name), tostring(ok))
+        return
+    end
+    local rarity = pcall(function() return stat.Rarity end)
+    local root = pcall(function() return stat.RootTemplate end)
+    local boosts = pcall(function() return stat.Boosts end)
+    log("loot custom stat FOUND: %s rarity=%s root=%s boosts=%s",
+        tostring(name), tostring(rarity), tostring(root), tostring(boosts))
+end
+
+local function logItemInfo(item)
+    if not (Ext and Ext.Entity and Ext.Entity.Get) then return end
+    local ok, entity = pcall(Ext.Entity.Get, item)
+    if not ok or not entity then
+        log("loot item entity lookup failed: %s", tostring(item))
+        return
+    end
+    local statsId = pcall(function() return entity.Data.StatsId end)
+    local armor = pcall(function()
+        local a = entity.Armor
+        return a and string.format("ac=%s type=%s shield=%s", tostring(a.ArmorClass), tostring(a.ArmorType), tostring(a.Shield)) or nil
+    end)
+    local weapon = pcall(function()
+        local w = entity.Weapon
+        return w and "weapon" or nil
+    end)
+    log("loot item entity: guid=%s statsId=%s armor=%s weapon=%s",
+        tostring(item), tostring(statsId), tostring(armor), tostring(weapon))
+end
+
 local function applyItem(item, entry)
     local variant = entry.variant
     if not item or item == "" then
@@ -99,6 +147,7 @@ local function applyItem(item, entry)
         return false
     end
 
+    logStatInfo(variant.stats)
     local statsOk = false
     if variant.stats and not Osi.SetItemStats then
         log("loot SetItemStats unavailable for stats=%s", tostring(variant.stats))
@@ -109,9 +158,12 @@ local function applyItem(item, entry)
             log("loot SetItemStats failed: item=%s stats=%s", tostring(item), tostring(variant.stats))
         end
     end
+    logItemInfo(item)
     if variant.rarity and Osi.SetItemRarity then
         local rarityValue = RARITY_ENUM[variant.rarity] or 0
         local rarityOk = pcall(Osi.SetItemRarity, item, rarityValue)
+        log("loot SetItemRarity: item=%s rarity=%s value=%d ok=%s",
+            tostring(item), tostring(variant.rarity), rarityValue, tostring(rarityOk))
         if not rarityOk then
             log("loot SetItemRarity failed: item=%s rarity=%s", tostring(item), tostring(variant.rarity))
         end
@@ -154,6 +206,26 @@ local function queueCreate(target, variant, drop)
         variant = variant,
         drop = drop,
     }
+
+    -- Qry_TemplateAddTo is the query form and returns the newly created item.
+    -- Try it first; it avoids relying on the non-returning call plus an event.
+    if Osi.Qry_TemplateAddTo then
+        local queryOk, queryA, queryB = pcall(Osi.Qry_TemplateAddTo, variant.template, target, 1)
+        log("loot Qry_TemplateAddTo: root=%s ok=%s typeA=%s typeB=%s a=%s b=%s",
+            tostring(variant.template), tostring(queryOk), type(queryA), type(queryB),
+            tostring(queryA), tostring(queryB))
+        if queryOk then
+            local item = parseQueryItem(queryA, queryB)
+            if item then
+                local applied, applyErr = pcall(applyItem, item, entry)
+                if not applied then log("loot query apply error: %s", tostring(applyErr)) end
+                return applied == true, applied and nil or "query item apply failed"
+            end
+            log("loot Qry_TemplateAddTo returned no item; not calling TemplateAddTo again")
+            return nil, "Qry_TemplateAddTo returned no item"
+        end
+    end
+
     pending[#pending + 1] = entry
     local ok, err = pcall(Osi.TemplateAddTo, variant.template, target, 1, 1)
     if not ok then
