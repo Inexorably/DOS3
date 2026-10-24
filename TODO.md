@@ -230,6 +230,7 @@ Known DOS2 visual references for the current test spells:
       the picking helper exposing the item entity as `entry.Tooltip`.
 - [x] Native `Armour Class`/`AC` labels are renamed to Dodge; item P/M values
       remain visible through the generated armor passives and hover overlay.
+- [ ] Remove Dodge from the armor widget; show only Physical and Magic armor.
 - [x] Add Dodge and engine-derived Accuracy labels to the character armor overlay.
 - [x] Remove the static 95% accuracy label; broadcast actual `Osi.GetHitChance` when available.
 - [x] Armor overlay is dynamically sized and centered from LastSize once the

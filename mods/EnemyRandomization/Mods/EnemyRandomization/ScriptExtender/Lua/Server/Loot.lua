@@ -199,13 +199,25 @@ local function ownerGuidOfInventory(inventory)
         if inventory:match("^%x%x%x%x%x%x%x%x%-") then return inventory end
         return nil
     end
-    if Ext and Ext.Entity and Ext.Entity.Get then
-        local ownerOk, owner = pcall(Ext.Entity.Get, inventory)
-        if ownerOk and owner then
-            local guidOk, guid = pcall(function() return owner.Uuid.EntityUuid end)
+    if not (Ext and Ext.Entity and Ext.Entity.Get) then return nil end
+
+    local inventoryOk, inventoryEntity = pcall(Ext.Entity.Get, inventory)
+    if not inventoryOk or not inventoryEntity then return nil end
+
+    -- InventoryMember.Inventory points at the inventory entity. The owner is
+    -- exposed through InventoryIsOwned.Owner on that entity.
+    local ownedOk, owned = pcall(function() return inventoryEntity.InventoryIsOwned end)
+    if ownedOk and owned and owned.Owner then
+        local ownerOk, ownerEntity = pcall(Ext.Entity.Get, owned.Owner)
+        if ownerOk and ownerEntity then
+            local guidOk, guid = pcall(function() return ownerEntity.Uuid.EntityUuid end)
             if guidOk and guid then return tostring(guid) end
         end
     end
+
+    -- Some containers may themselves be the owner entity.
+    local guidOk, guid = pcall(function() return inventoryEntity.Uuid.EntityUuid end)
+    if guidOk and guid then return tostring(guid) end
     return nil
 end
 
@@ -218,7 +230,10 @@ local function onInventoryMember(entity, quiet)
 
     local ownerGuid = ownerGuidOfInventory(member.Inventory)
     if not ownerGuid then
-        if not quiet then log("loot InventoryMember owner unresolved for item=%s", tostring(itemGuid)) end
+        if not quiet then
+            log("loot InventoryMember owner unresolved for item=%s inventory=%s",
+                tostring(itemGuid), tostring(member.Inventory))
+        end
         return false
     end
 
@@ -340,6 +355,50 @@ local function onDied(entity)
         else
             log("loot: no variant for rarity %s", rarity)
         end
+    end
+end
+
+local deadPollTicks = 0
+
+local function scanDeadChampions()
+    if not (Ext and Ext.Entity and Ext.Entity.GetAllEntitiesWithComponent) then return 0 end
+    local ok, entities = pcall(Ext.Entity.GetAllEntitiesWithComponent, "Health")
+    if not ok or type(entities) ~= "table" then return 0 end
+    local found = 0
+    for _, entity in ipairs(entities) do
+        local guid = guidOf(entity)
+        if guid and not lootRolled[guid] and not hasStatus(guid, "ENR_LOOT_ROLLED") then
+            local hpOk, hp = pcall(function() return entity.Health.Hp end)
+            if hpOk and tonumber(hp) and tonumber(hp) <= 0 then
+                local conditions = championStatuses(guid)
+                if #conditions > 0 then
+                    found = found + 1
+                    log("loot dead champion poll: %s champions=%d", guid, #conditions)
+                    local done, err = pcall(onDied, entity)
+                    if not done then log("loot dead poll error: %s", tostring(err)) end
+                end
+            end
+        end
+    end
+    return found
+end
+
+local function startDeadPoll()
+    if Ext and Ext.Events and Ext.Events.Tick then
+        Ext.Events.Tick:Subscribe(function()
+            deadPollTicks = deadPollTicks + 1
+            if (deadPollTicks % 30) == 0 then pcall(scanDeadChampions) end
+        end)
+        log("loot dead champion poll started")
+        return
+    end
+    if Ext and Ext.Timer and Ext.Timer.WaitFor then
+        local function loop()
+            pcall(scanDeadChampions)
+            Ext.Timer.WaitFor(1000, loop)
+        end
+        Ext.Timer.WaitFor(1000, loop)
+        log("loot dead champion timer poll started")
     end
 end
 
@@ -482,6 +541,7 @@ function L.Init()
         end
     end
     registerCommands()
+    startDeadPoll()
 end
 
 L.Init()
