@@ -14,6 +14,53 @@ ER.Config = {
     CHAMPION_MARKER = "ENR_CHAMPION_ROLLED",
     CHAMPION_HP_MULTIPLIER = 1.5,
     CHAMPION_HP_MARKER = "ENR_CHAMPION_HP_SCALED",
+
+    -- Boss tiers are matched primarily against the runtime display name. The
+    -- lists intentionally use short lowercase aliases so localized titles and
+    -- variants such as "Apostle of Myrkul" still match.
+    BOSS_TIERS = {
+        FINAL_BOSS = {
+            "netherbrain",
+            "the netherbrain",
+            "emperor",
+            "the emperor",
+        },
+        MAJOR_BOSS = {
+            "ketheric", "ketheric thorm", "apostle of myrkul", "avatar of myrkul", "myrkul",
+            "orin", "orin the red",
+            "gortash", "enver gortash",
+            "cazador", "cazador szarr",
+            "raphael",
+            "ansur", "ansur the waiting storm", "the waiting storm",
+            "viconia", "viconia devir",
+            "sarevok", "sarevok anchev",
+            "steel watch titan", "steel watcher titan",
+            "auntie ethel", "ethel",
+            "grym",
+            "balthazar",
+            "yurgir",
+            "karniss", "kar'niss", "kar'niss",
+            "zrell", "z'rell", "z'rell", "disciple zrell",
+            "malus thorm", "thisobald thorm", "gerringothe thorm",
+            "nere",
+            "dror ragzlin", "ragzlin",
+            "minthara", "priestess gut",
+            "wargaz", "ch'r'ai w'wargaz", "ch'r'ai w'wargaz",
+            "phase spider matriarch", "spider matriarch",
+            "commander zhalk", "zhalk",
+            "mystic carrion",
+            "lorroakan",
+            "bulette",
+            "spectator",
+            "bernard",
+        },
+    },
+
+    BOSS_CHAMPION_COUNTS = {
+        FINAL_BOSS = 4,
+        MAJOR_BOSS = 3,
+        BOSS = 2,
+    },
     CHAMPIONS = (ER.Generated and ER.Generated.champions) or {
         {
             status = "ENR_CHAMPION_DINOSAURS",

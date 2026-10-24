@@ -270,36 +270,107 @@ local function entityIsBoss(entity)
     return math.floor(flags / 4) % 2 == 1
 end
 
-local function applyChampion(guid, isBoss)
-    if not (C.CHAMPIONS and #C.CHAMPIONS > 0) then return false end
-    if hasStatus(guid, C.CHAMPION_MARKER) then return false end
+local function normalizeBossName(value)
+    local text = tostring(value or ""):lower()
+    text = text:gsub("[_%-%.,:;%(%)%[%]!%?]", " ")
+    text = text:gsub("%s+", " ")
+    return text:gsub("^%s+", ""):gsub("%s+$", "")
+end
 
-    -- Adopt a champion that survived without its separate roll marker.
+local function bossTierFor(guid, entity)
+    local candidates = {}
+    local function addName(value)
+        if value ~= nil and tostring(value) ~= "" then
+            candidates[#candidates + 1] = tostring(value)
+        end
+    end
+
+    if Osi and Osi.GetDisplayName then
+        local ok, value = pcall(Osi.GetDisplayName, guid)
+        if ok then addName(value) end
+    end
+    if entity then
+        local nameOk, name = pcall(function() return entity.DisplayName.Name end)
+        if nameOk then addName(name) end
+        local statsOk, statsId = pcall(function() return entity.Data.StatsId end)
+        if statsOk then addName(statsId) end
+    end
+
+    for _, tier in ipairs({ "FINAL_BOSS", "MAJOR_BOSS" }) do
+        for _, alias in ipairs((C.BOSS_TIERS or {})[tier] or {}) do
+            local needle = normalizeBossName(alias)
+            if needle ~= "" then
+                for _, candidate in ipairs(candidates) do
+                    local haystack = normalizeBossName(candidate)
+                    if haystack == needle or haystack:find(needle, 1, true) then
+                        return tier
+                    end
+                end
+            end
+        end
+    end
+    return nil
+end
+
+local function championTargetCount(guid, entity, isBoss)
+    local tier = bossTierFor(guid, entity)
+    local counts = C.BOSS_CHAMPION_COUNTS or {}
+    if tier then
+        return math.max(2, tonumber(counts[tier]) or 2), tier
+    end
+    if isBoss then
+        return math.max(2, tonumber(counts.BOSS) or 2), "BOSS"
+    end
+    return 1, nil
+end
+
+local function fillChampionConditions(guid, required, cache, exclude)
+    while #cache < required do
+        local entry = pickChampion(exclude)
+        if not entry then break end
+        local applied = Osi and Osi.ApplyStatus
+            and pcall(Osi.ApplyStatus, guid, entry.status, -1, 1)
+        if not applied then
+            log("boss extra champion failed: %s -> %s", entry.status, guid)
+            break
+        end
+        cache[#cache + 1] = entry.status
+        exclude[entry.status] = true
+        grantChampionEffects(guid, entry)
+        log("boss extra champion %s -> %s (%d/%d)",
+            entry.status, guid, #cache, required)
+    end
+end
+
+local function applyChampion(guid, isBoss, entity)
+    if not (C.CHAMPIONS and #C.CHAMPIONS > 0) then return false end
+
+    local required, tier = championTargetCount(guid, entity, isBoss)
     local existing = {}
     for _, entry in ipairs(C.CHAMPIONS) do
         if entry.status and hasStatus(guid, entry.status) then
             existing[#existing + 1] = entry
         end
     end
-    if #existing > 0 then
+
+    -- A roll marker with no champion status means the roll failed. Bosses are
+    -- guaranteed champions, so they are allowed to recover from a failed roll.
+    if hasStatus(guid, C.CHAMPION_MARKER) and #existing == 0 and not (tier or isBoss) then
+        return false
+    end
+
+    if hasStatus(guid, C.CHAMPION_MARKER) or #existing > 0 then
         pcall(Osi.ApplyStatus, guid, C.CHAMPION_MARKER, -1, 1)
         championCache[guid] = {}
+        local exclude = {}
         for _, entry in ipairs(existing) do
             championCache[guid][#championCache[guid] + 1] = entry.status
+            exclude[entry.status] = true
             grantChampionEffects(guid, entry)
         end
-        if isBoss and #existing < 2 then
-            local exclude = {}
-            for _, entry in ipairs(existing) do exclude[entry.status] = true end
-            local second = pickChampion(exclude)
-            if second and Osi and Osi.ApplyStatus then
-                if pcall(Osi.ApplyStatus, guid, second.status, -1, 1) then
-                    championCache[guid][#championCache[guid] + 1] = second.status
-                    grantChampionEffects(guid, second)
-                    log("boss second champion %s -> %s", second.status, guid)
-                end
-            end
-        end
+        fillChampionConditions(guid, required, championCache[guid], exclude)
+        log("boss tier adopted: %s tier=%s conditions=%d/%d",
+            guid, tostring(tier or "NONE"), #championCache[guid], required)
         return false
     end
 
@@ -308,28 +379,26 @@ local function applyChampion(guid, isBoss)
     if Osi and Osi.ApplyStatus then
         pcall(Osi.ApplyStatus, guid, C.CHAMPION_MARKER, -1, 1)
     end
-    if math.random() > championChance() then
+    if not (tier or isBoss) and math.random() > championChance() then
         return false
     end
 
     local champion = pickChampion()
     if not champion then return false end
-    if not (Osi and Osi.ApplyStatus and pcall(Osi.ApplyStatus, guid, champion.status, -1, 1)) then
+    local applied = Osi and Osi.ApplyStatus
+        and pcall(Osi.ApplyStatus, guid, champion.status, -1, 1)
+    if not applied then
         log("champion apply failed %s -> %s", champion.status, guid)
         return false
     end
-    championCache[guid] = { champion.status }
-    grantChampionEffects(guid, champion)
-    log("champion %s -> %s", champion.status, guid)
 
-    if isBoss then
-        local second = pickChampion({ [champion.status] = true })
-        if second and pcall(Osi.ApplyStatus, guid, second.status, -1, 1) then
-            championCache[guid][#championCache[guid] + 1] = second.status
-            grantChampionEffects(guid, second)
-            log("boss second champion %s -> %s", second.status, guid)
-        end
-    end
+    championCache[guid] = { champion.status }
+    local exclude = { [champion.status] = true }
+    grantChampionEffects(guid, champion)
+    fillChampionConditions(guid, required, championCache[guid], exclude)
+    log("champion %s -> %s tier=%s conditions=%d/%d",
+        champion.status, guid, tostring(tier or "NONE"),
+        #championCache[guid], required)
     return true
 end
 
@@ -380,7 +449,7 @@ local function applyOne(entity, party)
 
     -- Champion layer is independent so existing saves that already have a
     -- regular-buff marker can still roll/adopt a champion.
-    if applyChampion(guid, entityIsBoss(entity)) then applied = true end
+    if applyChampion(guid, entityIsBoss(entity), entity) then applied = true end
 
     buffed[guid] = true
     return applied
