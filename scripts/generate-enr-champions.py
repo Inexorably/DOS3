@@ -710,6 +710,7 @@ def build_stats_and_loca(guids, stats_by_tag):
                 'new entry "%s"' % item['spell'],
                 'type "SpellData"',
                 'using "Target_SummonZombie_CorpseFlower"',
+                'data "Level" "2"',
                 'data "SpellProperties" "%s"' % summon_properties(guids, item),
                 'data "CastTargetHitDelay" "500"',
                 'data "AIWeight" "100"',
