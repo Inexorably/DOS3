@@ -111,24 +111,45 @@ local function characterForUser(userId)
     return nil
 end
 
+local function clearStaleRespecState(guid)
+    -- The earlier PROC_TryLaunchRespec experiment set DB_InCharacterRespec but
+    -- never opened the UI. Clear that stale story state before trying the real
+    -- UI call again.
+    if Osi and Osi.PROC_FinishedRespecing ~= nil then
+        local ok, result = pcall(Osi.PROC_FinishedRespecing, guid, "RespecAnywhere")
+        log("[RSA] cleared stale respec state ok=%s result=%s",
+            tostring(ok), tostring(result))
+    end
+end
+
 local function launchRespec(guid)
-    local reason = "RespecAnywhere"
+    clearStaleRespecState(guid)
+
+    -- OpenRespecUI is the actual native Osiris call that opens the client UI.
+    -- PROC_TryLaunchRespec only sets DB_InCharacterRespec and never shows UI.
     local attempts = {
-        { name = "PROC_TryLaunchRespec", fn = Osi and Osi.PROC_TryLaunchRespec },
-        { name = "PROC_LaunchRespec", fn = Osi and Osi.PROC_LaunchRespec },
+        {
+            name = "OpenRespecUI(guid,0,0)",
+            fn = function() return Osi.OpenRespecUI(guid, 0, 0) end,
+        },
+        {
+            name = "OpenRespecUI(guid,0)",
+            fn = function() return Osi.OpenRespecUI(guid, 0) end,
+        },
+        {
+            name = "OpenRespecUI(guid)",
+            fn = function() return Osi.OpenRespecUI(guid) end,
+        },
     }
 
     for index, attempt in ipairs(attempts) do
-        log("[RSA] respec PROC attempt %d name=%s type=%s guid=%s",
-            index, attempt.name, type(attempt.fn), tostring(guid))
-        -- Osi procedure entries are callable userdata proxies, not Lua
-        -- functions, so do not reject them based on type().
-        if attempt.fn ~= nil then
-            local ok, result = pcall(attempt.fn, guid, reason)
-            log("[RSA] respec PROC attempt %d result ok=%s result=%s",
-                index, tostring(ok), tostring(result))
-            if ok then return true end
-        end
+        local fnType = type(attempt.fn)
+        log("[RSA] respec UI attempt %d name=%s wrapperType=%s guid=%s",
+            index, attempt.name, fnType, tostring(guid))
+        local ok, result = pcall(attempt.fn)
+        log("[RSA] respec UI attempt %d ok=%s result=%s",
+            index, tostring(ok), tostring(result))
+        if ok then return true end
     end
     return false
 end
