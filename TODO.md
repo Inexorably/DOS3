@@ -268,8 +268,8 @@ Known DOS2 visual references for the current test spells:
 - [ ] Short rest refreshes native cooldown labels; long rest clears numeric
       cooldowns and armor caches.
 - [ ] AP economy remains 4 start / 6 max / +4 per turn.
-- [ ] Verify BG3 Extra Attack makes the follow-up MainHand/OffHand attack
-      cost exactly 1 AP and remains limited to one follow-up per turn.
+- [ ] Verify BG3 Extra Attack is a free follow-up, allowing three weapon
+      attacks with the standard 4 AP turn, and remains once per turn.
 - [ ] No repeated Script Extender log spam during a session.
 - [ ] Existing saves can be loaded without component/persistence errors.
 

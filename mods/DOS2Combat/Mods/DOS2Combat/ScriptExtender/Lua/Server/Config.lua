@@ -18,7 +18,7 @@ DOS2C.Config = {
     AP_BOOST_AMOUNT = 5,
     REMOVE_BONUS_ACTIONS = true, -- convert BonusActionPoint costs to ActionPoint
     BASIC_ATTACK_COST = 2,       -- DOS2 basic attack is 2 AP
-    EXTRA_ATTACK_AP_COST = 1,    -- Extra Attack makes the follow-up attack cost 1 AP
+    EXTRA_ATTACK_AP_COST = 0,    -- Extra Attack is a free follow-up, so 4 AP allows 3 attacks
     -- Indexed by spell Level (0..9). Level 0 is a cantrip.
     SPELL_COST_BY_LEVEL = { 1, 1, 2, 3, 3, 3, 3, 3, 3, 3 },
     KEEP_CLASS_RESOURCES = true, -- keep Rage/Ki/SuperiorityDie/etc. costs
