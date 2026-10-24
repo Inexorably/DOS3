@@ -126,23 +126,21 @@ The generation is deterministic and creates one character root template and one
 bands and not only the level-12 player cap. Enemy/NPC levels can exceed the
 player cap in encounter data, so level 20 is the terminal summon band.
 
-BG3 does **not** normalize a source creature's ability scores by level. The
-source `Character` block is an absolute authored baseline intended for an
-approximate native encounter level. The generator therefore tracks a
-`native_level` for every summon and scales relative to that level:
+BG3 does **not** normalize or increase a source creature's ability scores by
+level. The source `Character` block is an absolute authored baseline. The
+generator therefore tracks a `native_level` for every summon and scales only
+derived durability values relative to that level:
 
 ```text
 delta    = target level - native level
 Vitality = round(source Vitality * (1 + 0.18 * delta))
 Armor    = source Armor + floor(delta / 2)
-offset   = floor((target level - 1) / 4) - floor((native level - 1) / 4)
-Ability  = source Ability + offset
+Ability  = source Ability (unchanged at every level)
 ```
 
-For example, a goblin authored around level 1 gets much more growth by level 10
-than a Steel Watcher authored around level 8 does. The native levels are
-explicit tuning values in `NATIVE_LEVELS` in the generator, not inferred from
-the absolute ability scores.
+Ability scores therefore stay identical across every generated level band.
+The native levels are explicit tuning values in `NATIVE_LEVELS` in the
+generator, not inferred from the absolute ability scores.
 
 Each summon uses its own source `Character` stat block from BG3, so an ogre,
 dragon, and goblin do not share the same summon base values.
@@ -225,9 +223,11 @@ Each variant gets:
 - A custom root template whose Stats field points at that stat
 - The base item's name, icon, and visual
 - The rolled modded rarity overriding the base item's rarity
-- A random ability boost of +1/+2/+3/+4 capped at 20
-- One or two native spells, depending on rarity
-- A permanent positive condition for Rare and above
+- Uncommon: one random spell, condition, or ability boost (+1)
+- Rare: two random spell/condition/ability categories; ability boost is +1
+- Very Rare: one spell, two conditions, and an ability boost (+1)
+- Legendary: two spells, two conditions, and an ability boost (+2)
+- Spell level caps follow the player's level (0-1, 0-2, ... 0-6)
 
 The condition is implemented as a generated status wrapper plus an
 `OnUnequip` removal event and a generated passive attached through

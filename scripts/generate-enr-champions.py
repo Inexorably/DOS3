@@ -505,14 +505,14 @@ def load_character_stats():
 
 def level_band(base, level, native_level):
     # Source stat blocks are authored for an approximate native encounter level,
-    # not normalized to level 1. Scale from that native level so a level-3
-    # creature and a level-10 creature do not receive the same flat bonus.
+    # not normalized to level 1. Scale HP/armor from that native level, but keep
+    # ability scores fixed: class/character levels do not generally increase
+    # ability scores in BG3.
     delta = level - native_level
-    offset = (level - 1) // 4 - (native_level - 1) // 4
     return {
         'vitality': max(1, int(round(base['vitality'] * (1.0 + 0.18 * delta)))),
         'armor': max(1, base['armor'] + (delta // 2)),
-        'abilities': [max(1, value + offset) for value in base['abilities']],
+        'abilities': list(base['abilities']),
     }
 
 

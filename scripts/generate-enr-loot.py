@@ -60,39 +60,40 @@ STATUS_SOURCES = list(STATS_ROOT.glob('*/Stats/Generated/Data/Status_*.txt'))
 RARITIES = [
     {
         'name': 'Uncommon',
-        'spell_count': 1,
-        'condition_count': 0,
-        'ability_boost': 1,
+        'category_slots': 1,
+        'ability_only_boost': 1,
     },
     {
         'name': 'Rare',
-        'spell_count': 1,
-        'condition_count': 1,
-        'ability_boost': 2,
+        'category_slots': 2,
+        'ability_only_boost': 1,
     },
     {
         'name': 'VeryRare',
-        'spell_count': 2,
-        'condition_count': 1,
-        'ability_boost': 3,
+        'spell_count': 1,
+        'condition_count': 2,
+        'ability_boost': 1,
     },
     {
         'name': 'Legendary',
         'spell_count': 2,
-        'condition_count': 3,
-        'ability_boost': 4,
+        'condition_count': 2,
+        'ability_boost': 2,
     },
 ]
 
 # A player-level cap from thonks.txt. The item grants one spell set per band;
 # only the band matching the wearer's level is active.
+# Cumulative spell-level caps from thonks.txt:
+# player 1-2 -> 0-1, 3-4 -> 0-2, 5-6 -> 0-3, 7-8 -> 0-4,
+# 9-10 -> 0-5, 11+ -> 0-6.
 SPELL_LEVEL_BANDS = [
     { 'threshold': 2,  'min_level': 0, 'max_level': 1 },
-    { 'threshold': 4,  'min_level': 2, 'max_level': 2 },
-    { 'threshold': 6,  'min_level': 3, 'max_level': 3 },
-    { 'threshold': 8,  'min_level': 4, 'max_level': 4 },
-    { 'threshold': 10, 'min_level': 5, 'max_level': 5 },
-    { 'threshold': None, 'min_level': 6, 'max_level': 6 },
+    { 'threshold': 4,  'min_level': 0, 'max_level': 2 },
+    { 'threshold': 6,  'min_level': 0, 'max_level': 3 },
+    { 'threshold': 8,  'min_level': 0, 'max_level': 4 },
+    { 'threshold': 10, 'min_level': 0, 'max_level': 5 },
+    { 'threshold': None, 'min_level': 0, 'max_level': 6 },
 ]
 
 def band_condition(index):
@@ -366,15 +367,28 @@ def main():
                     digest = hashlib.sha256(seed_text.encode('utf-8')).digest()
                     rng = random.Random(int.from_bytes(digest, 'big'))
 
+                    if 'category_slots' in rarity:
+                        slots = rng.sample(
+                            ['spell', 'condition', 'ability'],
+                            min(rarity['category_slots'], 3),
+                        )
+                        spell_count = 1 if 'spell' in slots else 0
+                        condition_count = 1 if 'condition' in slots else 0
+                        ability_boost = rarity['ability_only_boost'] if 'ability' in slots else 0
+                    else:
+                        spell_count = rarity['spell_count']
+                        condition_count = rarity['condition_count']
+                        ability_boost = rarity['ability_boost']
+
                     chosen_spells = rng.sample(
                         band_spells,
-                        min(rarity['spell_count'], len(band_spells)),
-                    )
+                        min(spell_count, len(band_spells)),
+                    ) if spell_count > 0 else []
                     chosen_conditions = rng.sample(
                         conditions,
-                        min(rarity['condition_count'], len(conditions)),
-                    ) if rarity['condition_count'] > 0 else []
-                    ability = rng.choice(ABILITIES)
+                        min(condition_count, len(conditions)),
+                    ) if condition_count > 0 else []
+                    ability = rng.choice(ABILITIES) if ability_boost > 0 else None
 
                     tag = '%s_%s_L%d_%d' % (
                         base_slug, rarity['name'], band_index, index)
@@ -388,10 +402,11 @@ def main():
                     boosts = base['boosts'] or ''
                     for spell in chosen_spells:
                         boosts = append_token(boosts, 'UnlockSpell(%s)' % spell)
-                    boosts = append_token(
-                        boosts,
-                        'Ability(%s,%d,20,true)' % (ability, rarity['ability_boost']),
-                    )
+                    if ability_boost > 0 and ability:
+                        boosts = append_token(
+                            boosts,
+                            'Ability(%s,%d,20,true)' % (ability, ability_boost),
+                        )
 
                     passives = base['passives'] or ''
                     for condition in chosen_conditions:
@@ -427,7 +442,7 @@ def main():
                         'spells': chosen_spells,
                         'conditions': chosen_conditions,
                         'ability': ability,
-                        'ability_boost': rarity['ability_boost'],
+                        'ability_boost': ability_boost,
                     })
                     variant_count += 1
 

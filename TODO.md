@@ -324,20 +324,15 @@ Known DOS2 visual references for the current test spells:
 - [x] Generate the deterministic gear catalog for all equipment roots and
       rarities, with rarity override, spells, permanent conditions, and ability
       boosts.
-- [ ] Update generated loot composition to the newer thonks.txt rules:
-      Uncommon = one of spell/condition/ability boost (+1); Rare = two of
-      those; Very Rare = one spell + two conditions + ability boost (+1);
-      Legendary = two spells + two conditions + ability boost (+2). Respect
-      player-level spell caps.
+- [x] Updated loot composition to the newer thonks.txt rules, including
+      cumulative player-level spell caps and per-rarity category slots.
 - [ ] Verify champion loot drops one item per champion condition, that bosses
       roll only Very Rare/Legendary, and that generated item stats/passives
       resolve correctly in game.
-- [ ] Verify per-level summon `Character` stats actually apply the scaled
-      Strength/Dexterity/Constitution/Intelligence/Wisdom/Charisma values at
-      summon time.
-- [ ] Stop scaling summoned-enemy ability scores by level. Ability scores do
-      not generally increase with class level; keep the source creature's
-      native Ability values and scale only HP/armor/etc. where intended.
+- [ ] Verify per-level summon `Character` stats keep ability scores fixed
+      while HP and armor scale with the summoned level.
+- [x] Stopped scaling summoned-enemy ability scores by level; generated
+      templates preserve the source Ability values and scale HP/armor only.
 - [ ] Verify summon skills cost 2 AP and still enforce the five-turn cooldown.
 
 
