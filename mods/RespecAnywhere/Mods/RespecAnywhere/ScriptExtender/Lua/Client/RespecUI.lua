@@ -27,7 +27,7 @@ local function openRespec(guid)
     log("[RSA] client received respec request guid=%s", tostring(guid))
     if not guid or tostring(guid) == "" then
         log("[RSA] respec: server returned no character")
-        return
+        return false
     end
 
     log("[RSA] client OpenRespecUI type=%s", type(Osi and Osi.OpenRespecUI))
@@ -35,19 +35,32 @@ local function openRespec(guid)
         { name = "OpenRespecUI(guid,0,0)", fn = function() return Osi.OpenRespecUI(tostring(guid), 0, 0) end },
         { name = "OpenRespecUI(guid,0)", fn = function() return Osi.OpenRespecUI(tostring(guid), 0) end },
         { name = "OpenRespecUI(guid)", fn = function() return Osi.OpenRespecUI(tostring(guid)) end },
+        { name = "Ext.Osiris.OpenRespecUI", fn = function()
+            return Ext.Osiris.CallFunction("OpenRespecUI", tostring(guid), 0, 0)
+        end },
     }
     for index, attempt in ipairs(attempts) do
-        if Osi and Osi.OpenRespecUI ~= nil then
-            local ok, result = pcall(attempt.fn)
-            log("[RSA] client %s ok=%s result=%s",
-                attempt.name, tostring(ok), tostring(result))
-            if ok then return end
-        end
+        local ok, result = pcall(attempt.fn)
+        log("[RSA] client %s ok=%s result=%s",
+            attempt.name, tostring(ok), tostring(result))
+        if ok then return true end
     end
     log("[RSA] client OpenRespecUI unavailable for all arities")
+    return false
 end
 
 local function requestRespec()
+    -- Single-player / host shortcut: try the local client first.
+    if Ext and Ext.Net and Ext.Net.IsHost and Ext.Net.IsHost()
+        and Osi and Osi.GetHostCharacter then
+        local ok, guid = pcall(Osi.GetHostCharacter)
+        if ok and guid then
+            local opened = openRespec(guid)
+            log("[RSA] local host OpenRespecUI result=%s", tostring(opened))
+            if opened then return end
+        end
+    end
+
     if Ext and Ext.Net and Ext.Net.PostMessageToServer then
         local ok, err = pcall(Ext.Net.PostMessageToServer, REQUEST_CHANNEL, "")
         if not ok then log("[RSA] respec request failed: " .. tostring(err)) end
