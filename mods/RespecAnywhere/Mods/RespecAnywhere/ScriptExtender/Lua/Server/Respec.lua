@@ -125,8 +125,25 @@ end
 local function launchRespec(guid)
     clearStaleRespecState(guid)
 
-    -- OpenRespecUI is a client-side Osiris symbol in this build. The server
-    -- resolves the target character and asks that player's client to open it.
+    -- This is the actual native flow used by the Withers respec goal:
+    -- StartRespec(_Player). PROC_TryLaunchRespec only sets story state and
+    -- PROC_LaunchRespec is a DB_NOOP.
+    local attempts = {
+        { name = "StartRespec(guid)", fn = function() return Osi.StartRespec(guid) end },
+        { name = "StartRespec(guid,0)", fn = function() return Osi.StartRespec(guid, 0) end },
+        { name = "StartRespec(guid,0,0)", fn = function() return Osi.StartRespec(guid, 0, 0) end },
+    }
+    for index, attempt in ipairs(attempts) do
+        log("[RSA] native respec attempt %d name=%s guid=%s",
+            index, attempt.name, tostring(guid))
+        local ok, result = pcall(attempt.fn)
+        log("[RSA] native respec attempt %d ok=%s result=%s",
+            index, tostring(ok), tostring(result))
+        if ok then return true end
+    end
+
+    -- Keep the client request as a diagnostic fallback. On this build the
+    -- client has no Osi table, so this normally only confirms that fact.
     if Ext and Ext.Net and Ext.Net.PostMessageToClient then
         local ok, result = pcall(Ext.Net.PostMessageToClient,
             guid, OPEN_CHANNEL, tostring(guid))
