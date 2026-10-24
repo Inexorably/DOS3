@@ -60,8 +60,10 @@ local function characterForUser(userId)
 
     local ok, entities = pcall(Ext.Entity.GetAllEntitiesWithComponent, "UserAvatar")
     local candidates = {}
+    local avatarCount = 0
     if ok and type(entities) == "table" then
         for _, entity in ipairs(entities) do
+            avatarCount = avatarCount + 1
             local compOk, comp = pcall(function() return entity.UserAvatar end)
             local guid = guidOfEntity(entity)
             local raw = compOk and comp and comp.UserID or nil
@@ -93,6 +95,15 @@ local function characterForUser(userId)
         return candidates[1].guid
     end
 
+    if #candidates == 0 and avatarCount == 1 then
+        local host = hostCharacter()
+        if host then
+            log("[RSA] respec user %s -> single UserAvatar host fallback %s",
+                tostring(userId), tostring(host))
+            return host
+        end
+    end
+
     log("[RSA] respec user %s could not be mapped among %d UserAvatars",
         tostring(userId), #candidates)
     return nil
@@ -101,22 +112,19 @@ end
 local function launchRespec(guid)
     local reason = "RespecAnywhere"
     local attempts = {
-        function()
-            return Ext.Osiris.CallFunction("PROC_TryLaunchRespec", guid, reason)
-        end,
-        function()
-            return Osi.PROC_TryLaunchRespec(guid, reason)
-        end,
-        function()
-            return Ext.Osiris.CallFunction("PROC_LaunchRespec", guid, reason)
-        end,
+        { name = "PROC_TryLaunchRespec", fn = Osi and Osi.PROC_TryLaunchRespec },
+        { name = "PROC_LaunchRespec", fn = Osi and Osi.PROC_LaunchRespec },
     }
 
     for index, attempt in ipairs(attempts) do
-        local ok, result = pcall(attempt)
-        log("[RSA] respec PROC attempt %d for %s ok=%s result=%s",
-            index, tostring(guid), tostring(ok), tostring(result))
-        if ok then return true end
+        log("[RSA] respec PROC attempt %d name=%s type=%s guid=%s",
+            index, attempt.name, type(attempt.fn), tostring(guid))
+        if type(attempt.fn) == "function" then
+            local ok, result = pcall(attempt.fn, guid, reason)
+            log("[RSA] respec PROC attempt %d result ok=%s result=%s",
+                index, tostring(ok), tostring(result))
+            if ok then return true end
+        end
     end
     return false
 end
