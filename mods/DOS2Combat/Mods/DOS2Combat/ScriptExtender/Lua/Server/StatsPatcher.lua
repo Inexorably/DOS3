@@ -801,6 +801,12 @@ local function patchExtraAttackStatus(name, stat)
     local updated = boosts:gsub(
         "ModifyUseCosts%(Replace,ActionPoint,0,0,ActionPoint%)",
         "ModifyUseCosts(Replace,ActionPoint," .. cost .. ",0,ActionPoint)")
+    if updated == boosts and name == "EXTRA_ATTACK_2" then
+        -- Its Boosts are inherited at load time; make the second-tier extra
+        -- attack explicit so it cannot keep the original 0 AP cost.
+        updated = "UnlockSpellVariant(ExtraAttackCheck(),ModifyUseCosts(Replace,ActionPoint,"
+            .. cost .. ",0,ActionPoint),ModifyIconGlow(),ModifyTooltipDescription())"
+    end
     if updated == boosts then return false end
     return U.SafeSet(stat, "Boosts", updated)
 end
