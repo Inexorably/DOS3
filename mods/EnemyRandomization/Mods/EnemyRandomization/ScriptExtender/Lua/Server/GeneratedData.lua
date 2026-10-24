@@ -13,7 +13,7 @@ ER.Generated = {
     { status = "ENR_CHAMPION_BUGBEARS", spells = { "ENR_Summon_Bugbear", "ENR_Summon_BugbearNinja", "ENR_Summon_BugbearRaider" }, statuses = {  }, passives = {  }, weight = 1 },
     { status = "ENR_CHAMPION_REDCAPS", spells = { "ENR_Summon_Redcap", "ENR_Summon_RedcapCaster" }, statuses = {  }, passives = {  }, weight = 1 },
     { status = "ENR_CHAMPION_CONSTRUCTS", spells = { "ENR_Summon_AnimatedArmor", "ENR_Summon_AdamantineGolem", "ENR_Summon_FleshGolem" }, statuses = {  }, passives = {  }, weight = 1 },
-    { status = "ENR_CHAMPION_BULETTES", spells = { "ENR_Summon_Bulette", "ENR_Summon_HookHorror" }, statuses = {  }, passives = {  }, weight = 1 },
+    { status = "ENR_CHAMPION_MONSTROSITIES", spells = { "ENR_Summon_Bulette", "ENR_Summon_HookHorror" }, statuses = {  }, passives = {  }, weight = 1 },
     { status = "ENR_CHAMPION_OWLBEARS", spells = { "ENR_Summon_Owlbear", "ENR_Summon_ArmouredOwlbear", "ENR_Summon_OwlbearDad", "ENR_Summon_OwlbearCub" }, statuses = {  }, passives = {  }, weight = 1 },
     { status = "ENR_CHAMPION_VITALITY", spells = {  }, statuses = { "ENR_Perm_AID", "ENR_Perm_BLESS" }, passives = {  }, weight = 1 },
     { status = "ENR_CHAMPION_LIGHTNING", spells = { "Target_CallLightning" }, statuses = { "ENR_Perm_RESISTANCE_LIGHTNING" }, passives = { "ElementalAdept_Lightning" }, weight = 1 },
