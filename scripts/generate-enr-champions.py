@@ -713,6 +713,7 @@ def build_stats_and_loca(guids, stats_by_tag):
                 'data "SpellProperties" "%s"' % summon_properties(guids, item),
                 'data "CastTargetHitDelay" "500"',
                 'data "AIWeight" "100"',
+                'data "TargetRadius" "18"',
                 'data "TargetConditions" "%s"' % summon_conditions(guids, item),
                 'data "SpellContainerID" ""',
                 'data "ContainerSpells" ""',
