@@ -283,7 +283,7 @@ CHAMPIONS = [
     },
     {
         'key': 'BULETTES',
-        'name': 'Champion of Bulettes',
+        'name': 'Champion of Monstrosities',
         'icon': 'Icon_Bulette',
         'summons': [
             summon('Bulette', 'Bulette', 'Bulette', 'Bulette', 'Icon_Bulette'),
