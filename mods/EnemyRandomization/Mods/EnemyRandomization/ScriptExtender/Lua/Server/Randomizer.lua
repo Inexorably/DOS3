@@ -157,11 +157,12 @@ local function notify(fmt, ...)
     end
 end
 
-local function pickChampion()
+local function pickChampion(exclude)
+    exclude = exclude or {}
     local total = 0
     local available = {}
     for _, entry in ipairs(C.CHAMPIONS or {}) do
-        if entry.status then
+        if entry.status and not exclude[entry.status] then
             local weight = tonumber(entry.weight) or 1
             if weight > 0 then
                 total = total + weight
@@ -208,17 +209,38 @@ local function grantChampionEffects(guid, champion)
     end
 end
 
-local function applyChampion(guid)
+local function entityIsBoss(entity)
+    if not entity then return false end
+    local ok, participant = pcall(function() return entity.CombatParticipant end)
+    return ok and participant ~= nil and participant.IsBoss == true
+end
+
+local function applyChampion(guid, isBoss)
     if not (C.CHAMPIONS and #C.CHAMPIONS > 0) then return false end
     if hasStatus(guid, C.CHAMPION_MARKER) then return false end
 
     -- Adopt a champion that survived without its separate roll marker.
+    local existing = {}
     for _, entry in ipairs(C.CHAMPIONS) do
         if entry.status and hasStatus(guid, entry.status) then
-            pcall(Osi.ApplyStatus, guid, C.CHAMPION_MARKER, -1, 1)
-            grantChampionEffects(guid, entry)
-            return false
+            existing[#existing + 1] = entry
         end
+    end
+    if #existing > 0 then
+        pcall(Osi.ApplyStatus, guid, C.CHAMPION_MARKER, -1, 1)
+        for _, entry in ipairs(existing) do grantChampionEffects(guid, entry) end
+        if isBoss and #existing < 2 then
+            local exclude = {}
+            for _, entry in ipairs(existing) do exclude[entry.status] = true end
+            local second = pickChampion(exclude)
+            if second and Osi and Osi.ApplyStatus then
+                if pcall(Osi.ApplyStatus, guid, second.status, -1, 1) then
+                    grantChampionEffects(guid, second)
+                    log("boss second champion %s -> %s", second.status, guid)
+                end
+            end
+        end
+        return false
     end
 
     -- Persist the fact that this enemy was considered for a champion even when
@@ -232,15 +254,21 @@ local function applyChampion(guid)
 
     local champion = pickChampion()
     if not champion then return false end
-    local applied = Osi and Osi.ApplyStatus
-        and pcall(Osi.ApplyStatus, guid, champion.status, -1, 1)
-    if applied then
-        grantChampionEffects(guid, champion)
-        log("champion %s -> %s", champion.status, guid)
-        return true
+    if not (Osi and Osi.ApplyStatus and pcall(Osi.ApplyStatus, guid, champion.status, -1, 1)) then
+        log("champion apply failed %s -> %s", champion.status, guid)
+        return false
     end
-    log("champion apply failed %s -> %s", champion.status, guid)
-    return false
+    grantChampionEffects(guid, champion)
+    log("champion %s -> %s", champion.status, guid)
+
+    if isBoss then
+        local second = pickChampion({ [champion.status] = true })
+        if second and pcall(Osi.ApplyStatus, guid, second.status, -1, 1) then
+            grantChampionEffects(guid, second)
+            log("boss second champion %s -> %s", second.status, guid)
+        end
+    end
+    return true
 end
 
 local function applyOne(entity, party)
@@ -290,7 +318,7 @@ local function applyOne(entity, party)
 
     -- Champion layer is independent so existing saves that already have a
     -- regular-buff marker can still roll/adopt a champion.
-    if applyChampion(guid) then applied = true end
+    if applyChampion(guid, entityIsBoss(entity)) then applied = true end
 
     buffed[guid] = true
     return applied

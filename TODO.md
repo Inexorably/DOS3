@@ -283,17 +283,20 @@ Known DOS2 visual references for the current test spells:
 - [ ] Tune `NATIVE_LEVELS` per summon in the generator; these are the
       approximate normal encounter levels used to scale source ability
       scores/HP/armor relative to the summon's target level.
-- [ ] Boss enemies receive **two guaranteed champion conditions**.
-- [ ] The two boss champion conditions must be non-duplicate; do not grant the
-      same champion variant twice.
+- [x] Boss enemies receive **two guaranteed champion conditions**.
+- [x] The two boss champion conditions are selected non-duplicately.
 - [ ] For each future summoning champion, use one of its possible summon
       portraits as the condition icon, following the Champion of Dinosaurs
       pattern.
 - [ ] Verify boss double-champion application, persistence across save/reload,
       and multiplayer replication.
+- [x] Generate the deterministic gear catalog for all equipment roots and
+      rarities, with rarity override, spells, permanent conditions, and ability
+      boosts.
+- [ ] Verify champion loot drops one item per champion condition, that bosses
+      roll only Very Rare/Legendary, and that generated item stats/passives
+      resolve correctly in game.
 - [ ] Verify per-level dinosaur `Character` stats actually apply the scaled
       Strength/Dexterity/Constitution/Intelligence/Wisdom/Charisma values at
       summon time.
 - [ ] Verify summon skills cost 2 AP and still enforce the five-turn cooldown.
-- [ ] Champion enemies eventually drop guaranteed legendary loot. Defer this
-      until the champion loot pool has been expanded.

@@ -40,6 +40,7 @@ STATS = MOD / 'Public/EnemyRandomization/Stats/Generated/Data/EnemyRandomization
 ROOT_DIR = MOD / 'Public/EnemyRandomization/RootTemplates'
 ROOT_XML = ROOT_DIR / 'ENR_Champions.lsx'
 ROOT_LSF = ROOT_DIR / '_merged.lsf'
+LOOT_ROOT_XML = ROOT / '.analysis/enr_loot_roots.lsx'
 LOCA = MOD / 'Localization/English/EnemyRandomization.loca'
 GENERATED_LUA = MOD / 'Mods/EnemyRandomization/ScriptExtender/Lua/Server/GeneratedData.lua'
 NS = uuid.UUID('6ba7b810-9dad-11d1-80b4-00c04fd430c8')
@@ -605,6 +606,16 @@ def build_root_templates(stats_by_tag):
                     display.set('handle', handle('ENR_' + item['tag'] + '_Name'))
                     display.set('version', '1')
                 children.append(go)
+
+    # Merge the separately generated loot root templates. The loot generator
+    # writes a temporary XML because it is much faster to merge XML than to
+    # repeatedly convert LSF resources.
+    if LOOT_ROOT_XML.exists():
+        loot_root = ET.parse(LOOT_ROOT_XML).getroot()
+        loot_children = loot_root.find('.//node[@id="Templates"]/children')
+        if loot_children is not None:
+            for child in list(loot_children):
+                children.append(copy.deepcopy(child))
 
     ROOT_DIR.mkdir(parents=True, exist_ok=True)
     ET.ElementTree(out).write(ROOT_XML, encoding='utf-8', xml_declaration=True)

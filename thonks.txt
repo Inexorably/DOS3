@@ -40,3 +40,15 @@ Summoning champion variants (give each variant a max of 4 possible granted enemy
 - Champion of Redcaps
 - Champion of Constructs // non steel watch constructs
 - Champion of Owlbears
+
+// Gear
+
+Base game has 4 rarity levels
+Uncommon ..... 1 spell (levels 0-3), ability score boost granted
+Rare  ..... 1 spell (levels 0-4), condition, ability score boost granted
+Very Rare ..... 2 spell (levels 0-5), condition, ability score boost granted
+Legendary ..... 2 spell (levels 2-6), condition, ability score boost granted
+
+Champion will drop 1 piece of such modded gear garaunteed.  Chances for each rarity to drop from champion: 60/20/15/5.
+
+Ability score boost is to 1 stat and is based on the rarity (+1/2/3/4).

@@ -207,18 +207,57 @@ logs the before/after values.
 The UUIDs are deterministic UUIDv5 values derived from the template names, so
 rebuilding the mod does not change the root-template GUIDs.
 
+## Champion loot catalog
+
+`scripts/generate-enr-loot.py` generates the loot catalog from the extracted
+BG3 armor, weapon, spell, and status data.
+
+For every base equipment root and every rarity, it generates
+`VARIANTS_PER_RARITY` variants. The default is 6, producing 17,208 variants
+across all 717 base equipment roots.
+
+Each variant gets:
+
+- A unique item stat and root template
+- The base item's name, icon, and visual
+- The rolled modded rarity overriding the base item's rarity
+- A random ability boost of +1/+2/+3/+4 capped at 20
+- One or two native spells, depending on rarity
+- A permanent positive condition for Rare and above
+
+The condition is implemented as a generated status wrapper plus an
+`OnUnequip` removal event and a generated passive attached through
+`PassivesOnEquip`.
+
+Generated files:
+
+```text
+Public/EnemyRandomization/Stats/Generated/Data/EnemyRandomizationLoot.txt
+ScriptExtender/Lua/Server/GeneratedLoot.lua
+.analysis/enr_loot_roots.lsx
+```
+
+The first two are gitignored build outputs. The root XML is merged into the
+single `RootTemplates/_merged.lsf` by `generate-enr-dinos.py`.
+
+At runtime, `Server/Loot.lua` listens for `DiedEvent`. It rolls one item per
+champion condition. Normal champions use 60/20/15/5 Uncommon/Rare/Very
+Rare/Legendary. Bosses get two conditions from the champion layer and always
+roll Very Rare (75%) or Legendary (25%).
+
 ## Generator usage
 
 Run from the repository root:
 
 ```bash
+python scripts/generate-enr-loot.py
 python scripts/generate-enr-dinos.py
 ./scripts/build.sh EnemyRandomization
 ./scripts/install.sh EnemyRandomization
 ```
 
-The generator requires both extracted root-template sets and the corresponding
-source character stats:
+`build.sh EnemyRandomization` runs both generators automatically. The generators
+require both extracted root-template sets and the corresponding source stats:
 
 ```text
 .analysis/rootsshared/Public/Shared/RootTemplates/_merged.lsx
@@ -226,6 +265,10 @@ source character stats:
 .analysis/allstats/Public/Shared/Stats/Generated/Data/Character.txt
 .analysis/allstats/Public/SharedDev/Stats/Generated/Data/Character.txt
 .analysis/allstats/Public/Gustav/Stats/Generated/Data/Character.txt
+.analysis/allstats/Public/*/Stats/Generated/Data/Armor.txt
+.analysis/allstats/Public/*/Stats/Generated/Data/Weapon.txt
+.analysis/allstats/Public/*/Stats/Generated/Data/Spell_*.txt
+.analysis/allstats/Public/*/Stats/Generated/Data/Status_*.txt
 ```
 
 If missing, extract and convert them with LSLib/Divine:

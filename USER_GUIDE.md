@@ -123,6 +123,44 @@ Summoned champions use a five-turn cooldown for each granted summon skill and
 cost 2 AP per summon. The enemy AI may temporarily lose access to a summon
 skill while it is on cooldown.
 
+### Champion loot
+
+Every champion drops one item for each champion condition it has. A boss with
+two champion conditions drops two items.
+
+Loot uses all equipment slots and keeps the base equipment item's name, icon,
+and visual, but overrides its rarity with the rolled modded rarity.
+
+| Rarity | Spell levels | Spells | Condition | Ability boost |
+| --- | --- | ---: | --- | ---: |
+| Uncommon | 0-3 | 1 | No | +1 |
+| Rare | 0-4 | 1 | Yes | +2 |
+| Very Rare | 0-5 | 2 | Yes | +3 |
+| Legendary | 2-6 | 2 | Yes | +4 |
+
+Normal champion rarity chance:
+
+```text
+Uncommon  60%
+Rare      20%
+Very Rare 15%
+Legendary  5%
+```
+
+Bosses are guaranteed a Very Rare or Legendary item, normalized to:
+
+```text
+Very Rare 75%
+Legendary 25%
+```
+
+Spells are existing BG3 spells. Conditions are permanent positive native
+statuses while the item is equipped. Ability boosts are capped at 20.
+
+The loot catalog is generated deterministically at build time. Its generated
+files are not tracked in git, but `./scripts/build.sh EnemyRandomization`
+regenerates and packages them automatically.
+
 ### Saves, reloads, and multiplayer
 
 - A hidden marker prevents an enemy from rerolling after save/reload.

@@ -1,0 +1,446 @@
+#!/usr/bin/env python3
+"""Generate the deterministic Enemy Randomization loot catalog.
+
+The generated catalog is intentionally not hand-maintained:
+
+    base equipment item x rarity x deterministic variant index
+
+Each generated variant has its own Armor/Weapon stat and root template, so its
+rarity, granted spells, ability boost, and permanent condition are stable in
+saves and multiplayer. A variant keeps the base item's name, icon, and visual.
+
+Required extracted sources:
+
+    .analysis/rootsshared/Public/Shared/RootTemplates/_merged.lsx
+    .analysis/roots/Public/SharedDev/RootTemplates/_merged.lsx
+    .analysis/allstats/Public/*/Stats/Generated/Data/Armor.txt
+    .analysis/allstats/Public/*/Stats/Generated/Data/Weapon.txt
+    .analysis/allstats/Public/*/Stats/Generated/Data/Spell_*.txt
+    .analysis/allstats/Public/*/Stats/Generated/Data/Status_*.txt
+
+Outputs:
+
+    Public/EnemyRandomization/Stats/Generated/Data/EnemyRandomizationLoot.txt
+    ScriptExtender/Lua/Server/GeneratedLoot.lua
+    .analysis/enr_loot_roots.lsx   (temporary input to the champion root merge)
+
+The champion generator merges .analysis/enr_loot_roots.lsx into the single
+RootTemplates/_merged.lsf. Run this script before generate-enr-dinos.py, or use
+scripts/build.sh EnemyRandomization, which does both.
+"""
+import copy
+import hashlib
+import json
+import pathlib
+import random
+import re
+import uuid
+import xml.etree.ElementTree as ET
+
+ROOT = pathlib.Path('.')
+MOD = ROOT / 'mods/EnemyRandomization'
+STATS_OUT = MOD / 'Public/EnemyRandomization/Stats/Generated/Data/EnemyRandomizationLoot.txt'
+LUA_OUT = MOD / 'Mods/EnemyRandomization/ScriptExtender/Lua/Server/GeneratedLoot.lua'
+ROOT_XML = ROOT / '.analysis/enr_loot_roots.lsx'
+NS = uuid.UUID('6ba7b810-9dad-11d1-80b4-00c04fd430c8')
+
+ROOT_SOURCES = [
+    ROOT / '.analysis/rootsshared/Public/Shared/RootTemplates/_merged.lsx',
+    ROOT / '.analysis/roots/Public/SharedDev/RootTemplates/_merged.lsx',
+]
+
+STATS_ROOT = ROOT / '.analysis/allstats/Public'
+ARMOR_SOURCES = list(STATS_ROOT.glob('*/Stats/Generated/Data/Armor.txt'))
+WEAPON_SOURCES = list(STATS_ROOT.glob('*/Stats/Generated/Data/Weapon.txt'))
+SPELL_SOURCES = list(STATS_ROOT.glob('*/Stats/Generated/Data/Spell_*.txt'))
+STATUS_SOURCES = list(STATS_ROOT.glob('*/Stats/Generated/Data/Status_*.txt'))
+
+# The current design from thonks.txt. Keep these values in one place so the
+# catalog can be regenerated when the design changes.
+RARITIES = [
+    {
+        'name': 'Uncommon',
+        'spell_count': 1,
+        'min_level': 0,
+        'max_level': 3,
+        'condition': False,
+        'ability_boost': 1,
+    },
+    {
+        'name': 'Rare',
+        'spell_count': 1,
+        'min_level': 0,
+        'max_level': 4,
+        'condition': True,
+        'ability_boost': 2,
+    },
+    {
+        'name': 'VeryRare',
+        'spell_count': 2,
+        'min_level': 0,
+        'max_level': 5,
+        'condition': True,
+        'ability_boost': 3,
+    },
+    {
+        'name': 'Legendary',
+        'spell_count': 2,
+        'min_level': 2,
+        'max_level': 6,
+        'condition': True,
+        'ability_boost': 4,
+    },
+]
+
+# Number of deterministic effect bundles generated for every base item and
+# rarity. Increase this for more variety; the runtime chooses among variants.
+VARIANTS_PER_RARITY = 6
+
+ABILITIES = ['Strength', 'Dexterity', 'Constitution', 'Intelligence', 'Wisdom', 'Charisma']
+
+# Only positive/native statuses. These are applied permanently while equipped
+# through a generated passive and a generated status wrapper.
+CONDITIONS = [
+    'AID',
+    'BLESS',
+    'HASTE',
+    'BARKSKIN',
+    'BLADE_WARD',
+    'RESISTANCE_FIRE',
+    'RESISTANCE_COLD',
+    'RESISTANCE_LIGHTNING',
+    'RESISTANCE_ACID',
+    'RESISTANCE_POISON',
+    'REFLECTIVE_SHELL',
+    'VAMPIRIC_TOUCH',
+]
+
+# Spells that are not appropriate as player item grants. `Level` filtering is
+# done separately per rarity.
+BAD_SPELL_FLAGS = {
+    'IsEnemySpell',
+    'IsTrap',
+    'IsJump',
+    'Wildshape',
+    'Temporary',
+    'IsDefaultWeaponAction',
+}
+
+# Story/NPC/debug variants often have valid-looking levels but are not suitable
+# as random player item grants.
+BAD_SPELL_NAME_PARTS = (
+    '_NPC',
+    '_AI',
+    '_Trap',
+    'SHA_',
+    'MAG_',
+    'TWN_',
+    'DEN_',
+    'PLA_',
+    'GOB_',
+    'FOR_',
+    'LOW_',
+    'END_',
+    'TAD_',
+    'WIP',
+)
+
+
+def parse_entries(paths):
+    entries = {}
+    for path in paths:
+        text = path.read_text(errors='ignore')
+        for match in re.finditer(r'new entry "([^"]+)"\n(.*?)(?=\nnew entry |\Z)', text, re.S):
+            name, body = match.group(1), match.group(2)
+            using = re.search(r'\nusing "([^"]+)"', body)
+            data = dict(re.findall(r'\ndata "([^"]+)" "([^"]*)"', body))
+            entries.setdefault(name, {
+                'using': using.group(1) if using else None,
+                'data': data,
+            })
+    return entries
+
+
+def get_attr(node, name):
+    attr = node.find("attribute[@id='%s']" % name)
+    return attr.get('value') if attr is not None else None
+
+
+def set_attr(node, name, value, type_name='FixedString'):
+    attr = node.find("attribute[@id='%s']" % name)
+    if attr is None:
+        attr = ET.SubElement(node, 'attribute', {
+            'id': name,
+            'type': type_name,
+            'value': value,
+        })
+    else:
+        attr.set('value', value)
+    return attr
+
+
+def slug(text, limit=28):
+    value = re.sub(r'[^A-Za-z0-9]+', '_', text).strip('_')
+    if len(value) > limit:
+        value = value[:limit].rstrip('_') + '_' + hashlib.sha1(text.encode('utf-8')).hexdigest()[:6]
+    return value
+
+
+def template_guid(tag):
+    return str(uuid.uuid5(NS, 'EnemyRandomization/loot/template/' + tag))
+
+
+def append_token(existing, token):
+    existing = (existing or '').strip()
+    if not existing:
+        return token
+    if token in existing:
+        return existing
+    return existing + ';' + token
+
+
+def load_base_equipment():
+    stats = {}
+    for path, stat_type in [(p, 'Armor') for p in ARMOR_SOURCES] + [(p, 'Weapon') for p in WEAPON_SOURCES]:
+        text = path.read_text(errors='ignore')
+        for match in re.finditer(r'new entry "([^"]+)"\n(.*?)(?=\nnew entry |\Z)', text, re.S):
+            name, body = match.group(1), match.group(2)
+            using = re.search(r'\nusing "([^"]+)"', body)
+            data = dict(re.findall(r'\ndata "([^"]+)" "([^"]*)"', body))
+            stats.setdefault(name, {
+                'type': stat_type,
+                'using': using.group(1) if using else None,
+                'data': data,
+            })
+
+    roots = {}
+    version = None
+    for path in ROOT_SOURCES:
+        source = ET.parse(path).getroot()
+        if version is None:
+            version = copy.deepcopy(source.find('version'))
+        for node in source.findall('.//node[@id="GameObjects"]'):
+            name = (get_attr(node, 'Name') or '').strip()
+            if name and name not in roots:
+                roots[name] = node
+
+    bases = []
+    for name, node in roots.items():
+        attrs = {a.get('id'): a.get('value') for a in node.findall('attribute')}
+        if attrs.get('Type') != 'item':
+            continue
+        stats_name = (attrs.get('Stats') or '').strip()
+        stat = stats.get(stats_name)
+        if not stat:
+            continue
+        bases.append({
+            'root_name': name,
+            'root_node': node,
+            'stats_name': stats_name,
+            'type': stat['type'],
+            'boosts': stat['data'].get('Boosts', ''),
+            'passives': stat['data'].get('PassivesOnEquip', ''),
+        })
+    bases.sort(key=lambda item: item['root_name'])
+    return bases, version, stats
+
+
+def load_spells():
+    spells = {}
+    for path in SPELL_SOURCES:
+        text = path.read_text(errors='ignore')
+        for match in re.finditer(r'new entry "([^"]+)"\n(.*?)(?=\nnew entry |\Z)', text, re.S):
+            name, body = match.group(1), match.group(2)
+            data = dict(re.findall(r'\ndata "([^"]+)" "([^"]*)"', body))
+            raw_level = data.get('Level')
+            if raw_level is None:
+                continue
+            try:
+                level = int(raw_level)
+            except ValueError:
+                continue
+            if level < 0 or level > 6:
+                continue
+            flags = set(filter(None, data.get('SpellFlags', '').split(';')))
+            if flags & BAD_SPELL_FLAGS:
+                continue
+            if any(part in name for part in BAD_SPELL_NAME_PARTS):
+                continue
+            spells.setdefault(name, level)
+    return spells
+
+
+def load_statuses():
+    return parse_entries(STATUS_SOURCES)
+
+
+def main():
+    bases, version, _ = load_base_equipment()
+    spells = load_spells()
+    statuses = load_statuses()
+
+    conditions = [name for name in CONDITIONS if name in statuses]
+    missing_conditions = [name for name in CONDITIONS if name not in statuses]
+    if missing_conditions:
+        print('warning: missing conditions:', ', '.join(missing_conditions))
+
+    if not bases:
+        raise SystemExit('no base equipment roots found')
+    if not conditions:
+        raise SystemExit('no valid conditions found')
+    if not spells:
+        raise SystemExit('no eligible spells found')
+
+    # Shared condition wrapper/passive entries. A condition status is applied
+    # by the item passive and removed when the item is unequipped.
+    condition_names = {}
+    condition_lines = []
+    for condition in conditions:
+        native = statuses[condition]['data']
+        remove_events = native.get('RemoveEvents', '').strip()
+        if 'OnUnequip' not in remove_events:
+            remove_events = (remove_events + ';' if remove_events else '') + 'OnUnequip'
+        status_name = 'ENR_LootStatus_' + slug(condition)
+        passive_name = 'ENR_LootPassive_' + slug(condition)
+        condition_names[condition] = (status_name, passive_name)
+        condition_lines += [
+            'new entry "%s"' % status_name,
+            'type "StatusData"',
+            'using "%s"' % condition,
+            'data "RemoveEvents" "%s"' % remove_events,
+            '',
+            'new entry "%s"' % passive_name,
+            'type "PassiveData"',
+            'data "StatsFunctors" "ApplyStatus(SELF,%s,100,-1)"' % status_name,
+            '',
+        ]
+
+    item_lines = [
+        '-- Enemy Randomization generated loot catalog.',
+        '-- Generated by scripts/generate-enr-loot.py. Do not edit by hand.',
+        '-- Base equipment x rarity x deterministic variant index.',
+        '',
+    ]
+    item_lines.extend(condition_lines)
+
+    loot_by_rarity = {entry['name']: [] for entry in RARITIES}
+    root_children = []
+    variant_count = 0
+
+    for base in bases:
+        base_slug = slug(base['root_name'])
+        for rarity in RARITIES:
+            eligible_spells = [name for name, level in spells.items()
+                               if rarity['min_level'] <= level <= rarity['max_level']]
+            if not eligible_spells:
+                raise SystemExit('no spells in level range for ' + rarity['name'])
+
+            for index in range(VARIANTS_PER_RARITY):
+                seed_text = '%s|%s|%d' % (base['root_name'], rarity['name'], index)
+                digest = hashlib.sha256(seed_text.encode('utf-8')).digest()
+                rng = random.Random(int.from_bytes(digest, 'big'))
+
+                chosen_spells = rng.sample(
+                    eligible_spells,
+                    min(rarity['spell_count'], len(eligible_spells)),
+                )
+                condition = rng.choice(conditions) if rarity['condition'] else None
+                ability = rng.choice(ABILITIES)
+
+                tag = '%s_%s_%d' % (base_slug, rarity['name'], index)
+                stats_name = 'ENR_Loot_' + tag
+                root_guid = template_guid(tag)
+                root_name = 'ENR_Loot_' + tag
+
+                boosts = base['boosts'] or ''
+                for spell in chosen_spells:
+                    boosts = append_token(boosts, 'UnlockSpell(%s)' % spell)
+                boosts = append_token(
+                    boosts,
+                    'Ability(%s,%d,20,true)' % (ability, rarity['ability_boost']),
+                )
+
+                passives = base['passives'] or ''
+                if condition:
+                    passives = append_token(passives, condition_names[condition][1])
+
+                item_lines += [
+                    'new entry "%s"' % stats_name,
+                    'type "%s"' % base['type'],
+                    'using "%s"' % base['stats_name'],
+                    'data "Rarity" "%s"' % rarity['name'],
+                    'data "RootTemplate" "%s"' % root_guid,
+                    'data "Boosts" "%s"' % boosts,
+                ]
+                if passives:
+                    item_lines.append('data "PassivesOnEquip" "%s"' % passives)
+                item_lines.append('')
+
+                node = copy.deepcopy(base['root_node'])
+                set_attr(node, 'MapKey', root_guid)
+                set_attr(node, 'Name', root_name)
+                set_attr(node, 'Stats', stats_name)
+                root_children.append(node)
+
+                loot_by_rarity[rarity['name']].append({
+                    'template': root_guid,
+                    'name': base['root_name'],
+                    'spells': chosen_spells,
+                    'condition': condition,
+                    'ability': ability,
+                    'ability_boost': rarity['ability_boost'],
+                })
+                variant_count += 1
+
+    item_lines += [
+        'new entry "ENR_LOOT_ROLLED"',
+        'type "StatusData"',
+        'data "StatusType" "BOOST"',
+        'data "DisplayName" "Loot Rolled"',
+        'data "Description" "This champion has already dropped its loot."',
+        'data "StackId" "ENR_LOOT_ROLLED"',
+        'data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"',
+        '',
+    ]
+
+    STATS_OUT.parent.mkdir(parents=True, exist_ok=True)
+    STATS_OUT.write_text('\n'.join(item_lines), encoding='utf-8')
+
+    root_out = ET.Element('save')
+    root_out.append(version if version is not None else ET.Element('version', {
+        'major': '4', 'minor': '0', 'revision': '9', 'build': '328'
+    }))
+    region = ET.SubElement(root_out, 'region', {'id': 'Templates'})
+    templates = ET.SubElement(region, 'node', {'id': 'Templates'})
+    children = ET.SubElement(templates, 'children')
+    for node in root_children:
+        children.append(node)
+    ROOT_XML.parent.mkdir(parents=True, exist_ok=True)
+    ET.ElementTree(root_out).write(ROOT_XML, encoding='utf-8', xml_declaration=True)
+
+    lua = ['ER = ER or {}', 'ER.GeneratedLoot = { byRarity = {']
+    for rarity in RARITIES:
+        lua.append('  %s = {' % rarity['name'])
+        for entry in loot_by_rarity[rarity['name']]:
+            lua.append('    { template = %s, name = %s },' % (
+                json.dumps(entry['template']),
+                json.dumps(entry['name']),
+            ))
+        lua.append('  },')
+    lua += ['} }', '']
+    LUA_OUT.parent.mkdir(parents=True, exist_ok=True)
+    LUA_OUT.write_text('\n'.join(lua), encoding='utf-8')
+
+    print('base equipment:', len(bases))
+    print('eligible spells:', len(spells))
+    print('eligible conditions:', len(conditions))
+    print('variants:', variant_count)
+    for rarity in RARITIES:
+        print('  %-10s %d' % (rarity['name'], len(loot_by_rarity[rarity['name']])))
+    print('wrote', STATS_OUT)
+    print('wrote', ROOT_XML)
+    print('wrote', LUA_OUT)
+
+
+if __name__ == '__main__':
+    main()

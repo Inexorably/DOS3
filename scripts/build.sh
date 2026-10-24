@@ -20,6 +20,12 @@ if [[ ! -d "$SRC" ]]; then
     echo "Usage: $0 [ModFolder]" >&2
     exit 1
 fi
+if [[ "$MOD" == "EnemyRandomization" ]]; then
+    echo "Regenerating Enemy Randomization loot and champion catalogs"
+    (cd "$ROOT" && python scripts/generate-enr-loot.py)
+    (cd "$ROOT" && python scripts/generate-enr-dinos.py)
+fi
+
 echo "Packing $SRC"
 "$DIVINE" -a create-package -g bg3 -s "$SRC" -d "$OUT/$MOD.pak"
 echo "Built: $OUT/$MOD.pak"
