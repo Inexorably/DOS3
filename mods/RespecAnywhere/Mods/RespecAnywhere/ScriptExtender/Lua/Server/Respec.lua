@@ -125,32 +125,18 @@ end
 local function launchRespec(guid)
     clearStaleRespecState(guid)
 
-    -- OpenRespecUI is the actual native Osiris call that opens the client UI.
-    -- PROC_TryLaunchRespec only sets DB_InCharacterRespec and never shows UI.
-    local attempts = {
-        {
-            name = "OpenRespecUI(guid,0,0)",
-            fn = function() return Osi.OpenRespecUI(guid, 0, 0) end,
-        },
-        {
-            name = "OpenRespecUI(guid,0)",
-            fn = function() return Osi.OpenRespecUI(guid, 0) end,
-        },
-        {
-            name = "OpenRespecUI(guid)",
-            fn = function() return Osi.OpenRespecUI(guid) end,
-        },
-    }
-
-    for index, attempt in ipairs(attempts) do
-        local fnType = type(attempt.fn)
-        log("[RSA] respec UI attempt %d name=%s wrapperType=%s guid=%s",
-            index, attempt.name, fnType, tostring(guid))
-        local ok, result = pcall(attempt.fn)
-        log("[RSA] respec UI attempt %d ok=%s result=%s",
-            index, tostring(ok), tostring(result))
+    -- OpenRespecUI is a client-side Osiris symbol in this build. The server
+    -- resolves the target character and asks that player's client to open it.
+    if Ext and Ext.Net and Ext.Net.PostMessageToClient then
+        local ok, result = pcall(Ext.Net.PostMessageToClient,
+            guid, OPEN_CHANNEL, tostring(guid))
+        log("[RSA] respec UI request to client ok=%s result=%s guid=%s",
+            tostring(ok), tostring(result), tostring(guid))
         if ok then return true end
+    else
+        log("[RSA] PostMessageToClient unavailable")
     end
+
     return false
 end
 

@@ -12,30 +12,39 @@ local OPEN_CHANNEL = "RespecAnywhere_Open"
 local window = nil
 local loggedOpen = false
 
-local function log(text)
+local function log(text, ...)
+    local message = text
+    if select('#', ...) > 0 then
+        local ok, formatted = pcall(string.format, text, ...)
+        if ok then message = formatted end
+    end
     if Ext and Ext.Utils and Ext.Utils.Print then
-        pcall(Ext.Utils.Print, text)
+        pcall(Ext.Utils.Print, message)
     end
 end
 
 local function openRespec(guid)
+    log("[RSA] client received respec request guid=%s", tostring(guid))
     if not guid or tostring(guid) == "" then
         log("[RSA] respec: server returned no character")
         return
     end
 
-    local ok, err = pcall(Osi.OpenRespecUI, tostring(guid))
-    if not ok then
-        ok, err = pcall(Osi.OpenRespecUI, tostring(guid), 1)
+    log("[RSA] client OpenRespecUI type=%s", type(Osi and Osi.OpenRespecUI))
+    local attempts = {
+        { name = "OpenRespecUI(guid,0,0)", fn = function() return Osi.OpenRespecUI(tostring(guid), 0, 0) end },
+        { name = "OpenRespecUI(guid,0)", fn = function() return Osi.OpenRespecUI(tostring(guid), 0) end },
+        { name = "OpenRespecUI(guid)", fn = function() return Osi.OpenRespecUI(tostring(guid)) end },
+    }
+    for index, attempt in ipairs(attempts) do
+        if Osi and Osi.OpenRespecUI ~= nil then
+            local ok, result = pcall(attempt.fn)
+            log("[RSA] client %s ok=%s result=%s",
+                attempt.name, tostring(ok), tostring(result))
+            if ok then return end
+        end
     end
-    if not ok and Ext and Ext.Osiris and Ext.Osiris.CallFunction then
-        ok, err = pcall(Ext.Osiris.CallFunction, "OpenRespecUI", tostring(guid))
-    end
-    if ok then
-        log("[RSA] respec UI opened for " .. tostring(guid))
-    else
-        log("[RSA] OpenRespecUI failed: " .. tostring(err))
-    end
+    log("[RSA] client OpenRespecUI unavailable for all arities")
 end
 
 local function requestRespec()
