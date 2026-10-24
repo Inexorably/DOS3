@@ -27,24 +27,40 @@ local function hostCharacter()
     return nil
 end
 
+-- The native Withers respec is driven by the Osiris PROC_TryLaunchRespec
+-- story procedure, not by an OpenRespecUI Lua function. The procedure has no
+-- Withers-unlocked prerequisite; it only checks whether the character is
+-- already in the respec state.
+local function launchRespec(guid)
+    local reason = "RespecAnywhere"
+    local attempts = {
+        function()
+            return Ext.Osiris.CallFunction("PROC_TryLaunchRespec", guid, reason)
+        end,
+        function()
+            return Osi.PROC_TryLaunchRespec(guid, reason)
+        end,
+        function()
+            return Ext.Osiris.CallFunction("PROC_LaunchRespec", guid, reason)
+        end,
+    }
+
+    for index, attempt in ipairs(attempts) do
+        local ok, result = pcall(attempt)
+        log("[RSA] respec PROC attempt %d for %s ok=%s result=%s",
+            index, tostring(guid), tostring(ok), tostring(result))
+        if ok then return true end
+    end
+    return false
+end
+
 local function requestOpen(guid)
     guid = guid or hostCharacter()
     if not guid then
         log("[RSA] respec: no host character")
         return false
     end
-
-    if Ext and Ext.Net and Ext.Net.PostMessageToClient then
-        local ok, err = pcall(Ext.Net.PostMessageToClient, guid, OPEN_CHANNEL, tostring(guid))
-        if ok then
-            log("[RSA] respec request sent to " .. tostring(guid))
-            return true
-        end
-        log("[RSA] respec client message failed: " .. tostring(err))
-    else
-        log("[RSA] respec: PostMessageToClient unavailable")
-    end
-    return false
+    return launchRespec(tostring(guid))
 end
 
 function RSA.Respec.Open(guid)
