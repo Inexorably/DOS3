@@ -12,6 +12,8 @@ ER.Config = {
     CHAMPION_CHANCE = 1.0, -- set to 1.0 for first-encounter testing
     CHAMPION_EXTRA_BUFFS = 1,
     CHAMPION_MARKER = "ENR_CHAMPION_ROLLED",
+    CHAMPION_HP_MULTIPLIER = 1.5,
+    CHAMPION_HP_MARKER = "ENR_CHAMPION_HP_SCALED",
     CHAMPIONS = (ER.Generated and ER.Generated.champions) or {
         {
             status = "ENR_CHAMPION_DINOSAURS",
