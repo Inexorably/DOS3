@@ -56,6 +56,8 @@ CHARACTER_SOURCES = [
     ROOT / '.analysis/allstats/Public/Gustav/Stats/Generated/Data/Character.txt',
 ]
 
+STATUS_SOURCES = sorted(ROOT.glob('.analysis/allstats/Public/*/Stats/Generated/Data/Status_*.txt'))
+
 LEVELS = list(range(1, 21))
 ABILITIES = ['Strength', 'Dexterity', 'Constitution', 'Intelligence', 'Wisdom', 'Charisma']
 
@@ -434,6 +436,21 @@ NON_SUMMON_CHAMPIONS = [
 ALL_CHAMPIONS = CHAMPIONS + NON_SUMMON_CHAMPIONS
 
 
+def load_status_stats():
+    entries = {}
+    for path in STATUS_SOURCES:
+        if not path.exists():
+            continue
+        text = path.read_text(errors='ignore')
+        for m in re.finditer(r'new entry "([^"]+)"\n(.*?)(?=\nnew entry |\Z)', text, re.S):
+            name, body = m.group(1), m.group(2)
+            fields = {}
+            for fm in re.finditer(r'^data "([^"]+)" "([^"]*)"', body, re.M):
+                fields[fm.group(1)] = fm.group(2)
+            entries.setdefault(name, fields)
+    return entries
+
+
 def load_character_stats():
     entries = {}
     for p in CHARACTER_SOURCES:
@@ -732,16 +749,23 @@ def build_stats_and_loca(guids, stats_by_tag):
         for champion in NON_SUMMON_CHAMPIONS
         for status in champion.get('statuses', [])
     })
+    status_stats = load_status_stats()
     for source in permanent_sources:
         wrapped = permanent_status_name(source)
+        native = status_stats.get(source) or {}
         lines += [
             'new entry "%s"' % wrapped,
             'type "StatusData"',
-            'using "%s"' % source,
-            'data "RemoveEvents" ""',
-            'data "RemoveConditions" ""',
-            '',
+            'data "StatusType" "%s"' % native.get('StatusType', 'BOOST'),
+            'data "DisplayName" "%s"' % native.get('DisplayName', source),
+            'data "Description" "%s"' % native.get('Description', source),
+            'data "Icon" "%s"' % native.get('Icon', 'Action_Dodge'),
         ]
+        if native.get('DescriptionParams'):
+            lines.append('data "DescriptionParams" "%s"' % native['DescriptionParams'])
+        if native.get('Boosts'):
+            lines.append('data "Boosts" "%s"' % native['Boosts'])
+        lines += ['data "StackId" "%s"' % wrapped, '']
 
     # Hidden per-spell cooldown markers used by SummonCooldown.lua.
     for champion in CHAMPIONS:
