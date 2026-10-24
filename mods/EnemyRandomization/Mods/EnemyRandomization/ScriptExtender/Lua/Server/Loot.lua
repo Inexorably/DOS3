@@ -163,6 +163,18 @@ local function applyItem(item, entry)
                 attempt.name, tostring(item), tostring(variant.stats), tostring(ok), tostring(err))
             if ok then statsOk = true break end
         end
+        if not statsOk and Ext and Ext.Entity and Ext.Entity.Get then
+            local entityOk, itemEntity = pcall(Ext.Entity.Get, item)
+            if entityOk and itemEntity then
+                local writeOk, writeErr = pcall(function() itemEntity.Data.StatsId = variant.stats end)
+                log("loot item stats direct Data.StatsId write: ok=%s err=%s", tostring(writeOk), tostring(writeErr))
+                if writeOk then
+                    pcall(function() itemEntity:Replicate("Data") end)
+                    pcall(function() itemEntity:Replicate("Stats") end)
+                    statsOk = true
+                end
+            end
+        end
     end
     logItemInfo(item)
     if variant.rarity then
