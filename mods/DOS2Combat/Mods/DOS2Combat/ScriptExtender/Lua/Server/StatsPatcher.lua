@@ -781,8 +781,33 @@ local function patchAttackDisadvantage(stat)
     return false
 end
 
-local function patchStatusDamage(stat)
+-- BG3 grants Extra Attack through an EXTRA_ATTACK status variant. The native
+-- variant makes the next MainHand/OffHand attack free (0 AP); DOS2Combat makes
+-- that follow-up cost 1 AP instead, so the second attack uses the same attack
+-- spell and no extra spell is needed.
+local function patchExtraAttackStatus(name, stat)
+    local cfg = DOS2C.Config
+    if not cfg.REMOVE_BONUS_ACTIONS then return false end
+    if name ~= "EXTRA_ATTACK"
+        and name ~= "EXTRA_ATTACK_2"
+        and name ~= "EXTRA_ATTACK_THIRSTING_BLADE" then
+        return false
+    end
+
+    local boosts = U.SafeGet(stat, "Boosts")
+    if type(boosts) ~= "string" or boosts == "" then return false end
+
+    local cost = tostring(math.max(0, math.floor(tonumber(cfg.EXTRA_ATTACK_AP_COST) or 1)))
+    local updated = boosts:gsub(
+        "ModifyUseCosts%(Replace,ActionPoint,0,0,ActionPoint%)",
+        "ModifyUseCosts(Replace,ActionPoint," .. cost .. ",0,ActionPoint)")
+    if updated == boosts then return false end
+    return U.SafeSet(stat, "Boosts", updated)
+end
+
+local function patchStatusDamage(name, stat)
     local changed = stripDeadSavingThrowBoosts(stat)
+    if patchExtraAttackStatus(name, stat) then changed = true end
     if patchAttackDisadvantage(stat) then changed = true end
     if DOS2C.Config.COMPRESS_DAMAGE_RANGES then
         for _, field in ipairs(STATUS_DAMAGE_FIELDS) do
@@ -1139,7 +1164,7 @@ function S.PatchAll(runtime)
         return patchArmor(name, stat)
     end)
     local nStatuses = eachStat("StatusData", function(_, stat)
-        return patchStatusDamage(stat)
+        return patchStatusDamage(name, stat)
     end)
     local nPassives = eachStat("PassiveData", function(_, stat)
         return patchPassiveDamage(stat)
