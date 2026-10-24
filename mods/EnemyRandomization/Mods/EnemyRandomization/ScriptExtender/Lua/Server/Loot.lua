@@ -193,25 +193,33 @@ local function onTemplateAdded(template, item, owner, source)
     end
 end
 
-local function onInventoryMember(entity)
-    if not entity then return end
-    local okMember, member = pcall(function() return entity.InventoryMember end)
-    if not okMember or not member then return end
-    local itemGuidOk, itemGuid = pcall(function() return entity.Uuid.EntityUuid end)
-    if not itemGuidOk or not itemGuid then return end
-
-    local inventory = member.Inventory
-    local ownerGuid = nil
-    if inventory and Ext and Ext.Entity and Ext.Entity.Get then
+local function ownerGuidOfInventory(inventory)
+    if not inventory then return nil end
+    if type(inventory) == "string" then
+        if inventory:match("^%x%x%x%x%x%x%x%x%-") then return inventory end
+        return nil
+    end
+    if Ext and Ext.Entity and Ext.Entity.Get then
         local ownerOk, owner = pcall(Ext.Entity.Get, inventory)
         if ownerOk and owner then
             local guidOk, guid = pcall(function() return owner.Uuid.EntityUuid end)
-            if guidOk and guid then ownerGuid = tostring(guid) end
+            if guidOk and guid then return tostring(guid) end
         end
     end
+    return nil
+end
+
+local function onInventoryMember(entity, quiet)
+    if not entity then return false end
+    local okMember, member = pcall(function() return entity.InventoryMember end)
+    if not okMember or not member then return false end
+    local itemGuidOk, itemGuid = pcall(function() return entity.Uuid.EntityUuid end)
+    if not itemGuidOk or not itemGuid then return false end
+
+    local ownerGuid = ownerGuidOfInventory(member.Inventory)
     if not ownerGuid then
-        log("loot InventoryMember owner unresolved for item=%s", tostring(itemGuid))
-        return
+        if not quiet then log("loot InventoryMember owner unresolved for item=%s", tostring(itemGuid)) end
+        return false
     end
 
     for i, entry in ipairs(pending) do
@@ -219,9 +227,28 @@ local function onInventoryMember(entity)
             table.remove(pending, i)
             local applied, err = pcall(applyItem, tostring(itemGuid), entry)
             if not applied then log("loot inventory member apply error: %s", tostring(err)) end
-            return
+            return true
         end
     end
+    return false
+end
+
+local function scanInventoryMembers()
+    if #pending == 0 then return 0 end
+    if not (Ext and Ext.Entity and Ext.Entity.GetAllEntitiesWithComponent) then return 0 end
+    local ok, entities = pcall(Ext.Entity.GetAllEntitiesWithComponent, "InventoryMember")
+    if not ok or type(entities) ~= "table" then
+        log("loot InventoryMember scan failed")
+        return 0
+    end
+    local matched = 0
+    for _, entity in ipairs(entities) do
+        if onInventoryMember(entity, true) then matched = matched + 1 end
+        if #pending == 0 then break end
+    end
+    log("loot InventoryMember scan: %d entities, %d matched, %d pending",
+        #entities, matched, #pending)
+    return matched
 end
 
 local function queueCreate(target, variant, drop)
@@ -249,6 +276,9 @@ local function queueCreate(target, variant, drop)
     end
 
     if Ext and Ext.Timer and Ext.Timer.WaitFor then
+        for _, delay in ipairs({ 100, 400, 1200 }) do
+            Ext.Timer.WaitFor(delay, function() pcall(scanInventoryMembers) end)
+        end
         Ext.Timer.WaitFor(3000, function()
             for i, queued in ipairs(pending) do
                 if queued == entry then
@@ -443,7 +473,14 @@ function L.Init()
         and ER.GeneratedLoot.byRarity
         and ER.GeneratedLoot.byRarity.Uncommon
         and ER.GeneratedLoot.byRarity.Uncommon[1]
-    if sample then logStatInfo(sample.stats) end
+    if sample then
+        logStatInfo(sample.stats)
+        if Ext and Ext.Events and Ext.Events.SessionLoaded then
+            Ext.Events.SessionLoaded:Subscribe(function()
+                logStatInfo(sample.stats)
+            end)
+        end
+    end
     registerCommands()
 end
 

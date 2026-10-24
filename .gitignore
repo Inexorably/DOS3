@@ -14,3 +14,4 @@ Thumbs.db
 mods/EnemyRandomization/Public/EnemyRandomization/Stats/Generated/Data/EnemyRandomizationLoot.txt
 mods/EnemyRandomization/Mods/EnemyRandomization/ScriptExtender/Lua/Server/GeneratedLoot.lua
 mods/EnemyRandomization/Public/EnemyRandomization/RootTemplates/_merged.lsf
+mods/EnemyRandomization/Public/EnemyRandomization/Stats/Generated/Data/EnemyRandomizationLoot_*.txt

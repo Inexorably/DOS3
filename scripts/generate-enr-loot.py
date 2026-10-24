@@ -404,8 +404,24 @@ def main():
         '',
     ]
 
-    STATS_OUT.parent.mkdir(parents=True, exist_ok=True)
-    STATS_OUT.write_text('\n'.join(item_lines), encoding='utf-8')
+    # Keep individual stat files small. The generated catalog has ~17k items
+    # and a single multi-megabyte stats file is too easy for the engine to
+    # silently skip or truncate.
+    stats_dir = STATS_OUT.parent
+    stats_dir.mkdir(parents=True, exist_ok=True)
+    if STATS_OUT.exists():
+        STATS_OUT.unlink()
+    for stale in stats_dir.glob('EnemyRandomizationLoot_*.txt'):
+        stale.unlink()
+
+    text = '\n'.join(item_lines)
+    blocks = [block for block in re.split(r'(?m)(?=^new entry ")', text) if block.strip()]
+    chunk_size = 300
+    for offset in range(0, len(blocks), chunk_size):
+        chunk = blocks[offset:offset + chunk_size]
+        chunk_path = stats_dir / ('EnemyRandomizationLoot_%03d.txt' % (offset // chunk_size + 1))
+        header = '-- Enemy Randomization generated loot catalog chunk %d.\n' % (offset // chunk_size + 1)
+        chunk_path.write_text(header + '\n'.join(chunk), encoding='utf-8')
 
     root_out = ET.Element('save')
     root_out.append(version if version is not None else ET.Element('version', {

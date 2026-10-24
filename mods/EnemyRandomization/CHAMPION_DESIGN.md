@@ -236,7 +236,7 @@ The condition is implemented as a generated status wrapper plus an
 Generated files:
 
 ```text
-Public/EnemyRandomization/Stats/Generated/Data/EnemyRandomizationLoot.txt
+Public/EnemyRandomization/Stats/Generated/Data/EnemyRandomizationLoot_*.txt
 ScriptExtender/Lua/Server/GeneratedLoot.lua
 ```
 
