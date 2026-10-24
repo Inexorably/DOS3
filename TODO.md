@@ -268,6 +268,8 @@ Known DOS2 visual references for the current test spells:
 - [ ] Short rest refreshes native cooldown labels; long rest clears numeric
       cooldowns and armor caches.
 - [ ] AP economy remains 4 start / 6 max / +4 per turn.
+- [ ] Verify BG3 Extra Attack remains a free, once-per-turn follow-up and
+      does not consume DOS2 AP.
 - [ ] No repeated Script Extender log spam during a session.
 - [ ] Existing saves can be loaded without component/persistence errors.
 

@@ -71,6 +71,11 @@ local function isWeaponAttack(name)
     if not name then return false end
     return name:find("MainHandAttack", 1, true) ~= nil
         or name:find("OffhandAttack", 1, true) ~= nil
+        or name:find("UnarmedAttack", 1, true) ~= nil
+end
+
+local function isExtraAttack(name)
+    return name ~= nil and name:find("ExtraAttack", 1, true) ~= nil
 end
 
 -- True default attacks are the only abilities that may have no cooldown.
@@ -86,6 +91,11 @@ end
 
 local function costForSpell(name, level)
     local cfg = DOS2C.Config
+    -- BG3 Extra Attack is a free follow-up granted by the passive, not a
+    -- second 2 AP attack action. Keep it out of the DOS2 AP economy.
+    if isExtraAttack(name) then
+        return tonumber(cfg.EXTRA_ATTACK_AP_COST) or 0
+    end
     if isWeaponAttack(name) then
         return cfg.BASIC_ATTACK_COST
     end
@@ -414,6 +424,10 @@ end
 
 local function cooldownForSpell(name, stat, level, costs, damageScale)
     local cfg = DOS2C.Config
+
+    -- Extra Attack is a once-per-turn follow-up controlled by BG3's passive.
+    -- Preserve that limit without charging DOS2 AP for it.
+    if isExtraAttack(name) then return 1 end
 
     -- Ported DOS2 skills keep their original DOS2 cooldowns. Only BG3-native
     -- spells go through the level/damage rebalancing below.
