@@ -193,7 +193,7 @@ CHAMPIONS = [
     },
     {
         'key': 'OGRES',
-        'name': 'Champion of Ogres',
+        'name': "It's Ogre",
         'icon': 'Action_Throw',
         'summons': [
             summon('Ogre', 'Ogre', 'Ogre', 'BASE_Ogres', 'Action_Throw'),

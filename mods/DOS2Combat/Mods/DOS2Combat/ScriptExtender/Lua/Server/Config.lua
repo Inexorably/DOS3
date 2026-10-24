@@ -59,7 +59,31 @@ DOS2C.Config = {
     -- Optional encounter-specific overrides applied to non-party casters.
     -- Use scripts/audit-enemy-cooldowns.py to inspect the defaults first.
     ENEMY_COOLDOWN_OVERRIDES = {
-        -- ["Target_Multiattack_Gnoll_Flind_Melee"] = 4,
+        -- Encounter-defining boss abilities. These are deliberately explicit:
+        -- the generic level/recharge heuristic should not let a signature
+        -- ability repeat every turn just because its native data is sparse.
+        ["Target_Multiattack_Gnoll_Flind_Melee"] = 4,
+        ["Target_LOW_Multiattack_Cazador"] = 3,
+        ["Target_LOW_Raphael_Multiattack"] = 3,
+        ["Target_LOW_Raphael_Multiattack_Hard"] = 3,
+        ["Target_LOW_Raphael_CascadeOfSouls"] = 5,
+        ["Projectile_LOW_Raphael_CascadeOfSouls_Explosion"] = 5,
+        ["Projectile_LOW_Raphael_PrimordialHell"] = 5,
+        ["Projectile_LOW_Raphael_PrimordialHell_Chain"] = 5,
+        ["Target_LOW_Raphael_Summon_Eternal_Debtor_Consolidated"] = 5,
+        ["Shout_LOW_Raphael_SoulSiphon"] = 5,
+        ["Shout_LOW_Raphael_SoulSiphon_Hardcore"] = 5,
+        ["Shout_LOW_Raphael_Transform"] = 5,
+        ["Shout_LOW_Cazador_Ascend"] = 5,
+        ["Target_LOW_Blight_Cazador"] = 4,
+        ["Target_LOW_CallLightning_Cazador"] = 4,
+        ["Target_LOW_DeathbringerAssault_Orin"] = 4,
+        ["Target_LOW_DeathbringerAssault_Sarevok"] = 4,
+        ["Shout_LOW_Sacrifice_Slayer_Orin"] = 5,
+        ["Shout_WYR_ChainsOfTyranny_Gortash"] = 4,
+        ["Projectile_WYR_Grenade_Launcher_Gortash"] = 4,
+        ["Projectile_MOO_Ketheric_GeneralsWrath"] = 4,
+        ["Shout_MOO_MAG_Ketheric_HowlOfTheDead"] = 5,
     },
 
     -- Explicit overrides for BG3-native spells whose native data does not
@@ -144,6 +168,7 @@ DOS2C.Config = {
     },
     SURFACES_ENABLED = true,
     SURFACE_DAMAGE_HP_RATIO = 0.05, -- base tick damage as a fraction of max HP
+    SURFACE_DAMAGE_CAP = 40,        -- prevents high-HP bosses taking uncapped ticks
     SURFACE_STATUS_DURATION = 2,    -- turns
     SURFACE_TICK_DAMAGE = true,
     SURFACE_DOUSE_FIRE = true,      -- water removes BURNING (DOS2 douse rule)

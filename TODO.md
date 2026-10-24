@@ -118,8 +118,8 @@ too, but enemy cooldowns have not been audited separately.
       longer of the two (e.g. `OncePerTurn` + `5-6` -> 6).
 - [x] Keep NPC/at-will abilities without a `Level` field at 0 cooldown so
       they do not receive a synthetic 3-turn cooldown.
-- [ ] Spot-check encounter-defining abilities against those values; some
-      bosses may need per-spell overrides.
+- [x] Added explicit cooldown overrides for Ketheric, Orin, Gortash,
+      Raphael, Cazador, Sarevok, and the Gnoll Flind's signature abilities.
 - [x] Add per-character cooldown overrides via `Cooldowns.SetFor`/`GetFor`;
       `defs` remains the shared default for all casters.
 - [ ] Verify enemy AI behaves correctly with the 4 AP economy and numeric
@@ -143,7 +143,8 @@ too, but enemy cooldowns have not been audited separately.
 - [x] Water douse rule for BURNING characters.
 - [ ] Verify native water+lightning/freezing combinations where BG3 already
       handles them.
-- [ ] Tune surface damage after in-game testing.
+- [x] Surface tuning: 5% max-HP baseline, per-surface multipliers, and a
+      40-damage cap for high-HP bosses.
 
 ## DOS2 spell visuals
 
@@ -267,7 +268,7 @@ Known DOS2 visual references for the current test spells:
 
 ## Enemy Randomization
 
-- [ ] Rename the `Champion of Ogres` condition display name to **It's Ogre**.
+- [x] Rename the `Champion of Ogres` condition display name to **It's Ogre**.
 - [x] Implement the summoning champion roster: Dinosaurs, Spiders, Goblins,
       Ogres, Hell, Steel Watch, Dragons, Gnolls, Mind Flayers, Bugbears,
       Redcaps, Constructs, and Owlbears. Steel Watch also has the Steel Watch Titan.
@@ -294,9 +295,9 @@ Known DOS2 visual references for the current test spells:
       and that all granted spell/status/passive names resolve in-game.
 - [ ] Verify each summoning champion grants its full 2-4 summon skill list and
       that each summon appears at the correct level from 1 through 20.
-- [ ] Tune `NATIVE_LEVELS` per summon in the generator; these are the
-      approximate normal encounter levels used to scale source ability
-      scores/HP/armor relative to the summon's target level.
+- [x] Audited `NATIVE_LEVELS` for all 39 summon skills. Root-template
+      `LevelOverride` values are used when present; the audited fallback
+      table covers the rest.
 - [x] Boss enemies receive **two guaranteed champion conditions**.
 - [x] The two boss champion conditions are selected non-duplicately.
 - [x] Use a distinct summon-related icon for every current summoning champion

@@ -160,6 +160,8 @@ local function applySurface(handle, surfaceType)
     if cfg.SURFACE_TICK_DAMAGE and rule.damage then
         local multiplier = (rule.ratio or 1.0) * (1.0 + comboBonus)
         damage = math.max(1, math.floor(maxHP(handle) * cfg.SURFACE_DAMAGE_HP_RATIO * multiplier))
+        local cap = tonumber(cfg.SURFACE_DAMAGE_CAP) or 0
+        if cap > 0 then damage = math.min(damage, cap) end
         pcall(Osi.DealDamage, handle, damage, rule.damage)
     end
 
