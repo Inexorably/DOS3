@@ -187,6 +187,32 @@ register("dos2c_weapon", function()
     end
 end)
 
+local function openRespec(guid)
+    if not guid then
+        printLine("[DOS2C] respec: no host character")
+        return false
+    end
+
+    local ok, err = pcall(Osi.OpenRespecUI, guid)
+    if not ok then
+        ok, err = pcall(Osi.OpenRespecUI, guid, 1)
+    end
+    if not ok and Ext and Ext.Osiris and Ext.Osiris.CallFunction then
+        ok, err = pcall(Ext.Osiris.CallFunction, "OpenRespecUI", guid)
+    end
+
+    if ok then
+        printLine("[DOS2C] respec UI opened")
+    else
+        printLine("[DOS2C] respec UI failed: " .. tostring(err))
+    end
+    return ok
+end
+
+register("dos2c_respec", function()
+    openRespec(hostCharacter())
+end)
+
 register("dos2c_status", function()
     local cfg = DOS2C.Config
     printLine(string.format(
@@ -197,3 +223,11 @@ register("dos2c_status", function()
         tostring(cfg.ARMOR_CC_GATING), tostring(DOS2C.Stats.Patched),
         tostring(cfg.DEBUG)))
 end)
+
+if Ext and Ext.Events and Ext.Events.NetMessage then
+    Ext.Events.NetMessage:Subscribe(function(ev)
+        if ev and ev.Channel == "DOS2C_Respec" then
+            openRespec(hostCharacter())
+        end
+    end)
+end

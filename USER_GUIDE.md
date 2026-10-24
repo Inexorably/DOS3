@@ -230,7 +230,14 @@ regenerates and packages them automatically.
 !dos2c_rolls on|off
 !dos2c_armorui on|off
 !dos2c_debug on|off
+!dos2c_respec
+!dos2c_weapon
 ```
+
+`!dos2c_respec` opens Withers' respec UI for the host character from anywhere an
+in-game console is available. The **DOS2 Tools** panel also has a
+**Respec character** button. The main menu cannot respec because no character is
+loaded there.
 
 Use `!dos2c_status` first when diagnosing a problem.
 
