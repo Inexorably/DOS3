@@ -40,16 +40,35 @@ end
 
 local function championStatuses(guid)
     local result = {}
+    local seen = {}
     for _, entry in ipairs(C.CHAMPIONS or {}) do
         if entry.status and hasStatus(guid, entry.status) then
-            result[#result + 1] = entry.status
+            if not seen[entry.status] then
+                seen[entry.status] = true
+                result[#result + 1] = entry.status
+            end
         end
     end
-    if #result == 0 and ER.Randomizer and ER.Randomizer.GetChampionStatuses then
+
+    -- On death, some champion statuses can disappear before DiedEvent/polling
+    -- sees the corpse. Merge the authoritative assignment cache instead of
+    -- only falling back when every status is gone; a boss with three
+    -- conditions must still yield three loot items.
+    if ER.Randomizer and ER.Randomizer.GetChampionStatuses then
         local cached = ER.Randomizer.GetChampionStatuses(guid)
         if cached then
-            for _, status in ipairs(cached) do result[#result + 1] = status end
-            log("loot using cached champion statuses: %s count=%d", tostring(guid), #result)
+            local added = 0
+            for _, status in ipairs(cached) do
+                if not seen[status] then
+                    seen[status] = true
+                    result[#result + 1] = status
+                    added = added + 1
+                end
+            end
+            if added > 0 then
+                log("loot merged cached champion statuses: %s added=%d total=%d",
+                    tostring(guid), added, #result)
+            end
         end
     end
     return result
@@ -478,13 +497,25 @@ local function onDied(entity)
     end
     log("loot roll: %s champions=%d boss=%s", guid, #conditions, tostring(isBoss))
 
-    for _, condition in ipairs(conditions) do
+    local usedTemplates = {}
+    local levelBand = currentLevelBand()
+    for index, condition in ipairs(conditions) do
         local rarity = pickRarity(isBoss)
-        local variant = pickVariant(rarity, currentLevelBand())
+        local variant = pickVariant(rarity, levelBand)
+        -- Avoid merging multiple condition drops into one inventory stack when
+        -- the random catalog happens to select the same base root twice.
+        for _ = 1, 12 do
+            if not variant or not usedTemplates[variant.template] then break end
+            variant = pickVariant(rarity, levelBand)
+        end
         if variant then
+            usedTemplates[variant.template] = true
+            log("loot condition drop %d/%d: %s rarity=%s",
+                index, #conditions, tostring(condition), tostring(rarity))
             spawnVariant(guid, variant, rarity, condition)
         else
-            log("loot: no variant for rarity %s", rarity)
+            log("loot: no variant for rarity %s (condition %d/%d)",
+                tostring(rarity), index, #conditions)
         end
     end
 end
