@@ -193,6 +193,37 @@ local function onTemplateAdded(template, item, owner, source)
     end
 end
 
+local function onInventoryMember(entity)
+    if not entity then return end
+    local okMember, member = pcall(function() return entity.InventoryMember end)
+    if not okMember or not member then return end
+    local itemGuidOk, itemGuid = pcall(function() return entity.Uuid.EntityUuid end)
+    if not itemGuidOk or not itemGuid then return end
+
+    local inventory = member.Inventory
+    local ownerGuid = nil
+    if inventory and Ext and Ext.Entity and Ext.Entity.Get then
+        local ownerOk, owner = pcall(Ext.Entity.Get, inventory)
+        if ownerOk and owner then
+            local guidOk, guid = pcall(function() return owner.Uuid.EntityUuid end)
+            if guidOk and guid then ownerGuid = tostring(guid) end
+        end
+    end
+    if not ownerGuid then
+        log("loot InventoryMember owner unresolved for item=%s", tostring(itemGuid))
+        return
+    end
+
+    for i, entry in ipairs(pending) do
+        if entry.target == ownerGuid then
+            table.remove(pending, i)
+            local applied, err = pcall(applyItem, tostring(itemGuid), entry)
+            if not applied then log("loot inventory member apply error: %s", tostring(err)) end
+            return
+        end
+    end
+end
+
 local function queueCreate(target, variant, drop)
     if not (Osi and Osi.TemplateAddTo) then
         return nil, "TemplateAddTo unavailable"
@@ -207,24 +238,6 @@ local function queueCreate(target, variant, drop)
         drop = drop,
     }
 
-    -- Qry_TemplateAddTo is the query form and returns the newly created item.
-    -- Try it first; it avoids relying on the non-returning call plus an event.
-    if Osi.Qry_TemplateAddTo then
-        local queryOk, queryA, queryB = pcall(Osi.Qry_TemplateAddTo, variant.template, target, 1)
-        log("loot Qry_TemplateAddTo: root=%s ok=%s typeA=%s typeB=%s a=%s b=%s",
-            tostring(variant.template), tostring(queryOk), type(queryA), type(queryB),
-            tostring(queryA), tostring(queryB))
-        if queryOk then
-            local item = parseQueryItem(queryA, queryB)
-            if item then
-                local applied, applyErr = pcall(applyItem, item, entry)
-                if not applied then log("loot query apply error: %s", tostring(applyErr)) end
-                return applied == true, applied and nil or "query item apply failed"
-            end
-            log("loot Qry_TemplateAddTo returned no item; not calling TemplateAddTo again")
-            return nil, "Qry_TemplateAddTo returned no item"
-        end
-    end
 
     pending[#pending + 1] = entry
     local ok, err = pcall(Osi.TemplateAddTo, variant.template, target, 1, 1)
@@ -415,12 +428,22 @@ function L.Init()
         log("loot TemplateAddedTo listener registered: %s", tostring(ok))
     end
     if Ext and Ext.Entity and Ext.Entity.OnCreate then
+        local invOk = pcall(Ext.Entity.OnCreate, "InventoryMember", function(entity)
+            local ok, err = pcall(onInventoryMember, entity)
+            if not ok then log("loot InventoryMember listener error: %s", tostring(err)) end
+        end)
+        log("loot InventoryMember listener registered: %s", tostring(invOk))
         local ok = pcall(Ext.Entity.OnCreate, "DiedEvent", function(entity)
             local success, err = pcall(onDied, entity)
             if not success then log("loot death error: %s", tostring(err)) end
         end)
         log("loot DiedEvent listener registered: %s", tostring(ok))
     end
+    local sample = ER.GeneratedLoot
+        and ER.GeneratedLoot.byRarity
+        and ER.GeneratedLoot.byRarity.Uncommon
+        and ER.GeneratedLoot.byRarity.Uncommon[1]
+    if sample then logStatInfo(sample.stats) end
     registerCommands()
 end
 
