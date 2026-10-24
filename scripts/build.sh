@@ -23,7 +23,7 @@ fi
 if [[ "$MOD" == "EnemyRandomization" ]]; then
     echo "Regenerating Enemy Randomization loot and champion catalogs"
     (cd "$ROOT" && python scripts/generate-enr-loot.py)
-    (cd "$ROOT" && python scripts/generate-enr-dinos.py)
+    (cd "$ROOT" && python scripts/generate-enr-champions.py)
 fi
 
 echo "Packing $SRC"

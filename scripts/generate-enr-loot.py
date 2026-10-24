@@ -25,7 +25,7 @@ Outputs:
     .analysis/enr_loot_roots.lsx   (temporary input to the champion root merge)
 
 The champion generator merges .analysis/enr_loot_roots.lsx into the single
-RootTemplates/_merged.lsf. Run this script before generate-enr-dinos.py, or use
+RootTemplates/_merged.lsf. Run this script before generate-enr-champions.py, or use
 scripts/build.sh EnemyRandomization, which does both.
 """
 import copy

@@ -307,7 +307,7 @@ Known DOS2 visual references for the current test spells:
 - [ ] Verify champion loot drops one item per champion condition, that bosses
       roll only Very Rare/Legendary, and that generated item stats/passives
       resolve correctly in game.
-- [ ] Verify per-level dinosaur `Character` stats actually apply the scaled
+- [ ] Verify per-level summon `Character` stats actually apply the scaled
       Strength/Dexterity/Constitution/Intelligence/Wisdom/Charisma values at
       summon time.
 - [ ] Verify summon skills cost 2 AP and still enforce the five-turn cooldown.

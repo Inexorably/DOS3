@@ -145,7 +145,7 @@ explicit tuning values in `NATIVE_LEVELS` in the generator, not inferred from
 the absolute ability scores.
 
 Each summon uses its own source `Character` stat block from BG3, so an ogre,
-dragon, and goblin do not share the dinosaur base values.
+dragon, and goblin do not share the same summon base values.
 
 ### Native levels
 
@@ -242,7 +242,7 @@ ScriptExtender/Lua/Server/GeneratedLoot.lua
 
 Both are gitignored build outputs. The temporary `.analysis/enr_loot_roots.lsx`
 is merged into the single `RootTemplates/_merged.lsf` by
-`generate-enr-dinos.py`. Custom roots are required because Osiris item-stat
+`generate-enr-champions.py`. Custom roots are required because Osiris item-stat
 assignment APIs are unavailable in this BG3SE build.
 
 At runtime, `Server/Loot.lua` listens for `DiedEvent`. It rolls one item per
@@ -256,7 +256,7 @@ Run from the repository root:
 
 ```bash
 python scripts/generate-enr-loot.py
-python scripts/generate-enr-dinos.py
+python scripts/generate-enr-champions.py
 ./scripts/build.sh EnemyRandomization
 ./scripts/install.sh EnemyRandomization
 ```
@@ -296,8 +296,8 @@ Public/EnemyRandomization/Stats/Generated/Data/EnemyRandomizationChampions.txt
 Localization/English/EnemyRandomization.loca
 ```
 
-Do not hand-edit those three generated outputs. Change `LEVELS`, `DINOS`, or
-`band_for()` in the generator instead, then rerun it.
+Do not hand-edit those three generated outputs. Change `LEVELS`, `CHAMPIONS`, or
+`level_band()` in the generator instead, then rerun it.
 
 Templates are written to:
 
@@ -324,12 +324,10 @@ PositionEffect 4f0091aa-4560-42c8-9372-a6ce061eebd8
 target; `PositionEffect` is the lightning-style ground effect at the summon
 location.
 
-The summon functor must stay in `SpellProperties`. `SpellSuccess` does not
-reliably replace the inherited `SpellProperties` from
-`Target_SummonZombie_CorpseFlower`, which caused the imps to summon zombies
-instead of dinosaurs. The current implementation prioritizes correct dinosaur
-summoning; a delayed-summon presentation can be revisited with a dedicated
-Lua-timed path if needed.
+The summon functor stays in `SpellProperties`; leaving the inherited
+`Target_SummonZombie_CorpseFlower` properties in place is what caused imps to
+summon zombies. `CastTargetHitDelay` is 500 ms and `AIWeight` is 100 so the AI
+values the summon and the summon lands during the lightning VFX.
 
 ## Cooldown implementation
 

@@ -1,9 +1,9 @@
 -- Cosmetic and level handling for Enemy Randomization summons.
 --
 -- The native Summon functor has no level argument. This hook applies the
--- summoner's level to the spawned actor and gives the two dinosaurs their
--- intended display names. Level-derived stat recalculation still needs in-game
--- verification; the level band layer can replace this once its templates exist.
+-- summoner's level to the spawned actor and gives each summon its intended
+-- display name. Level-derived stat recalculation still needs in-game
+-- verification; the level-band layer can replace this once its templates exist.
 
 ER = ER or {}
 ER.SummonPolish = ER.SummonPolish or {}
