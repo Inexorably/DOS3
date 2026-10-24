@@ -68,7 +68,33 @@ local function pickRarity(isBoss)
     return "Legendary"
 end
 
-local function pickVariant(rarity)
+local function currentLevelBand()
+    local level = 1
+    local host = nil
+    if Osi and Osi.GetHostCharacter then
+        local ok, value = pcall(Osi.GetHostCharacter)
+        if ok then host = value end
+    end
+    if host and Osi and Osi.GetLevel then
+        local ok, value = pcall(Osi.GetLevel, host)
+        if ok and tonumber(value) and tonumber(value) > 0 then level = tonumber(value) end
+    end
+    if level == 1 and host and Ext and Ext.Entity and Ext.Entity.Get then
+        local ok, entity = pcall(Ext.Entity.Get, host)
+        if ok and entity then
+            local lvlOk, value = pcall(function() return entity.EocLevel.Level end)
+            if lvlOk and tonumber(value) and tonumber(value) > 0 then level = tonumber(value) end
+        end
+    end
+    if level >= 11 then return 5 end
+    if level >= 9 then return 4 end
+    if level >= 7 then return 3 end
+    if level >= 5 then return 2 end
+    if level >= 3 then return 1 end
+    return 0
+end
+
+local function pickVariant(rarity, levelBand)
     local generated = ER.GeneratedLoot
     if not (generated and generated.byRarity) then
         if not loggedMissingCatalog then
@@ -79,7 +105,15 @@ local function pickVariant(rarity)
     end
     local list = generated.byRarity[rarity]
     if not list or #list == 0 then return nil end
-    return list[math.random(#list)]
+
+    local candidates = {}
+    for _, entry in ipairs(list) do
+        if levelBand == nil or entry.level_band == levelBand then
+            candidates[#candidates + 1] = entry
+        end
+    end
+    if #candidates == 0 then candidates = list end
+    return candidates[math.random(#candidates)]
 end
 
 local RARITY_ENUM = {
@@ -445,7 +479,7 @@ local function onDied(entity)
 
     for _, condition in ipairs(conditions) do
         local rarity = pickRarity(isBoss)
-        local variant = pickVariant(rarity)
+        local variant = pickVariant(rarity, currentLevelBand())
         if variant then
             spawnVariant(guid, variant, rarity, condition)
         else
@@ -565,7 +599,7 @@ function L.SpawnAtPlayer(rarity, count, boss)
     local lastError = nil
     for i = 1, count do
         local chosen = rarity or pickRarity(boss == true)
-        local variant = pickVariant(chosen)
+        local variant = pickVariant(chosen, currentLevelBand())
         if not variant then
             return spawned, "no variant for rarity " .. tostring(chosen)
         end

@@ -108,7 +108,7 @@ def band_condition(index):
 
 # Number of deterministic effect bundles generated for every base item and
 # rarity. Increase this for more variety; the runtime chooses among variants.
-VARIANTS_PER_RARITY = 6
+VARIANTS_PER_RARITY = 1
 
 ABILITIES = ['Strength', 'Dexterity', 'Constitution', 'Intelligence', 'Wisdom', 'Charisma']
 
@@ -318,18 +318,24 @@ def main():
         status_name = 'ENR_LootStatus_' + slug(condition)
         passive_name = 'ENR_LootPassive_' + slug(condition)
         condition_names[condition] = (status_name, passive_name)
+        passive_lines = [
+            'new entry "%s"' % passive_name,
+            'type "PassiveData"',
+            'data "StatsFunctorContext" "OnEquip;OnCreate"',
+            'data "StatsFunctors" "ApplyStatus(SELF,%s,100,-1)"' % status_name,
+        ]
+        for field in ('DisplayName', 'Description', 'DescriptionParams', 'Icon'):
+            value = (native.get(field) or '').strip()
+            if value:
+                passive_lines.append('data "%s" "%s"' % (field, value))
+        passive_lines.append('')
         condition_lines += [
             'new entry "%s"' % status_name,
             'type "StatusData"',
             'using "%s"' % condition,
             'data "RemoveEvents" "%s"' % remove_events,
             '',
-            'new entry "%s"' % passive_name,
-            'type "PassiveData"',
-            'data "StatsFunctorContext" "OnEquip;OnCreate"',
-            'data "StatsFunctors" "ApplyStatus(SELF,%s,100,-1)"' % status_name,
-            '',
-        ]
+        ] + passive_lines
 
     item_lines = [
         '-- Enemy Randomization generated loot catalog.',
@@ -346,89 +352,84 @@ def main():
     for base in bases:
         base_slug = slug(base['root_name'])
         for rarity in RARITIES:
-            eligible_spells = list(spells)
+            for band_index, band in enumerate(SPELL_LEVEL_BANDS):
+                band_spells = [
+                    name for name, level in spells.items()
+                    if band['min_level'] <= level <= band['max_level']
+                ]
+                if not band_spells:
+                    band_spells = list(spells)
 
-            for index in range(VARIANTS_PER_RARITY):
-                seed_text = '%s|%s|%d' % (base['root_name'], rarity['name'], index)
-                digest = hashlib.sha256(seed_text.encode('utf-8')).digest()
-                rng = random.Random(int.from_bytes(digest, 'big'))
+                for index in range(VARIANTS_PER_RARITY):
+                    seed_text = '%s|%s|L%d|%d' % (
+                        base['root_name'], rarity['name'], band_index, index)
+                    digest = hashlib.sha256(seed_text.encode('utf-8')).digest()
+                    rng = random.Random(int.from_bytes(digest, 'big'))
 
-                chosen_by_band = []
-                chosen_spells = []
-                for band in SPELL_LEVEL_BANDS:
-                    band_spells = [
-                        name for name, level in spells.items()
-                        if band['min_level'] <= level <= band['max_level']
-                    ]
-                    if not band_spells:
-                        band_spells = eligible_spells
-                    picked = rng.sample(
+                    chosen_spells = rng.sample(
                         band_spells,
                         min(rarity['spell_count'], len(band_spells)),
                     )
-                    chosen_by_band.append(picked)
-                    chosen_spells.extend(picked)
-                chosen_conditions = rng.sample(
-                    conditions,
-                    min(rarity['condition_count'], len(conditions)),
-                ) if rarity['condition_count'] > 0 else []
-                ability = rng.choice(ABILITIES)
+                    chosen_conditions = rng.sample(
+                        conditions,
+                        min(rarity['condition_count'], len(conditions)),
+                    ) if rarity['condition_count'] > 0 else []
+                    ability = rng.choice(ABILITIES)
 
-                tag = '%s_%s_%d' % (base_slug, rarity['name'], index)
-                stats_name = 'ENR_Loot_' + tag
-                base_root_guid = base.get('root_guid')
-                root_guid = template_guid(tag)
-                custom_root_name = 'ENR_Loot_' + tag
-                if not base_root_guid:
-                    continue
+                    tag = '%s_%s_L%d_%d' % (
+                        base_slug, rarity['name'], band_index, index)
+                    stats_name = 'ENR_Loot_' + tag
+                    base_root_guid = base.get('root_guid')
+                    root_guid = template_guid(tag)
+                    custom_root_name = 'ENR_Loot_' + tag
+                    if not base_root_guid:
+                        continue
 
-                boosts = base['boosts'] or ''
-                for band_index, band_spells in enumerate(chosen_by_band):
-                    condition_expr = band_condition(band_index)
-                    for spell in band_spells:
-                        boosts = append_token(
-                            boosts,
-                            'IF(%s):UnlockSpell(%s)' % (condition_expr, spell),
-                        )
-                boosts = append_token(
-                    boosts,
-                    'Ability(%s,%d,20,true)' % (ability, rarity['ability_boost']),
-                )
+                    boosts = base['boosts'] or ''
+                    for spell in chosen_spells:
+                        boosts = append_token(boosts, 'UnlockSpell(%s)' % spell)
+                    boosts = append_token(
+                        boosts,
+                        'Ability(%s,%d,20,true)' % (ability, rarity['ability_boost']),
+                    )
 
-                passives = base['passives'] or ''
-                for condition in chosen_conditions:
-                    passives = append_token(passives, condition_names[condition][1])
+                    passives = base['passives'] or ''
+                    for condition in chosen_conditions:
+                        passives = append_token(passives, condition_names[condition][1])
 
-                item_lines += [
-                    'new entry "%s"' % stats_name,
-                    'type "%s"' % base['type'],
-                    'using "%s"' % base['stats_name'],
-                    'data "Rarity" "%s"' % rarity['name'],
-                    'data "RootTemplate" "%s"' % root_guid,
-                    'data "Boosts" "%s"' % boosts,
-                ]
-                if passives:
-                    item_lines.append('data "PassivesOnEquip" "%s"' % passives)
-                item_lines.append('')
+                    item_lines += [
+                        'new entry "%s"' % stats_name,
+                        'type "%s"' % base['type'],
+                        'using "%s"' % base['stats_name'],
+                        'data "Rarity" "%s"' % rarity['name'],
+                        'data "RootTemplate" "%s"' % root_guid,
+                        'data "Boosts" "%s"' % boosts,
+                    ]
+                    if passives:
+                        item_lines.append('data "PassivesOnEquip" "%s"' % passives)
+                    item_lines.append('')
 
-                node = copy.deepcopy(base['root_node'])
-                set_attr(node, 'MapKey', root_guid)
-                set_attr(node, 'Name', custom_root_name)
-                set_attr(node, 'Stats', stats_name)
-                root_children.append(node)
+                    node = copy.deepcopy(base['root_node'])
+                    set_attr(node, 'MapKey', root_guid)
+                    set_attr(node, 'Name', custom_root_name)
+                    set_attr(node, 'Stats', stats_name)
+                    root_children.append(node)
 
-                loot_by_rarity[rarity['name']].append({
-                    'template': root_guid,
-                    'fallback_template': base_root_guid,
-                    'stats': stats_name,
-                    'rarity': rarity['name'],
-                    'name': base['root_name'],
-                    'spells': chosen_spells,
-                    'conditions': chosen_conditions,
-                    'ability': ability,
-                    'ability_boost': rarity['ability_boost'],
-                })
-                variant_count += 1
+                    loot_by_rarity[rarity['name']].append({
+                        'template': root_guid,
+                        'fallback_template': base_root_guid,
+                        'stats': stats_name,
+                        'rarity': rarity['name'],
+                        'level_band': band_index,
+                        'level_min': band['min_level'],
+                        'level_max': band['max_level'],
+                        'name': base['root_name'],
+                        'spells': chosen_spells,
+                        'conditions': chosen_conditions,
+                        'ability': ability,
+                        'ability_boost': rarity['ability_boost'],
+                    })
+                    variant_count += 1
 
     item_lines += [
         'new entry "ENR_LOOT_ROLLED"',
@@ -476,11 +477,14 @@ def main():
     for rarity in RARITIES:
         lua.append('  %s = {' % rarity['name'])
         for entry in loot_by_rarity[rarity['name']]:
-            lua.append('    { template = %s, fallback_template = %s, stats = %s, rarity = %s, name = %s },' % (
+            lua.append('    { template = %s, fallback_template = %s, stats = %s, rarity = %s, level_band = %s, level_min = %s, level_max = %s, name = %s },' % (
                 json.dumps(entry['template']),
                 json.dumps(entry['fallback_template']),
                 json.dumps(entry['stats']),
                 json.dumps(entry['rarity']),
+                json.dumps(entry['level_band']),
+                json.dumps(entry['level_min']),
+                json.dumps(entry['level_max']),
                 json.dumps(entry['name']),
             ))
         lua.append('  },')
