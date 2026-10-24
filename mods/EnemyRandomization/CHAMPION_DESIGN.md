@@ -42,10 +42,10 @@ the enemy.
 
 | Champion | Intended boons |
 | --- | --- |
-| Vitality | Aura of Vitality, Aura of Vitality aura, Aid |
-| Lightning | Lightning resistance, Static Discharge Aura, Elemental Adept: Lightning, Call Lightning |
-| Light | Radiant resistance, Crusader's Mantle, Sunbeam |
-| the Hunt | Aspect of the Elk, Aspect of the Wolf, Tiger Heart rage, Pack Tactics, Hunter's Mark |
+| Vitality | Aid, Bless |
+| Lightning | Lightning resistance, Elemental Adept: Lightning, Call Lightning |
+| Light | Radiant resistance, Bless, Sunbeam |
+| the Hunt | Tiger Heart rage, Pack Tactics, Hunter's Mark |
 | Resilience | Crystal Skin, mud-hardened resilience, Otiluke's Resilient Sphere |
 | Fire | Fire resistance, Fireball |
 | Frost | Cold resistance, Armor of Agathys, Ice Storm |
@@ -54,19 +54,22 @@ the enemy.
 | Thunder | Thunder resistance, Thunderwave |
 | the Mind | Psychic resistance, Mind Blast |
 | the Arcane | Mage Armor, Shield, Magic Missile |
-| War | Bless, Crusader's Mantle, Thunderwave |
-| the Wild | Barkskin, Aspect of the Elk, Pack Tactics, Hunter's Mark |
-| the Sun | Radiant resistance, Crusader's Mantle, Sunbeam |
+| War | Bless, Aid, Thunderwave |
+| the Wild | Barkskin, Pack Tactics, Hunter's Mark |
+| the Sun | Radiant resistance, Bless, Sunbeam |
 
 Some requested names are not exposed as standalone BG3 effects in the extracted
 data. The closest native implementations are used:
 
-- Animalistic Vitality / Warden of Vitality -> `AURA_OF_VITALITY`,
-  `AURA_OF_VITALITY_AURA`, and `AID`.
-- Crackling with Kereska's Lightning -> `STATIC_DISCHARGE_AURA` plus the
+- Animalistic Vitality / Warden of Vitality -> permanent `AID` and `BLESS`.
+- Crackling with Kereska's Lightning -> permanent lightning resistance plus the
   Elemental Adept: Lightning passive.
 - Muddy -> `MUDMEPHIT_HARD` (AC and maximum-HP resilience), not the restrained
   mud-mephit condition.
+
+Champion statuses are applied through generated `ENR_Perm_*` wrappers that
+clear the native status's `RemoveEvents`/`RemoveConditions`, so effects such as
+Mage Armor cannot remove themselves mid-fight.
 
 ## Changing champion chance in game
 

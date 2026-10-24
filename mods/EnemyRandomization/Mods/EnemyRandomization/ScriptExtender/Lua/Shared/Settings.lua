@@ -15,6 +15,10 @@ local registered = false
 function S.Register()
     if registered then return end
     registered = true
+    -- PersistentVars is a deprecated but useful savegame fallback. ModVars are
+    -- the primary store; this covers older BG3SE builds where ModVars are not
+    -- restored before the Lua bootstrap reads them.
+    PersistentVars = PersistentVars or {}
     if not (Ext and Ext.Vars and Ext.Vars.RegisterModVariable) then return end
 
     pcall(Ext.Vars.RegisterModVariable, MODULE_UUID, "ChampionChance", {
@@ -36,6 +40,9 @@ function S.Get(key, fallback)
             if okValue and value ~= nil then return value end
         end
     end
+    if type(PersistentVars) == "table" and PersistentVars[key] ~= nil then
+        return PersistentVars[key]
+    end
     return fallback
 end
 
@@ -44,6 +51,10 @@ function S.Set(key, value)
     local ok, vars = pcall(Ext.Vars.GetModVariables, MODULE_UUID)
     if not ok or not vars then return false end
     local wrote = pcall(function() vars[key] = value end)
+    if wrote then
+        PersistentVars = PersistentVars or {}
+        pcall(function() PersistentVars[key] = value end)
+    end
     if wrote and Ext.Vars.SyncModVariables then
         pcall(Ext.Vars.SyncModVariables, MODULE_UUID)
     end

@@ -193,6 +193,12 @@ local function grantChampionEffects(guid, champion)
             log("champion passive grant: %s -> %s ok=%s", passive, guid, tostring(ok))
         end
     end
+    -- Enemies may receive AC-bearing statuses such as Mage Armor. Replace the
+    -- no-dodge status after champion effects so ACOverrideFormula cannot
+    -- restore a hit-chance contribution.
+    if DOS2C and DOS2C.Armor and DOS2C.Armor.ForceNoDodge then
+        pcall(DOS2C.Armor.ForceNoDodge, guid)
+    end
     if not (Osi and Osi.AddSpell) then return end
     for _, spell in ipairs(champion.spells or {}) do
         local ok, result = pcall(Osi.AddSpell, guid, spell, 0, 1)

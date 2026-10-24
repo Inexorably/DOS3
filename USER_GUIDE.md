@@ -186,8 +186,9 @@ regenerates and packages them automatically.
 - Saving throws are removed from spell resolution.
 - Physical and magic armor are flat per-hit resistance sourced from equipment
   and effects. Armor does not deplete.
-- Enemy native AC is converted into armor resistance rather than continuing to
-  act as hit avoidance.
+- Enemy AC is converted into armor resistance rather than continuing to act as
+  hit avoidance. A hidden no-dodge status also cancels AC from enemy statuses,
+  spells, and passives, including ACOverrideFormula effects.
 
 ### Useful DOS2 Combat commands
 

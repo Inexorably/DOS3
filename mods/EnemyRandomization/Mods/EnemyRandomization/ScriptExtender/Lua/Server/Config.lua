@@ -55,3 +55,13 @@ if ER.Settings then
         ER.Config.CHAMPION_CHANCE = math.max(0.0, math.min(1.0, value))
     end
 end
+
+if Ext and Ext.Events and Ext.Events.SessionLoaded then
+    Ext.Events.SessionLoaded:Subscribe(function()
+        local saved = ER.Settings and ER.Settings.Get("ChampionChance", nil)
+        local value = tonumber(saved)
+        if value then
+            ER.Config.CHAMPION_CHANCE = math.max(0.0, math.min(1.0, value))
+        end
+    end)
+end

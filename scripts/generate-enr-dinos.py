@@ -72,6 +72,11 @@ def handle(tag):
     return 'h' + uuid.uuid5(NS, 'EnemyRandomization/' + tag).hex
 
 
+def permanent_status_name(status):
+    clean = re.sub(r'[^A-Za-z0-9]+', '_', status).strip('_')
+    return 'ENR_Perm_' + clean
+
+
 def template_guid(tag):
     return str(uuid.uuid5(NS, 'EnemyRandomization/template/' + tag))
 
@@ -293,37 +298,37 @@ NON_SUMMON_CHAMPIONS = [
         'key': 'VITALITY',
         'name': 'Champion of Vitality',
         'icon': 'Spell_Evocation_AuraOfVitality',
-        'statuses': ['AURA_OF_VITALITY', 'AURA_OF_VITALITY_AURA', 'AID'],
+        'statuses': ['AID', 'BLESS'],
         'passives': [],
         'spells': [],
-        'summary': 'This champion is empowered by Animalistic Vitality and Warden of Vitality.',
+        'summary': 'This champion is empowered by permanent Aid and Bless effects.',
     },
     {
         'key': 'LIGHTNING',
         'name': 'Champion of Lightning',
         'icon': 'Spell_Conjuration_CallLightning',
-        'statuses': ['RESISTANCE_LIGHTNING', 'STATIC_DISCHARGE_AURA'],
+        'statuses': ['RESISTANCE_LIGHTNING'],
         'passives': ['ElementalAdept_Lightning'],
         'spells': ['Target_CallLightning'],
-        'summary': 'This champion crackles with Kereska-like lightning, resists lightning, and radiates Static Discharge.',
+        'summary': 'This champion crackles with Kereska-like lightning and resists lightning damage.',
     },
     {
         'key': 'LIGHT',
         'name': 'Champion of Light',
         'icon': 'Spell_Evocation_Sunbeam',
-        'statuses': ['RESISTANCE_RADIANT', 'CRUSADERS_MANTLE'],
+        'statuses': ['RESISTANCE_RADIANT', 'BLESS'],
         'passives': [],
         'spells': ['Zone_Sunbeam'],
-        'summary': 'This champion resists radiant damage, projects Crusader\'s Mantle, and knows Radiant Sunbeam.',
+        'summary': 'This champion resists radiant damage, is blessed, and knows Radiant Sunbeam.',
     },
     {
         'key': 'HUNT',
         'name': 'Champion of the Hunt',
         'icon': 'Action_AspectOfTheElk',
-        'statuses': ['ASPECT_OF_THE_ELK', 'ASPECT_OF_THE_WOLF', 'RAGE_TOTEM_TIGER'],
+        'statuses': ['RAGE_TOTEM_TIGER'],
         'passives': ['PackTactics'],
         'spells': ['Target_HuntersMark'],
-        'summary': 'This champion carries the elk and wolf aspects, Tiger Heart rage, Hunter\'s Mark, and Pack Tactics.',
+        'summary': 'This champion carries Tiger Heart rage, Hunter\'s Mark, and Pack Tactics.',
     },
     {
         'key': 'RESILIENCE',
@@ -401,28 +406,28 @@ NON_SUMMON_CHAMPIONS = [
         'key': 'WAR',
         'name': 'Champion of War',
         'icon': 'Spell_Evocation_CrusadersMantle',
-        'statuses': ['BLESS', 'CRUSADERS_MANTLE'],
+        'statuses': ['BLESS', 'AID'],
         'passives': [],
         'spells': ['Zone_Thunderwave'],
-        'summary': 'This champion is blessed, projects Crusader\'s Mantle, and knows Thunderwave.',
+        'summary': 'This champion is blessed and empowered by Aid, and knows Thunderwave.',
     },
     {
         'key': 'WILD',
         'name': 'Champion of the Wild',
         'icon': 'Action_AspectOfTheElk',
-        'statuses': ['BARKSKIN', 'ASPECT_OF_THE_ELK'],
+        'statuses': ['BARKSKIN'],
         'passives': ['PackTactics'],
         'spells': ['Target_HuntersMark'],
-        'summary': 'This champion is protected by Barkskin, the elk aspect, and Pack Tactics.',
+        'summary': 'This champion is protected by Barkskin and Pack Tactics.',
     },
     {
         'key': 'SUN',
         'name': 'Champion of the Sun',
         'icon': 'Spell_Evocation_Sunbeam',
-        'statuses': ['RESISTANCE_RADIANT', 'CRUSADERS_MANTLE'],
+        'statuses': ['RESISTANCE_RADIANT', 'BLESS'],
         'passives': [],
         'spells': ['Zone_Sunbeam'],
-        'summary': 'This champion resists radiant damage, projects Crusader\'s Mantle, and knows Sunbeam.',
+        'summary': 'This champion resists radiant damage, is blessed, and knows Sunbeam.',
     },
 ]
 
@@ -719,6 +724,25 @@ def build_stats_and_loca(guids, stats_by_tag):
             '',
         ]
 
+    # Permanent wrappers for champion-granted statuses. Native statuses such
+    # as Mage Armor can remove themselves OnTurn/OnEquip; champion boons must
+    # remain for the whole fight.
+    permanent_sources = sorted({
+        status
+        for champion in NON_SUMMON_CHAMPIONS
+        for status in champion.get('statuses', [])
+    })
+    for source in permanent_sources:
+        wrapped = permanent_status_name(source)
+        lines += [
+            'new entry "%s"' % wrapped,
+            'type "StatusData"',
+            'using "%s"' % source,
+            'data "RemoveEvents" ""',
+            'data "RemoveConditions" ""',
+            '',
+        ]
+
     # Hidden per-spell cooldown markers used by SummonCooldown.lua.
     for champion in CHAMPIONS:
         for item in champion['summons']:
@@ -802,7 +826,10 @@ def build_stats_and_loca(guids, stats_by_tag):
         else:
             spell_list = [item['spell'] for item in champion.get('summons', [])]
         spells = ', '.join(json.dumps(item) for item in spell_list)
-        statuses = ', '.join(json.dumps(item) for item in champion.get('statuses', []))
+        status_list = champion.get('statuses', [])
+        if 'summons' not in champion:
+            status_list = [permanent_status_name(item) for item in status_list]
+        statuses = ', '.join(json.dumps(item) for item in status_list)
         passives = ', '.join(json.dumps(item) for item in champion.get('passives', []))
         lua.append('    { status = %s, spells = { %s }, statuses = { %s }, passives = { %s }, weight = 1 },'
                    % (json.dumps(status), spells, statuses, passives))

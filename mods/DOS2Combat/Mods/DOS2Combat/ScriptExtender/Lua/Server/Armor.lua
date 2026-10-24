@@ -14,6 +14,7 @@ local U = DOS2C.Utils
 
 local resistances = {}
 local originalACs = {}
+local extraACs = {}
 local enemyACStripped = {}
 
 local ARMOR_SLOTS = {
@@ -80,6 +81,23 @@ local function armorFromGear(handle)
     return physical, magic, pieces
 end
 
+local function gearArmorClass(handle)
+    local guid = U.GuidOf(handle)
+    if not guid or not (Osi and Osi.GetEquippedItem) then return 0 end
+    local total = 0
+    for _, slot in ipairs(ARMOR_SLOTS) do
+        local ok, item = pcall(Osi.GetEquippedItem, guid, slot)
+        if ok and item then
+            local entity = U.EntityOf(item)
+            local armor = entity and entity.Armor
+            if armor then
+                total = total + originalArmorClass(entity, armor)
+            end
+        end
+    end
+    return total
+end
+
 local function isPartyCharacter(handle, entity)
     local guid = U.GuidOf(handle)
     if not guid then return true end
@@ -121,37 +139,39 @@ local function stripEnemyAC(handle)
     local cfg = DOS2C.Config
     if not cfg.ENEMY_INNATE_ARMOR_ENABLED then return false end
     local guid = U.GuidOf(handle)
-    if not guid or enemyACStripped[guid] then return true end
+    if not guid then return false end
 
+    local function noDodgeActive()
+        if not (Osi and Osi.HasStatus) then return false end
+        local ok, result = pcall(Osi.HasStatus, guid, "DOS2C_NoDodge")
+        return ok and (result == 1 or result == true)
+    end
+
+    -- Keep a permanent, hidden -100 AC status on enemies. Unlike a one-time
+    -- ArmorClass setter, this also cancels AC granted later by champion
+    -- statuses, spells, gear, or passives. Enemy AC has already been converted
+    -- into flat armor by armorFromInnate/gear handling before this runs.
     local applied = false
+    if Osi and Osi.ApplyStatus and not noDodgeActive() then
+        applied = pcall(Osi.ApplyStatus, guid, "DOS2C_NoDodge", -1, 1)
+    elseif noDodgeActive() then
+        applied = true
+    end
+
     if Osi and Osi.SetArmorClass then
-        local ok = pcall(Osi.SetArmorClass, guid, 10)
-        applied = ok or applied
+        pcall(Osi.SetArmorClass, guid, 10)
     end
     if Osi and Osi.SetArmorClassBoost then
         pcall(Osi.SetArmorClassBoost, guid, 0)
     end
+
     if not applied and Osi and Osi.AddBoosts then
-        local original = originalACs[guid] or 0
-        local delta = math.max(0, original - 10)
-        if delta <= 0 then delta = 100 end
-        applied = pcall(Osi.AddBoosts, guid, string.format("AC(-%d)", delta), "DOS2C_NoDodge")
+        applied = pcall(Osi.AddBoosts, guid, "AC(-100)", "DOS2C_NoDodge")
     end
-    if not applied and Osi and Osi.ApplyStatus then
-        local has = false
-        if Osi.HasStatus then
-            local ok, result = pcall(Osi.HasStatus, guid, "DOS2C_NoDodge")
-            has = ok and (result == 1 or result == true)
-        end
-        if not has then
-            applied = pcall(Osi.ApplyStatus, guid, "DOS2C_NoDodge", -1)
-        else
-            applied = true
-        end
-    end
+
     if applied then
         enemyACStripped[guid] = true
-        U.Log("enemy AC converted to armor: %s", guid)
+        U.Log("enemy AC converted to armor and hit-chance AC suppressed: %s", guid)
     else
         U.Log("enemy AC could not be removed: %s", guid)
     end
@@ -218,17 +238,43 @@ local function computeResistance(handle)
     local skillPhysical, skillMagic = armorFromSkills(handle)
     local entity = U.EntityOf(handle)
     local innatePhysical, innateMagic, innateAC = armorFromInnate(handle, entity, pieces)
-    if not isPartyCharacter(handle, entity) then stripEnemyAC(handle) end
+
+    local extraPhysical, extraMagic, extraAC = 0, 0, 0
+    local party = isPartyCharacter(handle, entity)
+    if not party then
+        -- Enemies with gear do not use armorFromInnate, but they may still have
+        -- AC from statuses/passives. Convert the excess over base AC + gear AC
+        -- into flat armor before suppressing native hit-chance AC.
+        if pieces > 0 and Osi and Osi.GetArmorClass then
+            local ok, totalAC = pcall(Osi.GetArmorClass, U.GuidOf(handle))
+            totalAC = ok and tonumber(totalAC) or 0
+            local gearAC = gearArmorClass(handle)
+            local guid = U.GuidOf(handle)
+            extraAC = math.max(0, totalAC - 10 - gearAC)
+            if extraAC > 0 and guid then
+                extraACs[guid] = extraAC
+            elseif guid and extraACs[guid] then
+                extraAC = extraACs[guid]
+            end
+            extraPhysical = extraAC * cfg.ENEMY_ARMOR_PER_AC
+            extraMagic = extraAC * cfg.ENEMY_MAGIC_PER_AC
+        end
+        stripEnemyAC(handle)
+    end
+
     return {
-        physical = cfg.ARMOR_BASE_PHYSICAL + gearPhysical + skillPhysical + innatePhysical,
-        magic = cfg.ARMOR_BASE_MAGIC + gearMagic + skillMagic + innateMagic,
+        physical = cfg.ARMOR_BASE_PHYSICAL + gearPhysical + skillPhysical + innatePhysical + extraPhysical,
+        magic = cfg.ARMOR_BASE_MAGIC + gearMagic + skillMagic + innateMagic + extraMagic,
         gearPhysical = gearPhysical,
         gearMagic = gearMagic,
         skillPhysical = skillPhysical,
         skillMagic = skillMagic,
         innatePhysical = innatePhysical,
         innateMagic = innateMagic,
+        extraPhysical = extraPhysical,
+        extraMagic = extraMagic,
         innateAC = innateAC,
+        extraAC = extraAC,
         pieces = pieces,
         enemyInnate = innateAC ~= nil,
     }
@@ -242,12 +288,13 @@ local function getResistance(handle)
     if not resist then
         resist = computeResistance(handle)
         resistances[key] = resist
-        U.Log("armor resist init %s: physical=%s magic=%s (gear=%s/%s skills=%s/%s innate=%s/%s ac=%s pieces=%s)",
+        U.Log("armor resist init %s: physical=%s magic=%s (gear=%s/%s skills=%s/%s innate=%s/%s extraAC=%s/%s ac=%s pieces=%s)",
             key,
             tostring(resist.physical), tostring(resist.magic),
             tostring(resist.gearPhysical), tostring(resist.gearMagic),
             tostring(resist.skillPhysical), tostring(resist.skillMagic),
             tostring(resist.innatePhysical), tostring(resist.innateMagic),
+            tostring(resist.extraPhysical), tostring(resist.extraMagic),
             tostring(resist.innateAC), tostring(resist.pieces))
     end
     return resist, key
@@ -383,6 +430,16 @@ function A.Set(handle, physical, magic)
     return true
 end
 
+function A.ForceNoDodge(handle)
+    local guid = U.GuidOf(handle)
+    if not guid then return false end
+    if Osi and Osi.RemoveStatus then
+        pcall(Osi.RemoveStatus, guid, "DOS2C_NoDodge")
+    end
+    enemyACStripped[guid] = nil
+    return stripEnemyAC(handle)
+end
+
 function A.Refresh(handle)
     local resist, key = getResistance(handle)
     if not resist then return false end
@@ -407,9 +464,60 @@ function A.Dump(handle)
         tostring(resist.skillPhysical), tostring(resist.skillMagic))
 end
 
+function A.PrepareAll()
+    if not (Ext and Ext.Entity and Ext.Entity.GetAllEntitiesWithComponent) then return 0 end
+    local seen, count = {}, 0
+    local function scan(component)
+        local ok, entities = pcall(Ext.Entity.GetAllEntitiesWithComponent, component)
+        if not ok or type(entities) ~= "table" then return end
+        for _, entity in ipairs(entities) do
+            local guid = U.GuidOf(entity)
+            if guid and not seen[guid] then
+                seen[guid] = true
+                local handled, err = pcall(function()
+                    if not isPartyCharacter(guid, entity) then
+                        computeResistance(guid)
+                    end
+                end)
+                if handled then count = count + 1
+                else U.Log("armor prepare error for %s: %s", guid, tostring(err)) end
+            end
+        end
+    end
+    scan("CombatParticipant")
+    scan("IsInCombat")
+    U.Log("armor prepare: %d combatants checked", count)
+    return count
+end
+
 if Ext.Events and Ext.Events.SessionLoaded then
     Ext.Events.SessionLoaded:Subscribe(function()
         resistances = {}
+        extraACs = {}
+        if Ext.Timer and Ext.Timer.WaitFor then
+            for _, delay in ipairs({ 500, 1500, 3000 }) do
+                Ext.Timer.WaitFor(delay, function() pcall(A.PrepareAll) end)
+            end
+        else
+            pcall(A.PrepareAll)
+        end
+    end)
+end
+
+if Ext.Entity and Ext.Entity.OnCreate then
+    pcall(Ext.Entity.OnCreate, "CombatStartedEvent", function()
+        if Ext.Timer and Ext.Timer.WaitFor then
+            Ext.Timer.WaitFor(200, function() pcall(A.PrepareAll) end)
+        else
+            pcall(A.PrepareAll)
+        end
+    end)
+    pcall(Ext.Entity.OnCreate, "CombatantJoinEvent", function()
+        if Ext.Timer and Ext.Timer.WaitFor then
+            Ext.Timer.WaitFor(200, function() pcall(A.PrepareAll) end)
+        else
+            pcall(A.PrepareAll)
+        end
     end)
 end
 
