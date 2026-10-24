@@ -14,6 +14,7 @@ local C = ER.Config
 local LOG = C.LOG_PREFIX
 
 local buffed = {}
+local championCache = {}
 local scanStarted = false
 
 local function log(fmt, ...)
@@ -237,13 +238,18 @@ local function applyChampion(guid, isBoss)
     end
     if #existing > 0 then
         pcall(Osi.ApplyStatus, guid, C.CHAMPION_MARKER, -1, 1)
-        for _, entry in ipairs(existing) do grantChampionEffects(guid, entry) end
+        championCache[guid] = {}
+        for _, entry in ipairs(existing) do
+            championCache[guid][#championCache[guid] + 1] = entry.status
+            grantChampionEffects(guid, entry)
+        end
         if isBoss and #existing < 2 then
             local exclude = {}
             for _, entry in ipairs(existing) do exclude[entry.status] = true end
             local second = pickChampion(exclude)
             if second and Osi and Osi.ApplyStatus then
                 if pcall(Osi.ApplyStatus, guid, second.status, -1, 1) then
+                    championCache[guid][#championCache[guid] + 1] = second.status
                     grantChampionEffects(guid, second)
                     log("boss second champion %s -> %s", second.status, guid)
                 end
@@ -267,12 +273,14 @@ local function applyChampion(guid, isBoss)
         log("champion apply failed %s -> %s", champion.status, guid)
         return false
     end
+    championCache[guid] = { champion.status }
     grantChampionEffects(guid, champion)
     log("champion %s -> %s", champion.status, guid)
 
     if isBoss then
         local second = pickChampion({ [champion.status] = true })
         if second and pcall(Osi.ApplyStatus, guid, second.status, -1, 1) then
+            championCache[guid][#championCache[guid] + 1] = second.status
             grantChampionEffects(guid, second)
             log("boss second champion %s -> %s", second.status, guid)
         end
@@ -362,6 +370,10 @@ local function collectCombatants()
         end
     end
     return list
+end
+
+function R.GetChampionStatuses(guid)
+    return championCache[guid]
 end
 
 function R.ResetChampionMarkers()

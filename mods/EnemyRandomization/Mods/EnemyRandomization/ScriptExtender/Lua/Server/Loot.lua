@@ -44,6 +44,13 @@ local function championStatuses(guid)
             result[#result + 1] = entry.status
         end
     end
+    if #result == 0 and ER.Randomizer and ER.Randomizer.GetChampionStatuses then
+        local cached = ER.Randomizer.GetChampionStatuses(guid)
+        if cached then
+            for _, status in ipairs(cached) do result[#result + 1] = status end
+            log("loot using cached champion statuses: %s count=%d", tostring(guid), #result)
+        end
+    end
     return result
 end
 
