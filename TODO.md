@@ -276,6 +276,9 @@ Known DOS2 visual references for the current test spells:
 - [x] Make champion chance runtime-configurable and persist it in a ModVar.
 - [ ] Verify `!enemyrandom_chance` persistence across save/reload and that the
       setting synchronizes to multiplayer clients.
+- [x] Add `!enemyrandom_reset` and clear champion markers when the chance changes.
+- [x] Guard `IsBoss` access and use the CombatParticipant Flags bit instead.
+- [x] Stop treating ordinary imps as summons during champion candidate scans.
 - [ ] Verify champion statuses remain permanent for the whole fight and do not
       rotate through auras or native status remove events.
 - [ ] Verify enemy AC/ACOverrideFormula grants no hit chance and is converted

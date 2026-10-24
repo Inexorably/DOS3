@@ -74,13 +74,13 @@ end
 
 local function isSummon(entity)
     if not entity then return false end
-    -- Do not access unknown components directly: BG3SE raises on invalid
-    -- EntityProxy component names and that would abort the whole scan.
-    for _, component in ipairs({ "SummonContainer", "SummonLifetime", "SummonCreatedEvent" }) do
-        local ok, value = pcall(function() return entity[component] end)
-        if ok and value ~= nil then return true end
-    end
-    return false
+    -- SummonLifetime is the reliable persistent marker. SummonContainer can be
+    -- present on ordinary characters that merely own summon abilities, so it is
+    -- not safe to use as the sole exclusion here.
+    local ok, lifetime = pcall(function() return entity.SummonLifetime end)
+    if ok and lifetime ~= nil then return true end
+    local okEvent, created = pcall(function() return entity.SummonCreatedEvent end)
+    return okEvent and created ~= nil
 end
 
 local function isParty(entity, guid, party)
@@ -218,7 +218,10 @@ end
 local function entityIsBoss(entity)
     if not entity then return false end
     local ok, participant = pcall(function() return entity.CombatParticipant end)
-    return ok and participant ~= nil and participant.IsBoss == true
+    if not (ok and participant) then return false end
+    -- Runtime EocCombatParticipant exposes a bit flag, not an IsBoss field.
+    local flags = tonumber(participant.Flags) or 0
+    return math.floor(flags / 4) % 2 == 1
 end
 
 local function applyChampion(guid, isBoss)
