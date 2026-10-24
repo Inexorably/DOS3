@@ -361,11 +361,17 @@ def main():
             if value:
                 passive_lines.append('data "%s" "%s"' % (field, value))
         passive_lines.append('')
+        condition_extra = []
+        if condition == 'HASTE':
+            # Permanent item haste must not inflict the native post-haste
+            # lethargy when the item is unequipped.
+            condition_extra.append('data "OnRemoveFunctors" ""')
         condition_lines += [
             'new entry "%s"' % status_name,
             'type "StatusData"',
             'using "%s"' % condition,
             'data "RemoveEvents" "%s"' % remove_events,
+        ] + condition_extra + [
             '',
         ] + passive_lines
 

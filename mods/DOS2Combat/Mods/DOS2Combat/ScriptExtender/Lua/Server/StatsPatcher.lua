@@ -876,9 +876,20 @@ local function patchExtraAttackStatus(name, stat)
     return U.SafeSet(stat, "Boosts", updated)
 end
 
+local function patchHasteLethargy(name, stat)
+    if name ~= "HASTE" then return false end
+    local functors = U.SafeGet(stat, "OnRemoveFunctors")
+    if type(functors) ~= "string" or functors == "" then return false end
+
+    local updated = functors:gsub("%s*ApplyStatus%(%s*HASTE_LETHARGY[^)]*%)", "")
+    if updated == functors then return false end
+    return U.SafeSet(stat, "OnRemoveFunctors", updated)
+end
+
 local function patchStatusDamage(name, stat)
     local changed = stripDeadSavingThrowBoosts(stat)
     if patchExtraAttackStatus(name, stat) then changed = true end
+    if patchHasteLethargy(name, stat) then changed = true end
     if patchAttackDisadvantage(stat) then changed = true end
     if DOS2C.Config.COMPRESS_DAMAGE_RANGES then
         for _, field in ipairs(STATUS_DAMAGE_FIELDS) do
