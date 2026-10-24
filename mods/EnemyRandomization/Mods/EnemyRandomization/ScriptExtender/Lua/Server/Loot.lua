@@ -80,7 +80,7 @@ local function spawnVariant(guid, variant, rarity, condition)
         log("loot: TemplateAddTo unavailable")
         return false
     end
-    local ok, result = pcall(Osi.TemplateAddTo, variant.template, guid, 1)
+    local ok, result = pcall(Osi.TemplateAddTo, variant.template, guid, 1, 1)
     if ok then
         log("loot dropped: %s [%s] base=%s condition=%s -> %s",
             variant.template, rarity, tostring(variant.name),
@@ -192,24 +192,27 @@ function L.SpawnAtPlayer(rarity, count, boss)
     count = math.max(1, math.min(20, tonumber(count) or 1))
     local x, y, z = positionOf(host)
     local spawned = 0
+    local lastError = nil
     for i = 1, count do
         local chosen = rarity or pickRarity(boss == true)
         local variant = pickVariant(chosen)
         if not variant then
             return spawned, "no variant for rarity " .. tostring(chosen)
         end
-        local ok, item = pcall(Osi.TemplateAddTo, variant.template, host, 1)
+        local ok, item = pcall(Osi.TemplateAddTo, variant.template, host, 1, 1)
         if not ok or not item or item == "" then
-            log("command loot spawn failed: %s error=%s", tostring(variant.template), tostring(item))
+            lastError = string.format("template %s failed: %s", tostring(variant.template), tostring(item))
+            log("command loot spawn failed: %s", lastError)
         else
             local dropped = false
             if x and y and z then dropped = dropItem(item, x, y, z) end
             spawned = spawned + 1
-            log("command loot spawned: %s [%s] base=%s dropped=%s pos=%s,%s,%s",
-                tostring(variant.template), tostring(chosen), tostring(variant.name),
+            log("command loot spawned: %s [%s] base=%s item=%s dropped=%s pos=%s,%s,%s",
+                tostring(variant.template), tostring(chosen), tostring(variant.name), tostring(item),
                 tostring(dropped), tostring(x), tostring(y), tostring(z))
         end
     end
+    if spawned == 0 then return 0, lastError or "no item was created" end
     return spawned, nil
 end
 
