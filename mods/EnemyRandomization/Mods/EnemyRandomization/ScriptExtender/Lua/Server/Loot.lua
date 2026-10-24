@@ -148,51 +148,85 @@ local function applyItem(item, entry)
     end
 
     logStatInfo(variant.stats)
+
+    local function itemStatsId()
+        if not (Ext and Ext.Entity and Ext.Entity.Get) then return nil end
+        local ok, entity = pcall(Ext.Entity.Get, item)
+        if not ok or not entity then return nil end
+        local readOk, statsId = pcall(function() return entity.Data.StatsId end)
+        if readOk and statsId then return tostring(statsId) end
+        return nil
+    end
+
+    local function attemptStat(label, fn)
+        local before = itemStatsId()
+        local ok, err = pcall(fn)
+        local after = itemStatsId()
+        log("loot stats branch: %s item=%s before=%s after=%s ok=%s err=%s",
+            label, tostring(item), tostring(before), tostring(after),
+            tostring(ok), tostring(err))
+        return ok and (after == variant.stats or before ~= after), after == variant.stats
+    end
+
     local statsOk = false
+    local statsApplied = false
     if variant.stats then
         local attempts = {
-            { name = "Osi.ItemSetStats", call = function() return Osi.ItemSetStats(item, variant.stats) end },
-            { name = "Osi.SetItemStats", call = function() return Osi.SetItemStats(item, variant.stats) end },
-            { name = "Ext.Osiris.CallFunction(ItemSetStats)", call = function()
+            { "Osi.ItemSetStats(item,stats)", function() return Osi.ItemSetStats(item, variant.stats) end },
+            { "Osi.ItemSetStats(stats,item)", function() return Osi.ItemSetStats(variant.stats, item) end },
+            { "Osi.SetItemStats(item,stats)", function() return Osi.SetItemStats(item, variant.stats) end },
+            { "Osi.SetItemStats(stats,item)", function() return Osi.SetItemStats(variant.stats, item) end },
+            { "Ext.Osiris.CallFunction(ItemSetStats,item,stats)", function()
                 return Ext.Osiris.CallFunction("ItemSetStats", item, variant.stats)
+            end },
+            { "Ext.Osiris.CallFunction(SetItemStats,item,stats)", function()
+                return Ext.Osiris.CallFunction("SetItemStats", item, variant.stats)
             end },
         }
         for _, attempt in ipairs(attempts) do
-            local ok, err = pcall(attempt.call)
-            log("loot item stats api: %s item=%s stats=%s ok=%s err=%s",
-                attempt.name, tostring(item), tostring(variant.stats), tostring(ok), tostring(err))
-            if ok then statsOk = true break end
+            local ok, applied = attemptStat(attempt[1], attempt[2])
+            statsOk = statsOk or ok
+            statsApplied = statsApplied or applied
         end
-        if not statsOk and Ext and Ext.Entity and Ext.Entity.Get then
-            local entityOk, itemEntity = pcall(Ext.Entity.Get, item)
-            if entityOk and itemEntity then
-                local writeOk, writeErr = pcall(function() itemEntity.Data.StatsId = variant.stats end)
-                log("loot item stats direct Data.StatsId write: ok=%s err=%s", tostring(writeOk), tostring(writeErr))
-                if writeOk then
-                    pcall(function() itemEntity:Replicate("Data") end)
-                    pcall(function() itemEntity:Replicate("Stats") end)
-                    statsOk = true
+
+        if Ext and Ext.Entity and Ext.Entity.Get then
+            local entityOk, entity = pcall(Ext.Entity.Get, item)
+            if entityOk and entity then
+                local function writeStats(replicateField)
+                    entity.Data.StatsId = variant.stats
+                    if replicateField then pcall(function() entity:Replicate(replicateField) end) end
                 end
+                local ok, applied = attemptStat("Data.StatsId write", function() writeStats(nil) end)
+                statsOk = statsOk or ok
+                statsApplied = statsApplied or applied
+                ok, applied = attemptStat("Data.StatsId write+Replicate(Data)", function() writeStats("Data") end)
+                statsOk = statsOk or ok
+                statsApplied = statsApplied or applied
+                ok, applied = attemptStat("Data.StatsId write+Replicate(Stats)", function() writeStats("Stats") end)
+                statsOk = statsOk or ok
+                statsApplied = statsApplied or applied
             end
         end
+        statsOk = statsOk or statsApplied
     end
+
     logItemInfo(item)
+
     if variant.rarity then
         local rarityValue = RARITY_ENUM[variant.rarity] or 0
         local attempts = {
-            { name = "Osi.ItemSetRarity(string)", call = function() return Osi.ItemSetRarity(item, variant.rarity) end },
-            { name = "Osi.ItemSetRarity(number)", call = function() return Osi.ItemSetRarity(item, rarityValue) end },
-            { name = "Osi.SetItemRarity(number)", call = function() return Osi.SetItemRarity(item, rarityValue) end },
+            { "Osi.ItemSetRarity(string)", function() return Osi.ItemSetRarity(item, variant.rarity) end },
+            { "Osi.ItemSetRarity(number)", function() return Osi.ItemSetRarity(item, rarityValue) end },
+            { "Osi.SetItemRarity(string)", function() return Osi.SetItemRarity(item, variant.rarity) end },
+            { "Osi.SetItemRarity(number)", function() return Osi.SetItemRarity(item, rarityValue) end },
+            { "Ext.Osiris.CallFunction(ItemSetRarity,string)", function()
+                return Ext.Osiris.CallFunction("ItemSetRarity", item, variant.rarity)
+            end },
         }
-        local rarityOk = false
         for _, attempt in ipairs(attempts) do
-            local ok, err = pcall(attempt.call)
-            log("loot item rarity api: %s item=%s rarity=%s ok=%s err=%s",
-                attempt.name, tostring(item), tostring(variant.rarity), tostring(ok), tostring(err))
-            if ok then rarityOk = true break end
-        end
-        if not rarityOk then
-            log("loot item rarity failed: item=%s rarity=%s", tostring(item), tostring(variant.rarity))
+            local ok, err = pcall(attempt[2])
+            log("loot rarity branch: %s item=%s rarity=%s ok=%s err=%s",
+                attempt[1], tostring(item), tostring(variant.rarity), tostring(ok), tostring(err))
         end
     end
 
