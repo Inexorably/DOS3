@@ -79,9 +79,11 @@ local function characterForUser(userId)
     end
 
     for _, candidate in ipairs(candidates) do
-        if candidate.numeric == wanted then
-            log("[RSA] respec user %s -> character %s (UserAvatar)",
-                tostring(userId), candidate.guid)
+        -- The network UserId and UserAvatar.UserID are offset by one in the
+        -- observed BG3 build (for example 65536 vs 65537).
+        if candidate.numeric == wanted or candidate.numeric == wanted + 1 then
+            log("[RSA] respec user %s -> character %s (UserAvatar, numeric %s)",
+                tostring(userId), candidate.guid, tostring(candidate.numeric))
             return candidate.guid
         end
     end
@@ -119,7 +121,9 @@ local function launchRespec(guid)
     for index, attempt in ipairs(attempts) do
         log("[RSA] respec PROC attempt %d name=%s type=%s guid=%s",
             index, attempt.name, type(attempt.fn), tostring(guid))
-        if type(attempt.fn) == "function" then
+        -- Osi procedure entries are callable userdata proxies, not Lua
+        -- functions, so do not reject them based on type().
+        if attempt.fn ~= nil then
             local ok, result = pcall(attempt.fn, guid, reason)
             log("[RSA] respec PROC attempt %d result ok=%s result=%s",
                 index, tostring(ok), tostring(result))
