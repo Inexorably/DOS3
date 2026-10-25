@@ -392,6 +392,7 @@ end
 -- subtype consumed by Tooltips.xaml. Keep explicit types when the computed
 -- numeric duration did not come from a longer recharge rule.
 local function runtimeCooldownType(explicit, explicitTurns, turns, recharge)
+    local cfg = DOS2C.Config
     if type(explicit) ~= "string" or explicit == "" then return nil end
     if explicitTurns and explicitTurns ~= turns then return nil end
     if type(recharge) == "string" and recharge ~= "" then
@@ -1083,11 +1084,25 @@ local function eachStat(statType, handler)
     if not ok or type(names) ~= "table" then return 0 end
 
     local count = 0
+    local errors = 0
     for _, name in ipairs(names) do
         local got, stat = pcall(Ext.Stats.Get, name)
         if got and stat then
-            if handler(name, stat) then count = count + 1 end
+            -- A malformed or unsupported entry must not abort the entire pass.
+            local handled, changedOrError = pcall(handler, name, stat)
+            if not handled then
+                errors = errors + 1
+                if errors <= 20 then
+                    U.Log("stat patch error %s/%s: %s",
+                        tostring(statType), tostring(name), tostring(changedOrError))
+                end
+            elseif changedOrError then
+                count = count + 1
+            end
         end
+    end
+    if errors > 20 then
+        U.Log("stat patch suppressed %d additional %s errors", errors - 20, tostring(statType))
     end
     return count
 end

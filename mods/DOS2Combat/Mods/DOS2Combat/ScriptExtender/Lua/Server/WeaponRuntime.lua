@@ -15,6 +15,7 @@ local DICE_SIDES = { [0] = 4, [1] = 6, [2] = 8, [3] = 10, [4] = 12, [5] = 20, [6
 local DICE_ENUM = { [4] = 0, [6] = 1, [8] = 2, [10] = 3, [12] = 4, [20] = 5, [100] = 6 }
 local VALID_DICE = { 4, 6, 8, 10, 12, 20, 100 }
 local patched = {}
+local sampleLogged = false
 
 local function rollList(value)
     if type(value) == "table" then return value end
@@ -34,7 +35,22 @@ end
 
 local function sidesOf(roll)
     local raw = tonumber(roll.DiceValue)
-    return raw and DICE_SIDES[raw] or nil
+    if raw then
+        -- BG3SE usually exposes DiceValue as an enum ordinal (0=d4 .. 6=d100).
+        if DICE_SIDES[raw] then return DICE_SIDES[raw] end
+        -- Some builds expose the number of sides directly.
+        for _, sides in ipairs(VALID_DICE) do
+            if raw == sides then return sides end
+        end
+    end
+
+    -- Be defensive: some saves/builds expose the enum as a string such as
+    -- "D12", "d12", or "DiceValue.D12".
+    local text = tostring(roll.DiceValue or ""):lower()
+    local digits = text:match("d%s*(%d+)") or text:match("(%d+)")
+    local sides = digits and tonumber(digits) or nil
+    if sides and DICE_ENUM[sides] then return sides end
+    return nil
 end
 
 local function chooseValidDie(count)
@@ -101,6 +117,7 @@ local function patchEntity(entity)
     if not weapon then return 0 end
 
     local foundRolls = false
+    local allParsed = true
     local changed = 0
     for _, mapName in ipairs({ "Rolls", "VersatileRolls" }) do
         local map = weapon[mapName]
@@ -109,6 +126,7 @@ local function patchEntity(entity)
                 for _, rolls in pairs(map) do
                     foundRolls = true
                     for _, roll in ipairs(rollList(rolls)) do
+                        if not sidesOf(roll) then allParsed = false end
                         if compressRoll(roll) then changed = changed + 1 end
                     end
                 end
@@ -122,7 +140,7 @@ local function patchEntity(entity)
 
     -- Do not mark an entity complete if the roll map was empty when its
     -- OnCreate event fired; those Rolls are populated later in the load.
-    if foundRolls then patched[guid] = true end
+    if foundRolls and allParsed then patched[guid] = true end
     return changed
 end
 
@@ -142,6 +160,24 @@ function W.PatchAll()
     end
     U.Log("weapon runtime scan: %d entities, %d weapons, %d rolls compressed",
         #entities, weapons, total)
+    if total == 0 and not sampleLogged then
+        sampleLogged = true
+        for _, entity in ipairs(entities) do
+            local weapon = entity.Weapon
+            local rolls = weapon and (weapon.Rolls or weapon.VersatileRolls)
+            if rolls then
+                for _, list in pairs(rolls) do
+                    local first = rollList(list)[1]
+                    if first then
+                        U.Log("weapon runtime sample: DiceValue=%s type=%s count=%s add=%s",
+                            tostring(first.DiceValue), type(first.DiceValue),
+                            tostring(first.AmountOfDices), tostring(first.DiceAdditionalValue))
+                        return
+                    end
+                end
+            end
+        end
+    end
 end
 
 function W.Init()
