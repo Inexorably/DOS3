@@ -1,5 +1,9 @@
 # DOS2 Combat Overhaul TODO
 
+## Code review
+
+- [ ] Work through CODE_REVIEW.md findings and remove the file when the checklist is complete.
+
 ## Damage variance
 
 - [x] Replace deterministic damage flattening with centered range compression.

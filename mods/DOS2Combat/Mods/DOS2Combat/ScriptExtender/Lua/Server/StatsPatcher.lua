@@ -793,10 +793,22 @@ local function patchSpell(name, stat)
             elseif hasSave then
                 clearRoll = cfg.REMOVE_SAVING_THROWS
             end
+        elseif type(roll) == "table" then
+            -- Ext.Stats exposes SpellRoll as a table expression object even
+            -- for weapon attacks. The old string-only path left attack rolls
+            -- active, which made ranged attacks show native hit percentages.
+            clearRoll = cfg.REMOVE_ATTACK_ROLLS or cfg.REMOVE_SAVING_THROWS
         end
         if clearRoll then
             if originalRolls[name] == nil then originalRolls[name] = roll end
-            if U.SafeSet(stat, "SpellRoll", "") then changed = true end
+            local cleared = U.SafeSet(stat, "SpellRoll", "")
+            if not cleared then cleared = U.SafeSet(stat, "SpellRoll", nil) end
+            if not cleared then cleared = U.SafeSet(stat, "SpellRoll", {}) end
+            if cleared then
+                changed = true
+            else
+                U.Log("could not clear SpellRoll for %s (type=%s)", tostring(name), type(roll))
+            end
             if U.SafeGet(stat, "TooltipAttackSave") ~= nil then
                 if U.SafeSet(stat, "TooltipAttackSave", "") then changed = true end
             end
