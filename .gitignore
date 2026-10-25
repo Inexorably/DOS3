@@ -15,3 +15,7 @@ mods/EnemyRandomization/Public/EnemyRandomization/Stats/Generated/Data/EnemyRand
 mods/EnemyRandomization/Mods/EnemyRandomization/ScriptExtender/Lua/Server/GeneratedLoot.lua
 mods/EnemyRandomization/Public/EnemyRandomization/RootTemplates/_merged.lsf
 mods/EnemyRandomization/Public/EnemyRandomization/Stats/Generated/Data/EnemyRandomizationLoot_*.txt
+
+# Python test artifacts
+__pycache__/
+*.pyc
