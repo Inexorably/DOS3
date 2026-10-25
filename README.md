@@ -126,17 +126,17 @@ Ubuntu runner because LSLib requires Windows.
 ### Useful commands
 
 ```text
-!dos2c_status
-!dos2c_ap
-!dos2c_armor [guid]
-!dos2c_setarmor <physical> <magic>
-!dos2c_resetarmor
-!dos2c_patch
-!dos2c_fixap
-!dos2c_rolls on|off
-!dos2c_armorui on|off
-!dos2c_debug on|off
-!dos2c_weapon
+!dos2c_status                 # print AP, cooldown, armor, and patch state
+!dos2c_ap                     # dump the host's ActionResources (current/max AP)
+!dos2c_armor [guid]           # show physical/magic armor for the host or a GUID
+!dos2c_setarmor <phys> <mag>   # override the host's flat armor values
+!dos2c_resetarmor             # clear and recompute cached armor from AC/statuses
+!dos2c_patch                  # reapply the stat patches and repair runtime AP
+!dos2c_fixap                  # reapply the AP pool to existing-save characters
+!dos2c_rolls on|off           # debug: restore native rolls / reapply no-roll rules
+!dos2c_armorui on|off         # toggle the client armor/accuracy overlay
+!dos2c_debug on|off           # toggle verbose DOS2Combat logging
+!dos2c_weapon                 # print equipped weapon stats and dice-roll data
 ```
 
 Use `!dos2c_status` first when diagnosing a problem. The BG3SE console opens
@@ -184,9 +184,10 @@ The champion chance is a decimal from **0.0 to 1.0**:
 ```
 
 ```text
-!enemyrandom_chance 0.125
-!enemyrandom_status
-!enemyrandom_reset
+!enemyrandom_chance 0.125    # set champion chance (0-1 decimal, persisted)
+!enemyrandom_status          # print the current champion chance
+!enemyrandom_reset           # clear champion markers and reroll eligible enemies
+!enemyrandom_apply           # force another buff/champion scan now
 ```
 
 Values such as `12.5` are rejected. The setting persists in the savegame and is
@@ -198,12 +199,12 @@ approximately `0.125`.
 ### Loot testing commands
 
 ```text
-!enemyrandom_loot
-!enemyrandom_loot rare
-!enemyrandom_loot legendary 5
-!enemyrandom_loot boss
-!enemyrandom_loot boss 2
-!enemyrandom_drop
+!enemyrandom_loot                 # one item using the normal rarity roll
+!enemyrandom_loot rare            # force one Rare item
+!enemyrandom_loot legendary 5     # spawn five Legendary items
+!enemyrandom_loot boss            # one guaranteed Very Rare/Legendary item
+!enemyrandom_loot boss 2          # two guaranteed boss-tier items
+!enemyrandom_drop                 # alias for !enemyrandom_loot
 ```
 
 The optional rarity is `uncommon`, `rare`, `veryrare`, `legendary`, or `boss`.
@@ -213,7 +214,7 @@ normal champion rarity table is used.
 Print every summoning champion and its summon list:
 
 ```text
-!enemyrandom_summons
+!enemyrandom_summons    # list every summoning champion and its summon skills
 ```
 
 ### Champion loot
@@ -297,7 +298,7 @@ or clean that save if health appears higher than expected.
 a **Respec character** button and a console command:
 
 ```text
-!respec
+!respec    # open Withers' respec UI for the host character
 ```
 
 The command opens Withers' native respec UI for the host character from

@@ -86,7 +86,7 @@ end)
 
 register("dos2c_resetarmor", function()
     DOS2C.Armor.ResetAll()
-    printLine("[DOS2C] armor pools refilled")
+    printLine("[DOS2C] armor caches cleared; values recompute from AC on next query")
 end)
 
 register("dos2c_patch", function()
