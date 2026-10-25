@@ -622,12 +622,18 @@ def load_character_stats():
 
 def level_band(base, level, native_level):
     # Source stat blocks are authored for an approximate native encounter level,
-    # not normalized to level 1. Scale HP/armor from that native level, but keep
-    # ability scores fixed: class/character levels do not generally increase
-    # ability scores in BG3.
+    # not normalized to level 1. HP follows the native HP curve fitted from the
+    # summon-source data; the level-appropriate minimum prevents high-native
+    # summons from collapsing to 1 HP at low levels. Ability scores remain fixed
+    # because BG3 character levels do not generally increase them.
     delta = level - native_level
+    ratio = level / native_level if native_level > 0 else 1.0
+    hp_power = ratio ** 1.237
+    raw_vitality = base['vitality'] * hp_power
+    min_vitality = 7.283 * (level ** 1.237)
+    vitality = max(raw_vitality, min_vitality)
     return {
-        'vitality': max(1, int(round(base['vitality'] * (1.0 + 0.18 * delta)))),
+        'vitality': max(1, int(round(vitality))),
         'armor': max(1, base['armor'] + (delta // 2)),
         'abilities': list(base['abilities']),
     }

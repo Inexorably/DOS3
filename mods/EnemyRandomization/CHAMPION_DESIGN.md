@@ -134,7 +134,9 @@ derived durability values relative to that level:
 
 ```text
 delta    = target level - native level
-Vitality = round(source Vitality * (1 + 0.18 * delta))
+ratio    = target level / native level
+Vitality = round(max(source Vitality * ratio^1.237,
+                     7.283 * target level^1.237))
 Armor    = source Armor + floor(delta / 2)
 Ability  = source Ability (unchanged at every level)
 ```
