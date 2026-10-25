@@ -276,13 +276,31 @@ local function parseDamageExpression(expr)
     return min, max, sawDice
 end
 
+local RANGE_DICE = { 4, 6, 8, 10, 12, 20, 100 }
+
 local function buildRangeExpression(min, max)
     if max < min then return nil end
     local count = max - min + 1
     if count <= 1 then return tostring(min) end
 
     local offset = min - 1
-    local base = "1d" .. tostring(count)
+    local sides
+    for _, candidate in ipairs(RANGE_DICE) do
+        if candidate >= count then
+            sides = candidate
+            break
+        end
+    end
+    if not sides then
+        -- BG3 dice sizes are limited; use multiple d100s for very wide ranges.
+        local dice = math.max(1, math.ceil(count / 100))
+        local base = tostring(dice) .. "d100"
+        if offset > 0 then return base .. "+" .. tostring(offset) end
+        if offset < 0 then return base .. "-" .. tostring(-offset) end
+        return base
+    end
+
+    local base = "1d" .. tostring(sides)
     if offset > 0 then
         return base .. "+" .. tostring(offset)
     elseif offset < 0 then

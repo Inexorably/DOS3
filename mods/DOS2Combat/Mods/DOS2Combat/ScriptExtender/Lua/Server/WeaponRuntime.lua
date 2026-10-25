@@ -107,31 +107,49 @@ local function patchEntity(entity)
 
     local weapon = entity.Weapon
     if not weapon then return 0 end
-    patched[guid] = true
+
+    local foundRolls = false
     local changed = 0
     for _, mapName in ipairs({ "Rolls", "VersatileRolls" }) do
         local map = weapon[mapName]
         if map then
-            for _, rolls in pairs(map) do
-                for _, roll in ipairs(rollList(rolls)) do
-                    if compressRoll(roll) then changed = changed + 1 end
+            local ok, err = pcall(function()
+                for _, rolls in pairs(map) do
+                    foundRolls = true
+                    for _, roll in ipairs(rollList(rolls)) do
+                        if compressRoll(roll) then changed = changed + 1 end
+                    end
                 end
+            end)
+            if not ok then
+                U.Log("weapon runtime map error guid=%s map=%s: %s",
+                    tostring(guid), mapName, tostring(err))
             end
         end
     end
+
+    -- Do not mark an entity complete if the roll map was empty when its
+    -- OnCreate event fired; those Rolls are populated later in the load.
+    if foundRolls then patched[guid] = true end
     return changed
 end
 
 function W.PatchAll()
     if not (Ext.Entity and Ext.Entity.GetAllEntitiesWithComponent) then return end
     local ok, entities = pcall(Ext.Entity.GetAllEntitiesWithComponent, "Weapon")
-    if not ok or type(entities) ~= "table" then return end
-    local total = 0
-    for _, entity in ipairs(entities) do
-        local changed = patchEntity(entity)
-        total = total + changed
+    if not ok or type(entities) ~= "table" then
+        U.Log("weapon runtime scan failed: %s", tostring(entities))
+        return
     end
-    if total > 0 then U.Log("weapon runtime rolls compressed: %d roll definitions", total) end
+    local total = 0
+    local weapons = 0
+    for _, entity in ipairs(entities) do
+        local weapon = entity.Weapon
+        if weapon then weapons = weapons + 1 end
+        total = total + patchEntity(entity)
+    end
+    U.Log("weapon runtime scan: %d entities, %d weapons, %d rolls compressed",
+        #entities, weapons, total)
 end
 
 function W.Init()
