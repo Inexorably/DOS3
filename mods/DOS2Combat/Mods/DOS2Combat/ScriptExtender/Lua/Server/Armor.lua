@@ -435,6 +435,66 @@ local function isCriticalHit(hit)
     return ok and result == true
 end
 
+local function hasPassive(handle, passive)
+    if not (Osi and Osi.HasPassive) then return false end
+    local guid = U.GuidOf(handle)
+    if not guid then return false end
+    local ok, result = pcall(Osi.HasPassive, guid, passive)
+    return ok and (result == 1 or result == true)
+end
+
+local function attackerOf(ev, hit)
+    for _, ref in ipairs({ hit.Inflicter, hit.InflicterOwner }) do
+        if ref then return ref end
+    end
+    if ev and ev.Attack then
+        for _, ref in ipairs({ ev.Attack.Inflicter, ev.Attack.InflicterOwner }) do
+            if ref then return ref end
+        end
+    end
+    return nil
+end
+
+local function isAttackDamage(ev, hit)
+    local cause = tonumber(hit.CauseType) or 0
+    -- SurfaceMove/Create/Status, StatusEnter/Tick, AURA, inventory/world
+    -- throws are not eligible for critical hits.
+    if cause == 1 or cause == 2 or cause == 3 or cause == 4
+        or cause == 5 or cause == 8 or cause == 9 then
+        return false
+    end
+
+    local with = tonumber(hit.HitWith) or 0
+    if with == 5 or with == 6 or with == 7 or with == 8 or with == 9 then
+        return false
+    end
+
+    local spellAttack = tonumber(hit.SpellAttackType) or 0
+    if spellAttack > 0 then return true end
+    if cause == 6 or cause == 7 or cause == 10 then return true end
+    if with == 1 or with == 2 or with == 3 or with == 4 then return true end
+    return ev and ev.Attack ~= nil or false
+end
+
+local function critChanceFor(attacker)
+    local cfg = DOS2C.Config
+    local chance = tonumber(cfg.CRIT_BASE_CHANCE) or 0
+    for status, bonus in pairs(cfg.CRIT_CHANCE_BONUSES or {}) do
+        if hasStatus(attacker, status) then
+            chance = chance + (tonumber(bonus) or 0)
+        end
+    end
+    for _, status in ipairs(cfg.CRIT_FORCED_STATUSES or {}) do
+        if hasStatus(attacker, status) then return 1.0 end
+    end
+    for _, passive in ipairs(cfg.CRIT_FORCED_PASSIVES or {}) do
+        if hasPassive(attacker, passive) then return 1.0 end
+    end
+    if chance < 0 then chance = 0 end
+    if chance > 1 then chance = 1 end
+    return chance
+end
+
 local function multiplyDamage(hit, multiplier)
     if not hit or not multiplier or multiplier == 1 then return 0 end
     local list = hit.DamageList
@@ -465,10 +525,26 @@ local function multiplyDamage(hit, multiplier)
     return changed
 end
 
-local function applyCriticalMultiplier(hit)
+local function applyCriticalMultiplier(ev, hit)
     local cfg = DOS2C.Config
     local multiplier = tonumber(cfg.CRIT_DAMAGE_MULTIPLIER) or 1
-    if multiplier <= 1 or not isCriticalHit(hit) then return false end
+    if multiplier <= 1 then return false end
+
+    local critical = isCriticalHit(hit)
+    if not critical and isAttackDamage(ev, hit) then
+        local attacker = attackerOf(ev, hit)
+        local chance = critChanceFor(attacker)
+        if chance > 0 then
+            local roll = math.random()
+            critical = roll < chance
+            if critical then
+                U.Log("critical roll: chance=%.3f roll=%.3f attacker=%s",
+                    chance, roll, tostring(U.GuidOf(attacker)))
+            end
+        end
+    end
+
+    if not critical then return false end
     local added = multiplyDamage(hit, multiplier)
     U.Log("critical hit multiplier x%.2f applied (+%d)", multiplier, added)
     return true
@@ -513,7 +589,7 @@ local function resistDamage(ev)
     end
 
     -- Native critical metadata is converted into a final-damage multiplier.
-    applyCriticalMultiplier(hit)
+    applyCriticalMultiplier(ev, hit)
 end
 
 function A.Get(handle)

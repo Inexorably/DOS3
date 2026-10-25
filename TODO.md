@@ -260,6 +260,11 @@ Known DOS2 visual references for the current test spells:
       armor; native AC and Dodge no longer affect hit chance.
 - [x] Apply a final-damage multiplier when native critical-hit metadata is
       present.
+- [x] Added a server-authoritative 5% custom critical chance, configurable
+      bonuses/forced statuses/passives, and a final x2 damage multiplier.
+- [ ] Verify custom criticals only hit attack damage, not surfaces or DoTs.
+- [ ] Convert native critical-threshold/critical-hit modifiers to the custom
+      critical-chance table.
 - [ ] Convert attack-roll passives/statuses to damage, range, or deterministic
       effects now that attacks cannot miss.
 - [ ] Replace Blinded's attack-roll penalty with a 1-1.5 m range cap plus a
