@@ -127,7 +127,7 @@ NATIVE_LEVELS = {
     'HookHorror': 4,
 }
 
-def summon(key, name, stats, source, icon):
+def summon(key, name, stats, source, icon, target_radius=18):
     return {
         'key': key,
         'name': name,
@@ -138,6 +138,7 @@ def summon(key, name, stats, source, icon):
         'stack': 'ENR_' + key + 'Stack',
         'tag': key,
         'native_level': NATIVE_LEVELS.get(key, 1),
+        'target_radius': target_radius,
     }
 
 
@@ -228,8 +229,8 @@ CHAMPIONS = [
         'name': 'Champion of Dragons',
         'icon': 'Action_StarryForm_Dragon',
         'summons': [
-            summon('RedDragon', 'Red Dragon', 'Dragon_AdultRed', 'BASE_Dragon', 'Action_StarryForm_Dragon'),
-            summon('BronzeDragon', 'Bronze Dragon', 'Dragon_Bronze', 'Dragon_Skeletal_Alive', 'Action_StarryForm_Dragon'),
+            summon('RedDragon', 'Red Dragon', 'Dragon_AdultRed', 'BASE_Dragon', 'Action_StarryForm_Dragon', 30),
+            summon('BronzeDragon', 'Bronze Dragon', 'Dragon_Bronze', 'Dragon_Skeletal_Alive', 'Action_StarryForm_Dragon', 30),
         ],
     },
     {
@@ -725,7 +726,7 @@ def build_stats_and_loca(guids, stats_by_tag):
                 'data "SpellProperties" "%s"' % summon_properties(guids, item),
                 'data "CastTargetHitDelay" "500"',
                 'data "AIWeight" "100"',
-                'data "TargetRadius" "18"',
+                'data "TargetRadius" "%d"' % item.get('target_radius', 18),
                 'data "TargetConditions" "%s"' % summon_conditions(guids, item),
                 'data "SpellContainerID" ""',
                 'data "ContainerSpells" ""',

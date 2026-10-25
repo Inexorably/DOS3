@@ -1097,6 +1097,42 @@
             <MultiDataTrigger>
                 <MultiDataTrigger.Conditions>
                     <Condition Binding="{Binding TypeId}" Value="Cooldown"/>
+                    <Condition Binding="{Binding SubtypeId}" Value="OncePerShortRest"/>
+                </MultiDataTrigger.Conditions>
+                <MultiDataTrigger.Setters>
+                    <Setter Property="ls:TextBlockFormatter.SourceText" Value="{Binding Source='hDOS2CCDDetail3',Converter={StaticResource TranslatedStringConverter}}" />
+                </MultiDataTrigger.Setters>
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding TypeId}" Value="Cooldown"/>
+                    <Condition Binding="{Binding SubtypeId}" Value="OncePerShortRestPerItem"/>
+                </MultiDataTrigger.Conditions>
+                <MultiDataTrigger.Setters>
+                    <Setter Property="ls:TextBlockFormatter.SourceText" Value="{Binding Source='hDOS2CCDDetail4',Converter={StaticResource TranslatedStringConverter}}" />
+                </MultiDataTrigger.Setters>
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding TypeId}" Value="Cooldown"/>
+                    <Condition Binding="{Binding SubtypeId}" Value="OncePerRest"/>
+                </MultiDataTrigger.Conditions>
+                <MultiDataTrigger.Setters>
+                    <Setter Property="ls:TextBlockFormatter.SourceText" Value="{Binding Source='hDOS2CCDDetail5',Converter={StaticResource TranslatedStringConverter}}" />
+                </MultiDataTrigger.Setters>
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding TypeId}" Value="Cooldown"/>
+                    <Condition Binding="{Binding SubtypeId}" Value="OncePerRestPerItem"/>
+                </MultiDataTrigger.Conditions>
+                <MultiDataTrigger.Setters>
+                    <Setter Property="ls:TextBlockFormatter.SourceText" Value="{Binding Source='hDOS2CCDDetail6',Converter={StaticResource TranslatedStringConverter}}" />
+                </MultiDataTrigger.Setters>
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding TypeId}" Value="Cooldown"/>
                     <Condition Binding="{Binding SubtypeId}" Value="UntilRestPerItem"/>
                 </MultiDataTrigger.Conditions>
                 <MultiDataTrigger.Setters>
@@ -1830,6 +1866,42 @@
                 </MultiDataTrigger.Conditions>
                 <MultiDataTrigger.Setters>
                     <Setter TargetName="PropertyText" Property="ls:TextBlockFormatter.SourceText" Value="{Binding Source='hDOS2CCDProp3',Converter={StaticResource TranslatedStringConverter}}" />
+                </MultiDataTrigger.Setters>
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding TypeId}" Value="Cooldown"/>
+                    <Condition Binding="{Binding SubtypeId}" Value="OncePerShortRest"/>
+                </MultiDataTrigger.Conditions>
+                <MultiDataTrigger.Setters>
+                    <Setter TargetName="PropertyText" Property="ls:TextBlockFormatter.SourceText" Value="{Binding Source='hDOS2CCDProp3',Converter={StaticResource TranslatedStringConverter}}" />
+                </MultiDataTrigger.Setters>
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding TypeId}" Value="Cooldown"/>
+                    <Condition Binding="{Binding SubtypeId}" Value="OncePerShortRestPerItem"/>
+                </MultiDataTrigger.Conditions>
+                <MultiDataTrigger.Setters>
+                    <Setter TargetName="PropertyText" Property="ls:TextBlockFormatter.SourceText" Value="{Binding Source='hDOS2CCDProp4',Converter={StaticResource TranslatedStringConverter}}" />
+                </MultiDataTrigger.Setters>
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding TypeId}" Value="Cooldown"/>
+                    <Condition Binding="{Binding SubtypeId}" Value="OncePerRest"/>
+                </MultiDataTrigger.Conditions>
+                <MultiDataTrigger.Setters>
+                    <Setter TargetName="PropertyText" Property="ls:TextBlockFormatter.SourceText" Value="{Binding Source='hDOS2CCDProp5',Converter={StaticResource TranslatedStringConverter}}" />
+                </MultiDataTrigger.Setters>
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding TypeId}" Value="Cooldown"/>
+                    <Condition Binding="{Binding SubtypeId}" Value="OncePerRestPerItem"/>
+                </MultiDataTrigger.Conditions>
+                <MultiDataTrigger.Setters>
+                    <Setter TargetName="PropertyText" Property="ls:TextBlockFormatter.SourceText" Value="{Binding Source='hDOS2CCDProp6',Converter={StaticResource TranslatedStringConverter}}" />
                 </MultiDataTrigger.Setters>
             </MultiDataTrigger>
             <MultiDataTrigger>
