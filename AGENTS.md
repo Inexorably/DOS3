@@ -117,21 +117,20 @@ and replaces the single latest GitHub release.
 - Generated loot stats are intentionally split into many files to avoid a
   single oversized stats load.
 
-## MCP and Skills
+## Where Guidance Belongs
 
-There is no repository-specific MCP server. The built-in filesystem access plus
-GitHub access is sufficient for normal work.
+- `AGENTS.md`: always-on repository rules, commands, architecture boundaries,
+  and short cross-cutting pitfalls. Keep it concise enough that every agent
+  reads it.
+- `README.md`: user-facing installation, controls, and gameplay behavior.
+- `docs/`: implementation maps and design references.
+- `TODO.md`: unresolved implementation and in-game verification work.
+- Task skills: repeatable multi-step procedures with a clear trigger, such as
+  regenerating EnemyRandomization assets, packaging and installing a mod, or
+  debugging BG3SE runtime behavior. Skills should reference this file rather
+  than duplicate its rules.
 
-Add MCP only if it provides a concrete capability that local tools cannot:
-
-- GitHub MCP for issues, pull requests, releases, and CI status.
-- A read-only BG3SE/API index if you need semantic search over extracted
-  headers and game-definition dumps.
-- A local LSLib wrapper only if it can package in the target CI environment.
-
-Do not add an MCP server that mutates `.analysis`, generated game assets, or
-repository files implicitly.
-
-For repo skills, encode the same guardrails as this file: read-before-edit,
-build/test commands, generated-asset rules, BG3SE event caveats, and the
-requirement to distinguish source tests from in-game verification.
+Do not create a skill for a single pitfall or command. Keep those in
+`AGENTS.md` until a real multi-step workflow exists to package. The BG3SE/Lua
+pitfalls above stay here because they must be loaded passively for every task;
+detailed debugging runbooks can move to a skill when they become long.
