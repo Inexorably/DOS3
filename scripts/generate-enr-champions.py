@@ -83,6 +83,18 @@ def template_guid(tag):
     return str(uuid.uuid5(NS, 'EnemyRandomization/template/' + tag))
 
 
+RANDOM_BUFF_SOURCES = [
+    "HASTE", "BLESS", "AID", "BARKSKIN", "BLADE_WARD",
+    "RESISTANCE_FIRE", "RESISTANCE_COLD", "RESISTANCE_LIGHTNING",
+    "RESISTANCE_ACID", "RESISTANCE_POISON", "RESISTANCE_PSYCHIC",
+    "RESISTANCE_RADIANT", "RESISTANCE_NECROTIC", "RESISTANCE_THUNDER",
+    "REFLECTIVE_SHELL", "VAMPIRIC_TOUCH", "HEROISM",
+    "SHIELD_OF_FAITH", "MAGE_ARMOR", "LONGSTRIDER", "SEE_INVISIBILITY",
+    "DARKVISION", "FREEDOM_OF_MOVEMENT", "DEATH_WARD", "STONESKIN",
+    "PROTECTION_FROM_EVIL_AND_GOOD", "ARMOR_OF_AGATHYS", "FIRE_SHIELD",
+    "LIGHT", "JUMP", "FEATHER_FALL", "WATER_WALK", "ALCH_ELIXIR_ENLARGE",
+]
+
 STATUS_DISPLAY_FALLBACKS = {
     'MUDMEPHIT_HARD': (
         'Mud-Hardened',
@@ -466,7 +478,10 @@ def load_status_stats():
             fields = {}
             for fm in re.finditer(r'^data "([^"]+)" "([^"]*)"', body, re.M):
                 fields[fm.group(1)] = fm.group(2)
-            entries.setdefault(name, fields)
+            if name in entries:
+                entries[name].update(fields)
+            else:
+                entries[name] = fields
     return entries
 
 
@@ -767,12 +782,25 @@ def build_stats_and_loca(guids, stats_by_tag):
     # Permanent wrappers for champion-granted statuses. Native statuses such
     # as Mage Armor can remove themselves OnTurn/OnEquip; champion boons must
     # remain for the whole fight.
+    status_stats = load_status_stats()
+    random_buff_sources = [
+        source for source in RANDOM_BUFF_SOURCES
+        if source in status_stats and status_stats[source].get('Boosts')
+    ]
+    missing_buffs = [source for source in RANDOM_BUFF_SOURCES if source not in status_stats]
+    no_boost_buffs = [
+        source for source in RANDOM_BUFF_SOURCES
+        if source in status_stats and not status_stats[source].get('Boosts')
+    ]
+    if missing_buffs:
+        print('missing random buff statuses:', ', '.join(missing_buffs))
+    if no_boost_buffs:
+        print('random buff statuses without Boosts:', ', '.join(no_boost_buffs))
     permanent_sources = sorted({
         status
         for champion in NON_SUMMON_CHAMPIONS
         for status in champion.get('statuses', [])
-    })
-    status_stats = load_status_stats()
+    } | set(random_buff_sources))
     status_texts = []
     for source in permanent_sources:
         wrapped = permanent_status_name(source)
@@ -901,6 +929,9 @@ def build_stats_and_loca(guids, stats_by_tag):
         passives = ', '.join(json.dumps(item) for item in champion.get('passives', []))
         lua.append('    { status = %s, spells = { %s }, statuses = { %s }, passives = { %s }, weight = 1 },'
                    % (json.dumps(status), spells, statuses, passives))
+    lua += ['  },', '  buffs = {']
+    for source in random_buff_sources:
+        lua.append('    %s,' % json.dumps(permanent_status_name(source)))
     lua += ['  },', '  summons = {']
     for champion in CHAMPIONS:
         for item in champion['summons']:

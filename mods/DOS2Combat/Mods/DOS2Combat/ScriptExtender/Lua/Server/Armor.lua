@@ -35,6 +35,20 @@ local function removeLegacyNoDodge(handle)
     pcall(Osi.RemoveStatus, guid, "DOS2C_NoDodge")
 end
 
+-- Native AC is only armor now. Apply the hidden AC suppression after caching
+-- the original AC so Barkskin/Mage Armor/etc. cannot leak into hit chance even
+-- if a spell still carries an attack-roll expression.
+local function suppressHitChanceAC(handle)
+    local cfg = DOS2C.Config
+    if not (cfg.REMOVE_ATTACK_ROLLS or cfg.REMOVE_SAVING_THROWS) then return false end
+    local guid = U.GuidOf(handle)
+    if not guid or not (Osi and Osi.ApplyStatus) then return false end
+    if hasStatus(guid, "DOS2C_NoDodge") then return true end
+    local ok = pcall(Osi.ApplyStatus, guid, "DOS2C_NoDodge", -1, 1)
+    if not ok then U.Log("could not suppress native AC for %s", tostring(guid)) end
+    return ok
+end
+
 local function equipmentProfile(handle)
     local guid = U.GuidOf(handle)
     if not guid or not (Osi and Osi.GetEquippedItem) then return false, false end
@@ -280,11 +294,19 @@ end
 
 local function computeResistance(handle)
     local cfg = DOS2C.Config
-    removeLegacyNoDodge(handle)
+    local guid = U.GuidOf(handle)
 
-    local entity = U.EntityOf(handle)
-    local ac = nativeArmorClass(handle, entity)
-    if not ac or ac <= 0 then ac = 10 end
+    -- Read AC before applying hit-chance suppression. The cached value still
+    -- includes Barkskin, Mage Armor, gear, and other real AC sources.
+    local ac = guid and originalACs[guid]
+    if not ac then
+        removeLegacyNoDodge(handle)
+        local entity = U.EntityOf(handle)
+        ac = nativeArmorClass(handle, entity)
+        if not ac or ac <= 0 then ac = 10 end
+        if guid then originalACs[guid] = ac end
+    end
+    suppressHitChanceAC(handle)
 
     -- Every AC source, including gear, spells, passives, and enemy natural AC,
     -- now feeds one generic armor value. There is no Dodge/hit-chance split.
@@ -606,14 +628,24 @@ function A.Set(handle, physical, magic)
 end
 
 function A.ForceNoDodge(handle)
-    -- Legacy compatibility: old saves may still carry DOS2C_NoDodge.
+    local guid = U.GuidOf(handle)
+    if guid then
+        originalACs[guid] = nil
+        resistances[guid] = nil
+    end
     removeLegacyNoDodge(handle)
+    computeResistance(handle)
     return true
 end
 
 function A.Refresh(handle)
     local resist, key = getResistance(handle)
     if not resist then return false end
+    if key then
+        originalACs[key] = nil
+        resistances[key] = nil
+    end
+    removeLegacyNoDodge(handle)
     local updated = computeResistance(handle)
     for k, v in pairs(updated) do resist[k] = v end
     U.Log("armor refresh %s: physical=%s magic=%s",
@@ -623,6 +655,7 @@ end
 
 function A.ResetAll()
     resistances = {}
+    originalACs = {}
     U.Log("armor resistance cache cleared")
 end
 
@@ -664,6 +697,7 @@ end
 if Ext.Events and Ext.Events.SessionLoaded then
     Ext.Events.SessionLoaded:Subscribe(function()
         resistances = {}
+        originalACs = {}
         extraACs = {}
         if Ext.Timer and Ext.Timer.WaitFor then
             for _, delay in ipairs({ 500, 1500, 3000 }) do

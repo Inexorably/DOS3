@@ -79,20 +79,30 @@ ER.Config = {
     -- beneficial/positive status. Do not add Burning, Bleeding, Bloodless, or
     -- other damaging/debuff statuses to this list. Add more entries only as we
     -- validate additional positive BG3 buffs.
-    BUFFS = {
-        { status = "HASTE", weight = 1 },
-        { status = "BLESS", weight = 1 },
-        { status = "AID", weight = 1 },
-        { status = "BARKSKIN", weight = 1 },
-        { status = "BLADE_WARD", weight = 1 },
-        { status = "RESISTANCE_FIRE", weight = 1 },
-        { status = "RESISTANCE_COLD", weight = 1 },
-        { status = "RESISTANCE_LIGHTNING", weight = 1 },
-        { status = "RESISTANCE_ACID", weight = 1 },
-        { status = "RESISTANCE_POISON", weight = 1 },
-        { status = "REFLECTIVE_SHELL", weight = 1 },
-        { status = "VAMPIRIC_TOUCH", weight = 1 },
-    },
+    BUFFS = (function()
+        local generated = ER.Generated and ER.Generated.buffs
+        if generated and #generated > 0 then
+            local list = {}
+            for _, status in ipairs(generated) do
+                list[#list + 1] = { status = status, weight = 1 }
+            end
+            return list
+        end
+        return {
+            { status = "HASTE", weight = 1 },
+            { status = "BLESS", weight = 1 },
+            { status = "AID", weight = 1 },
+            { status = "BARKSKIN", weight = 1 },
+            { status = "BLADE_WARD", weight = 1 },
+            { status = "RESISTANCE_FIRE", weight = 1 },
+            { status = "RESISTANCE_COLD", weight = 1 },
+            { status = "RESISTANCE_LIGHTNING", weight = 1 },
+            { status = "RESISTANCE_ACID", weight = 1 },
+            { status = "RESISTANCE_POISON", weight = 1 },
+            { status = "REFLECTIVE_SHELL", weight = 1 },
+            { status = "VAMPIRIC_TOUCH", weight = 1 },
+        }
+    end)(),
 }
 
 
