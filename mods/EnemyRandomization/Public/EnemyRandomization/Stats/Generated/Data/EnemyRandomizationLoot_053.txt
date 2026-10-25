@@ -1,0 +1,2632 @@
+-- Enemy Randomization generated loot catalog chunk 53.
+new entry "ENR_Loot_WPN_HUM_Torch_A_Legendary_L5_0"
+type "Weapon"
+using "WPN_Torch"
+data "Rarity" "Legendary"
+data "RootTemplate" "e7a79912-918f-5f51-adf6-e7e569fa70df"
+data "Boosts" "UnlockSpell(Teleportation_Revivify);UnlockSpell(Target_AnimateDead_Ghoul_6);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_FLY;ENR_LootPassive_MIRROR_IMAGE_3"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Shield_A_Uncommon_L0_0"
+type "Armor"
+using "ARM_Toy_Shield"
+data "Rarity" "Uncommon"
+data "RootTemplate" "b4eb5b35-4ea1-508d-90a5-b1eb599a2b3b"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_AID"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Shield_A_Uncommon_L1_0"
+type "Armor"
+using "ARM_Toy_Shield"
+data "Rarity" "Uncommon"
+data "RootTemplate" "a24e13a0-0750-5401-8550-ec98784589eb"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_EAGLES_SPLENDOR"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Shield_A_Uncommon_L2_0"
+type "Armor"
+using "ARM_Toy_Shield"
+data "Rarity" "Uncommon"
+data "RootTemplate" "b72f6dc2-4668-56aa-a6c0-05ddcf166807"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_BARKSKIN"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Shield_A_Uncommon_L3_0"
+type "Armor"
+using "ARM_Toy_Shield"
+data "Rarity" "Uncommon"
+data "RootTemplate" "f2d7b173-b8e9-51b7-b1e1-19b7140049e2"
+data "Boosts" "UnlockSpell(Shout_ShillelaghTestAnimation_Melee)"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Shield_A_Uncommon_L4_0"
+type "Armor"
+using "ARM_Toy_Shield"
+data "Rarity" "Uncommon"
+data "RootTemplate" "2f6b6115-843e-5b46-954b-f75cbca49947"
+data "Boosts" "Ability(Constitution,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Shield_A_Uncommon_L5_0"
+type "Armor"
+using "ARM_Toy_Shield"
+data "Rarity" "Uncommon"
+data "RootTemplate" "cbe4d4ad-0c5f-5716-a40a-45a42ec374d8"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_DEATH_WARD"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Shield_A_Rare_L0_0"
+type "Armor"
+using "ARM_Toy_Shield"
+data "Rarity" "Rare"
+data "RootTemplate" "502a7d33-6b43-581a-b0be-4a6c83a5eb66"
+data "Boosts" "Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_GUIDANCE"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Shield_A_Rare_L1_0"
+type "Armor"
+using "ARM_Toy_Shield"
+data "Rarity" "Rare"
+data "RootTemplate" "5bff3662-2986-5153-ba9d-b8a881ad1a29"
+data "Boosts" "Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_AURA_OF_DEVOTION_BUFF"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Shield_A_Rare_L2_0"
+type "Armor"
+using "ARM_Toy_Shield"
+data "Rarity" "Rare"
+data "RootTemplate" "fe144907-0381-50a4-9dec-797ce1bb75a0"
+data "Boosts" "Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_HEROES_FEAST"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Shield_A_Rare_L3_0"
+type "Armor"
+using "ARM_Toy_Shield"
+data "Rarity" "Rare"
+data "RootTemplate" "f1703df3-5aec-5b16-bcfc-800531608e20"
+data "Boosts" "UnlockSpell(Shout_Shield_Wizard);Ability(Constitution,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Shield_A_Rare_L4_0"
+type "Armor"
+using "ARM_Toy_Shield"
+data "Rarity" "Rare"
+data "RootTemplate" "203eff16-f406-5479-99d1-3c2216bf8119"
+data "Boosts" "UnlockSpell(Target_Sanctuary_Drider);Ability(Intelligence,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Shield_A_Rare_L5_0"
+type "Armor"
+using "ARM_Toy_Shield"
+data "Rarity" "Rare"
+data "RootTemplate" "96dade95-9700-51b2-8cf8-56fe7e4ffae2"
+data "Boosts" "UnlockSpell(Zone_BurningHands)"
+data "PassivesOnEquip" "ENR_LootPassive_ARMOR_OF_AGATHYS"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Shield_A_VeryRare_L0_0"
+type "Armor"
+using "ARM_Toy_Shield"
+data "Rarity" "VeryRare"
+data "RootTemplate" "6b9b773d-b9ba-5f93-acf8-3bad2ddeb643"
+data "Boosts" "UnlockSpell(Zone_Thunderwave);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_WARDING_FLARE;ENR_LootPassive_AURA_OF_DEVOTION_BUFF"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Shield_A_VeryRare_L1_0"
+type "Armor"
+using "ARM_Toy_Shield"
+data "Rarity" "VeryRare"
+data "RootTemplate" "3f33c64f-377c-5417-9497-585e6af13630"
+data "Boosts" "UnlockSpell(Shout_ComprehendLanguages);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_AID;ENR_LootPassive_AURA_OF_WARDING_BUFF"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Shield_A_VeryRare_L2_0"
+type "Armor"
+using "ARM_Toy_Shield"
+data "Rarity" "VeryRare"
+data "RootTemplate" "8cb48c59-5675-5057-bac1-1dccec6d1c4e"
+data "Boosts" "UnlockSpell(Shout_HealingWord_Mass);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_DIVINE_FAVOR;ENR_LootPassive_EAGLES_SPLENDOR"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Shield_A_VeryRare_L3_0"
+type "Armor"
+using "ARM_Toy_Shield"
+data "Rarity" "VeryRare"
+data "RootTemplate" "ebd12eeb-6777-5d03-a0c2-15e4fce1a24d"
+data "Boosts" "UnlockSpell(Target_DominatePerson_Mindflayer);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_ARMOR_OF_AGATHYS;ENR_LootPassive_RESISTANCE_NECROTIC"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Shield_A_VeryRare_L4_0"
+type "Armor"
+using "ARM_Toy_Shield"
+data "Rarity" "VeryRare"
+data "RootTemplate" "91196310-04cd-5721-b4c1-8511f625866f"
+data "Boosts" "UnlockSpell(Target_Identify);Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_MULTIATTACKDEFENSE;ENR_LootPassive_DEATH_WARD"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Shield_A_VeryRare_L5_0"
+type "Armor"
+using "ARM_Toy_Shield"
+data "Rarity" "VeryRare"
+data "RootTemplate" "1b85a662-f30e-541a-b9ab-697e883e8c62"
+data "Boosts" "UnlockSpell(Target_IrresistibleDance);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_FRIENDS;ENR_LootPassive_ALCH_ELIXIR_ENLARGE"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Shield_A_Legendary_L0_0"
+type "Armor"
+using "ARM_Toy_Shield"
+data "Rarity" "Legendary"
+data "RootTemplate" "be41e137-50b1-5917-ac7f-8bfab255055c"
+data "Boosts" "UnlockSpell(Target_ThornWhip);UnlockSpell(Target_Hex);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_MULTIATTACKDEFENSE;ENR_LootPassive_RELENTLESS_RAGE"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Shield_A_Legendary_L1_0"
+type "Armor"
+using "ARM_Toy_Shield"
+data "Rarity" "Legendary"
+data "RootTemplate" "531041eb-8317-509c-960f-3a1882a3e3d2"
+data "Boosts" "UnlockSpell(Target_Smite_Thunderous);UnlockSpell(Projectile_ChromaticOrb);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_DAYLIGHT;ENR_LootPassive_EXPEDITIOUS_RETREAT"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Shield_A_Legendary_L2_0"
+type "Armor"
+using "ARM_Toy_Shield"
+data "Rarity" "Legendary"
+data "RootTemplate" "f9885d07-3ac0-5cb1-b4dd-c664793d7a70"
+data "Boosts" "UnlockSpell(Shout_HealingWord_Mass);UnlockSpell(Target_CharmPerson);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_PSYCHIC;ENR_LootPassive_HEROES_FEAST"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Shield_A_Legendary_L3_0"
+type "Armor"
+using "ARM_Toy_Shield"
+data "Rarity" "Legendary"
+data "RootTemplate" "ae41c752-0e9c-5b16-86a4-beedeb349cdc"
+data "Boosts" "UnlockSpell(Target_Invisibility);UnlockSpell(Shout_DivineFavor);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BLUR;ENR_LootPassive_MIRROR_IMAGE_1"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Shield_A_Legendary_L4_0"
+type "Armor"
+using "ARM_Toy_Shield"
+data "Rarity" "Legendary"
+data "RootTemplate" "51e9d671-430a-54eb-82ab-4fc53f9c3695"
+data "Boosts" "UnlockSpell(Target_SpikeGrowth);UnlockSpell(Target_GuardianOfFaith);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_ASPECT_OF_THE_WOLF;ENR_LootPassive_AURA_OF_PROTECTION_BUFF"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Shield_A_Legendary_L5_0"
+type "Armor"
+using "ARM_Toy_Shield"
+data "Rarity" "Legendary"
+data "RootTemplate" "7280a15e-ee87-5b00-8214-2d8b3378c6b8"
+data "Boosts" "UnlockSpell(Teleportation_Revivify);UnlockSpell(Target_RiseUndead_DeathShepherd);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_TRUE_STRIKE;ENR_LootPassive_DIVINE_FAVOR"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Sword_A_Uncommon_L0_0"
+type "Weapon"
+using "WPN_ToySword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "06c08b36-1e34-5ff4-a3ee-3322f3a2a439"
+data "Boosts" "UnlockSpell(Target_FaerieFire)"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Sword_A_Uncommon_L1_0"
+type "Weapon"
+using "WPN_ToySword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "898016a4-9024-5f02-8c17-b9d66fe37522"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_BLADE_FLOURISH_DEFENSIVE"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Sword_A_Uncommon_L2_0"
+type "Weapon"
+using "WPN_ToySword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "319d541e-123f-5b05-b77d-8cdbf38076cc"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_BULLS_STRENGTH"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Sword_A_Uncommon_L3_0"
+type "Weapon"
+using "WPN_ToySword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "8ca464fe-d1f1-5297-a05a-c58ce5f6d4a2"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_POISON"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Sword_A_Uncommon_L4_0"
+type "Weapon"
+using "WPN_ToySword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "e2b1fa58-4a1e-5598-85c8-1fa9052d9c21"
+data "Boosts" "Ability(Intelligence,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Sword_A_Uncommon_L5_0"
+type "Weapon"
+using "WPN_ToySword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "5b54c2f3-8eb7-5d9f-b283-b2b471ec854b"
+data "Boosts" "UnlockSpell(Target_ChillTouch)"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Sword_A_Rare_L0_0"
+type "Weapon"
+using "WPN_ToySword"
+data "Rarity" "Rare"
+data "RootTemplate" "47feff68-7754-5d62-827d-37646b6a494a"
+data "Boosts" "UnlockSpell(Shout_ShillelaghTestAnimation_Melee);Ability(Intelligence,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Sword_A_Rare_L1_0"
+type "Weapon"
+using "WPN_ToySword"
+data "Rarity" "Rare"
+data "RootTemplate" "e495f0eb-031b-5eb2-86bf-a7a144fb7b01"
+data "Boosts" "UnlockSpell(Projectile_LightningBlade_Explosion)"
+data "PassivesOnEquip" "ENR_LootPassive_SURVIVAL_INSTINCT"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Sword_A_Rare_L2_0"
+type "Weapon"
+using "WPN_ToySword"
+data "Rarity" "Rare"
+data "RootTemplate" "0e1eb171-bcaa-5aec-83f0-2b608728acda"
+data "Boosts" "Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_EVIL_AND_GOO_749824"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Sword_A_Rare_L3_0"
+type "Weapon"
+using "WPN_ToySword"
+data "Rarity" "Rare"
+data "RootTemplate" "5e5d94e8-3600-5636-a46c-3c9a4045dace"
+data "Boosts" "Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_SHIELD"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Sword_A_Rare_L4_0"
+type "Weapon"
+using "WPN_ToySword"
+data "Rarity" "Rare"
+data "RootTemplate" "d8b65fdf-e896-56e7-bfa4-f771bb30210c"
+data "Boosts" "UnlockSpell(Target_RemoveCurse)"
+data "PassivesOnEquip" "ENR_LootPassive_ASPECT_OF_THE_STALLION"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Sword_A_Rare_L5_0"
+type "Weapon"
+using "WPN_ToySword"
+data "Rarity" "Rare"
+data "RootTemplate" "9dda92a8-df98-596a-bbe0-9801bed6c14c"
+data "Boosts" "UnlockSpell(Target_FlameStrike);Ability(Charisma,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Sword_A_VeryRare_L0_0"
+type "Weapon"
+using "WPN_ToySword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "5438a465-6837-5911-8005-a90996c1c1b7"
+data "Boosts" "UnlockSpell(Projectile_FireBolt);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_FEATHER_FALL;ENR_LootPassive_DETECT_THOUGHTS"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Sword_A_VeryRare_L1_0"
+type "Weapon"
+using "WPN_ToySword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "07a65731-6943-517d-a125-3876f3da2516"
+data "Boosts" "UnlockSpell(Target_SpareTheDying);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_FRIENDS;ENR_LootPassive_ASPECT_OF_THE_ELK"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Sword_A_VeryRare_L2_0"
+type "Weapon"
+using "WPN_ToySword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "e6d26b85-13f6-5bd8-b181-b6c660c3517a"
+data "Boosts" "UnlockSpell(Target_HuntersMark);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_MOBILE_NO_AOO;ENR_LootPassive_FOXS_CUNNING"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Sword_A_VeryRare_L3_0"
+type "Weapon"
+using "WPN_ToySword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "01358bdf-15b0-55b1-9000-2c7aea0de410"
+data "Boosts" "UnlockSpell(Target_HoldPerson);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_MAGE_ARMOR;ENR_LootPassive_BULLS_STRENGTH"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Sword_A_VeryRare_L4_0"
+type "Weapon"
+using "WPN_ToySword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "2fe2c4c7-f746-5499-add1-90e7e9143d97"
+data "Boosts" "UnlockSpell(Target_BurstingSinew);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PATIENT_DEFENCE;ENR_LootPassive_STONESKIN"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Sword_A_VeryRare_L5_0"
+type "Weapon"
+using "WPN_ToySword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "b392fca9-20ba-56de-a5b2-93dd2d9da14f"
+data "Boosts" "UnlockSpell(Target_Guidance);Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_FORCE;ENR_LootPassive_FREEDOM_OF_MOVEMENT"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Sword_A_Legendary_L0_0"
+type "Weapon"
+using "WPN_ToySword"
+data "Rarity" "Legendary"
+data "RootTemplate" "822d4ff3-1555-5a5c-8a16-48b03f640b7d"
+data "Boosts" "UnlockSpell(Target_Bane);UnlockSpell(Target_InflictWounds);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_FIRE;ENR_LootPassive_BARDIC_INSPIRATION"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Sword_A_Legendary_L1_0"
+type "Weapon"
+using "WPN_ToySword"
+data "Rarity" "Legendary"
+data "RootTemplate" "b501473d-62d6-580b-abc6-ef7d6641bdcd"
+data "Boosts" "UnlockSpell(Target_SpareTheDying);UnlockSpell(Target_Shatter);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PATIENT_DEFENCE;ENR_LootPassive_RESISTANCE_LIGHTNING"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Sword_A_Legendary_L2_0"
+type "Weapon"
+using "WPN_ToySword"
+data "Rarity" "Legendary"
+data "RootTemplate" "6d25a5d4-476a-57ec-9cd5-3a7fdf212d88"
+data "Boosts" "UnlockSpell(Target_EnlargeReduce);UnlockSpell(Target_DissonantWhispers);Ability(Charisma,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_ALCH_ELIXIR_ENLARGE;ENR_LootPassive_PROTECTION_FROM_ENERGY_FIRE"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Sword_A_Legendary_L3_0"
+type "Weapon"
+using "WPN_ToySword"
+data "Rarity" "Legendary"
+data "RootTemplate" "021da523-0e44-556a-92e0-bd37b1dd08e0"
+data "Boosts" "UnlockSpell(Target_FeignDeath);UnlockSpell(Target_Identify);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_CALM_EMOTIONS;ENR_LootPassive_FLY"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Sword_A_Legendary_L4_0"
+type "Weapon"
+using "WPN_ToySword"
+data "Rarity" "Legendary"
+data "RootTemplate" "60532532-433b-5550-8889-549dab6cb55e"
+data "Boosts" "UnlockSpell(Target_Guidance);UnlockSpell(Target_Contagion);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_DAYLIGHT;ENR_LootPassive_PROTECTION_FROM_EVIL_AND_GOO_749824"
+
+
+new entry "ENR_Loot_WPN_HUM_Toy_Sword_A_Legendary_L5_0"
+type "Weapon"
+using "WPN_ToySword"
+data "Rarity" "Legendary"
+data "RootTemplate" "d9bc9789-a3c9-517e-9517-bbd9657b734c"
+data "Boosts" "UnlockSpell(Target_Mending);UnlockSpell(Shout_HellishRebuke_AsmodeusTiefling);Ability(Charisma,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_FORCE;ENR_LootPassive_MIRROR_IMAGE_1"
+
+
+new entry "ENR_Loot_WPN_HUM_Trepan_A_Uncommon_L0_0"
+type "Weapon"
+using "WPN_Trepan"
+data "Rarity" "Uncommon"
+data "RootTemplate" "9b3ccc03-683b-50ee-add9-25f4dd9c6121"
+data "Boosts" "IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):UnlockSpell(Target_SurgeryEnabler_Trepan_Nurse); IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):CharacterWeaponDamage(1d6,Necrotic)"
+data "PassivesOnEquip" "ENR_LootPassive_MULTIATTACKDEFENSE"
+
+
+new entry "ENR_Loot_WPN_HUM_Trepan_A_Uncommon_L1_0"
+type "Weapon"
+using "WPN_Trepan"
+data "Rarity" "Uncommon"
+data "RootTemplate" "63869b24-5f05-51e6-a9e5-b2593bcafcac"
+data "Boosts" "IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):UnlockSpell(Target_SurgeryEnabler_Trepan_Nurse); IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):CharacterWeaponDamage(1d6,Necrotic);Ability(Wisdom,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trepan_A_Uncommon_L2_0"
+type "Weapon"
+using "WPN_Trepan"
+data "Rarity" "Uncommon"
+data "RootTemplate" "05b003d7-da63-5d67-8ae8-bfb2f6a593ac"
+data "Boosts" "IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):UnlockSpell(Target_SurgeryEnabler_Trepan_Nurse); IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):CharacterWeaponDamage(1d6,Necrotic);Ability(Wisdom,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trepan_A_Uncommon_L3_0"
+type "Weapon"
+using "WPN_Trepan"
+data "Rarity" "Uncommon"
+data "RootTemplate" "2db92889-28d2-586a-a4ab-d712a3cb2fcc"
+data "Boosts" "IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):UnlockSpell(Target_SurgeryEnabler_Trepan_Nurse); IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):CharacterWeaponDamage(1d6,Necrotic);UnlockSpell(Target_DissonantWhispers)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trepan_A_Uncommon_L4_0"
+type "Weapon"
+using "WPN_Trepan"
+data "Rarity" "Uncommon"
+data "RootTemplate" "925b4758-0beb-587d-9966-62b2bba47e39"
+data "Boosts" "IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):UnlockSpell(Target_SurgeryEnabler_Trepan_Nurse); IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):CharacterWeaponDamage(1d6,Necrotic);UnlockSpell(Target_MagicWeapon)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trepan_A_Uncommon_L5_0"
+type "Weapon"
+using "WPN_Trepan"
+data "Rarity" "Uncommon"
+data "RootTemplate" "ace26c90-3443-5075-8e23-afec839539e4"
+data "Boosts" "IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):UnlockSpell(Target_SurgeryEnabler_Trepan_Nurse); IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):CharacterWeaponDamage(1d6,Necrotic)"
+data "PassivesOnEquip" "ENR_LootPassive_CRYSTALSKIN"
+
+
+new entry "ENR_Loot_WPN_HUM_Trepan_A_Rare_L0_0"
+type "Weapon"
+using "WPN_Trepan"
+data "Rarity" "Rare"
+data "RootTemplate" "cfeed752-316a-5241-89a8-81f14bbaec50"
+data "Boosts" "IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):UnlockSpell(Target_SurgeryEnabler_Trepan_Nurse); IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):CharacterWeaponDamage(1d6,Necrotic);UnlockSpell(Projectile_ChromaticOrb);Ability(Wisdom,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trepan_A_Rare_L1_0"
+type "Weapon"
+using "WPN_Trepan"
+data "Rarity" "Rare"
+data "RootTemplate" "12a114b8-5138-5ecd-ba53-002e0da6e30f"
+data "Boosts" "IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):UnlockSpell(Target_SurgeryEnabler_Trepan_Nurse); IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):CharacterWeaponDamage(1d6,Necrotic);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_SHILLELAGH"
+
+
+new entry "ENR_Loot_WPN_HUM_Trepan_A_Rare_L2_0"
+type "Weapon"
+using "WPN_Trepan"
+data "Rarity" "Rare"
+data "RootTemplate" "9c8636d2-6503-5625-b698-d87172417916"
+data "Boosts" "IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):UnlockSpell(Target_SurgeryEnabler_Trepan_Nurse); IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):CharacterWeaponDamage(1d6,Necrotic);UnlockSpell(Target_Command_Halt);Ability(Constitution,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trepan_A_Rare_L3_0"
+type "Weapon"
+using "WPN_Trepan"
+data "Rarity" "Rare"
+data "RootTemplate" "0838f5be-9895-579a-b326-be9a84c46195"
+data "Boosts" "IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):UnlockSpell(Target_SurgeryEnabler_Trepan_Nurse); IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):CharacterWeaponDamage(1d6,Necrotic);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_MULTIATTACKDEFENSE"
+
+
+new entry "ENR_Loot_WPN_HUM_Trepan_A_Rare_L4_0"
+type "Weapon"
+using "WPN_Trepan"
+data "Rarity" "Rare"
+data "RootTemplate" "8ab564ca-45e4-591a-bded-6ccdfb26a9bc"
+data "Boosts" "IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):UnlockSpell(Target_SurgeryEnabler_Trepan_Nurse); IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):CharacterWeaponDamage(1d6,Necrotic);UnlockSpell(Target_Sanctuary_Drider);Ability(Dexterity,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trepan_A_Rare_L5_0"
+type "Weapon"
+using "WPN_Trepan"
+data "Rarity" "Rare"
+data "RootTemplate" "106f7ff8-e452-5e73-a0bb-64b33e002122"
+data "Boosts" "IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):UnlockSpell(Target_SurgeryEnabler_Trepan_Nurse); IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):CharacterWeaponDamage(1d6,Necrotic);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_TRUE_STRIKE"
+
+
+new entry "ENR_Loot_WPN_HUM_Trepan_A_VeryRare_L0_0"
+type "Weapon"
+using "WPN_Trepan"
+data "Rarity" "VeryRare"
+data "RootTemplate" "0cedeca8-b68a-5823-9a42-44df98120058"
+data "Boosts" "IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):UnlockSpell(Target_SurgeryEnabler_Trepan_Nurse); IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):CharacterWeaponDamage(1d6,Necrotic);UnlockSpell(Target_Smite_Wrathful);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_LIGHT_d7917a;ENR_LootPassive_SPEAK_WITH_DEAD"
+
+
+new entry "ENR_Loot_WPN_HUM_Trepan_A_VeryRare_L1_0"
+type "Weapon"
+using "WPN_Trepan"
+data "Rarity" "VeryRare"
+data "RootTemplate" "7721240b-9bd9-5897-9797-f848f46210f6"
+data "Boosts" "IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):UnlockSpell(Target_SurgeryEnabler_Trepan_Nurse); IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):CharacterWeaponDamage(1d6,Necrotic);UnlockSpell(Target_HoldPerson);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BEACON_OF_HOPE;ENR_LootPassive_RESISTANCE_NECROTIC"
+
+
+new entry "ENR_Loot_WPN_HUM_Trepan_A_VeryRare_L2_0"
+type "Weapon"
+using "WPN_Trepan"
+data "Rarity" "VeryRare"
+data "RootTemplate" "422308fc-c666-5dc3-b0cc-8428ae8dc57d"
+data "Boosts" "IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):UnlockSpell(Target_SurgeryEnabler_Trepan_Nurse); IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):CharacterWeaponDamage(1d6,Necrotic);UnlockSpell(Projectile_ScorchingRay);Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_DIVINE_FAVOR;ENR_LootPassive_RESISTANCE_THUNDER"
+
+
+new entry "ENR_Loot_WPN_HUM_Trepan_A_VeryRare_L3_0"
+type "Weapon"
+using "WPN_Trepan"
+data "Rarity" "VeryRare"
+data "RootTemplate" "f172f914-777b-5e20-b1df-78070b155eac"
+data "Boosts" "IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):UnlockSpell(Target_SurgeryEnabler_Trepan_Nurse); IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):CharacterWeaponDamage(1d6,Necrotic);UnlockSpell(Target_HAG_HoldPerson);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_UNDEAD_FORTITUDE;ENR_LootPassive_MIRROR_IMAGE_1"
+
+
+new entry "ENR_Loot_WPN_HUM_Trepan_A_VeryRare_L4_0"
+type "Weapon"
+using "WPN_Trepan"
+data "Rarity" "VeryRare"
+data "RootTemplate" "e79493f1-9ade-5abc-b6f2-999fe6285e4e"
+data "Boosts" "IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):UnlockSpell(Target_SurgeryEnabler_Trepan_Nurse); IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):CharacterWeaponDamage(1d6,Necrotic);UnlockSpell(Target_GlyphOfWarding);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_SANCTUARY;ENR_LootPassive_RELENTLESS_RAGE"
+
+
+new entry "ENR_Loot_WPN_HUM_Trepan_A_VeryRare_L5_0"
+type "Weapon"
+using "WPN_Trepan"
+data "Rarity" "VeryRare"
+data "RootTemplate" "2ff29f0e-f22d-5502-a372-1626a7568a09"
+data "Boosts" "IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):UnlockSpell(Target_SurgeryEnabler_Trepan_Nurse); IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):CharacterWeaponDamage(1d6,Necrotic);UnlockSpell(Projectile_SteelWatcher_Quadruped_SelfDestructExplosion);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_PSYCHIC;ENR_LootPassive_FALSE_LIFE"
+
+
+new entry "ENR_Loot_WPN_HUM_Trepan_A_Legendary_L0_0"
+type "Weapon"
+using "WPN_Trepan"
+data "Rarity" "Legendary"
+data "RootTemplate" "7898f845-8444-50d5-a4dc-037b30bc66b9"
+data "Boosts" "IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):UnlockSpell(Target_SurgeryEnabler_Trepan_Nurse); IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):CharacterWeaponDamage(1d6,Necrotic);UnlockSpell(Zone_Thunderwave);UnlockSpell(Target_Sanctuary);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_MULTIATTACKDEFENSE;ENR_LootPassive_SHILLELAGH"
+
+
+new entry "ENR_Loot_WPN_HUM_Trepan_A_Legendary_L1_0"
+type "Weapon"
+using "WPN_Trepan"
+data "Rarity" "Legendary"
+data "RootTemplate" "dcb0bc5b-cf0a-5ef2-83e2-d2318eae79c1"
+data "Boosts" "IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):UnlockSpell(Target_SurgeryEnabler_Trepan_Nurse); IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):CharacterWeaponDamage(1d6,Necrotic);UnlockSpell(Target_CureWounds);UnlockSpell(Projectile_WitchBolt);Ability(Charisma,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_LIGHT_d7917a;ENR_LootPassive_RESISTANCE_LIGHTNING"
+
+
+new entry "ENR_Loot_WPN_HUM_Trepan_A_Legendary_L2_0"
+type "Weapon"
+using "WPN_Trepan"
+data "Rarity" "Legendary"
+data "RootTemplate" "7aba0feb-60f7-5bf7-93df-641a111c201b"
+data "Boosts" "IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):UnlockSpell(Target_SurgeryEnabler_Trepan_Nurse); IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):CharacterWeaponDamage(1d6,Necrotic);UnlockSpell(Target_Smite_Thunderous);UnlockSpell(Shout_ArmorOfAgathys);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_HEROISM;ENR_LootPassive_PROTECTION_FROM_ENERGY_ACID"
+
+
+new entry "ENR_Loot_WPN_HUM_Trepan_A_Legendary_L3_0"
+type "Weapon"
+using "WPN_Trepan"
+data "Rarity" "Legendary"
+data "RootTemplate" "8ff12f50-f373-5b92-8b65-a25d2d1c30a8"
+data "Boosts" "IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):UnlockSpell(Target_SurgeryEnabler_Trepan_Nurse); IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):CharacterWeaponDamage(1d6,Necrotic);UnlockSpell(Target_AnimateDead_Skeleton_4);UnlockSpell(Target_MentalSlam_Githyanki);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RELENTLESS_RAGE;ENR_LootPassive_PASS_WITHOUT_TRACE"
+
+
+new entry "ENR_Loot_WPN_HUM_Trepan_A_Legendary_L4_0"
+type "Weapon"
+using "WPN_Trepan"
+data "Rarity" "Legendary"
+data "RootTemplate" "b80298b5-3c94-5b4b-b279-a7ba639093f5"
+data "Boosts" "IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):UnlockSpell(Target_SurgeryEnabler_Trepan_Nurse); IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):CharacterWeaponDamage(1d6,Necrotic);UnlockSpell(Target_Scrying);UnlockSpell(Target_FindFamiliar);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_FLAME_BLADE;ENR_LootPassive_VAMPIRIC_TOUCH"
+
+
+new entry "ENR_Loot_WPN_HUM_Trepan_A_Legendary_L5_0"
+type "Weapon"
+using "WPN_Trepan"
+data "Rarity" "Legendary"
+data "RootTemplate" "301db637-090e-5e29-8ac9-0edc99300691"
+data "Boosts" "IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):UnlockSpell(Target_SurgeryEnabler_Trepan_Nurse); IF (Tagged('ACT2_TWN_HOSPITAL_NURSE',context.Source)):CharacterWeaponDamage(1d6,Necrotic);UnlockSpell(Target_StaggeringSmite);UnlockSpell(Target_Smite_Branding);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_DIVINE_FAVOR;ENR_LootPassive_BLESS"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Uncommon_L0_0"
+type "Weapon"
+using "WPN_Trident"
+data "Rarity" "Uncommon"
+data "RootTemplate" "328d12da-6d0d-57ae-a16c-4b8991c56a78"
+data "Boosts" "Ability(Charisma,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Uncommon_L1_0"
+type "Weapon"
+using "WPN_Trident"
+data "Rarity" "Uncommon"
+data "RootTemplate" "108e688a-c7cf-5a71-ae55-fbe0725aa968"
+data "Boosts" "UnlockSpell(Target_EnlargeReduce)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Uncommon_L2_0"
+type "Weapon"
+using "WPN_Trident"
+data "Rarity" "Uncommon"
+data "RootTemplate" "9f9bd283-effe-540c-ab68-cb9dac79e291"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_LONG_JUMP"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Uncommon_L3_0"
+type "Weapon"
+using "WPN_Trident"
+data "Rarity" "Uncommon"
+data "RootTemplate" "5325467a-58d2-59bc-ae0f-8ceb2a6266ab"
+data "Boosts" "Ability(Strength,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Uncommon_L4_0"
+type "Weapon"
+using "WPN_Trident"
+data "Rarity" "Uncommon"
+data "RootTemplate" "ba9dea5d-c3ac-543c-b950-d4fc5983aa09"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_BLADE_WARD"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Uncommon_L5_0"
+type "Weapon"
+using "WPN_Trident"
+data "Rarity" "Uncommon"
+data "RootTemplate" "0e4c1398-ed61-5248-bb5f-25abe0ea7b14"
+data "Boosts" "Ability(Dexterity,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Rare_L0_0"
+type "Weapon"
+using "WPN_Trident"
+data "Rarity" "Rare"
+data "RootTemplate" "122bfbc1-a25a-59d2-ba78-227d61f59d7f"
+data "Boosts" "Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_FREEDOM_OF_MOVEMENT"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Rare_L1_0"
+type "Weapon"
+using "WPN_Trident"
+data "Rarity" "Rare"
+data "RootTemplate" "7312f224-ef7b-59af-9838-929614283a87"
+data "Boosts" "UnlockSpell(Target_HuntersMark);Ability(Charisma,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Rare_L2_0"
+type "Weapon"
+using "WPN_Trident"
+data "Rarity" "Rare"
+data "RootTemplate" "b01feee0-f319-5567-b7d7-4b726f133713"
+data "Boosts" "UnlockSpell(Target_CompelledDuel)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_POISON"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Rare_L3_0"
+type "Weapon"
+using "WPN_Trident"
+data "Rarity" "Rare"
+data "RootTemplate" "0a8c37ab-e60e-55db-9cd4-71b9cb0396e8"
+data "Boosts" "UnlockSpell(Projectile_RayOfEnfeeblement);Ability(Dexterity,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Rare_L4_0"
+type "Weapon"
+using "WPN_Trident"
+data "Rarity" "Rare"
+data "RootTemplate" "316b3067-58e3-5c2b-bbc8-d78f614f6b53"
+data "Boosts" "UnlockSpell(Target_Sanctuary);Ability(Constitution,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Rare_L5_0"
+type "Weapon"
+using "WPN_Trident"
+data "Rarity" "Rare"
+data "RootTemplate" "2ea9fb12-de6b-544e-8085-2dd61e5f35c9"
+data "Boosts" "UnlockSpell(Target_PlanarAlly_Container)"
+data "PassivesOnEquip" "ENR_LootPassive_ASPECT_OF_THE_ELK"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_VeryRare_L0_0"
+type "Weapon"
+using "WPN_Trident"
+data "Rarity" "VeryRare"
+data "RootTemplate" "fc265ee5-4a69-5bb7-b772-bbe6c940e585"
+data "Boosts" "UnlockSpell(Shout_DetectEvilAndGood);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_OWLS_WISDOM;ENR_LootPassive_FOXS_CUNNING"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_VeryRare_L1_0"
+type "Weapon"
+using "WPN_Trident"
+data "Rarity" "VeryRare"
+data "RootTemplate" "8b0a81a3-b239-5b3d-958f-145a0cf69932"
+data "Boosts" "UnlockSpell(Projectile_ChromaticOrb);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_POISON;ENR_LootPassive_HASTE"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_VeryRare_L2_0"
+type "Weapon"
+using "WPN_Trident"
+data "Rarity" "VeryRare"
+data "RootTemplate" "3d11e009-9d70-58b3-876d-e742c8f3d441"
+data "Boosts" "UnlockSpell(Target_TrueStrike);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_DETECT_THOUGHTS;ENR_LootPassive_BARKSKIN"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_VeryRare_L3_0"
+type "Weapon"
+using "WPN_Trident"
+data "Rarity" "VeryRare"
+data "RootTemplate" "1f76b6a0-e817-5674-8b94-5b0e5e2cbe76"
+data "Boosts" "UnlockSpell(Projectile_IceKnife);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_REFLECTIVE_SHELL;ENR_LootPassive_CATS_GRACE"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_VeryRare_L4_0"
+type "Weapon"
+using "WPN_Trident"
+data "Rarity" "VeryRare"
+data "RootTemplate" "829ffe51-ba3f-5e22-ab4c-0480b40f3e3a"
+data "Boosts" "UnlockSpell(Projectile_MagicMissile);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_ACID;ENR_LootPassive_DARK_ONES_BLESSING"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_VeryRare_L5_0"
+type "Weapon"
+using "WPN_Trident"
+data "Rarity" "VeryRare"
+data "RootTemplate" "31430cff-e434-5469-8d4e-07cd3d062f2a"
+data "Boosts" "UnlockSpell(Projectile_EldritchBlast);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BLADE_FLOURISH_MOBILE;ENR_LootPassive_DIVINE_FAVOR"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Legendary_L0_0"
+type "Weapon"
+using "WPN_Trident"
+data "Rarity" "Legendary"
+data "RootTemplate" "e4a2e613-ff16-5a01-96ce-e21862e58768"
+data "Boosts" "UnlockSpell(Target_Longstrider);UnlockSpell(Projectile_RayOfSickness);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PRODUCE_FLAME;ENR_LootPassive_COMPREHEND_LANGUAGES"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Legendary_L1_0"
+type "Weapon"
+using "WPN_Trident"
+data "Rarity" "Legendary"
+data "RootTemplate" "8464a33f-fc15-5a92-9985-1121b241b5ba"
+data "Boosts" "UnlockSpell(Target_HideousLaughter);UnlockSpell(Target_MistyStep);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_ASPECT_OF_THE_STALLION;ENR_LootPassive_RAGE"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Legendary_L2_0"
+type "Weapon"
+using "WPN_Trident"
+data "Rarity" "Legendary"
+data "RootTemplate" "ed1525a5-9adc-54b7-b305-767dd0d25073"
+data "Boosts" "UnlockSpell(Shout_SeeInvisibility_Seek);UnlockSpell(Target_Haste);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BARDIC_INSPIRATION;ENR_LootPassive_ASPECT_OF_THE_STALLION"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Legendary_L3_0"
+type "Weapon"
+using "WPN_Trident"
+data "Rarity" "Legendary"
+data "RootTemplate" "b87dfadc-b5a8-5675-a276-f988476dfe1a"
+data "Boosts" "UnlockSpell(Target_FloatingDisk);UnlockSpell(Target_SCL_Drider_PsionicVengeance);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_MIRROR_IMAGE_1;ENR_LootPassive_PROTECTION_FROM_ENERGY_THUND_18d16e"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Legendary_L4_0"
+type "Weapon"
+using "WPN_Trident"
+data "Rarity" "Legendary"
+data "RootTemplate" "a69aeb97-a980-5371-8fb8-31dc7cfe54b6"
+data "Boosts" "UnlockSpell(Throw_Telekinesis);UnlockSpell(Zone_BurningHands_MephistophelesTiefling);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RELENTLESS_RAGE;ENR_LootPassive_SPEAK_WITH_DEAD"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Legendary_L5_0"
+type "Weapon"
+using "WPN_Trident"
+data "Rarity" "Legendary"
+data "RootTemplate" "76a42049-2b79-545c-9f74-accac4aede74"
+data "Boosts" "UnlockSpell(Shout_AuraOfVitality);UnlockSpell(Target_WYR_CrushingFist_Gortash);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_LIGHT_d7917a;ENR_LootPassive_PROTECTION_FROM_ENERGY_FIRE"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Rusty_A_Uncommon_L0_0"
+type "Weapon"
+using "WPN_Trident_Rusty"
+data "Rarity" "Uncommon"
+data "RootTemplate" "a932203b-32ee-5f18-ba49-d502e3bbe074"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_BLADE_FLOURISH_MOBILE"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Rusty_A_Uncommon_L1_0"
+type "Weapon"
+using "WPN_Trident_Rusty"
+data "Rarity" "Uncommon"
+data "RootTemplate" "40c7e8a5-2f24-57ab-bc2d-b4910575c812"
+data "Boosts" "Ability(Intelligence,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Rusty_A_Uncommon_L2_0"
+type "Weapon"
+using "WPN_Trident_Rusty"
+data "Rarity" "Uncommon"
+data "RootTemplate" "0f733ca1-a476-5810-97aa-4a6c0e38a1ae"
+data "Boosts" "UnlockSpell(Target_HypnoticPattern)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Rusty_A_Uncommon_L3_0"
+type "Weapon"
+using "WPN_Trident_Rusty"
+data "Rarity" "Uncommon"
+data "RootTemplate" "1588c9bd-3927-5026-96e8-fc2b9dae12ac"
+data "Boosts" "Ability(Intelligence,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Rusty_A_Uncommon_L4_0"
+type "Weapon"
+using "WPN_Trident_Rusty"
+data "Rarity" "Uncommon"
+data "RootTemplate" "3f8c7e89-63d5-57db-aa4a-a1abe21e5ce3"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_STONESKIN"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Rusty_A_Uncommon_L5_0"
+type "Weapon"
+using "WPN_Trident_Rusty"
+data "Rarity" "Uncommon"
+data "RootTemplate" "c7d00b83-ab29-5d28-84e1-66701e2987a1"
+data "Boosts" "Ability(Constitution,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Rusty_A_Rare_L0_0"
+type "Weapon"
+using "WPN_Trident_Rusty"
+data "Rarity" "Rare"
+data "RootTemplate" "a579b78a-6659-5fc4-a637-1a0a8b0e87d0"
+data "Boosts" "Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_INSPIRING_LEADER"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Rusty_A_Rare_L1_0"
+type "Weapon"
+using "WPN_Trident_Rusty"
+data "Rarity" "Rare"
+data "RootTemplate" "0c40e235-0372-5902-8956-9e4614d8fef3"
+data "Boosts" "Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BLUR"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Rusty_A_Rare_L2_0"
+type "Weapon"
+using "WPN_Trident_Rusty"
+data "Rarity" "Rare"
+data "RootTemplate" "2f5bfdf2-5e6c-511f-bab1-6dd17bf67a14"
+data "Boosts" "UnlockSpell(Target_FlamingSphere)"
+data "PassivesOnEquip" "ENR_LootPassive_FRIENDS"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Rusty_A_Rare_L3_0"
+type "Weapon"
+using "WPN_Trident_Rusty"
+data "Rarity" "Rare"
+data "RootTemplate" "fb9dd366-df63-5662-a9c6-dcc89143c092"
+data "Boosts" "UnlockSpell(Target_CreateWater);Ability(Dexterity,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Rusty_A_Rare_L4_0"
+type "Weapon"
+using "WPN_Trident_Rusty"
+data "Rarity" "Rare"
+data "RootTemplate" "5f729851-486b-5a63-9ee5-88763ca217d1"
+data "Boosts" "UnlockSpell(Zone_LightningBolt);Ability(Wisdom,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Rusty_A_Rare_L5_0"
+type "Weapon"
+using "WPN_Trident_Rusty"
+data "Rarity" "Rare"
+data "RootTemplate" "761c2a93-53d1-5ecd-ba21-4937ed6464fd"
+data "Boosts" "UnlockSpell(Target_EnhanceAbility);Ability(Strength,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Rusty_A_VeryRare_L0_0"
+type "Weapon"
+using "WPN_Trident_Rusty"
+data "Rarity" "VeryRare"
+data "RootTemplate" "add4c5e6-3441-5ad0-aa3f-eccb6b2c6c3e"
+data "Boosts" "UnlockSpell(Projectile_EnsnaringStrike);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BULLS_STRENGTH;ENR_LootPassive_LIGHT"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Rusty_A_VeryRare_L1_0"
+type "Weapon"
+using "WPN_Trident_Rusty"
+data "Rarity" "VeryRare"
+data "RootTemplate" "5b9a51d6-f045-5f5d-ab06-3522e8cbde5e"
+data "Boosts" "UnlockSpell(Zone_ColorSpray);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_VAMPIRE_REGENERATION;ENR_LootPassive_MIRROR_IMAGE_3"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Rusty_A_VeryRare_L2_0"
+type "Weapon"
+using "WPN_Trident_Rusty"
+data "Rarity" "VeryRare"
+data "RootTemplate" "c395773e-84c4-523f-aff8-f2fb0231c5e9"
+data "Boosts" "UnlockSpell(Target_Hex);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_FALSE_LIFE;ENR_LootPassive_RESISTANCE_PSYCHIC"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Rusty_A_VeryRare_L3_0"
+type "Weapon"
+using "WPN_Trident_Rusty"
+data "Rarity" "VeryRare"
+data "RootTemplate" "6a91f0d5-3cc6-5a39-ae6d-716b949e3474"
+data "Boosts" "UnlockSpell(Shout_DetectThoughts);Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_SHIELD_OF_FAITH;ENR_LootPassive_FEATHER_FALL"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Rusty_A_VeryRare_L4_0"
+type "Weapon"
+using "WPN_Trident_Rusty"
+data "Rarity" "VeryRare"
+data "RootTemplate" "78054249-a7cb-5031-b2c1-bc9ced595704"
+data "Boosts" "UnlockSpell(Target_Smite_Banishing);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_ACID;ENR_LootPassive_TRUE_STRIKE"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Rusty_A_VeryRare_L5_0"
+type "Weapon"
+using "WPN_Trident_Rusty"
+data "Rarity" "VeryRare"
+data "RootTemplate" "c2b2031a-5b72-5c1e-8092-623c4f51a48a"
+data "Boosts" "UnlockSpell(Target_SleetStorm);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_SPEAK_WITH_DEAD;ENR_LootPassive_MIRROR_IMAGE_2"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Rusty_A_Legendary_L0_0"
+type "Weapon"
+using "WPN_Trident_Rusty"
+data "Rarity" "Legendary"
+data "RootTemplate" "6f99e8cd-8b08-5c77-b6bd-4dcedef424e7"
+data "Boosts" "UnlockSpell(Target_FindFamiliar);UnlockSpell(Shout_MageArmor_ArmorOfShadows);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_SACRED_WEAPON;ENR_LootPassive_LONGSTRIDER"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Rusty_A_Legendary_L1_0"
+type "Weapon"
+using "WPN_Trident_Rusty"
+data "Rarity" "Legendary"
+data "RootTemplate" "490f940c-2cc8-5166-8228-37a38ab7c6b7"
+data "Boosts" "UnlockSpell(Target_Identify);UnlockSpell(Target_Heroism);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_LONGSTRIDER;ENR_LootPassive_ARMOR_OF_AGATHYS"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Rusty_A_Legendary_L2_0"
+type "Weapon"
+using "WPN_Trident_Rusty"
+data "Rarity" "Legendary"
+data "RootTemplate" "b0ec0aa4-3f04-584c-93b9-b1faaec2c0e0"
+data "Boosts" "UnlockSpell(Projectile_AcidArrow);UnlockSpell(Zone_Fear);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_ASPECT_OF_THE_WOLF;ENR_LootPassive_MIRROR_IMAGE_1"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Rusty_A_Legendary_L3_0"
+type "Weapon"
+using "WPN_Trident_Rusty"
+data "Rarity" "Legendary"
+data "RootTemplate" "950bb7aa-f730-5654-933d-ec5e7112da74"
+data "Boosts" "UnlockSpell(Shout_ComprehendLanguages);UnlockSpell(Target_Confusion);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_FORCE;ENR_LootPassive_RESISTANCE_ACID"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Rusty_A_Legendary_L4_0"
+type "Weapon"
+using "WPN_Trident_Rusty"
+data "Rarity" "Legendary"
+data "RootTemplate" "5181fd53-42b9-5426-a3bf-4535a0d16018"
+data "Boosts" "UnlockSpell(Target_CureWounds_Mass);UnlockSpell(Target_AnimateDead_Zombie_4);Ability(Charisma,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_AURA_OF_DEVOTION_BUFF;ENR_LootPassive_FLAME_BLADE"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_0_Rusty_A_Legendary_L5_0"
+type "Weapon"
+using "WPN_Trident_Rusty"
+data "Rarity" "Legendary"
+data "RootTemplate" "9230c670-eed5-5428-b7fc-9dbe73c58ebd"
+data "Boosts" "UnlockSpell(Target_FeignDeath);UnlockSpell(Wall_WallOfIce);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_DRUNKEN_TECHNIQUE;ENR_LootPassive_MOBILE_NO_AOO"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_1_Uncommon_L0_0"
+type "Weapon"
+using "WPN_Trident_1"
+data "Rarity" "Uncommon"
+data "RootTemplate" "2ad642a6-ed45-56de-8044-6d3a9e133cdd"
+data "Boosts" "UnlockSpell(Shout_FalseLife)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_1_Uncommon_L1_0"
+type "Weapon"
+using "WPN_Trident_1"
+data "Rarity" "Uncommon"
+data "RootTemplate" "6fea97d1-1acb-5035-9559-501b3bd09405"
+data "Boosts" "UnlockSpell(Shout_ShillelaghTestAnimation_Melee)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_1_Uncommon_L2_0"
+type "Weapon"
+using "WPN_Trident_1"
+data "Rarity" "Uncommon"
+data "RootTemplate" "94b116fb-776c-5731-8774-08c695b4419c"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_LONGSTRIDER"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_1_Uncommon_L3_0"
+type "Weapon"
+using "WPN_Trident_1"
+data "Rarity" "Uncommon"
+data "RootTemplate" "995de476-cfdf-5eff-b8cf-a2ab13687cae"
+data "Boosts" "UnlockSpell(Target_Invisibility)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_1_Uncommon_L4_0"
+type "Weapon"
+using "WPN_Trident_1"
+data "Rarity" "Uncommon"
+data "RootTemplate" "50f9ee14-a40a-5451-b33c-9087116d7a60"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_RELENTLESS_RAGE"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_1_Uncommon_L5_0"
+type "Weapon"
+using "WPN_Trident_1"
+data "Rarity" "Uncommon"
+data "RootTemplate" "1a2cd230-dde5-5269-b2bb-4a44f814f0aa"
+data "Boosts" "Ability(Strength,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_1_Rare_L0_0"
+type "Weapon"
+using "WPN_Trident_1"
+data "Rarity" "Rare"
+data "RootTemplate" "513c438c-ac26-5eef-a2c3-01556b732158"
+data "Boosts" "UnlockSpell(Shout_DetectEvilAndGood)"
+data "PassivesOnEquip" "ENR_LootPassive_BULLS_STRENGTH"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_1_Rare_L1_0"
+type "Weapon"
+using "WPN_Trident_1"
+data "Rarity" "Rare"
+data "RootTemplate" "f5c32355-13f0-5de9-80b2-3bea0abafdaf"
+data "Boosts" "UnlockSpell(Shout_ExpeditiousRetreat)"
+data "PassivesOnEquip" "ENR_LootPassive_COMPREHEND_LANGUAGES"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_1_Rare_L2_0"
+type "Weapon"
+using "WPN_Trident_1"
+data "Rarity" "Rare"
+data "RootTemplate" "f3f60978-8960-521e-8cb2-47c61d9d5ab2"
+data "Boosts" "UnlockSpell(Target_DissonantWhispers)"
+data "PassivesOnEquip" "ENR_LootPassive_UNDEAD_FORTITUDE"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_1_Rare_L3_0"
+type "Weapon"
+using "WPN_Trident_1"
+data "Rarity" "Rare"
+data "RootTemplate" "9254c965-597d-501d-b42b-85135b1e931d"
+data "Boosts" "UnlockSpell(Zone_Fear)"
+data "PassivesOnEquip" "ENR_LootPassive_VAMPIRE_REGENERATION"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_1_Rare_L4_0"
+type "Weapon"
+using "WPN_Trident_1"
+data "Rarity" "Rare"
+data "RootTemplate" "d55d7e0a-8f20-5f09-af8f-059e6dcdf69b"
+data "Boosts" "UnlockSpell(Target_Smite_Divine);Ability(Charisma,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_1_Rare_L5_0"
+type "Weapon"
+using "WPN_Trident_1"
+data "Rarity" "Rare"
+data "RootTemplate" "54b93460-b3b9-58db-b1c8-734254f739ad"
+data "Boosts" "Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PASS_WITHOUT_TRACE"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_1_VeryRare_L0_0"
+type "Weapon"
+using "WPN_Trident_1"
+data "Rarity" "VeryRare"
+data "RootTemplate" "e53fbfda-7bdb-5fa7-9065-97c27bfe8c1d"
+data "Boosts" "UnlockSpell(Shout_ShillelaghTestAnimation_Melee);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_WARDING_FLARE;ENR_LootPassive_DARK_ONES_BLESSING"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_1_VeryRare_L1_0"
+type "Weapon"
+using "WPN_Trident_1"
+data "Rarity" "VeryRare"
+data "RootTemplate" "2f39c7ea-d8a5-51ef-a74e-6c21015a0676"
+data "Boosts" "UnlockSpell(Target_MagicWeapon);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BEARS_ENDURANCE;ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_1_VeryRare_L2_0"
+type "Weapon"
+using "WPN_Trident_1"
+data "Rarity" "VeryRare"
+data "RootTemplate" "86161f3b-17f5-5268-ad42-9bd3a765467f"
+data "Boosts" "UnlockSpell(Target_FaerieFire);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_AURA_OF_DEVOTION_BUFF;ENR_LootPassive_REFLECTIVE_SHELL"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_1_VeryRare_L3_0"
+type "Weapon"
+using "WPN_Trident_1"
+data "Rarity" "VeryRare"
+data "RootTemplate" "7e0e2306-a38f-5273-baca-609d5bf16587"
+data "Boosts" "UnlockSpell(Projectile_ScorchingRay);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PASS_WITHOUT_TRACE;ENR_LootPassive_FALSE_LIFE"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_1_VeryRare_L4_0"
+type "Weapon"
+using "WPN_Trident_1"
+data "Rarity" "VeryRare"
+data "RootTemplate" "0aa2d080-3516-5b8b-9f92-b437f7b67a5d"
+data "Boosts" "UnlockSpell(Zone_Thunderwave_Djinni);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_INSPIRING_LEADER;ENR_LootPassive_CRYSTALSKIN"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_1_VeryRare_L5_0"
+type "Weapon"
+using "WPN_Trident_1"
+data "Rarity" "VeryRare"
+data "RootTemplate" "7588c138-cb0e-5971-8d16-620d9d83b950"
+data "Boosts" "UnlockSpell(Shout_SpiritGuardians);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_ASPECT_OF_THE_STALLION;ENR_LootPassive_FALSE_LIFE"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_1_Legendary_L0_0"
+type "Weapon"
+using "WPN_Trident_1"
+data "Rarity" "Legendary"
+data "RootTemplate" "ef58e802-82b4-5490-8408-9f012954cde4"
+data "Boosts" "UnlockSpell(Target_Jump);UnlockSpell(Target_FloatingDisk);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_AURA_OF_PROTECTION_BUFF;ENR_LootPassive_HEROES_FEAST"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_1_Legendary_L1_0"
+type "Weapon"
+using "WPN_Trident_1"
+data "Rarity" "Legendary"
+data "RootTemplate" "9e73cf7f-6630-51bb-b2b0-a7dddb95c5ba"
+data "Boosts" "UnlockSpell(Shout_PassWithoutTrace);UnlockSpell(Projectile_AcidSplash);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_EAGLES_SPLENDOR;ENR_LootPassive_MIRROR_IMAGE_3"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_1_Legendary_L2_0"
+type "Weapon"
+using "WPN_Trident_1"
+data "Rarity" "Legendary"
+data "RootTemplate" "0e2cd3ef-6d88-55cd-a19b-fb8ac6119e15"
+data "Boosts" "UnlockSpell(Target_Fly);UnlockSpell(Target_HungerOfHadar);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_LONG_JUMP;ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_1_Legendary_L3_0"
+type "Weapon"
+using "WPN_Trident_1"
+data "Rarity" "Legendary"
+data "RootTemplate" "96945bfb-d61f-57ee-ade9-e99afddbfaa3"
+data "Boosts" "UnlockSpell(Target_Smite_Searing);UnlockSpell(Target_DominateBeast);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_FLY;ENR_LootPassive_PROTECTION_FROM_ENERGY_FIRE"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_1_Legendary_L4_0"
+type "Weapon"
+using "WPN_Trident_1"
+data "Rarity" "Legendary"
+data "RootTemplate" "db6cead6-c5eb-518d-9cd9-5542dd931057"
+data "Boosts" "UnlockSpell(Target_Polymorph);UnlockSpell(Target_Knock);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_ASPECT_OF_THE_STALLION;ENR_LootPassive_RESISTANCE_POISON"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_1_Legendary_L5_0"
+type "Weapon"
+using "WPN_Trident_1"
+data "Rarity" "Legendary"
+data "RootTemplate" "cbefbf68-3868-5066-88d4-9ed0e58961d2"
+data "Boosts" "UnlockSpell(Projectile_EldritchBlast);UnlockSpell(Target_Daylight);Ability(Charisma,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_ASPECT_OF_THE_WOLF;ENR_LootPassive_VAMPIRE_REGENERATION"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_2_Uncommon_L0_0"
+type "Weapon"
+using "WPN_Trident_2"
+data "Rarity" "Uncommon"
+data "RootTemplate" "fc62bc4f-292c-550f-9146-028e95f3b416"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_FRIENDS"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_2_Uncommon_L1_0"
+type "Weapon"
+using "WPN_Trident_2"
+data "Rarity" "Uncommon"
+data "RootTemplate" "147f483c-a7f1-5438-a07a-25f365434445"
+data "Boosts" "UnlockSpell(Target_EnlargeReduce)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_2_Uncommon_L2_0"
+type "Weapon"
+using "WPN_Trident_2"
+data "Rarity" "Uncommon"
+data "RootTemplate" "509a0e56-50e1-51c5-8416-c540b0192a8e"
+data "Boosts" "UnlockSpell(Shout_CrusadersMantle)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_2_Uncommon_L3_0"
+type "Weapon"
+using "WPN_Trident_2"
+data "Rarity" "Uncommon"
+data "RootTemplate" "46e2941a-d090-5ed2-9361-fcb412a8fac8"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_LIGHT"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_2_Uncommon_L4_0"
+type "Weapon"
+using "WPN_Trident_2"
+data "Rarity" "Uncommon"
+data "RootTemplate" "d540118a-7370-554b-a9c8-28a55aca103d"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_SHIELD"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_2_Uncommon_L5_0"
+type "Weapon"
+using "WPN_Trident_2"
+data "Rarity" "Uncommon"
+data "RootTemplate" "98e5c729-1bb2-57e1-8555-e375663a3528"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_DIVINE_FAVOR"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_2_Rare_L0_0"
+type "Weapon"
+using "WPN_Trident_2"
+data "Rarity" "Rare"
+data "RootTemplate" "c2fba51f-883d-59c8-9d5d-5dd86d7b6f2f"
+data "Boosts" "UnlockSpell(Target_Smite_Thunderous)"
+data "PassivesOnEquip" "ENR_LootPassive_BARKSKIN"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_2_Rare_L1_0"
+type "Weapon"
+using "WPN_Trident_2"
+data "Rarity" "Rare"
+data "RootTemplate" "c62eb3c0-d92b-5d6b-8056-5c081733b8a5"
+data "Boosts" "Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_FIRE"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_2_Rare_L2_0"
+type "Weapon"
+using "WPN_Trident_2"
+data "Rarity" "Rare"
+data "RootTemplate" "7f525286-2009-591d-9bfc-2bcfb4aa9d38"
+data "Boosts" "UnlockSpell(Shout_Shield_Wizard)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_EVIL_AND_GOO_749824"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_2_Rare_L3_0"
+type "Weapon"
+using "WPN_Trident_2"
+data "Rarity" "Rare"
+data "RootTemplate" "e266fc40-9be4-530c-9259-ac8e5e521340"
+data "Boosts" "Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BLESS"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_2_Rare_L4_0"
+type "Weapon"
+using "WPN_Trident_2"
+data "Rarity" "Rare"
+data "RootTemplate" "fbc8a81e-e344-56a8-b6fe-fbb33c7761ca"
+data "Boosts" "UnlockSpell(Target_ElementalWeapon)"
+data "PassivesOnEquip" "ENR_LootPassive_VAMPIRIC_TOUCH"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_2_Rare_L5_0"
+type "Weapon"
+using "WPN_Trident_2"
+data "Rarity" "Rare"
+data "RootTemplate" "1e768e0f-9fc9-5412-bfbd-7bbf4dc3d952"
+data "Boosts" "Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_FLY"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_2_VeryRare_L0_0"
+type "Weapon"
+using "WPN_Trident_2"
+data "Rarity" "VeryRare"
+data "RootTemplate" "3ad760c3-d5a4-569f-bee3-d1e24863fce2"
+data "Boosts" "UnlockSpell(Target_FogCloud);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_LONGSTRIDER;ENR_LootPassive_DETECT_EVIL_GOOD"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_2_VeryRare_L1_0"
+type "Weapon"
+using "WPN_Trident_2"
+data "Rarity" "VeryRare"
+data "RootTemplate" "86b70004-655f-5dbd-b75d-c2288cf8d287"
+data "Boosts" "UnlockSpell(Target_ProtectionFromEvilAndGood);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_SURVIVAL_INSTINCT;ENR_LootPassive_SPEAK_WITH_DEAD"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_2_VeryRare_L2_0"
+type "Weapon"
+using "WPN_Trident_2"
+data "Rarity" "VeryRare"
+data "RootTemplate" "9a0096df-b22c-5d16-b12c-3c97590ceb6e"
+data "Boosts" "UnlockSpell(Shout_HellishRebuke);Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_AURA_OF_DEVOTION_BUFF;ENR_LootPassive_BARDIC_INSPIRATION"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_2_VeryRare_L3_0"
+type "Weapon"
+using "WPN_Trident_2"
+data "Rarity" "VeryRare"
+data "RootTemplate" "0ce825fc-d7f6-5ea1-9779-5ff7cdd36643"
+data "Boosts" "UnlockSpell(Target_ResilientSphere);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_LIGHT_d7917a;ENR_LootPassive_SACRED_WEAPON"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_2_VeryRare_L4_0"
+type "Weapon"
+using "WPN_Trident_2"
+data "Rarity" "VeryRare"
+data "RootTemplate" "65b6f115-d6a3-5151-84a9-3c26ce8439a3"
+data "Boosts" "UnlockSpell(Target_MentalSlam_Githyanki);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE;ENR_LootPassive_DETECT_THOUGHTS"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_2_VeryRare_L5_0"
+type "Weapon"
+using "WPN_Trident_2"
+data "Rarity" "VeryRare"
+data "RootTemplate" "1fd1bd41-17ef-53c0-998e-96cc5a40b1ba"
+data "Boosts" "UnlockSpell(Target_PlanarAlly_Container);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE;ENR_LootPassive_RESISTANCE_RADIANT"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_2_Legendary_L0_0"
+type "Weapon"
+using "WPN_Trident_2"
+data "Rarity" "Legendary"
+data "RootTemplate" "e28df7c2-b91a-5f7c-bd60-8476258a9fb5"
+data "Boosts" "UnlockSpell(Projectile_EldritchBlast);UnlockSpell(Shout_ArmorOfAgathys);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_FEATHER_FALL;ENR_LootPassive_RALLY"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_2_Legendary_L1_0"
+type "Weapon"
+using "WPN_Trident_2"
+data "Rarity" "Legendary"
+data "RootTemplate" "aca8b788-95ea-55fa-9ceb-3407c50e5c99"
+data "Boosts" "UnlockSpell(Target_Command_Halt);UnlockSpell(Shout_SpeakWithAnimals);Ability(Charisma,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_MAGIC_WEAPON;ENR_LootPassive_BLUR"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_2_Legendary_L2_0"
+type "Weapon"
+using "WPN_Trident_2"
+data "Rarity" "Legendary"
+data "RootTemplate" "c61bb190-3085-5ae9-8ec7-d8dbf5bf2435"
+data "Boosts" "UnlockSpell(Shout_MageArmor_ArmorOfShadows);UnlockSpell(Target_Jump);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_DARK_ONES_BLESSING;ENR_LootPassive_EAGLES_SPLENDOR"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_2_Legendary_L3_0"
+type "Weapon"
+using "WPN_Trident_2"
+data "Rarity" "Legendary"
+data "RootTemplate" "03bb91aa-9810-5c9a-b7b9-908a21a0f2a8"
+data "Boosts" "UnlockSpell(Target_HellishRebuke);UnlockSpell(Shout_ShadowBlade);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_CALM_EMOTIONS;ENR_LootPassive_MIRROR_IMAGE_2"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_2_Legendary_L4_0"
+type "Weapon"
+using "WPN_Trident_2"
+data "Rarity" "Legendary"
+data "RootTemplate" "13891da5-2e86-5c69-9583-234fe286cc1a"
+data "Boosts" "UnlockSpell(Shout_Shield_Wizard);UnlockSpell(Target_Invisibility_Greater);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RELENTLESS_RAGE;ENR_LootPassive_VAMPIRIC_TOUCH"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_A_2_Legendary_L5_0"
+type "Weapon"
+using "WPN_Trident_2"
+data "Rarity" "Legendary"
+data "RootTemplate" "738509ab-1fe7-5bb7-a4db-b8f9d38d8611"
+data "Boosts" "UnlockSpell(Target_FreezingSphere_Throw);UnlockSpell(Target_ShockingGrasp);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_FLY;ENR_LootPassive_PROTECTION_FROM_POISON"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_Pact_Uncommon_L0_0"
+type "Weapon"
+using "WPN_Trident_Pact"
+data "Rarity" "Uncommon"
+data "RootTemplate" "5da7454f-a9e8-51b8-b927-1ec2e8d92d3a"
+data "Boosts" "Proficiency(Tridents);UnlockSpell(Shout_ComprehendLanguages)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_Pact_Uncommon_L1_0"
+type "Weapon"
+using "WPN_Trident_Pact"
+data "Rarity" "Uncommon"
+data "RootTemplate" "8dd71338-c72f-5b6c-b35a-1a8f7fcc15d2"
+data "Boosts" "Proficiency(Tridents)"
+data "PassivesOnEquip" "ENR_LootPassive_ALCH_ELIXIR_ENLARGE"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_Pact_Uncommon_L2_0"
+type "Weapon"
+using "WPN_Trident_Pact"
+data "Rarity" "Uncommon"
+data "RootTemplate" "ab643c56-98a4-5d26-92bb-3eeff628c64b"
+data "Boosts" "Proficiency(Tridents);UnlockSpell(Target_AnimalFriendship)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_Pact_Uncommon_L3_0"
+type "Weapon"
+using "WPN_Trident_Pact"
+data "Rarity" "Uncommon"
+data "RootTemplate" "b110c798-92e5-50e9-af42-7b756ddbbcec"
+data "Boosts" "Proficiency(Tridents)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_FIRE"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_Pact_Uncommon_L4_0"
+type "Weapon"
+using "WPN_Trident_Pact"
+data "Rarity" "Uncommon"
+data "RootTemplate" "d572b526-3457-5445-b8f1-624a8c24d447"
+data "Boosts" "Proficiency(Tridents);UnlockSpell(Target_GreaterRestoration)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_Pact_Uncommon_L5_0"
+type "Weapon"
+using "WPN_Trident_Pact"
+data "Rarity" "Uncommon"
+data "RootTemplate" "146590af-9b67-5be7-a7f2-f5b138bc7187"
+data "Boosts" "Proficiency(Tridents);Ability(Wisdom,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_Pact_Rare_L0_0"
+type "Weapon"
+using "WPN_Trident_Pact"
+data "Rarity" "Rare"
+data "RootTemplate" "0b18092c-a2ad-5778-b8fe-a3dd4f2cc931"
+data "Boosts" "Proficiency(Tridents);UnlockSpell(Target_HellishRebuke);Ability(Intelligence,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_Pact_Rare_L1_0"
+type "Weapon"
+using "WPN_Trident_Pact"
+data "Rarity" "Rare"
+data "RootTemplate" "3d76dd36-181f-5573-bb88-054440109713"
+data "Boosts" "Proficiency(Tridents);Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_RADIANT"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_Pact_Rare_L2_0"
+type "Weapon"
+using "WPN_Trident_Pact"
+data "Rarity" "Rare"
+data "RootTemplate" "28cd215a-76be-5bb6-9404-0243170e7017"
+data "Boosts" "Proficiency(Tridents);Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_ASPECT_OF_THE_STALLION"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_Pact_Rare_L3_0"
+type "Weapon"
+using "WPN_Trident_Pact"
+data "Rarity" "Rare"
+data "RootTemplate" "d133bed5-9bda-52ab-b1d4-438872110852"
+data "Boosts" "Proficiency(Tridents);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_EVIL_AND_GOO_749824"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_Pact_Rare_L4_0"
+type "Weapon"
+using "WPN_Trident_Pact"
+data "Rarity" "Rare"
+data "RootTemplate" "9490a3d8-35d3-5656-b8fe-5f66dfb97df9"
+data "Boosts" "Proficiency(Tridents);UnlockSpell(Target_ConjureWoodlandBeings);Ability(Intelligence,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_Pact_Rare_L5_0"
+type "Weapon"
+using "WPN_Trident_Pact"
+data "Rarity" "Rare"
+data "RootTemplate" "66f93f69-c5db-5d4c-9581-b0d300450bf2"
+data "Boosts" "Proficiency(Tridents);UnlockSpell(Shout_Blink)"
+data "PassivesOnEquip" "ENR_LootPassive_FRIENDS"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_Pact_VeryRare_L0_0"
+type "Weapon"
+using "WPN_Trident_Pact"
+data "Rarity" "VeryRare"
+data "RootTemplate" "c02ef8b3-2089-5013-be59-5869cd8f294b"
+data "Boosts" "Proficiency(Tridents);UnlockSpell(Target_ShieldOfFaith);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_FEATHER_FALL;ENR_LootPassive_MIRROR_IMAGE_3"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_Pact_VeryRare_L1_0"
+type "Weapon"
+using "WPN_Trident_Pact"
+data "Rarity" "VeryRare"
+data "RootTemplate" "bf89932e-44d4-5030-b9c1-7ba5fdeec85b"
+data "Boosts" "Proficiency(Tridents);UnlockSpell(Target_Identify);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE;ENR_LootPassive_DAYLIGHT"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_Pact_VeryRare_L2_0"
+type "Weapon"
+using "WPN_Trident_Pact"
+data "Rarity" "VeryRare"
+data "RootTemplate" "6584ef82-7a0b-538e-a422-fa42aabc305c"
+data "Boosts" "Proficiency(Tridents);UnlockSpell(Target_MageHand);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_CRYSTALSKIN;ENR_LootPassive_BARKSKIN"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_Pact_VeryRare_L3_0"
+type "Weapon"
+using "WPN_Trident_Pact"
+data "Rarity" "VeryRare"
+data "RootTemplate" "05d79fcd-5b6c-5924-afc5-295133bd1a4e"
+data "Boosts" "Proficiency(Tridents);UnlockSpell(Target_SpeakWithDead);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_POISON;ENR_LootPassive_HASTE"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_Pact_VeryRare_L4_0"
+type "Weapon"
+using "WPN_Trident_Pact"
+data "Rarity" "VeryRare"
+data "RootTemplate" "a202431e-bb55-5e2b-9b54-3b14bdc80081"
+data "Boosts" "Proficiency(Tridents);UnlockSpell(Target_StinkingCloud);Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_VAMPIRE_REGENERATION;ENR_LootPassive_UNDEAD_FORTITUDE"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_Pact_VeryRare_L5_0"
+type "Weapon"
+using "WPN_Trident_Pact"
+data "Rarity" "VeryRare"
+data "RootTemplate" "75968dc4-ea4f-58d0-acd1-7328cea55415"
+data "Boosts" "Proficiency(Tridents);UnlockSpell(Target_TrueStrike);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_POISON;ENR_LootPassive_RELENTLESS_RAGE"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_Pact_Legendary_L0_0"
+type "Weapon"
+using "WPN_Trident_Pact"
+data "Rarity" "Legendary"
+data "RootTemplate" "84b43775-de33-557b-a2af-21c41e879855"
+data "Boosts" "Proficiency(Tridents);UnlockSpell(Projectile_HailOfThorns);UnlockSpell(Target_Sanctuary);Ability(Charisma,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_OWLS_WISDOM;ENR_LootPassive_VAMPIRIC_TOUCH"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_Pact_Legendary_L1_0"
+type "Weapon"
+using "WPN_Trident_Pact"
+data "Rarity" "Legendary"
+data "RootTemplate" "40320d14-8135-594b-969a-0d9143948e72"
+data "Boosts" "Proficiency(Tridents);UnlockSpell(Projectile_RayOfFrost);UnlockSpell(Target_Bane);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_RADIANT;ENR_LootPassive_VAMPIRE_REGENERATION"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_Pact_Legendary_L2_0"
+type "Weapon"
+using "WPN_Trident_Pact"
+data "Rarity" "Legendary"
+data "RootTemplate" "b8d13190-e5cf-5bcb-9123-538f456558af"
+data "Boosts" "Proficiency(Tridents);UnlockSpell(Target_Slow);UnlockSpell(Projectile_Fireball);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_OWLS_WISDOM;ENR_LootPassive_DIVINE_FAVOR"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_Pact_Legendary_L3_0"
+type "Weapon"
+using "WPN_Trident_Pact"
+data "Rarity" "Legendary"
+data "RootTemplate" "004b942f-af75-563b-9ec6-8d2e2c1b6d04"
+data "Boosts" "Proficiency(Tridents);UnlockSpell(Shout_SpiritGuardians);UnlockSpell(Target_CreateDestroyWater);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_CATS_GRACE;ENR_LootPassive_GUIDANCE"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_Pact_Legendary_L4_0"
+type "Weapon"
+using "WPN_Trident_Pact"
+data "Rarity" "Legendary"
+data "RootTemplate" "03d510a7-6e1c-5bea-a2ba-2d5296f939f0"
+data "Boosts" "Proficiency(Tridents);UnlockSpell(Target_ConjureElementals_Minor_IceMephit_5);UnlockSpell(Target_ViciousMockery);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_DAYLIGHT;ENR_LootPassive_AID"
+
+
+new entry "ENR_Loot_WPN_HUM_Trident_Pact_Legendary_L5_0"
+type "Weapon"
+using "WPN_Trident_Pact"
+data "Rarity" "Legendary"
+data "RootTemplate" "5c764a7a-1376-5e80-b5b0-e0cb14031ba8"
+data "Boosts" "Proficiency(Tridents);UnlockSpell(Target_Scrying);UnlockSpell(Target_AnimateDead_FlyingGhoul);Ability(Charisma,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_GUIDANCE;ENR_LootPassive_BEARS_ENDURANCE"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Uncommon_L0_0"
+type "Weapon"
+using "WPN_Warhammer"
+data "Rarity" "Uncommon"
+data "RootTemplate" "8c1bacd6-a448-53be-bdf3-5d8bdb25ac44"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_SHIELD_OF_FAITH"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Uncommon_L1_0"
+type "Weapon"
+using "WPN_Warhammer"
+data "Rarity" "Uncommon"
+data "RootTemplate" "eaf6d3a8-58ab-5a83-92c0-dbbd95c0cee6"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_STONESKIN"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Uncommon_L2_0"
+type "Weapon"
+using "WPN_Warhammer"
+data "Rarity" "Uncommon"
+data "RootTemplate" "97d060ca-0e6a-51aa-bd88-69c559a08a86"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_AURA_OF_WARDING_BUFF"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Uncommon_L3_0"
+type "Weapon"
+using "WPN_Warhammer"
+data "Rarity" "Uncommon"
+data "RootTemplate" "14c750db-8ab1-5cef-8da1-f8715f292988"
+data "Boosts" "Ability(Charisma,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Uncommon_L4_0"
+type "Weapon"
+using "WPN_Warhammer"
+data "Rarity" "Uncommon"
+data "RootTemplate" "33c28a08-cb33-5ec1-bc3a-309b7259fe07"
+data "Boosts" "Ability(Wisdom,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Uncommon_L5_0"
+type "Weapon"
+using "WPN_Warhammer"
+data "Rarity" "Uncommon"
+data "RootTemplate" "13e8db71-0659-56e9-a266-ed842333bd25"
+data "Boosts" "Ability(Charisma,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Rare_L0_0"
+type "Weapon"
+using "WPN_Warhammer"
+data "Rarity" "Rare"
+data "RootTemplate" "594e0735-06b6-5f57-a73e-579e808f4fa0"
+data "Boosts" "Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BLADE_WARD"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Rare_L1_0"
+type "Weapon"
+using "WPN_Warhammer"
+data "Rarity" "Rare"
+data "RootTemplate" "5d683bc0-3ef7-5cdc-90c5-b970936e71ff"
+data "Boosts" "Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_GUIDANCE"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Rare_L2_0"
+type "Weapon"
+using "WPN_Warhammer"
+data "Rarity" "Rare"
+data "RootTemplate" "0115124c-634a-5313-90bb-569f44f08d57"
+data "Boosts" "UnlockSpell(Target_ProtectionFromEvilAndGood)"
+data "PassivesOnEquip" "ENR_LootPassive_FEATHER_FALL"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Rare_L3_0"
+type "Weapon"
+using "WPN_Warhammer"
+data "Rarity" "Rare"
+data "RootTemplate" "3d8e30f7-d27a-5ce7-9c4e-e0b34e8bd44e"
+data "Boosts" "UnlockSpell(Target_FindFamiliar)"
+data "PassivesOnEquip" "ENR_LootPassive_AID"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Rare_L4_0"
+type "Weapon"
+using "WPN_Warhammer"
+data "Rarity" "Rare"
+data "RootTemplate" "c14c43fd-c2a0-5a14-84c3-f4e95bbad903"
+data "Boosts" "Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_EAGLES_SPLENDOR"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Rare_L5_0"
+type "Weapon"
+using "WPN_Warhammer"
+data "Rarity" "Rare"
+data "RootTemplate" "4088cdae-7e2d-5f07-a122-330b28e3543a"
+data "Boosts" "UnlockSpell(Shout_DestructiveWave)"
+data "PassivesOnEquip" "ENR_LootPassive_SANCTUARY"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_VeryRare_L0_0"
+type "Weapon"
+using "WPN_Warhammer"
+data "Rarity" "VeryRare"
+data "RootTemplate" "185d7103-ca4a-541c-9dfa-e8f8ef5f7326"
+data "Boosts" "UnlockSpell(Target_ViciousMockery);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_SHIELD;ENR_LootPassive_PROTECTION_FROM_ENERGY_THUND_18d16e"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_VeryRare_L1_0"
+type "Weapon"
+using "WPN_Warhammer"
+data "Rarity" "VeryRare"
+data "RootTemplate" "3b97b567-8f1f-5e4a-b17f-f49d4cda7024"
+data "Boosts" "UnlockSpell(Projectile_RayOfSickness);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD;ENR_LootPassive_SANCTUARY"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_VeryRare_L2_0"
+type "Weapon"
+using "WPN_Warhammer"
+data "Rarity" "VeryRare"
+data "RootTemplate" "4b100ef3-7c84-5d1e-9f6e-3339867b3d4c"
+data "Boosts" "UnlockSpell(Target_Sanctuary);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_CALM_EMOTIONS;ENR_LootPassive_FREEDOM_OF_MOVEMENT"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_VeryRare_L3_0"
+type "Weapon"
+using "WPN_Warhammer"
+data "Rarity" "VeryRare"
+data "RootTemplate" "80c594da-11ce-5df2-9367-2004718fc873"
+data "Boosts" "UnlockSpell(Shout_Blink);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE;ENR_LootPassive_REFLECTIVE_SHELL"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_VeryRare_L4_0"
+type "Weapon"
+using "WPN_Warhammer"
+data "Rarity" "VeryRare"
+data "RootTemplate" "e59ea358-9a00-5940-b2d5-3ce91e34eadd"
+data "Boosts" "UnlockSpell(Shout_MirrorImage);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BULLS_STRENGTH;ENR_LootPassive_SACRED_WEAPON"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_VeryRare_L5_0"
+type "Weapon"
+using "WPN_Warhammer"
+data "Rarity" "VeryRare"
+data "RootTemplate" "29fc7e21-6ab8-5957-8a97-08a77632eada"
+data "Boosts" "UnlockSpell(Target_BlackTentacles);Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_ACID;ENR_LootPassive_MIRROR_IMAGE_3"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Legendary_L0_0"
+type "Weapon"
+using "WPN_Warhammer"
+data "Rarity" "Legendary"
+data "RootTemplate" "5584bc74-af4d-562e-89f7-0c84e8af520b"
+data "Boosts" "UnlockSpell(Shout_SpeakWithAnimals);UnlockSpell(Projectile_EnsnaringStrike);Ability(Charisma,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_ASPECT_OF_THE_ELK;ENR_LootPassive_MAGE_ARMOR"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Legendary_L1_0"
+type "Weapon"
+using "WPN_Warhammer"
+data "Rarity" "Legendary"
+data "RootTemplate" "fc33e32b-7ad2-5b7f-a1af-0c041ef0ddd4"
+data "Boosts" "UnlockSpell(Target_ArcaneLock);UnlockSpell(Projectile_WitchBolt);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_SANCTUARY;ENR_LootPassive_LIGHT"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Legendary_L2_0"
+type "Weapon"
+using "WPN_Warhammer"
+data "Rarity" "Legendary"
+data "RootTemplate" "b2256fa9-70fa-547f-89df-11a9d30cc64c"
+data "Boosts" "UnlockSpell(Zone_Fear);UnlockSpell(Projectile_ScorchingRay);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_ACID;ENR_LootPassive_DARKVISION"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Legendary_L3_0"
+type "Weapon"
+using "WPN_Warhammer"
+data "Rarity" "Legendary"
+data "RootTemplate" "1ae2b688-94b8-5410-955d-5e6f6e37bef1"
+data "Boosts" "UnlockSpell(Projectile_LightningArrow);UnlockSpell(Target_Enthrall);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_ASPECT_OF_THE_WOLF;ENR_LootPassive_COMPREHEND_LANGUAGES"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Legendary_L4_0"
+type "Weapon"
+using "WPN_Warhammer"
+data "Rarity" "Legendary"
+data "RootTemplate" "27410ed7-a311-564a-b0fb-790e84348d3a"
+data "Boosts" "UnlockSpell(Projectile_PoisonSpray);UnlockSpell(Target_HuntersMark);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RALLY;ENR_LootPassive_SURVIVAL_INSTINCT"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Legendary_L5_0"
+type "Weapon"
+using "WPN_Warhammer"
+data "Rarity" "Legendary"
+data "RootTemplate" "4357e387-49d8-58f0-8f26-05c7204350fa"
+data "Boosts" "UnlockSpell(Projectile_ChromaticOrb_Acid);UnlockSpell(Target_RiseUndead_DeathShepherd);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_CRYSTALSKIN;ENR_LootPassive_BEARS_ENDURANCE"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Rusty_a14186_Uncommon_L0_0"
+type "Weapon"
+using "WPN_Warhammer_Rusty"
+data "Rarity" "Uncommon"
+data "RootTemplate" "43e13716-7f36-5a65-bb80-fc67a78d0cce"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_AURA_OF_DEVOTION_BUFF"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Rusty_a14186_Uncommon_L1_0"
+type "Weapon"
+using "WPN_Warhammer_Rusty"
+data "Rarity" "Uncommon"
+data "RootTemplate" "b6db74f9-ae97-596c-ad8d-da239f184df0"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_TRUE_STRIKE"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Rusty_a14186_Uncommon_L2_0"
+type "Weapon"
+using "WPN_Warhammer_Rusty"
+data "Rarity" "Uncommon"
+data "RootTemplate" "009aa542-e584-5d26-ab3d-761a40ca6359"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_FIRE"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Rusty_a14186_Uncommon_L3_0"
+type "Weapon"
+using "WPN_Warhammer_Rusty"
+data "Rarity" "Uncommon"
+data "RootTemplate" "b0318dda-d3b2-5f94-9e50-7585bdeaee5e"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_HASTE"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Rusty_a14186_Uncommon_L4_0"
+type "Weapon"
+using "WPN_Warhammer_Rusty"
+data "Rarity" "Uncommon"
+data "RootTemplate" "5a31ed16-56f9-5d37-9303-51ceda2aea52"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_INSPIRING_LEADER"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Rusty_a14186_Uncommon_L5_0"
+type "Weapon"
+using "WPN_Warhammer_Rusty"
+data "Rarity" "Uncommon"
+data "RootTemplate" "1b1d41f8-d6a3-50a1-8e18-4a2614c4cf97"
+data "Boosts" "Ability(Constitution,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Rusty_a14186_Rare_L0_0"
+type "Weapon"
+using "WPN_Warhammer_Rusty"
+data "Rarity" "Rare"
+data "RootTemplate" "d46b9189-b931-5825-9abf-14f7ec4e3572"
+data "Boosts" "UnlockSpell(Target_Smite_Searing);Ability(Dexterity,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Rusty_a14186_Rare_L1_0"
+type "Weapon"
+using "WPN_Warhammer_Rusty"
+data "Rarity" "Rare"
+data "RootTemplate" "ad8f393a-75b3-5e59-b217-7db48d259d05"
+data "Boosts" "UnlockSpell(Target_Heroism)"
+data "PassivesOnEquip" "ENR_LootPassive_AID"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Rusty_a14186_Rare_L2_0"
+type "Weapon"
+using "WPN_Warhammer_Rusty"
+data "Rarity" "Rare"
+data "RootTemplate" "5646753f-496c-5820-8c08-12738cf7d790"
+data "Boosts" "UnlockSpell(Target_FeignDeath)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_POISON"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Rusty_a14186_Rare_L3_0"
+type "Weapon"
+using "WPN_Warhammer_Rusty"
+data "Rarity" "Rare"
+data "RootTemplate" "ded2c2e3-97ba-5052-9c8c-273016c75918"
+data "Boosts" "UnlockSpell(Target_StaggeringSmite);Ability(Dexterity,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Rusty_a14186_Rare_L4_0"
+type "Weapon"
+using "WPN_Warhammer_Rusty"
+data "Rarity" "Rare"
+data "RootTemplate" "6e386b2a-d15e-53b1-a993-028c77607870"
+data "Boosts" "UnlockSpell(Projectile_ScorchingRay);Ability(Charisma,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Rusty_a14186_Rare_L5_0"
+type "Weapon"
+using "WPN_Warhammer_Rusty"
+data "Rarity" "Rare"
+data "RootTemplate" "7e83432e-4de1-5cfd-8899-0f5174731765"
+data "Boosts" "UnlockSpell(Target_ProtectionFromPoison);Ability(Dexterity,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Rusty_a14186_VeryRare_L0_0"
+type "Weapon"
+using "WPN_Warhammer_Rusty"
+data "Rarity" "VeryRare"
+data "RootTemplate" "3358bc76-0b21-51fb-afff-a1cd98b8ccd7"
+data "Boosts" "UnlockSpell(Zone_BurningHands);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_ACID;ENR_LootPassive_CRYSTALSKIN"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Rusty_a14186_VeryRare_L1_0"
+type "Weapon"
+using "WPN_Warhammer_Rusty"
+data "Rarity" "VeryRare"
+data "RootTemplate" "92a042b0-a59d-524e-a9b2-6f045e24f7a7"
+data "Boosts" "UnlockSpell(Shout_Shield_Wizard);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_ASPECT_OF_THE_WOLF;ENR_LootPassive_SHILLELAGH"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Rusty_a14186_VeryRare_L2_0"
+type "Weapon"
+using "WPN_Warhammer_Rusty"
+data "Rarity" "VeryRare"
+data "RootTemplate" "91332ca7-6d53-5665-b8a8-56006de29ad1"
+data "Boosts" "UnlockSpell(Target_Invisibility);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_HEROES_FEAST;ENR_LootPassive_FLAME_BLADE"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Rusty_a14186_VeryRare_L3_0"
+type "Weapon"
+using "WPN_Warhammer_Rusty"
+data "Rarity" "VeryRare"
+data "RootTemplate" "720f8a01-68ea-5a58-8c75-1ab675a41044"
+data "Boosts" "UnlockSpell(Teleportation_Revivify);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_AURA_OF_DEVOTION_BUFF;ENR_LootPassive_RESISTANCE_PSYCHIC"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Rusty_a14186_VeryRare_L4_0"
+type "Weapon"
+using "WPN_Warhammer_Rusty"
+data "Rarity" "VeryRare"
+data "RootTemplate" "92ad8cdf-da57-57c4-8f19-1f48222d8dff"
+data "Boosts" "UnlockSpell(Target_Scrying);Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_FRIENDS;ENR_LootPassive_RESISTANCE_NECROTIC"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Rusty_a14186_VeryRare_L5_0"
+type "Weapon"
+using "WPN_Warhammer_Rusty"
+data "Rarity" "VeryRare"
+data "RootTemplate" "ac0ef83a-9395-559c-abf8-dfb1714b2519"
+data "Boosts" "UnlockSpell(Projectile_ChainLightning);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_MIRROR_IMAGE_3;ENR_LootPassive_DETECT_EVIL_GOOD"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Rusty_a14186_Legendary_L0_0"
+type "Weapon"
+using "WPN_Warhammer_Rusty"
+data "Rarity" "Legendary"
+data "RootTemplate" "d9a87410-eb93-5891-87cd-c91cf7ffeaac"
+data "Boosts" "UnlockSpell(Shout_DisguiseSelf);UnlockSpell(Target_DissonantWhispers);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_PSYCHIC;ENR_LootPassive_AURA_OF_WARDING_BUFF"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Rusty_a14186_Legendary_L1_0"
+type "Weapon"
+using "WPN_Warhammer_Rusty"
+data "Rarity" "Legendary"
+data "RootTemplate" "228f6be9-b5ff-508b-86e2-3386508ec9c8"
+data "Boosts" "UnlockSpell(Target_HAG_HoldPerson);UnlockSpell(Target_TrueStrike);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BEACON_OF_HOPE;ENR_LootPassive_SANCTUARY"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Rusty_a14186_Legendary_L2_0"
+type "Weapon"
+using "WPN_Warhammer_Rusty"
+data "Rarity" "Legendary"
+data "RootTemplate" "b107b5f2-f398-55af-9449-237c1066f68f"
+data "Boosts" "UnlockSpell(Target_DancingLights);UnlockSpell(Shout_ArmsOfHadar);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_AID;ENR_LootPassive_SHILLELAGH"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Rusty_a14186_Legendary_L3_0"
+type "Weapon"
+using "WPN_Warhammer_Rusty"
+data "Rarity" "Legendary"
+data "RootTemplate" "148c4364-1b79-571e-95f5-8bb3620da6ad"
+data "Boosts" "UnlockSpell(Target_FindFamiliar);UnlockSpell(Target_RemoveCurse);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_HASTE;ENR_LootPassive_ASPECT_OF_THE_ELK"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Rusty_a14186_Legendary_L4_0"
+type "Weapon"
+using "WPN_Warhammer_Rusty"
+data "Rarity" "Legendary"
+data "RootTemplate" "d9e638bc-302a-5718-af33-ff55509a6342"
+data "Boosts" "UnlockSpell(Target_MagicCircle);UnlockSpell(Projectile_LightningArrow);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BEARS_ENDURANCE;ENR_LootPassive_ASPECT_OF_THE_ELK"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_0_Rusty_a14186_Legendary_L5_0"
+type "Weapon"
+using "WPN_Warhammer_Rusty"
+data "Rarity" "Legendary"
+data "RootTemplate" "59252dd1-ac20-57ea-a2b9-209ffc91da42"
+data "Boosts" "UnlockSpell(Target_Resistance);UnlockSpell(Target_GuardianOfFaith);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_DARKVISION;ENR_LootPassive_LONGSTRIDER"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_1_Uncommon_L0_0"
+type "Weapon"
+using "WPN_Warhammer_1"
+data "Rarity" "Uncommon"
+data "RootTemplate" "8da5e129-3dd6-5c79-a8b5-6be9a0562719"
+data "Boosts" "Ability(Intelligence,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_1_Uncommon_L1_0"
+type "Weapon"
+using "WPN_Warhammer_1"
+data "Rarity" "Uncommon"
+data "RootTemplate" "4ab98e92-0724-58f0-ad47-828f8e56ad53"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_PASS_WITHOUT_TRACE"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_1_Uncommon_L2_0"
+type "Weapon"
+using "WPN_Warhammer_1"
+data "Rarity" "Uncommon"
+data "RootTemplate" "742180bd-f48d-5122-8703-848e9448637b"
+data "Boosts" "Ability(Wisdom,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_1_Uncommon_L3_0"
+type "Weapon"
+using "WPN_Warhammer_1"
+data "Rarity" "Uncommon"
+data "RootTemplate" "3cc615fa-d54c-50e0-a7c8-787dbf0beb06"
+data "Boosts" "Ability(Strength,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_1_Uncommon_L4_0"
+type "Weapon"
+using "WPN_Warhammer_1"
+data "Rarity" "Uncommon"
+data "RootTemplate" "a0674eeb-a16d-5fbe-b73d-fa1f0ea13920"
+data "Boosts" "Ability(Dexterity,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_1_Uncommon_L5_0"
+type "Weapon"
+using "WPN_Warhammer_1"
+data "Rarity" "Uncommon"
+data "RootTemplate" "156793ae-db99-5347-a815-b21709f2a01a"
+data "Boosts" "UnlockSpell(Projectile_IceKnife)"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_1_Rare_L0_0"
+type "Weapon"
+using "WPN_Warhammer_1"
+data "Rarity" "Rare"
+data "RootTemplate" "81cb25a4-7dcd-5c2d-b18c-561ce8946498"
+data "Boosts" "UnlockSpell(Projectile_AcidSplash)"
+data "PassivesOnEquip" "ENR_LootPassive_SHIELD_OF_FAITH"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_1_Rare_L1_0"
+type "Weapon"
+using "WPN_Warhammer_1"
+data "Rarity" "Rare"
+data "RootTemplate" "72645968-33b8-50e3-b4d0-e387de32d4d9"
+data "Boosts" "Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_HEROES_FEAST"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_1_Rare_L2_0"
+type "Weapon"
+using "WPN_Warhammer_1"
+data "Rarity" "Rare"
+data "RootTemplate" "4902a0ff-f4ae-5a82-9954-65d378bb71b6"
+data "Boosts" "Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_POISON"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_1_Rare_L3_0"
+type "Weapon"
+using "WPN_Warhammer_1"
+data "Rarity" "Rare"
+data "RootTemplate" "078a9b5d-0ba6-5524-a806-13976b883bcd"
+data "Boosts" "UnlockSpell(Target_Shatter)"
+data "PassivesOnEquip" "ENR_LootPassive_SHILLELAGH"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_1_Rare_L4_0"
+type "Weapon"
+using "WPN_Warhammer_1"
+data "Rarity" "Rare"
+data "RootTemplate" "a95b3fd0-19e6-5f86-82b3-829afe041820"
+data "Boosts" "UnlockSpell(Target_DominateBeast);Ability(Wisdom,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_1_Rare_L5_0"
+type "Weapon"
+using "WPN_Warhammer_1"
+data "Rarity" "Rare"
+data "RootTemplate" "26112e0f-98cd-5067-8dcf-7f49b98b3dc8"
+data "Boosts" "UnlockSpell(Target_BlackTentacles)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_RADIANT"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_1_VeryRare_L0_0"
+type "Weapon"
+using "WPN_Warhammer_1"
+data "Rarity" "VeryRare"
+data "RootTemplate" "3463ef7b-19c3-5f21-841f-0a2e40090029"
+data "Boosts" "UnlockSpell(Projectile_RayOfFrost);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_SANCTUARY;ENR_LootPassive_TRUE_STRIKE"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_1_VeryRare_L1_0"
+type "Weapon"
+using "WPN_Warhammer_1"
+data "Rarity" "VeryRare"
+data "RootTemplate" "dd44d617-ee0b-525e-ae2c-5ce0c0d68411"
+data "Boosts" "UnlockSpell(Target_ThornWhip);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_GUIDANCE;ENR_LootPassive_WARDING_FLARE"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_1_VeryRare_L2_0"
+type "Weapon"
+using "WPN_Warhammer_1"
+data "Rarity" "VeryRare"
+data "RootTemplate" "b3dfdbca-3aa8-5c65-9cb3-d06685ffd7ef"
+data "Boosts" "UnlockSpell(Target_CreateWater);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_NECROTIC;ENR_LootPassive_LONGSTRIDER"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_1_VeryRare_L3_0"
+type "Weapon"
+using "WPN_Warhammer_1"
+data "Rarity" "VeryRare"
+data "RootTemplate" "ef5dfb0d-97ed-50c1-a524-4ed3375103ac"
+data "Boosts" "UnlockSpell(Target_ShockingGrasp);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_MAGE_ARMOR;ENR_LootPassive_OWLS_WISDOM"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_1_VeryRare_L4_0"
+type "Weapon"
+using "WPN_Warhammer_1"
+data "Rarity" "VeryRare"
+data "RootTemplate" "6c2908d4-a23e-5c20-834d-7fe633daf2df"
+data "Boosts" "UnlockSpell(Shout_Shillelagh);Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_SHIELD;ENR_LootPassive_DEATH_WARD"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_1_VeryRare_L5_0"
+type "Weapon"
+using "WPN_Warhammer_1"
+data "Rarity" "VeryRare"
+data "RootTemplate" "2cc3e301-b8c6-5dd3-a548-b252d363a981"
+data "Boosts" "UnlockSpell(Target_AnimateDead_FlyingGhoul_6);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_FIRE;ENR_LootPassive_PRODUCE_FLAME"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_1_Legendary_L0_0"
+type "Weapon"
+using "WPN_Warhammer_1"
+data "Rarity" "Legendary"
+data "RootTemplate" "d90ccbba-b3fb-5a0b-ab41-31656042f1d9"
+data "Boosts" "UnlockSpell(Target_CureWounds);UnlockSpell(Shout_DisguiseSelf);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_GUIDANCE;ENR_LootPassive_PROTECTION_FROM_EVIL_AND_GOO_749824"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_1_Legendary_L1_0"
+type "Weapon"
+using "WPN_Warhammer_1"
+data "Rarity" "Legendary"
+data "RootTemplate" "6095a488-6abe-5952-b7f8-91ddf5cc3845"
+data "Boosts" "UnlockSpell(Target_Bane);UnlockSpell(Target_MistyStep_Githyanki);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_HASTE;ENR_LootPassive_DIVINE_FAVOR"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_1_Legendary_L2_0"
+type "Weapon"
+using "WPN_Warhammer_1"
+data "Rarity" "Legendary"
+data "RootTemplate" "a6823bd8-b1aa-5610-bd8f-a41dff1aa2b7"
+data "Boosts" "UnlockSpell(Target_MistyStep);UnlockSpell(Target_Resistance);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_DEATH_WARD;ENR_LootPassive_DIVINE_SENSE"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_1_Legendary_L3_0"
+type "Weapon"
+using "WPN_Warhammer_1"
+data "Rarity" "Legendary"
+data "RootTemplate" "43e18be6-af02-509b-a1f5-83455d1aff28"
+data "Boosts" "UnlockSpell(Target_BestowCurse);UnlockSpell(Target_BurstingSinew);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_LIGHT;ENR_LootPassive_BLADE_FLOURISH_DEFENSIVE"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_1_Legendary_L4_0"
+type "Weapon"
+using "WPN_Warhammer_1"
+data "Rarity" "Legendary"
+data "RootTemplate" "dc1d505b-9d55-5279-8e1f-871188e2cf04"
+data "Boosts" "UnlockSpell(Target_ProtectionFromEnergy);UnlockSpell(Target_AnimateDead_Skeleton_4);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BLESS;ENR_LootPassive_VAMPIRIC_TOUCH"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_1_Legendary_L5_0"
+type "Weapon"
+using "WPN_Warhammer_1"
+data "Rarity" "Legendary"
+data "RootTemplate" "5d3bfad4-6cab-5996-9c23-cc0b7e2eb2a1"
+data "Boosts" "UnlockSpell(Projectile_EnsnaringStrike);UnlockSpell(Target_Smite_Thunderous);Ability(Charisma,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_MAGE_ARMOR;ENR_LootPassive_RESISTANCE_RADIANT"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_2_Uncommon_L0_0"
+type "Weapon"
+using "WPN_Warhammer_2"
+data "Rarity" "Uncommon"
+data "RootTemplate" "4edaeb14-9417-58eb-9a3e-df2b9be1e3f8"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_DRUNKEN_TECHNIQUE"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_2_Uncommon_L1_0"
+type "Weapon"
+using "WPN_Warhammer_2"
+data "Rarity" "Uncommon"
+data "RootTemplate" "f1d751df-0f3b-5386-ac7b-1b8eb3fa2666"
+data "Boosts" "UnlockSpell(Projectile_IceKnife)"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_2_Uncommon_L2_0"
+type "Weapon"
+using "WPN_Warhammer_2"
+data "Rarity" "Uncommon"
+data "RootTemplate" "49aecbf0-9e5a-59fc-a4b0-be41a7f44327"
+data "Boosts" "UnlockSpell(Shout_FlameBlade)"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_2_Uncommon_L3_0"
+type "Weapon"
+using "WPN_Warhammer_2"
+data "Rarity" "Uncommon"
+data "RootTemplate" "0030025e-545b-5b1f-bebe-1e258abc93bd"
+data "Boosts" "UnlockSpell(Target_DeathWard)"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_2_Uncommon_L4_0"
+type "Weapon"
+using "WPN_Warhammer_2"
+data "Rarity" "Uncommon"
+data "RootTemplate" "ed66fa7e-de2c-5fcd-999a-a2d0fa88ed0c"
+data "Boosts" "Ability(Wisdom,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_2_Uncommon_L5_0"
+type "Weapon"
+using "WPN_Warhammer_2"
+data "Rarity" "Uncommon"
+data "RootTemplate" "2dcf54ab-6873-56c1-a675-55567ecfbf15"
+data "Boosts" "UnlockSpell(Target_ConjureElementals_Minor_IceMephit_5)"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_2_Rare_L0_0"
+type "Weapon"
+using "WPN_Warhammer_2"
+data "Rarity" "Rare"
+data "RootTemplate" "6459f7da-0f60-502d-ad54-9e1cdc002f98"
+data "Boosts" "UnlockSpell(Target_CreateDestroyWater)"
+data "PassivesOnEquip" "ENR_LootPassive_DARK_ONES_BLESSING"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_2_Rare_L1_0"
+type "Weapon"
+using "WPN_Warhammer_2"
+data "Rarity" "Rare"
+data "RootTemplate" "18b02507-daaa-5572-b5de-167564da5df3"
+data "Boosts" "Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_DETECT_EVIL_GOOD"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_2_Rare_L2_0"
+type "Weapon"
+using "WPN_Warhammer_2"
+data "Rarity" "Rare"
+data "RootTemplate" "f364d462-a61c-5b2e-aff7-e3d96afc9599"
+data "Boosts" "Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_HASTE"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_2_Rare_L3_0"
+type "Weapon"
+using "WPN_Warhammer_2"
+data "Rarity" "Rare"
+data "RootTemplate" "26d35649-7c55-5884-a9b9-125112a836c2"
+data "Boosts" "UnlockSpell(Target_HuntersMark);Ability(Intelligence,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_2_Rare_L4_0"
+type "Weapon"
+using "WPN_Warhammer_2"
+data "Rarity" "Rare"
+data "RootTemplate" "7958b7b4-3f02-51c0-ad53-9092425521fe"
+data "Boosts" "Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_MIRROR_IMAGE_3"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_2_Rare_L5_0"
+type "Weapon"
+using "WPN_Warhammer_2"
+data "Rarity" "Rare"
+data "RootTemplate" "39df93cc-9d42-5d2a-b737-ca05dfdec489"
+data "Boosts" "UnlockSpell(Wall_WallOfIce);Ability(Charisma,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_2_VeryRare_L0_0"
+type "Weapon"
+using "WPN_Warhammer_2"
+data "Rarity" "VeryRare"
+data "RootTemplate" "db991073-80d4-5028-8e9c-10ef4e9a6441"
+data "Boosts" "UnlockSpell(Projectile_AcidSplash);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_MOBILE_NO_AOO;ENR_LootPassive_BLADE_WARD"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_2_VeryRare_L1_0"
+type "Weapon"
+using "WPN_Warhammer_2"
+data "Rarity" "VeryRare"
+data "RootTemplate" "131a417a-92ee-5900-80df-d4cf04a38e4a"
+data "Boosts" "UnlockSpell(Projectile_SteelWatcher_Quadruped_SelfDestructExplosion);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BARDIC_INSPIRATION;ENR_LootPassive_AID"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_2_VeryRare_L2_0"
+type "Weapon"
+using "WPN_Warhammer_2"
+data "Rarity" "VeryRare"
+data "RootTemplate" "1cc778e4-4fff-5b2e-8c85-8d87ae617498"
+data "Boosts" "UnlockSpell(Shout_SpeakWithAnimals);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BEARS_ENDURANCE;ENR_LootPassive_UNDEAD_FORTITUDE"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_2_VeryRare_L3_0"
+type "Weapon"
+using "WPN_Warhammer_2"
+data "Rarity" "VeryRare"
+data "RootTemplate" "67e5f527-be37-597a-afdb-ed2eba8e89c3"
+data "Boosts" "UnlockSpell(Shout_ComprehendLanguages);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_MAGIC_WEAPON;ENR_LootPassive_CALM_EMOTIONS"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_2_VeryRare_L4_0"
+type "Weapon"
+using "WPN_Warhammer_2"
+data "Rarity" "VeryRare"
+data "RootTemplate" "41e01185-cac0-54fe-80c0-a8818ac35c52"
+data "Boosts" "UnlockSpell(Zone_Thunderwave);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_FIRE;ENR_LootPassive_INSPIRING_LEADER"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_2_VeryRare_L5_0"
+type "Weapon"
+using "WPN_Warhammer_2"
+data "Rarity" "VeryRare"
+data "RootTemplate" "075b7987-8951-556e-8c13-7b1bb50dc2e2"
+data "Boosts" "UnlockSpell(Target_Jump);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_LIGHTNING;ENR_LootPassive_BLESS"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_2_Legendary_L0_0"
+type "Weapon"
+using "WPN_Warhammer_2"
+data "Rarity" "Legendary"
+data "RootTemplate" "e8d11efb-1968-5a53-aca4-a6423af1894b"
+data "Boosts" "UnlockSpell(Target_Bless);UnlockSpell(Target_HealingWord);Ability(Charisma,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_POISON;ENR_LootPassive_WARDING_FLARE"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_2_Legendary_L1_0"
+type "Weapon"
+using "WPN_Warhammer_2"
+data "Rarity" "Legendary"
+data "RootTemplate" "3659d317-f8c8-5d5e-b8e1-86a824d6d1bb"
+data "Boosts" "UnlockSpell(Target_AnimalFriendship);UnlockSpell(Shout_AlterSelf);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BULLS_STRENGTH;ENR_LootPassive_DAYLIGHT"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_2_Legendary_L2_0"
+type "Weapon"
+using "WPN_Warhammer_2"
+data "Rarity" "Legendary"
+data "RootTemplate" "598b071e-8a38-58fa-a5e1-5cc88280a66d"
+data "Boosts" "UnlockSpell(Target_Barkskin);UnlockSpell(Target_CallLightning);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_STONESKIN;ENR_LootPassive_ASPECT_OF_THE_WOLF"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_2_Legendary_L3_0"
+type "Weapon"
+using "WPN_Warhammer_2"
+data "Rarity" "Legendary"
+data "RootTemplate" "e1129a80-331c-58c6-b72f-0e33b7bbf6e2"
+data "Boosts" "UnlockSpell(Projectile_EnsnaringStrike);UnlockSpell(Shout_ProduceFlame);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_FRIENDS;ENR_LootPassive_VAMPIRE_REGENERATION"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_2_Legendary_L4_0"
+type "Weapon"
+using "WPN_Warhammer_2"
+data "Rarity" "Legendary"
+data "RootTemplate" "048b2b82-8928-539b-8775-eafaa7ab384a"
+data "Boosts" "UnlockSpell(Target_CreateDestroyWater);UnlockSpell(Target_Heroism);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_ACID;ENR_LootPassive_ALCH_ELIXIR_ENLARGE"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_A_2_Legendary_L5_0"
+type "Weapon"
+using "WPN_Warhammer_2"
+data "Rarity" "Legendary"
+data "RootTemplate" "8a435d69-b71b-547d-a835-458d132e5391"
+data "Boosts" "UnlockSpell(Shout_FalseLife);UnlockSpell(Target_PhantasmalForce);Ability(Charisma,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BLADE_FLOURISH_DEFENSIVE;ENR_LootPassive_PROTECTION_FROM_EVIL_AND_GOO_749824"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_Pact_Uncommon_L0_0"
+type "Weapon"
+using "WPN_Warhammer_Pact"
+data "Rarity" "Uncommon"
+data "RootTemplate" "e75bc02c-8f69-538b-8408-eabef6bc4db8"
+data "Boosts" "Proficiency(Warhammers);Ability(Constitution,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_Pact_Uncommon_L1_0"
+type "Weapon"
+using "WPN_Warhammer_Pact"
+data "Rarity" "Uncommon"
+data "RootTemplate" "ed8ed095-343c-50cb-b73b-b9210ff18c17"
+data "Boosts" "Proficiency(Warhammers);Ability(Charisma,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_Pact_Uncommon_L2_0"
+type "Weapon"
+using "WPN_Warhammer_Pact"
+data "Rarity" "Uncommon"
+data "RootTemplate" "7bdef2c1-3ef4-5ae5-ae43-87035644f0e6"
+data "Boosts" "Proficiency(Warhammers)"
+data "PassivesOnEquip" "ENR_LootPassive_LONGSTRIDER"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_Pact_Uncommon_L3_0"
+type "Weapon"
+using "WPN_Warhammer_Pact"
+data "Rarity" "Uncommon"
+data "RootTemplate" "f2b68f31-fcca-5411-a49f-5597e5d2215e"
+data "Boosts" "Proficiency(Warhammers);UnlockSpell(Target_ProtectionFromPoison)"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_Pact_Uncommon_L4_0"
+type "Weapon"
+using "WPN_Warhammer_Pact"
+data "Rarity" "Uncommon"
+data "RootTemplate" "c274e175-ff69-5acd-aad9-579d8de6df49"
+data "Boosts" "Proficiency(Warhammers);Ability(Dexterity,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_Pact_Uncommon_L5_0"
+type "Weapon"
+using "WPN_Warhammer_Pact"
+data "Rarity" "Uncommon"
+data "RootTemplate" "927fe996-add7-5fcb-985a-cbee4d074209"
+data "Boosts" "Proficiency(Warhammers)"
+data "PassivesOnEquip" "ENR_LootPassive_BARDIC_INSPIRATION"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_Pact_Rare_L0_0"
+type "Weapon"
+using "WPN_Warhammer_Pact"
+data "Rarity" "Rare"
+data "RootTemplate" "da4883a3-6ee3-5d97-ae04-f0fd037aafc0"
+data "Boosts" "Proficiency(Warhammers);UnlockSpell(Target_Friends)"
+data "PassivesOnEquip" "ENR_LootPassive_FLAME_BLADE"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_Pact_Rare_L1_0"
+type "Weapon"
+using "WPN_Warhammer_Pact"
+data "Rarity" "Rare"
+data "RootTemplate" "fadb292f-0281-500f-83fe-df8c68bf86be"
+data "Boosts" "Proficiency(Warhammers);UnlockSpell(Projectile_FireBolt)"
+data "PassivesOnEquip" "ENR_LootPassive_TRUE_STRIKE"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_Pact_Rare_L2_0"
+type "Weapon"
+using "WPN_Warhammer_Pact"
+data "Rarity" "Rare"
+data "RootTemplate" "98f3f26b-fd26-5bbf-a055-e13408cb114e"
+data "Boosts" "Proficiency(Warhammers);UnlockSpell(Projectile_GuidingBolt)"
+data "PassivesOnEquip" "ENR_LootPassive_BLADE_FLOURISH_MOBILE"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_Pact_Rare_L3_0"
+type "Weapon"
+using "WPN_Warhammer_Pact"
+data "Rarity" "Rare"
+data "RootTemplate" "1883d23d-8cc6-54a0-87b7-d35b2f75f66e"
+data "Boosts" "Proficiency(Warhammers);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_PSYCHIC"
+
+
+new entry "ENR_Loot_WPN_HUM_Warhammer_Pact_Rare_L4_0"
+type "Weapon"
+using "WPN_Warhammer_Pact"
+data "Rarity" "Rare"
+data "RootTemplate" "28df7c45-1404-5779-a0c7-a88fe63b56d9"
+data "Boosts" "Proficiency(Warhammers);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PASS_WITHOUT_TRACE"
+

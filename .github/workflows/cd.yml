@@ -1,0 +1,112 @@
+name: CD
+
+on:
+  workflow_run:
+    workflows:
+      - CI
+    types:
+      - completed
+    branches:
+      - master
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: cd-latest
+  cancel-in-progress: true
+
+jobs:
+  discover-mods:
+    name: Discover mods
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'
+    runs-on: ubuntu-latest
+    outputs:
+      mods: ${{ steps.mods.outputs.mods }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build mod matrix
+        id: mods
+        shell: bash
+        run: |
+          python -c "import json, pathlib; print(json.dumps(sorted(p.name for p in pathlib.Path('mods').iterdir() if (p / 'info.json').is_file())))" > /tmp/mods.json
+          echo "mods=$(cat /tmp/mods.json)" >> "$GITHUB_OUTPUT"
+
+  package:
+    name: Package ${{ matrix.mod }}
+    needs: discover-mods
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        mod: ${{ fromJSON(needs.discover-mods.outputs.mods) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Download LSLib
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path tools/lslib | Out-Null
+          Invoke-WebRequest `
+            -Uri "https://github.com/Norbyte/lslib/releases/download/v1.20.4/ExportTool-v1.20.4.zip" `
+            -OutFile "tools/lslib/lslib.zip"
+          Expand-Archive -Path "tools/lslib/lslib.zip" -DestinationPath "tools/lslib" -Force
+
+      - name: Build pak
+        shell: bash
+        env:
+          ENR_SKIP_GENERATION: "1"
+        run: ./scripts/build.sh "${{ matrix.mod }}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pak-${{ matrix.mod }}
+          path: dist/${{ matrix.mod }}.pak
+          if-no-files-found: error
+
+  release:
+    name: Update latest release
+    needs: package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Download packaged mods
+        uses: actions/download-artifact@v4
+        with:
+          pattern: pak-*
+          path: dist
+          merge-multiple: true
+
+      - name: Replace latest release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          COMMIT_SHA: ${{ github.event.workflow_run.head_sha }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+        run: |
+          # Keep exactly one release: the latest complete build.
+          gh release delete latest --yes --cleanup-tag || true
+          git push origin :refs/tags/latest || true
+
+          # Remove any pre-existing versioned releases as well.
+          for tag in $(gh release list --limit 100 --json tagName --jq '.[].tagName' || true); do
+            if [ "$tag" != "latest" ]; then
+              gh release delete "$tag" --yes --cleanup-tag || true
+            fi
+          done
+
+          gh release create latest \
+            --target "$COMMIT_SHA" \
+            --title "DOS3 Mods - Latest" \
+            --notes "Automated build from commit ${COMMIT_SHA} (CI run: ${RUN_URL})" \
+            dist/*.pak

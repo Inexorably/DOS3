@@ -1,0 +1,2686 @@
+-- Enemy Randomization generated loot catalog chunk 28.
+new entry "ENR_Loot_MAG_Helmet_Watcher_A_Rare_L5_0"
+type "Armor"
+using "MAG_Helmet_Human_Watcher"
+data "Rarity" "Rare"
+data "RootTemplate" "00c5ee5c-8815-5422-ac8b-452553ba0b34"
+data "Boosts" "Advantage(SavingThrow, Constitution);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "MAG_Watcher_Helmet_Darkvision_Passive;ENR_LootPassive_RALLY"
+
+
+new entry "ENR_Loot_MAG_Helmet_Watcher_A_VeryRare_L0_0"
+type "Armor"
+using "MAG_Helmet_Human_Watcher"
+data "Rarity" "VeryRare"
+data "RootTemplate" "4b4195fb-b0a6-55d0-a80c-89823d8eef2d"
+data "Boosts" "Advantage(SavingThrow, Constitution);UnlockSpell(Target_ShockingGrasp);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "MAG_Watcher_Helmet_Darkvision_Passive;ENR_LootPassive_FLY;ENR_LootPassive_BLUR"
+
+
+new entry "ENR_Loot_MAG_Helmet_Watcher_A_VeryRare_L1_0"
+type "Armor"
+using "MAG_Helmet_Human_Watcher"
+data "Rarity" "VeryRare"
+data "RootTemplate" "04d30a4e-16e9-52ea-ad20-04c69c236de3"
+data "Boosts" "Advantage(SavingThrow, Constitution);UnlockSpell(Target_EnlargeReduce);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "MAG_Watcher_Helmet_Darkvision_Passive;ENR_LootPassive_BLADE_FLOURISH_MOBILE;ENR_LootPassive_DETECT_THOUGHTS"
+
+
+new entry "ENR_Loot_MAG_Helmet_Watcher_A_VeryRare_L2_0"
+type "Armor"
+using "MAG_Helmet_Human_Watcher"
+data "Rarity" "VeryRare"
+data "RootTemplate" "f7cb4c0d-643a-5eb5-ba1a-fe08ac814701"
+data "Boosts" "Advantage(SavingThrow, Constitution);UnlockSpell(Target_MistyStep_Shadow_TEST);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "MAG_Watcher_Helmet_Darkvision_Passive;ENR_LootPassive_DARKVISION;ENR_LootPassive_WARDING_FLARE"
+
+
+new entry "ENR_Loot_MAG_Helmet_Watcher_A_VeryRare_L3_0"
+type "Armor"
+using "MAG_Helmet_Human_Watcher"
+data "Rarity" "VeryRare"
+data "RootTemplate" "2444ee6c-a1bf-5668-ab2b-a1c591cbb99c"
+data "Boosts" "Advantage(SavingThrow, Constitution);UnlockSpell(Target_BestowCurse);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "MAG_Watcher_Helmet_Darkvision_Passive;ENR_LootPassive_ALCH_ELIXIR_ENLARGE;ENR_LootPassive_DETECT_THOUGHTS"
+
+
+new entry "ENR_Loot_MAG_Helmet_Watcher_A_VeryRare_L4_0"
+type "Armor"
+using "MAG_Helmet_Human_Watcher"
+data "Rarity" "VeryRare"
+data "RootTemplate" "9e6c2df4-8cd3-570a-b984-c4a817e4da70"
+data "Boosts" "Advantage(SavingThrow, Constitution);UnlockSpell(Shout_DetectEvilAndGood);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "MAG_Watcher_Helmet_Darkvision_Passive;ENR_LootPassive_CRYSTALSKIN;ENR_LootPassive_PRODUCE_FLAME"
+
+
+new entry "ENR_Loot_MAG_Helmet_Watcher_A_VeryRare_L5_0"
+type "Armor"
+using "MAG_Helmet_Human_Watcher"
+data "Rarity" "VeryRare"
+data "RootTemplate" "0a45a40c-c844-5b13-afb9-9690a9cc4d2b"
+data "Boosts" "Advantage(SavingThrow, Constitution);UnlockSpell(Target_BestowCurse);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "MAG_Watcher_Helmet_Darkvision_Passive;ENR_LootPassive_MAGE_ARMOR;ENR_LootPassive_PRODUCE_FLAME"
+
+
+new entry "ENR_Loot_MAG_Helmet_Watcher_A_Legendary_L0_0"
+type "Armor"
+using "MAG_Helmet_Human_Watcher"
+data "Rarity" "Legendary"
+data "RootTemplate" "d9274586-2c2e-5de7-9bd6-0d86d6ba52f9"
+data "Boosts" "Advantage(SavingThrow, Constitution);UnlockSpell(Projectile_IceKnife);UnlockSpell(Target_MistyStep_Shadow_TEST);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "MAG_Watcher_Helmet_Darkvision_Passive;ENR_LootPassive_PROTECTION_FROM_ENERGY_THUND_18d16e;ENR_LootPassive_RELENTLESS_RAGE"
+
+
+new entry "ENR_Loot_MAG_Helmet_Watcher_A_Legendary_L1_0"
+type "Armor"
+using "MAG_Helmet_Human_Watcher"
+data "Rarity" "Legendary"
+data "RootTemplate" "539b0d4d-26ab-5266-ac80-ac922131be69"
+data "Boosts" "Advantage(SavingThrow, Constitution);UnlockSpell(Shout_ArmorOfAgathys);UnlockSpell(Shout_DetectEvilAndGood);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "MAG_Watcher_Helmet_Darkvision_Passive;ENR_LootPassive_CATS_GRACE;ENR_LootPassive_ASPECT_OF_THE_ELK"
+
+
+new entry "ENR_Loot_MAG_Helmet_Watcher_A_Legendary_L2_0"
+type "Armor"
+using "MAG_Helmet_Human_Watcher"
+data "Rarity" "Legendary"
+data "RootTemplate" "6ae36871-634d-5fc5-83c4-a1f2ae90b332"
+data "Boosts" "Advantage(SavingThrow, Constitution);UnlockSpell(Shout_FalseLife);UnlockSpell(Target_Jump);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "MAG_Watcher_Helmet_Darkvision_Passive;ENR_LootPassive_STONESKIN;ENR_LootPassive_LONG_JUMP"
+
+
+new entry "ENR_Loot_MAG_Helmet_Watcher_A_Legendary_L3_0"
+type "Armor"
+using "MAG_Helmet_Human_Watcher"
+data "Rarity" "Legendary"
+data "RootTemplate" "ce345bda-37bd-5d12-b409-200c86d181f4"
+data "Boosts" "Advantage(SavingThrow, Constitution);UnlockSpell(Target_Entangle);UnlockSpell(Target_Fly);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "MAG_Watcher_Helmet_Darkvision_Passive;ENR_LootPassive_SACRED_WEAPON;ENR_LootPassive_PATIENT_DEFENCE"
+
+
+new entry "ENR_Loot_MAG_Helmet_Watcher_A_Legendary_L4_0"
+type "Armor"
+using "MAG_Helmet_Human_Watcher"
+data "Rarity" "Legendary"
+data "RootTemplate" "1dcc5d1e-40be-565d-a45a-f516be44a136"
+data "Boosts" "Advantage(SavingThrow, Constitution);UnlockSpell(Projectile_HailOfThorns);UnlockSpell(Target_HealingWord);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "MAG_Watcher_Helmet_Darkvision_Passive;ENR_LootPassive_FREEDOM_OF_MOVEMENT;ENR_LootPassive_AURA_OF_PROTECTION_BUFF"
+
+
+new entry "ENR_Loot_MAG_Helmet_Watcher_A_Legendary_L5_0"
+type "Armor"
+using "MAG_Helmet_Human_Watcher"
+data "Rarity" "Legendary"
+data "RootTemplate" "7da3fe79-4a56-5581-93ae-a01f4466ca9d"
+data "Boosts" "Advantage(SavingThrow, Constitution);UnlockSpell(Wall_WallOfThorns);UnlockSpell(Shout_AuraOfVitality);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "MAG_Watcher_Helmet_Darkvision_Passive;ENR_LootPassive_ALCH_ELIXIR_ENLARGE;ENR_LootPassive_EXPEDITIOUS_RETREAT"
+
+
+new entry "ENR_Loot_MAG_LowHP_CounterOnDamage_Ch_7fe6c7_Uncommon_L0_0"
+type "Armor"
+using "MAG_LowHP_CounterOnDamage_ChainShirt"
+data "Rarity" "Uncommon"
+data "RootTemplate" "67d35670-18d8-55bc-a8d4-5e4b4b6ae18c"
+data "Boosts" "Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_CounterOnDamage_Passive"
+
+
+new entry "ENR_Loot_MAG_LowHP_CounterOnDamage_Ch_7fe6c7_Uncommon_L1_0"
+type "Armor"
+using "MAG_LowHP_CounterOnDamage_ChainShirt"
+data "Rarity" "Uncommon"
+data "RootTemplate" "ac8e0e2b-78c6-5b12-ac3a-3222686beb06"
+data "Boosts" "UnlockSpell(Target_BurstingSinew)"
+data "PassivesOnEquip" "MAG_LowHP_CounterOnDamage_Passive"
+
+
+new entry "ENR_Loot_MAG_LowHP_CounterOnDamage_Ch_7fe6c7_Uncommon_L2_0"
+type "Armor"
+using "MAG_LowHP_CounterOnDamage_ChainShirt"
+data "Rarity" "Uncommon"
+data "RootTemplate" "5f2ef7a2-7850-57f2-a6ab-8b435a6c33b4"
+data "Boosts" "UnlockSpell(Target_GlyphOfWarding)"
+data "PassivesOnEquip" "MAG_LowHP_CounterOnDamage_Passive"
+
+
+new entry "ENR_Loot_MAG_LowHP_CounterOnDamage_Ch_7fe6c7_Uncommon_L3_0"
+type "Armor"
+using "MAG_LowHP_CounterOnDamage_ChainShirt"
+data "Rarity" "Uncommon"
+data "RootTemplate" "51de0014-b89e-5bba-bb30-3c97acc9bccd"
+data "Boosts" "UnlockSpell(Target_Banishment)"
+data "PassivesOnEquip" "MAG_LowHP_CounterOnDamage_Passive"
+
+
+new entry "ENR_Loot_MAG_LowHP_CounterOnDamage_Ch_7fe6c7_Uncommon_L4_0"
+type "Armor"
+using "MAG_LowHP_CounterOnDamage_ChainShirt"
+data "Rarity" "Uncommon"
+data "RootTemplate" "fb6f322a-e9f8-597f-ae9f-5245756e0104"
+data "Boosts" ""
+data "PassivesOnEquip" "MAG_LowHP_CounterOnDamage_Passive;ENR_LootPassive_VAMPIRE_REGENERATION"
+
+
+new entry "ENR_Loot_MAG_LowHP_CounterOnDamage_Ch_7fe6c7_Uncommon_L5_0"
+type "Armor"
+using "MAG_LowHP_CounterOnDamage_ChainShirt"
+data "Rarity" "Uncommon"
+data "RootTemplate" "92e41996-bad4-5c84-965a-7e9dd9260a1b"
+data "Boosts" "UnlockSpell(Projectile_RayOfFrost)"
+data "PassivesOnEquip" "MAG_LowHP_CounterOnDamage_Passive"
+
+
+new entry "ENR_Loot_MAG_LowHP_CounterOnDamage_Ch_7fe6c7_Rare_L0_0"
+type "Armor"
+using "MAG_LowHP_CounterOnDamage_ChainShirt"
+data "Rarity" "Rare"
+data "RootTemplate" "d3f5fedd-26e7-5624-b0cd-322d22deb224"
+data "Boosts" "UnlockSpell(Shout_ArmsOfHadar)"
+data "PassivesOnEquip" "MAG_LowHP_CounterOnDamage_Passive;ENR_LootPassive_DAYLIGHT"
+
+
+new entry "ENR_Loot_MAG_LowHP_CounterOnDamage_Ch_7fe6c7_Rare_L1_0"
+type "Armor"
+using "MAG_LowHP_CounterOnDamage_ChainShirt"
+data "Rarity" "Rare"
+data "RootTemplate" "8054d131-8dc2-59bb-b5ab-68167a742218"
+data "Boosts" "UnlockSpell(Shout_SpeakWithAnimals);Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_CounterOnDamage_Passive"
+
+
+new entry "ENR_Loot_MAG_LowHP_CounterOnDamage_Ch_7fe6c7_Rare_L2_0"
+type "Armor"
+using "MAG_LowHP_CounterOnDamage_ChainShirt"
+data "Rarity" "Rare"
+data "RootTemplate" "7e54c56e-9a7f-546b-ac57-9ffeb554773e"
+data "Boosts" "UnlockSpell(Shout_SeeInvisibility_Seek)"
+data "PassivesOnEquip" "MAG_LowHP_CounterOnDamage_Passive;ENR_LootPassive_EXPEDITIOUS_RETREAT"
+
+
+new entry "ENR_Loot_MAG_LowHP_CounterOnDamage_Ch_7fe6c7_Rare_L3_0"
+type "Armor"
+using "MAG_LowHP_CounterOnDamage_ChainShirt"
+data "Rarity" "Rare"
+data "RootTemplate" "ad79bcff-a627-5c7b-8d26-ac8469531eba"
+data "Boosts" "UnlockSpell(Projectile_RayOfFrost);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_CounterOnDamage_Passive"
+
+
+new entry "ENR_Loot_MAG_LowHP_CounterOnDamage_Ch_7fe6c7_Rare_L4_0"
+type "Armor"
+using "MAG_LowHP_CounterOnDamage_ChainShirt"
+data "Rarity" "Rare"
+data "RootTemplate" "3d8bb06a-58fe-551f-b328-b2d228e58aec"
+data "Boosts" "UnlockSpell(Target_StinkingCloud)"
+data "PassivesOnEquip" "MAG_LowHP_CounterOnDamage_Passive;ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD"
+
+
+new entry "ENR_Loot_MAG_LowHP_CounterOnDamage_Ch_7fe6c7_Rare_L5_0"
+type "Armor"
+using "MAG_LowHP_CounterOnDamage_ChainShirt"
+data "Rarity" "Rare"
+data "RootTemplate" "924c1528-815d-5c4b-a06d-3bad7f336768"
+data "Boosts" "UnlockSpell(Projectile_IceKnife);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_CounterOnDamage_Passive"
+
+
+new entry "ENR_Loot_MAG_LowHP_CounterOnDamage_Ch_7fe6c7_VeryRare_L0_0"
+type "Armor"
+using "MAG_LowHP_CounterOnDamage_ChainShirt"
+data "Rarity" "VeryRare"
+data "RootTemplate" "2f5ce416-88c2-574a-b524-783689d78b86"
+data "Boosts" "UnlockSpell(Target_MinorIllusion);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_CounterOnDamage_Passive;ENR_LootPassive_BARDIC_INSPIRATION;ENR_LootPassive_RESISTANCE_FORCE"
+
+
+new entry "ENR_Loot_MAG_LowHP_CounterOnDamage_Ch_7fe6c7_VeryRare_L1_0"
+type "Armor"
+using "MAG_LowHP_CounterOnDamage_ChainShirt"
+data "Rarity" "VeryRare"
+data "RootTemplate" "71590d2c-1138-52bf-b717-82e8b97f2e53"
+data "Boosts" "UnlockSpell(Target_FaerieFire);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_CounterOnDamage_Passive;ENR_LootPassive_ASPECT_OF_THE_STALLION;ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD"
+
+
+new entry "ENR_Loot_MAG_LowHP_CounterOnDamage_Ch_7fe6c7_VeryRare_L2_0"
+type "Armor"
+using "MAG_LowHP_CounterOnDamage_ChainShirt"
+data "Rarity" "VeryRare"
+data "RootTemplate" "c0985fdb-b101-5b2f-86b5-1bf25e953266"
+data "Boosts" "UnlockSpell(Target_CreateDestroyWater);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_CounterOnDamage_Passive;ENR_LootPassive_RESISTANCE_NECROTIC;ENR_LootPassive_SURVIVAL_INSTINCT"
+
+
+new entry "ENR_Loot_MAG_LowHP_CounterOnDamage_Ch_7fe6c7_VeryRare_L3_0"
+type "Armor"
+using "MAG_LowHP_CounterOnDamage_ChainShirt"
+data "Rarity" "VeryRare"
+data "RootTemplate" "17f1ecdc-0548-5d76-a03f-2cc985a2faf9"
+data "Boosts" "UnlockSpell(Target_Fly);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_CounterOnDamage_Passive;ENR_LootPassive_RESISTANCE_THUNDER;ENR_LootPassive_PROTECTION_FROM_ENERGY_ACID"
+
+
+new entry "ENR_Loot_MAG_LowHP_CounterOnDamage_Ch_7fe6c7_VeryRare_L4_0"
+type "Armor"
+using "MAG_LowHP_CounterOnDamage_ChainShirt"
+data "Rarity" "VeryRare"
+data "RootTemplate" "0df0561b-d15e-56c0-b758-1a73c8f38cfb"
+data "Boosts" "UnlockSpell(Target_CureWounds);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_CounterOnDamage_Passive;ENR_LootPassive_RESISTANCE_FORCE;ENR_LootPassive_MAGE_ARMOR"
+
+
+new entry "ENR_Loot_MAG_LowHP_CounterOnDamage_Ch_7fe6c7_VeryRare_L5_0"
+type "Armor"
+using "MAG_LowHP_CounterOnDamage_ChainShirt"
+data "Rarity" "VeryRare"
+data "RootTemplate" "285d24a1-27bd-520a-8e84-31b5fb1461c5"
+data "Boosts" "UnlockSpell(Projectile_EldritchBlast);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_CounterOnDamage_Passive;ENR_LootPassive_DIVINE_FAVOR;ENR_LootPassive_STONESKIN"
+
+
+new entry "ENR_Loot_MAG_LowHP_CounterOnDamage_Ch_7fe6c7_Legendary_L0_0"
+type "Armor"
+using "MAG_LowHP_CounterOnDamage_ChainShirt"
+data "Rarity" "Legendary"
+data "RootTemplate" "c623e058-221e-5130-b3ee-9aaebfe5091d"
+data "Boosts" "UnlockSpell(Projectile_SteelWatcher_Quadruped_SelfDestructExplosion);UnlockSpell(Shout_DisguiseSelf);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_CounterOnDamage_Passive;ENR_LootPassive_RESISTANCE_FORCE;ENR_LootPassive_ALCH_ELIXIR_ENLARGE"
+
+
+new entry "ENR_Loot_MAG_LowHP_CounterOnDamage_Ch_7fe6c7_Legendary_L1_0"
+type "Armor"
+using "MAG_LowHP_CounterOnDamage_ChainShirt"
+data "Rarity" "Legendary"
+data "RootTemplate" "d63bcb5b-3f27-595f-8d02-fd00f282e650"
+data "Boosts" "UnlockSpell(Target_HideousLaughter);UnlockSpell(Target_CompelledDuel);Ability(Charisma,2,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_CounterOnDamage_Passive;ENR_LootPassive_FLAME_BLADE;ENR_LootPassive_LONG_JUMP"
+
+
+new entry "ENR_Loot_MAG_LowHP_CounterOnDamage_Ch_7fe6c7_Legendary_L2_0"
+type "Armor"
+using "MAG_LowHP_CounterOnDamage_ChainShirt"
+data "Rarity" "Legendary"
+data "RootTemplate" "6df112e3-23d3-5b8c-b207-0fd774e91de8"
+data "Boosts" "UnlockSpell(Target_Smite_Blinding);UnlockSpell(Target_Darkvision);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_CounterOnDamage_Passive;ENR_LootPassive_FLAME_BLADE;ENR_LootPassive_PROTECTION_FROM_ENERGY_THUND_18d16e"
+
+
+new entry "ENR_Loot_MAG_LowHP_CounterOnDamage_Ch_7fe6c7_Legendary_L3_0"
+type "Armor"
+using "MAG_LowHP_CounterOnDamage_ChainShirt"
+data "Rarity" "Legendary"
+data "RootTemplate" "0d69a229-5738-5d22-8d29-111780f84a24"
+data "Boosts" "UnlockSpell(Target_FloatingDisk);UnlockSpell(Target_ThornWhip);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_CounterOnDamage_Passive;ENR_LootPassive_INSPIRING_LEADER;ENR_LootPassive_ASPECT_OF_THE_STALLION"
+
+
+new entry "ENR_Loot_MAG_LowHP_CounterOnDamage_Ch_7fe6c7_Legendary_L4_0"
+type "Armor"
+using "MAG_LowHP_CounterOnDamage_ChainShirt"
+data "Rarity" "Legendary"
+data "RootTemplate" "41eda5b8-9cb2-5cf0-8af8-b272815414eb"
+data "Boosts" "UnlockSpell(Projectile_RayOfFrost);UnlockSpell(Target_MinorIllusion);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_CounterOnDamage_Passive;ENR_LootPassive_ASPECT_OF_THE_WOLF;ENR_LootPassive_AURA_OF_DEVOTION_BUFF"
+
+
+new entry "ENR_Loot_MAG_LowHP_CounterOnDamage_Ch_7fe6c7_Legendary_L5_0"
+type "Armor"
+using "MAG_LowHP_CounterOnDamage_ChainShirt"
+data "Rarity" "Legendary"
+data "RootTemplate" "2f8f54ea-d382-550c-8288-23f3ee4ab7c8"
+data "Boosts" "UnlockSpell(Target_Bane);UnlockSpell(Target_Jump);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_CounterOnDamage_Passive;ENR_LootPassive_GUIDANCE;ENR_LootPassive_MIRROR_IMAGE_2"
+
+
+new entry "ENR_Loot_MAG_LowHP_IncreaseSpeed_Boot_9aa44c_Uncommon_L0_0"
+type "Armor"
+using "MAG_LowHP_IncreaseSpeed_Boots"
+data "Rarity" "Uncommon"
+data "RootTemplate" "4e7d8c7c-e289-5487-805a-fe88e14d71f3"
+data "Boosts" ""
+data "PassivesOnEquip" "MAG_LowHP_IncreaseSpeed_Passive;ENR_LootPassive_STONESKIN"
+
+
+new entry "ENR_Loot_MAG_LowHP_IncreaseSpeed_Boot_9aa44c_Uncommon_L1_0"
+type "Armor"
+using "MAG_LowHP_IncreaseSpeed_Boots"
+data "Rarity" "Uncommon"
+data "RootTemplate" "33cd91f8-9525-527e-bf6b-9d27a8808bd4"
+data "Boosts" ""
+data "PassivesOnEquip" "MAG_LowHP_IncreaseSpeed_Passive;ENR_LootPassive_FEATHER_FALL"
+
+
+new entry "ENR_Loot_MAG_LowHP_IncreaseSpeed_Boot_9aa44c_Uncommon_L2_0"
+type "Armor"
+using "MAG_LowHP_IncreaseSpeed_Boots"
+data "Rarity" "Uncommon"
+data "RootTemplate" "8d2912a7-7dd9-50ad-900a-17ba3a966e84"
+data "Boosts" "UnlockSpell(Shout_BladeWard)"
+data "PassivesOnEquip" "MAG_LowHP_IncreaseSpeed_Passive"
+
+
+new entry "ENR_Loot_MAG_LowHP_IncreaseSpeed_Boot_9aa44c_Uncommon_L3_0"
+type "Armor"
+using "MAG_LowHP_IncreaseSpeed_Boots"
+data "Rarity" "Uncommon"
+data "RootTemplate" "2cdc246a-ecc5-59c5-8c63-8d5fe016b9b7"
+data "Boosts" "Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_IncreaseSpeed_Passive"
+
+
+new entry "ENR_Loot_MAG_LowHP_IncreaseSpeed_Boot_9aa44c_Uncommon_L4_0"
+type "Armor"
+using "MAG_LowHP_IncreaseSpeed_Boots"
+data "Rarity" "Uncommon"
+data "RootTemplate" "e2497266-dd51-58c8-ba57-64b51bb23492"
+data "Boosts" "UnlockSpell(Target_Seeming)"
+data "PassivesOnEquip" "MAG_LowHP_IncreaseSpeed_Passive"
+
+
+new entry "ENR_Loot_MAG_LowHP_IncreaseSpeed_Boot_9aa44c_Uncommon_L5_0"
+type "Armor"
+using "MAG_LowHP_IncreaseSpeed_Boots"
+data "Rarity" "Uncommon"
+data "RootTemplate" "549048bd-302f-5f5c-871c-181b53d806eb"
+data "Boosts" ""
+data "PassivesOnEquip" "MAG_LowHP_IncreaseSpeed_Passive;ENR_LootPassive_PROTECTION_FROM_POISON"
+
+
+new entry "ENR_Loot_MAG_LowHP_IncreaseSpeed_Boot_9aa44c_Rare_L0_0"
+type "Armor"
+using "MAG_LowHP_IncreaseSpeed_Boots"
+data "Rarity" "Rare"
+data "RootTemplate" "4494caed-9823-5173-ae4f-98a036b0d2ad"
+data "Boosts" "Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_IncreaseSpeed_Passive;ENR_LootPassive_FALSE_LIFE"
+
+
+new entry "ENR_Loot_MAG_LowHP_IncreaseSpeed_Boot_9aa44c_Rare_L1_0"
+type "Armor"
+using "MAG_LowHP_IncreaseSpeed_Boots"
+data "Rarity" "Rare"
+data "RootTemplate" "116e9e61-e828-51ea-819a-818075c6b750"
+data "Boosts" "UnlockSpell(Projectile_RayOfSickness)"
+data "PassivesOnEquip" "MAG_LowHP_IncreaseSpeed_Passive;ENR_LootPassive_BARDIC_INSPIRATION"
+
+
+new entry "ENR_Loot_MAG_LowHP_IncreaseSpeed_Boot_9aa44c_Rare_L2_0"
+type "Armor"
+using "MAG_LowHP_IncreaseSpeed_Boots"
+data "Rarity" "Rare"
+data "RootTemplate" "cd2b841e-f08b-5fef-b862-0aa04501fc4d"
+data "Boosts" "UnlockSpell(Projectile_MagicMissile);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_IncreaseSpeed_Passive"
+
+
+new entry "ENR_Loot_MAG_LowHP_IncreaseSpeed_Boot_9aa44c_Rare_L3_0"
+type "Armor"
+using "MAG_LowHP_IncreaseSpeed_Boots"
+data "Rarity" "Rare"
+data "RootTemplate" "15e01bf8-b315-50f0-9a45-e15baa7716a5"
+data "Boosts" "Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_IncreaseSpeed_Passive;ENR_LootPassive_CATS_GRACE"
+
+
+new entry "ENR_Loot_MAG_LowHP_IncreaseSpeed_Boot_9aa44c_Rare_L4_0"
+type "Armor"
+using "MAG_LowHP_IncreaseSpeed_Boots"
+data "Rarity" "Rare"
+data "RootTemplate" "505e6ce1-a26f-5bb0-afaa-cc3ff5870dbe"
+data "Boosts" "UnlockSpell(Projectile_SteelWatcher_Quadruped_SelfDestructExplosion)"
+data "PassivesOnEquip" "MAG_LowHP_IncreaseSpeed_Passive;ENR_LootPassive_DRUNKEN_TECHNIQUE"
+
+
+new entry "ENR_Loot_MAG_LowHP_IncreaseSpeed_Boot_9aa44c_Rare_L5_0"
+type "Armor"
+using "MAG_LowHP_IncreaseSpeed_Boots"
+data "Rarity" "Rare"
+data "RootTemplate" "2af4b9ac-22a1-5052-a37f-b04202285207"
+data "Boosts" "Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_IncreaseSpeed_Passive;ENR_LootPassive_LONGSTRIDER"
+
+
+new entry "ENR_Loot_MAG_LowHP_IncreaseSpeed_Boot_9aa44c_VeryRare_L0_0"
+type "Armor"
+using "MAG_LowHP_IncreaseSpeed_Boots"
+data "Rarity" "VeryRare"
+data "RootTemplate" "fcabe613-981b-5437-a5ab-790ffb0591e0"
+data "Boosts" "UnlockSpell(Target_CharmPerson);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_IncreaseSpeed_Passive;ENR_LootPassive_BEARS_ENDURANCE;ENR_LootPassive_UNDEAD_FORTITUDE"
+
+
+new entry "ENR_Loot_MAG_LowHP_IncreaseSpeed_Boot_9aa44c_VeryRare_L1_0"
+type "Armor"
+using "MAG_LowHP_IncreaseSpeed_Boots"
+data "Rarity" "VeryRare"
+data "RootTemplate" "c1fca41d-301e-589a-81af-fd3a94aa529c"
+data "Boosts" "UnlockSpell(Shout_SeeInvisibility_Seek);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_IncreaseSpeed_Passive;ENR_LootPassive_AURA_OF_COURAGE_BUFF;ENR_LootPassive_RALLY"
+
+
+new entry "ENR_Loot_MAG_LowHP_IncreaseSpeed_Boot_9aa44c_VeryRare_L2_0"
+type "Armor"
+using "MAG_LowHP_IncreaseSpeed_Boots"
+data "Rarity" "VeryRare"
+data "RootTemplate" "b994218b-cb98-5de2-9453-c7e7b07acb8f"
+data "Boosts" "UnlockSpell(Shout_ProduceFlame);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_IncreaseSpeed_Passive;ENR_LootPassive_DETECT_THOUGHTS;ENR_LootPassive_FLAME_BLADE"
+
+
+new entry "ENR_Loot_MAG_LowHP_IncreaseSpeed_Boot_9aa44c_VeryRare_L3_0"
+type "Armor"
+using "MAG_LowHP_IncreaseSpeed_Boots"
+data "Rarity" "VeryRare"
+data "RootTemplate" "38023eb2-28fe-55fe-b95c-11b9c68ae859"
+data "Boosts" "UnlockSpell(Target_SleetStorm);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_IncreaseSpeed_Passive;ENR_LootPassive_ASPECT_OF_THE_WOLF;ENR_LootPassive_RESISTANCE_FORCE"
+
+
+new entry "ENR_Loot_MAG_LowHP_IncreaseSpeed_Boot_9aa44c_VeryRare_L4_0"
+type "Armor"
+using "MAG_LowHP_IncreaseSpeed_Boots"
+data "Rarity" "VeryRare"
+data "RootTemplate" "4c44e132-5b6a-5ab0-ab07-27806ab66700"
+data "Boosts" "UnlockSpell(Target_ThornWhip);Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_IncreaseSpeed_Passive;ENR_LootPassive_EXPEDITIOUS_RETREAT;ENR_LootPassive_STONESKIN"
+
+
+new entry "ENR_Loot_MAG_LowHP_IncreaseSpeed_Boot_9aa44c_VeryRare_L5_0"
+type "Armor"
+using "MAG_LowHP_IncreaseSpeed_Boots"
+data "Rarity" "VeryRare"
+data "RootTemplate" "2677192f-cfd7-5c05-929e-920df5c6fa1c"
+data "Boosts" "UnlockSpell(Shout_HeroesFeast);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_IncreaseSpeed_Passive;ENR_LootPassive_RESISTANCE_RADIANT;ENR_LootPassive_FALSE_LIFE"
+
+
+new entry "ENR_Loot_MAG_LowHP_IncreaseSpeed_Boot_9aa44c_Legendary_L0_0"
+type "Armor"
+using "MAG_LowHP_IncreaseSpeed_Boots"
+data "Rarity" "Legendary"
+data "RootTemplate" "29449f7f-55fb-5187-ae96-80c99a52be13"
+data "Boosts" "UnlockSpell(Projectile_GuidingBolt);UnlockSpell(Target_DestroyWater);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_IncreaseSpeed_Passive;ENR_LootPassive_PROTECTION_FROM_ENERGY_THUND_18d16e;ENR_LootPassive_HASTE"
+
+
+new entry "ENR_Loot_MAG_LowHP_IncreaseSpeed_Boot_9aa44c_Legendary_L1_0"
+type "Armor"
+using "MAG_LowHP_IncreaseSpeed_Boots"
+data "Rarity" "Legendary"
+data "RootTemplate" "8f1c5b43-8332-55b9-91a9-801705e1b860"
+data "Boosts" "UnlockSpell(Target_CreateDestroyWater);UnlockSpell(Target_HellishRebuke);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_IncreaseSpeed_Passive;ENR_LootPassive_FREEDOM_OF_MOVEMENT;ENR_LootPassive_BARKSKIN"
+
+
+new entry "ENR_Loot_MAG_LowHP_IncreaseSpeed_Boot_9aa44c_Legendary_L2_0"
+type "Armor"
+using "MAG_LowHP_IncreaseSpeed_Boots"
+data "Rarity" "Legendary"
+data "RootTemplate" "7fe0b2da-6a2f-5b33-b4be-b493ccecc56e"
+data "Boosts" "UnlockSpell(Teleportation_Revivify);UnlockSpell(Projectile_AcidArrow);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_IncreaseSpeed_Passive;ENR_LootPassive_LONGSTRIDER;ENR_LootPassive_BARDIC_INSPIRATION"
+
+
+new entry "ENR_Loot_MAG_LowHP_IncreaseSpeed_Boot_9aa44c_Legendary_L3_0"
+type "Armor"
+using "MAG_LowHP_IncreaseSpeed_Boots"
+data "Rarity" "Legendary"
+data "RootTemplate" "e43650cd-0e7a-55d8-baae-53376b9ba79d"
+data "Boosts" "UnlockSpell(Target_Sleep);UnlockSpell(Target_Web);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_IncreaseSpeed_Passive;ENR_LootPassive_DRUNKEN_TECHNIQUE;ENR_LootPassive_DEATH_WARD"
+
+
+new entry "ENR_Loot_MAG_LowHP_IncreaseSpeed_Boot_9aa44c_Legendary_L4_0"
+type "Armor"
+using "MAG_LowHP_IncreaseSpeed_Boots"
+data "Rarity" "Legendary"
+data "RootTemplate" "0f5205b4-6d55-5b04-b658-cb8679c6b0d7"
+data "Boosts" "UnlockSpell(Wall_WallOfFire);UnlockSpell(Target_Goodberry);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_IncreaseSpeed_Passive;ENR_LootPassive_FEATHER_FALL;ENR_LootPassive_FLAME_BLADE"
+
+
+new entry "ENR_Loot_MAG_LowHP_IncreaseSpeed_Boot_9aa44c_Legendary_L5_0"
+type "Armor"
+using "MAG_LowHP_IncreaseSpeed_Boots"
+data "Rarity" "Legendary"
+data "RootTemplate" "0b9f5877-cf74-5e32-a154-eab30bedccd6"
+data "Boosts" "UnlockSpell(Target_PhantasmalForce);UnlockSpell(Target_EnsnaringStrike);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_IncreaseSpeed_Passive;ENR_LootPassive_BLESS;ENR_LootPassive_TRUE_STRIKE"
+
+
+new entry "ENR_Loot_MAG_LowHP_ResistanceFire_Glo_d3eb18_Uncommon_L0_0"
+type "Armor"
+using "MAG_LowHP_ResistanceFire_Gloves"
+data "Rarity" "Uncommon"
+data "RootTemplate" "8a7a6a14-c0ca-5d1a-9421-21aceae6bcd1"
+data "Boosts" "UnlockSpell(Projectile_ChromaticOrb_Acid)"
+data "PassivesOnEquip" "MAG_LowHP_ResistanceFire_Passive"
+
+
+new entry "ENR_Loot_MAG_LowHP_ResistanceFire_Glo_d3eb18_Uncommon_L1_0"
+type "Armor"
+using "MAG_LowHP_ResistanceFire_Gloves"
+data "Rarity" "Uncommon"
+data "RootTemplate" "fff96a1f-1025-510a-9e91-4e8d2f4a36ba"
+data "Boosts" "UnlockSpell(Target_EnlargeReduce)"
+data "PassivesOnEquip" "MAG_LowHP_ResistanceFire_Passive"
+
+
+new entry "ENR_Loot_MAG_LowHP_ResistanceFire_Glo_d3eb18_Uncommon_L2_0"
+type "Armor"
+using "MAG_LowHP_ResistanceFire_Gloves"
+data "Rarity" "Uncommon"
+data "RootTemplate" "4afe3102-dc69-561f-ad93-57ed59b1800c"
+data "Boosts" ""
+data "PassivesOnEquip" "MAG_LowHP_ResistanceFire_Passive;ENR_LootPassive_BLADE_FLOURISH_MOBILE"
+
+
+new entry "ENR_Loot_MAG_LowHP_ResistanceFire_Glo_d3eb18_Uncommon_L3_0"
+type "Armor"
+using "MAG_LowHP_ResistanceFire_Gloves"
+data "Rarity" "Uncommon"
+data "RootTemplate" "e942bd7f-5b88-5d4d-b905-5d262b8a05b0"
+data "Boosts" ""
+data "PassivesOnEquip" "MAG_LowHP_ResistanceFire_Passive;ENR_LootPassive_LONGSTRIDER"
+
+
+new entry "ENR_Loot_MAG_LowHP_ResistanceFire_Glo_d3eb18_Uncommon_L4_0"
+type "Armor"
+using "MAG_LowHP_ResistanceFire_Gloves"
+data "Rarity" "Uncommon"
+data "RootTemplate" "8eb71d0b-bd98-537d-b90a-eab304706022"
+data "Boosts" "Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_ResistanceFire_Passive"
+
+
+new entry "ENR_Loot_MAG_LowHP_ResistanceFire_Glo_d3eb18_Uncommon_L5_0"
+type "Armor"
+using "MAG_LowHP_ResistanceFire_Gloves"
+data "Rarity" "Uncommon"
+data "RootTemplate" "64fd7866-85f5-5ad2-881e-9685b86217c6"
+data "Boosts" ""
+data "PassivesOnEquip" "MAG_LowHP_ResistanceFire_Passive;ENR_LootPassive_PROTECTION_FROM_EVIL_AND_GOO_749824"
+
+
+new entry "ENR_Loot_MAG_LowHP_ResistanceFire_Glo_d3eb18_Rare_L0_0"
+type "Armor"
+using "MAG_LowHP_ResistanceFire_Gloves"
+data "Rarity" "Rare"
+data "RootTemplate" "5acab1cc-a617-5d3f-a5b3-8d2d867a1a52"
+data "Boosts" "Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_ResistanceFire_Passive;ENR_LootPassive_MIRROR_IMAGE_1"
+
+
+new entry "ENR_Loot_MAG_LowHP_ResistanceFire_Glo_d3eb18_Rare_L1_0"
+type "Armor"
+using "MAG_LowHP_ResistanceFire_Gloves"
+data "Rarity" "Rare"
+data "RootTemplate" "df0f27d0-ef0f-50b7-ba3d-33f27da4514e"
+data "Boosts" "Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_ResistanceFire_Passive;ENR_LootPassive_STONESKIN"
+
+
+new entry "ENR_Loot_MAG_LowHP_ResistanceFire_Glo_d3eb18_Rare_L2_0"
+type "Armor"
+using "MAG_LowHP_ResistanceFire_Gloves"
+data "Rarity" "Rare"
+data "RootTemplate" "abd34295-98fe-59de-9e10-c2262cc11c7a"
+data "Boosts" "UnlockSpell(Target_MagicWeapon);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_ResistanceFire_Passive"
+
+
+new entry "ENR_Loot_MAG_LowHP_ResistanceFire_Glo_d3eb18_Rare_L3_0"
+type "Armor"
+using "MAG_LowHP_ResistanceFire_Gloves"
+data "Rarity" "Rare"
+data "RootTemplate" "b5c2c314-f837-5a2b-b0d5-cc4e36b932f1"
+data "Boosts" "Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_ResistanceFire_Passive;ENR_LootPassive_MULTIATTACKDEFENSE"
+
+
+new entry "ENR_Loot_MAG_LowHP_ResistanceFire_Glo_d3eb18_Rare_L4_0"
+type "Armor"
+using "MAG_LowHP_ResistanceFire_Gloves"
+data "Rarity" "Rare"
+data "RootTemplate" "40cb0fa0-3994-5bb0-9c4d-7bd9d5c81fc8"
+data "Boosts" "Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_ResistanceFire_Passive;ENR_LootPassive_ASPECT_OF_THE_ELK"
+
+
+new entry "ENR_Loot_MAG_LowHP_ResistanceFire_Glo_d3eb18_Rare_L5_0"
+type "Armor"
+using "MAG_LowHP_ResistanceFire_Gloves"
+data "Rarity" "Rare"
+data "RootTemplate" "a7c2a615-58fd-564e-b089-1b9571ec1aee"
+data "Boosts" "Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_ResistanceFire_Passive;ENR_LootPassive_FALSE_LIFE"
+
+
+new entry "ENR_Loot_MAG_LowHP_ResistanceFire_Glo_d3eb18_VeryRare_L0_0"
+type "Armor"
+using "MAG_LowHP_ResistanceFire_Gloves"
+data "Rarity" "VeryRare"
+data "RootTemplate" "5ca91d30-3433-59f1-be5f-31cf1dde287e"
+data "Boosts" "UnlockSpell(Target_MistyStep_Shadow_TEST);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_ResistanceFire_Passive;ENR_LootPassive_CALM_EMOTIONS;ENR_LootPassive_CRYSTALSKIN"
+
+
+new entry "ENR_Loot_MAG_LowHP_ResistanceFire_Glo_d3eb18_VeryRare_L1_0"
+type "Armor"
+using "MAG_LowHP_ResistanceFire_Gloves"
+data "Rarity" "VeryRare"
+data "RootTemplate" "f878608c-0463-568f-b2f4-d8e20964ce14"
+data "Boosts" "UnlockSpell(Shout_HellishRebuke_AsmodeusTiefling);Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_ResistanceFire_Passive;ENR_LootPassive_DARKVISION;ENR_LootPassive_DETECT_EVIL_GOOD"
+
+
+new entry "ENR_Loot_MAG_LowHP_ResistanceFire_Glo_d3eb18_VeryRare_L2_0"
+type "Armor"
+using "MAG_LowHP_ResistanceFire_Gloves"
+data "Rarity" "VeryRare"
+data "RootTemplate" "659803db-31ec-5b9f-9d18-432e5596b7f1"
+data "Boosts" "UnlockSpell(Target_Smite_Thunderous);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_ResistanceFire_Passive;ENR_LootPassive_PROTECTION_FROM_EVIL_AND_GOO_749824;ENR_LootPassive_EAGLES_SPLENDOR"
+
+
+new entry "ENR_Loot_MAG_LowHP_ResistanceFire_Glo_d3eb18_VeryRare_L3_0"
+type "Armor"
+using "MAG_LowHP_ResistanceFire_Gloves"
+data "Rarity" "VeryRare"
+data "RootTemplate" "5050a688-1571-55b1-aba7-59a2760a1039"
+data "Boosts" "UnlockSpell(Target_DispelMagic);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_ResistanceFire_Passive;ENR_LootPassive_MOBILE_NO_AOO;ENR_LootPassive_MULTIATTACKDEFENSE"
+
+
+new entry "ENR_Loot_MAG_LowHP_ResistanceFire_Glo_d3eb18_VeryRare_L4_0"
+type "Armor"
+using "MAG_LowHP_ResistanceFire_Gloves"
+data "Rarity" "VeryRare"
+data "RootTemplate" "12089775-0e5f-5456-baaf-6b3b17096275"
+data "Boosts" "UnlockSpell(Target_AnimateDead_Zombie_4);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_ResistanceFire_Passive;ENR_LootPassive_RESISTANCE_RADIANT;ENR_LootPassive_WARDING_FLARE"
+
+
+new entry "ENR_Loot_MAG_LowHP_ResistanceFire_Glo_d3eb18_VeryRare_L5_0"
+type "Armor"
+using "MAG_LowHP_ResistanceFire_Gloves"
+data "Rarity" "VeryRare"
+data "RootTemplate" "f688d15d-4a62-5eb2-962c-f2b7ced79b5b"
+data "Boosts" "UnlockSpell(Target_EnhanceAbility);Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_ResistanceFire_Passive;ENR_LootPassive_RESISTANCE_NECROTIC;ENR_LootPassive_RESISTANCE_RADIANT"
+
+
+new entry "ENR_Loot_MAG_LowHP_ResistanceFire_Glo_d3eb18_Legendary_L0_0"
+type "Armor"
+using "MAG_LowHP_ResistanceFire_Gloves"
+data "Rarity" "Legendary"
+data "RootTemplate" "d7135d9b-82e3-5b0e-86d8-3af91a9532fa"
+data "Boosts" "UnlockSpell(Shout_FalseLife);UnlockSpell(Target_Smite_Searing);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_ResistanceFire_Passive;ENR_LootPassive_SACRED_WEAPON;ENR_LootPassive_LONGSTRIDER"
+
+
+new entry "ENR_Loot_MAG_LowHP_ResistanceFire_Glo_d3eb18_Legendary_L1_0"
+type "Armor"
+using "MAG_LowHP_ResistanceFire_Gloves"
+data "Rarity" "Legendary"
+data "RootTemplate" "72e88683-5cd8-5310-8634-023ed46784fe"
+data "Boosts" "UnlockSpell(Target_GLO_CursedIronFlask_CaptureCreature);UnlockSpell(Target_FloatingDisk);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_ResistanceFire_Passive;ENR_LootPassive_PROTECTION_FROM_ENERGY_LIGHT_d7917a;ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD"
+
+
+new entry "ENR_Loot_MAG_LowHP_ResistanceFire_Glo_d3eb18_Legendary_L2_0"
+type "Armor"
+using "MAG_LowHP_ResistanceFire_Gloves"
+data "Rarity" "Legendary"
+data "RootTemplate" "2c061e16-bbd1-5eb0-91dc-62bf588cef40"
+data "Boosts" "UnlockSpell(Target_Sanctuary_Drider);UnlockSpell(Target_AnimalFriendship);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_ResistanceFire_Passive;ENR_LootPassive_BARKSKIN;ENR_LootPassive_BEACON_OF_HOPE"
+
+
+new entry "ENR_Loot_MAG_LowHP_ResistanceFire_Glo_d3eb18_Legendary_L3_0"
+type "Armor"
+using "MAG_LowHP_ResistanceFire_Gloves"
+data "Rarity" "Legendary"
+data "RootTemplate" "709784b5-9a3c-594d-986b-b09baf30f1b3"
+data "Boosts" "UnlockSpell(Projectile_GuidingBolt);UnlockSpell(Target_GuardianOfFaith);Ability(Charisma,2,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_ResistanceFire_Passive;ENR_LootPassive_FREEDOM_OF_MOVEMENT;ENR_LootPassive_RESISTANCE_RADIANT"
+
+
+new entry "ENR_Loot_MAG_LowHP_ResistanceFire_Glo_d3eb18_Legendary_L4_0"
+type "Armor"
+using "MAG_LowHP_ResistanceFire_Gloves"
+data "Rarity" "Legendary"
+data "RootTemplate" "dafffe98-902e-5ad2-8de3-7bfb3a2e9331"
+data "Boosts" "UnlockSpell(Target_Blindness);UnlockSpell(Target_EnlargeReduce);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_ResistanceFire_Passive;ENR_LootPassive_MIRROR_IMAGE_3;ENR_LootPassive_SPEAK_WITH_DEAD"
+
+
+new entry "ENR_Loot_MAG_LowHP_ResistanceFire_Glo_d3eb18_Legendary_L5_0"
+type "Armor"
+using "MAG_LowHP_ResistanceFire_Gloves"
+data "Rarity" "Legendary"
+data "RootTemplate" "632ef489-3f91-5996-bebf-def78b394787"
+data "Boosts" "UnlockSpell(Target_DominateBeast);UnlockSpell(Projectile_ChainLightning);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_ResistanceFire_Passive;ENR_LootPassive_LONG_JUMP;ENR_LootPassive_MULTIATTACKDEFENSE"
+
+
+new entry "ENR_Loot_MAG_LowHP_TemporaryHP_Shield_Uncommon_L0_0"
+type "Armor"
+using "MAG_LowHP_TemporaryHP_Shield"
+data "Rarity" "Uncommon"
+data "RootTemplate" "e4430077-9a2f-583a-9842-63187f4696b7"
+data "Boosts" "Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_TemporaryHP_Passive"
+
+
+new entry "ENR_Loot_MAG_LowHP_TemporaryHP_Shield_Uncommon_L1_0"
+type "Armor"
+using "MAG_LowHP_TemporaryHP_Shield"
+data "Rarity" "Uncommon"
+data "RootTemplate" "14699661-1fc1-5578-af2e-625f74103b68"
+data "Boosts" "UnlockSpell(Target_Smite_Branding)"
+data "PassivesOnEquip" "MAG_LowHP_TemporaryHP_Passive"
+
+
+new entry "ENR_Loot_MAG_LowHP_TemporaryHP_Shield_Uncommon_L2_0"
+type "Armor"
+using "MAG_LowHP_TemporaryHP_Shield"
+data "Rarity" "Uncommon"
+data "RootTemplate" "9a5f4ce0-ad54-5620-bfbb-86ef0daf708a"
+data "Boosts" ""
+data "PassivesOnEquip" "MAG_LowHP_TemporaryHP_Passive;ENR_LootPassive_ASPECT_OF_THE_STALLION"
+
+
+new entry "ENR_Loot_MAG_LowHP_TemporaryHP_Shield_Uncommon_L3_0"
+type "Armor"
+using "MAG_LowHP_TemporaryHP_Shield"
+data "Rarity" "Uncommon"
+data "RootTemplate" "ecb693f5-08a7-5de4-a452-4cc0d7cf43fe"
+data "Boosts" "UnlockSpell(Shout_Aid)"
+data "PassivesOnEquip" "MAG_LowHP_TemporaryHP_Passive"
+
+
+new entry "ENR_Loot_MAG_LowHP_TemporaryHP_Shield_Uncommon_L4_0"
+type "Armor"
+using "MAG_LowHP_TemporaryHP_Shield"
+data "Rarity" "Uncommon"
+data "RootTemplate" "ab45205c-4c36-5115-8af1-292dba751503"
+data "Boosts" ""
+data "PassivesOnEquip" "MAG_LowHP_TemporaryHP_Passive;ENR_LootPassive_FEATHER_FALL"
+
+
+new entry "ENR_Loot_MAG_LowHP_TemporaryHP_Shield_Uncommon_L5_0"
+type "Armor"
+using "MAG_LowHP_TemporaryHP_Shield"
+data "Rarity" "Uncommon"
+data "RootTemplate" "7129ed01-29c2-5ffe-ae7c-6bb8aebeff66"
+data "Boosts" "UnlockSpell(Target_AnimalFriendship)"
+data "PassivesOnEquip" "MAG_LowHP_TemporaryHP_Passive"
+
+
+new entry "ENR_Loot_MAG_LowHP_TemporaryHP_Shield_Rare_L0_0"
+type "Armor"
+using "MAG_LowHP_TemporaryHP_Shield"
+data "Rarity" "Rare"
+data "RootTemplate" "08cea452-80d0-5ab5-b207-6d883ef4d2bd"
+data "Boosts" "UnlockSpell(Target_HideousLaughter);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_TemporaryHP_Passive"
+
+
+new entry "ENR_Loot_MAG_LowHP_TemporaryHP_Shield_Rare_L1_0"
+type "Armor"
+using "MAG_LowHP_TemporaryHP_Shield"
+data "Rarity" "Rare"
+data "RootTemplate" "037a9965-db84-5d38-91eb-c6b0eb1fdbaf"
+data "Boosts" "UnlockSpell(Projectile_LightningBlade_Explosion);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_TemporaryHP_Passive"
+
+
+new entry "ENR_Loot_MAG_LowHP_TemporaryHP_Shield_Rare_L2_0"
+type "Armor"
+using "MAG_LowHP_TemporaryHP_Shield"
+data "Rarity" "Rare"
+data "RootTemplate" "08e0dac5-c6eb-54dd-8c75-b571a8cac501"
+data "Boosts" "UnlockSpell(Target_ElementalWeapon)"
+data "PassivesOnEquip" "MAG_LowHP_TemporaryHP_Passive;ENR_LootPassive_DAYLIGHT"
+
+
+new entry "ENR_Loot_MAG_LowHP_TemporaryHP_Shield_Rare_L3_0"
+type "Armor"
+using "MAG_LowHP_TemporaryHP_Shield"
+data "Rarity" "Rare"
+data "RootTemplate" "2f2dcddc-72eb-51da-be35-4729fcae5f71"
+data "Boosts" "Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_TemporaryHP_Passive;ENR_LootPassive_RELENTLESS_RAGE"
+
+
+new entry "ENR_Loot_MAG_LowHP_TemporaryHP_Shield_Rare_L4_0"
+type "Armor"
+using "MAG_LowHP_TemporaryHP_Shield"
+data "Rarity" "Rare"
+data "RootTemplate" "adefdd31-e63b-5e5d-b49b-0d3ae4a2f5a0"
+data "Boosts" "UnlockSpell(Target_HoldMonster)"
+data "PassivesOnEquip" "MAG_LowHP_TemporaryHP_Passive;ENR_LootPassive_FALSE_LIFE"
+
+
+new entry "ENR_Loot_MAG_LowHP_TemporaryHP_Shield_Rare_L5_0"
+type "Armor"
+using "MAG_LowHP_TemporaryHP_Shield"
+data "Rarity" "Rare"
+data "RootTemplate" "d8a27a2e-0582-514e-8e6c-e83d52bc9897"
+data "Boosts" "UnlockSpell(Target_BestowCurse)"
+data "PassivesOnEquip" "MAG_LowHP_TemporaryHP_Passive;ENR_LootPassive_RESISTANCE_COLD"
+
+
+new entry "ENR_Loot_MAG_LowHP_TemporaryHP_Shield_VeryRare_L0_0"
+type "Armor"
+using "MAG_LowHP_TemporaryHP_Shield"
+data "Rarity" "VeryRare"
+data "RootTemplate" "0639ff2a-d9be-5a50-8ee7-15c4870e6649"
+data "Boosts" "UnlockSpell(Shout_ShillelaghTestAnimation_Melee);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_TemporaryHP_Passive;ENR_LootPassive_FLAME_BLADE;ENR_LootPassive_DIVINE_FAVOR"
+
+
+new entry "ENR_Loot_MAG_LowHP_TemporaryHP_Shield_VeryRare_L1_0"
+type "Armor"
+using "MAG_LowHP_TemporaryHP_Shield"
+data "Rarity" "VeryRare"
+data "RootTemplate" "f48393e5-2b1b-5c67-8dd7-c223fdba9fc8"
+data "Boosts" "UnlockSpell(Target_Bless);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_TemporaryHP_Passive;ENR_LootPassive_ASPECT_OF_THE_WOLF;ENR_LootPassive_RESISTANCE_FIRE"
+
+
+new entry "ENR_Loot_MAG_LowHP_TemporaryHP_Shield_VeryRare_L2_0"
+type "Armor"
+using "MAG_LowHP_TemporaryHP_Shield"
+data "Rarity" "VeryRare"
+data "RootTemplate" "2c29d08a-9310-5225-8a86-cd706c275179"
+data "Boosts" "UnlockSpell(Target_Sleep);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_TemporaryHP_Passive;ENR_LootPassive_MOBILE_NO_AOO;ENR_LootPassive_MIRROR_IMAGE_3"
+
+
+new entry "ENR_Loot_MAG_LowHP_TemporaryHP_Shield_VeryRare_L3_0"
+type "Armor"
+using "MAG_LowHP_TemporaryHP_Shield"
+data "Rarity" "VeryRare"
+data "RootTemplate" "0f875edd-77c6-56fb-bc12-b50a9bc3d1fc"
+data "Boosts" "UnlockSpell(Target_ResilientSphere);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_TemporaryHP_Passive;ENR_LootPassive_RESISTANCE_THUNDER;ENR_LootPassive_RESISTANCE_NECROTIC"
+
+
+new entry "ENR_Loot_MAG_LowHP_TemporaryHP_Shield_VeryRare_L4_0"
+type "Armor"
+using "MAG_LowHP_TemporaryHP_Shield"
+data "Rarity" "VeryRare"
+data "RootTemplate" "7f60f097-de56-5887-b5d2-9bfc572a80a9"
+data "Boosts" "UnlockSpell(Target_StaggeringSmite);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_TemporaryHP_Passive;ENR_LootPassive_SPEAK_WITH_DEAD;ENR_LootPassive_PROTECTION_FROM_ENERGY_FIRE"
+
+
+new entry "ENR_Loot_MAG_LowHP_TemporaryHP_Shield_VeryRare_L5_0"
+type "Armor"
+using "MAG_LowHP_TemporaryHP_Shield"
+data "Rarity" "VeryRare"
+data "RootTemplate" "e0885ba9-5779-5bd0-99f5-2e2a06a2cd04"
+data "Boosts" "UnlockSpell(Target_Smite_Banishing);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_TemporaryHP_Passive;ENR_LootPassive_LIGHT;ENR_LootPassive_PASS_WITHOUT_TRACE"
+
+
+new entry "ENR_Loot_MAG_LowHP_TemporaryHP_Shield_Legendary_L0_0"
+type "Armor"
+using "MAG_LowHP_TemporaryHP_Shield"
+data "Rarity" "Legendary"
+data "RootTemplate" "50986fc1-1875-5b10-865d-6ff2d47a5858"
+data "Boosts" "UnlockSpell(Target_InflictWounds);UnlockSpell(Projectile_MagicMissile);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_TemporaryHP_Passive;ENR_LootPassive_ARMOR_OF_AGATHYS;ENR_LootPassive_SHILLELAGH"
+
+
+new entry "ENR_Loot_MAG_LowHP_TemporaryHP_Shield_Legendary_L1_0"
+type "Armor"
+using "MAG_LowHP_TemporaryHP_Shield"
+data "Rarity" "Legendary"
+data "RootTemplate" "a75605ee-54a9-5da6-b998-6e38e5852f39"
+data "Boosts" "UnlockSpell(Shout_SpeakWithAnimals);UnlockSpell(Target_HoldPerson);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_TemporaryHP_Passive;ENR_LootPassive_RESISTANCE_THUNDER;ENR_LootPassive_CALM_EMOTIONS"
+
+
+new entry "ENR_Loot_MAG_LowHP_TemporaryHP_Shield_Legendary_L2_0"
+type "Armor"
+using "MAG_LowHP_TemporaryHP_Shield"
+data "Rarity" "Legendary"
+data "RootTemplate" "9f0e880c-b310-5f82-8b0b-b7dab69f5f53"
+data "Boosts" "UnlockSpell(Target_Command_Halt);UnlockSpell(Shout_WYR_StinkingCloudCheese);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_TemporaryHP_Passive;ENR_LootPassive_SACRED_WEAPON;ENR_LootPassive_LONGSTRIDER"
+
+
+new entry "ENR_Loot_MAG_LowHP_TemporaryHP_Shield_Legendary_L3_0"
+type "Armor"
+using "MAG_LowHP_TemporaryHP_Shield"
+data "Rarity" "Legendary"
+data "RootTemplate" "42e0cdc2-6df7-57ca-b96b-deb9d452952a"
+data "Boosts" "UnlockSpell(Shout_ArmorOfAgathys);UnlockSpell(Target_FeignDeath);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_TemporaryHP_Passive;ENR_LootPassive_SHIELD_OF_FAITH;ENR_LootPassive_BEARS_ENDURANCE"
+
+
+new entry "ENR_Loot_MAG_LowHP_TemporaryHP_Shield_Legendary_L4_0"
+type "Armor"
+using "MAG_LowHP_TemporaryHP_Shield"
+data "Rarity" "Legendary"
+data "RootTemplate" "25b36cdd-9bc9-59c0-9047-fb71da98cdfd"
+data "Boosts" "UnlockSpell(Target_Command_Halt);UnlockSpell(Target_Sanctuary_Drider_Hardcore);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_TemporaryHP_Passive;ENR_LootPassive_BARDIC_INSPIRATION;ENR_LootPassive_MAGIC_WEAPON"
+
+
+new entry "ENR_Loot_MAG_LowHP_TemporaryHP_Shield_Legendary_L5_0"
+type "Armor"
+using "MAG_LowHP_TemporaryHP_Shield"
+data "Rarity" "Legendary"
+data "RootTemplate" "f56bebcb-91b6-5f34-9e9a-15100a5e00a2"
+data "Boosts" "UnlockSpell(Shout_Shillelagh);UnlockSpell(Target_Levitate);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "MAG_LowHP_TemporaryHP_Passive;ENR_LootPassive_DIVINE_FAVOR;ENR_LootPassive_REFLECTIVE_SHELL"
+
+
+new entry "ENR_Loot_MAG_Mobility_MomentumOnDash_aaaec6_Uncommon_L0_0"
+type "Armor"
+using "MAG_Mobility_MomentumOnDash_Boots"
+data "Rarity" "Uncommon"
+data "RootTemplate" "c3813ef5-b79b-589f-b7b0-ee672270bd1e"
+data "Boosts" "UnlockSpell(Projectile_WitchBolt)"
+data "PassivesOnEquip" "MAG_Mobility_MomentumOnDash_Passive"
+
+
+new entry "ENR_Loot_MAG_Mobility_MomentumOnDash_aaaec6_Uncommon_L1_0"
+type "Armor"
+using "MAG_Mobility_MomentumOnDash_Boots"
+data "Rarity" "Uncommon"
+data "RootTemplate" "e7442322-9140-5cbd-b070-5d509eee2bd4"
+data "Boosts" ""
+data "PassivesOnEquip" "MAG_Mobility_MomentumOnDash_Passive;ENR_LootPassive_FALSE_LIFE"
+
+
+new entry "ENR_Loot_MAG_Mobility_MomentumOnDash_aaaec6_Uncommon_L2_0"
+type "Armor"
+using "MAG_Mobility_MomentumOnDash_Boots"
+data "Rarity" "Uncommon"
+data "RootTemplate" "384b1066-d095-5e6b-8098-087c7a3fa469"
+data "Boosts" ""
+data "PassivesOnEquip" "MAG_Mobility_MomentumOnDash_Passive;ENR_LootPassive_DARKVISION"
+
+
+new entry "ENR_Loot_MAG_Mobility_MomentumOnDash_aaaec6_Uncommon_L3_0"
+type "Armor"
+using "MAG_Mobility_MomentumOnDash_Boots"
+data "Rarity" "Uncommon"
+data "RootTemplate" "3e9e4331-43f9-5a09-a852-46031f5c34d3"
+data "Boosts" "Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "MAG_Mobility_MomentumOnDash_Passive"
+
+
+new entry "ENR_Loot_MAG_Mobility_MomentumOnDash_aaaec6_Uncommon_L4_0"
+type "Armor"
+using "MAG_Mobility_MomentumOnDash_Boots"
+data "Rarity" "Uncommon"
+data "RootTemplate" "dd630dae-9109-514e-8426-5b8d8b207be4"
+data "Boosts" "Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "MAG_Mobility_MomentumOnDash_Passive"
+
+
+new entry "ENR_Loot_MAG_Mobility_MomentumOnDash_aaaec6_Uncommon_L5_0"
+type "Armor"
+using "MAG_Mobility_MomentumOnDash_Boots"
+data "Rarity" "Uncommon"
+data "RootTemplate" "5e4252c0-43a5-5f7a-bcf8-0b5bd0d77707"
+data "Boosts" "Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "MAG_Mobility_MomentumOnDash_Passive"
+
+
+new entry "ENR_Loot_MAG_Mobility_MomentumOnDash_aaaec6_Rare_L0_0"
+type "Armor"
+using "MAG_Mobility_MomentumOnDash_Boots"
+data "Rarity" "Rare"
+data "RootTemplate" "15ef4974-d258-58e9-82c4-a1bc90a1e759"
+data "Boosts" "Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "MAG_Mobility_MomentumOnDash_Passive;ENR_LootPassive_RAGE"
+
+
+new entry "ENR_Loot_MAG_Mobility_MomentumOnDash_aaaec6_Rare_L1_0"
+type "Armor"
+using "MAG_Mobility_MomentumOnDash_Boots"
+data "Rarity" "Rare"
+data "RootTemplate" "7df6ee98-ddd6-5838-9a0e-bbe7954f418a"
+data "Boosts" "UnlockSpell(Target_FindFamiliar);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "MAG_Mobility_MomentumOnDash_Passive"
+
+
+new entry "ENR_Loot_MAG_Mobility_MomentumOnDash_aaaec6_Rare_L2_0"
+type "Armor"
+using "MAG_Mobility_MomentumOnDash_Boots"
+data "Rarity" "Rare"
+data "RootTemplate" "17343da9-c36f-584e-b887-6508040c0457"
+data "Boosts" "Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "MAG_Mobility_MomentumOnDash_Passive;ENR_LootPassive_ALCH_ELIXIR_ENLARGE"
+
+
+new entry "ENR_Loot_MAG_Mobility_MomentumOnDash_aaaec6_Rare_L3_0"
+type "Armor"
+using "MAG_Mobility_MomentumOnDash_Boots"
+data "Rarity" "Rare"
+data "RootTemplate" "06c457c2-c6a9-560b-a5e8-3bf401500e9c"
+data "Boosts" "UnlockSpell(Shout_Aid)"
+data "PassivesOnEquip" "MAG_Mobility_MomentumOnDash_Passive;ENR_LootPassive_BARDIC_INSPIRATION"
+
+
+new entry "ENR_Loot_MAG_Mobility_MomentumOnDash_aaaec6_Rare_L4_0"
+type "Armor"
+using "MAG_Mobility_MomentumOnDash_Boots"
+data "Rarity" "Rare"
+data "RootTemplate" "8fd4abbd-2d62-51ff-acb1-f452902fcf9b"
+data "Boosts" "UnlockSpell(Target_Entangle);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "MAG_Mobility_MomentumOnDash_Passive"
+
+
+new entry "ENR_Loot_MAG_Mobility_MomentumOnDash_aaaec6_Rare_L5_0"
+type "Armor"
+using "MAG_Mobility_MomentumOnDash_Boots"
+data "Rarity" "Rare"
+data "RootTemplate" "e3cddec2-78bc-5ee3-97c7-467cd0e1ddff"
+data "Boosts" "UnlockSpell(Shout_ProduceFlame);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "MAG_Mobility_MomentumOnDash_Passive"
+
+
+new entry "ENR_Loot_MAG_Mobility_MomentumOnDash_aaaec6_VeryRare_L0_0"
+type "Armor"
+using "MAG_Mobility_MomentumOnDash_Boots"
+data "Rarity" "VeryRare"
+data "RootTemplate" "5b048309-3bd4-5947-9f39-1670d74f60e8"
+data "Boosts" "UnlockSpell(Target_ChillTouch);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "MAG_Mobility_MomentumOnDash_Passive;ENR_LootPassive_MIRROR_IMAGE_3;ENR_LootPassive_SHIELD_OF_FAITH"
+
+
+new entry "ENR_Loot_MAG_Mobility_MomentumOnDash_aaaec6_VeryRare_L1_0"
+type "Armor"
+using "MAG_Mobility_MomentumOnDash_Boots"
+data "Rarity" "VeryRare"
+data "RootTemplate" "f7f5bb0a-bc71-565e-89b9-f70b7702475a"
+data "Boosts" "UnlockSpell(Target_Sleep);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "MAG_Mobility_MomentumOnDash_Passive;ENR_LootPassive_ARMOR_OF_AGATHYS;ENR_LootPassive_PASS_WITHOUT_TRACE"
+
+
+new entry "ENR_Loot_MAG_Mobility_MomentumOnDash_aaaec6_VeryRare_L2_0"
+type "Armor"
+using "MAG_Mobility_MomentumOnDash_Boots"
+data "Rarity" "VeryRare"
+data "RootTemplate" "8e561d31-e7ee-5d89-9d55-a01f20eaa145"
+data "Boosts" "UnlockSpell(Target_RiseUndead_DeathShepherd);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "MAG_Mobility_MomentumOnDash_Passive;ENR_LootPassive_MAGIC_WEAPON;ENR_LootPassive_BEACON_OF_HOPE"
+
+
+new entry "ENR_Loot_MAG_Mobility_MomentumOnDash_aaaec6_VeryRare_L3_0"
+type "Armor"
+using "MAG_Mobility_MomentumOnDash_Boots"
+data "Rarity" "VeryRare"
+data "RootTemplate" "575e7590-5a5b-5285-bc48-9165ed318a3c"
+data "Boosts" "UnlockSpell(Target_BlackTentacles);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "MAG_Mobility_MomentumOnDash_Passive;ENR_LootPassive_BULLS_STRENGTH;ENR_LootPassive_RESISTANCE_RADIANT"
+
+
+new entry "ENR_Loot_MAG_Mobility_MomentumOnDash_aaaec6_VeryRare_L4_0"
+type "Armor"
+using "MAG_Mobility_MomentumOnDash_Boots"
+data "Rarity" "VeryRare"
+data "RootTemplate" "68766624-5467-53bc-9e8f-920f74ba4478"
+data "Boosts" "UnlockSpell(Target_TollTheDead);Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "MAG_Mobility_MomentumOnDash_Passive;ENR_LootPassive_RELENTLESS_RAGE;ENR_LootPassive_MULTIATTACKDEFENSE"
+
+
+new entry "ENR_Loot_MAG_Mobility_MomentumOnDash_aaaec6_VeryRare_L5_0"
+type "Armor"
+using "MAG_Mobility_MomentumOnDash_Boots"
+data "Rarity" "VeryRare"
+data "RootTemplate" "58b80e13-9915-56bb-ab03-238dc918961e"
+data "Boosts" "UnlockSpell(Target_StinkingCloud);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "MAG_Mobility_MomentumOnDash_Passive;ENR_LootPassive_DETECT_EVIL_GOOD;ENR_LootPassive_RESISTANCE"
+
+
+new entry "ENR_Loot_MAG_Mobility_MomentumOnDash_aaaec6_Legendary_L0_0"
+type "Armor"
+using "MAG_Mobility_MomentumOnDash_Boots"
+data "Rarity" "Legendary"
+data "RootTemplate" "04700654-7fc1-53b7-88aa-4ef22420deff"
+data "Boosts" "UnlockSpell(Shout_HellishRebuke);UnlockSpell(Target_Smite_Thunderous);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "MAG_Mobility_MomentumOnDash_Passive;ENR_LootPassive_DRUNKEN_TECHNIQUE;ENR_LootPassive_SANCTUARY"
+
+
+new entry "ENR_Loot_MAG_Mobility_MomentumOnDash_aaaec6_Legendary_L1_0"
+type "Armor"
+using "MAG_Mobility_MomentumOnDash_Boots"
+data "Rarity" "Legendary"
+data "RootTemplate" "7c2c8b0d-22b0-552a-a257-c157935d6266"
+data "Boosts" "UnlockSpell(Target_SpareTheDying);UnlockSpell(Projectile_SteelWatcher_Quadruped_SelfDestructExplosion);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "MAG_Mobility_MomentumOnDash_Passive;ENR_LootPassive_ASPECT_OF_THE_WOLF;ENR_LootPassive_BEARS_ENDURANCE"
+
+
+new entry "ENR_Loot_MAG_Mobility_MomentumOnDash_aaaec6_Legendary_L2_0"
+type "Armor"
+using "MAG_Mobility_MomentumOnDash_Boots"
+data "Rarity" "Legendary"
+data "RootTemplate" "04af84ab-a6b2-5720-9f37-afd6c31da899"
+data "Boosts" "UnlockSpell(Target_ShockingGrasp);UnlockSpell(Shout_HellishRebuke);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "MAG_Mobility_MomentumOnDash_Passive;ENR_LootPassive_RALLY;ENR_LootPassive_RESISTANCE_LIGHTNING"
+
+
+new entry "ENR_Loot_MAG_Mobility_MomentumOnDash_aaaec6_Legendary_L3_0"
+type "Armor"
+using "MAG_Mobility_MomentumOnDash_Boots"
+data "Rarity" "Legendary"
+data "RootTemplate" "9c06d559-5e3e-5d36-a12a-caa93dc4a9b3"
+data "Boosts" "UnlockSpell(Target_Identify);UnlockSpell(Target_ProtectionFromPoison);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "MAG_Mobility_MomentumOnDash_Passive;ENR_LootPassive_AURA_OF_DEVOTION_BUFF;ENR_LootPassive_ASPECT_OF_THE_STALLION"
+
+
+new entry "ENR_Loot_MAG_Mobility_MomentumOnDash_aaaec6_Legendary_L4_0"
+type "Armor"
+using "MAG_Mobility_MomentumOnDash_Boots"
+data "Rarity" "Legendary"
+data "RootTemplate" "9cb2e9cd-9cbb-5127-a6d8-3b4e86cdd6b2"
+data "Boosts" "UnlockSpell(Shout_UND_SocietyOfBrilliance_Teleportation);UnlockSpell(Shout_HealingWord_Mass);Ability(Charisma,2,20,true)"
+data "PassivesOnEquip" "MAG_Mobility_MomentumOnDash_Passive;ENR_LootPassive_HEROES_FEAST;ENR_LootPassive_RALLY"
+
+
+new entry "ENR_Loot_MAG_Mobility_MomentumOnDash_aaaec6_Legendary_L5_0"
+type "Armor"
+using "MAG_Mobility_MomentumOnDash_Boots"
+data "Rarity" "Legendary"
+data "RootTemplate" "0f591c45-eb88-52a1-a60d-978f6a317045"
+data "Boosts" "UnlockSpell(Target_Invisibility_Greater);UnlockSpell(Shout_MirrorImage);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "MAG_Mobility_MomentumOnDash_Passive;ENR_LootPassive_RESISTANCE;ENR_LootPassive_RESISTANCE_POISON"
+
+
+new entry "ENR_Loot_MAG_Orin_Cloth_Uncommon_L0_0"
+type "Armor"
+using "MAG_Orin_Cloth"
+data "Rarity" "Uncommon"
+data "RootTemplate" "01858044-cee7-5866-bd34-bd90391bf6cd"
+data "Boosts" "UnlockSpell(Target_Entangle)"
+data "PassivesOnEquip" "MAG_Orin_ShapeshifterGambit_Passive;MAG_Orin_ShapeshifterProwess_Passive"
+
+
+new entry "ENR_Loot_MAG_Orin_Cloth_Uncommon_L1_0"
+type "Armor"
+using "MAG_Orin_Cloth"
+data "Rarity" "Uncommon"
+data "RootTemplate" "74557826-c438-5800-b61e-eb1d1cd148dc"
+data "Boosts" "UnlockSpell(Target_ChillTouch)"
+data "PassivesOnEquip" "MAG_Orin_ShapeshifterGambit_Passive;MAG_Orin_ShapeshifterProwess_Passive"
+
+
+new entry "ENR_Loot_MAG_Orin_Cloth_Uncommon_L2_0"
+type "Armor"
+using "MAG_Orin_Cloth"
+data "Rarity" "Uncommon"
+data "RootTemplate" "52a8e47d-94ae-5467-828b-874836ef09de"
+data "Boosts" "UnlockSpell(Target_StinkingCloud)"
+data "PassivesOnEquip" "MAG_Orin_ShapeshifterGambit_Passive;MAG_Orin_ShapeshifterProwess_Passive"
+
+
+new entry "ENR_Loot_MAG_Orin_Cloth_Uncommon_L3_0"
+type "Armor"
+using "MAG_Orin_Cloth"
+data "Rarity" "Uncommon"
+data "RootTemplate" "ec89e17e-b762-5c69-835d-d68a7f91bce4"
+data "Boosts" "UnlockSpell(Target_SCL_Drider_PsionicVengeance)"
+data "PassivesOnEquip" "MAG_Orin_ShapeshifterGambit_Passive;MAG_Orin_ShapeshifterProwess_Passive"
+
+
+new entry "ENR_Loot_MAG_Orin_Cloth_Uncommon_L4_0"
+type "Armor"
+using "MAG_Orin_Cloth"
+data "Rarity" "Uncommon"
+data "RootTemplate" "06131aa3-6a9c-50cf-9ea7-35c0470454a3"
+data "Boosts" "UnlockSpell(Target_HoldMonster)"
+data "PassivesOnEquip" "MAG_Orin_ShapeshifterGambit_Passive;MAG_Orin_ShapeshifterProwess_Passive"
+
+
+new entry "ENR_Loot_MAG_Orin_Cloth_Uncommon_L5_0"
+type "Armor"
+using "MAG_Orin_Cloth"
+data "Rarity" "Uncommon"
+data "RootTemplate" "a379d946-53d7-51fa-878d-390b2749b033"
+data "Boosts" ""
+data "PassivesOnEquip" "MAG_Orin_ShapeshifterGambit_Passive;MAG_Orin_ShapeshifterProwess_Passive;ENR_LootPassive_PRODUCE_FLAME"
+
+
+new entry "ENR_Loot_MAG_Orin_Cloth_Rare_L0_0"
+type "Armor"
+using "MAG_Orin_Cloth"
+data "Rarity" "Rare"
+data "RootTemplate" "c1e15fc2-7e99-5f77-95c2-035a60e276f0"
+data "Boosts" "UnlockSpell(Projectile_HailOfThorns)"
+data "PassivesOnEquip" "MAG_Orin_ShapeshifterGambit_Passive;MAG_Orin_ShapeshifterProwess_Passive;ENR_LootPassive_DETECT_THOUGHTS"
+
+
+new entry "ENR_Loot_MAG_Orin_Cloth_Rare_L1_0"
+type "Armor"
+using "MAG_Orin_Cloth"
+data "Rarity" "Rare"
+data "RootTemplate" "1be128a8-8b2f-5acb-9f26-b1a0c2d3c2be"
+data "Boosts" "UnlockSpell(Target_PhantasmalForce)"
+data "PassivesOnEquip" "MAG_Orin_ShapeshifterGambit_Passive;MAG_Orin_ShapeshifterProwess_Passive;ENR_LootPassive_PROTECTION_FROM_POISON"
+
+
+new entry "ENR_Loot_MAG_Orin_Cloth_Rare_L2_0"
+type "Armor"
+using "MAG_Orin_Cloth"
+data "Rarity" "Rare"
+data "RootTemplate" "c97451f9-778c-5651-b169-727d71a8881e"
+data "Boosts" "Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "MAG_Orin_ShapeshifterGambit_Passive;MAG_Orin_ShapeshifterProwess_Passive;ENR_LootPassive_RESISTANCE_LIGHTNING"
+
+
+new entry "ENR_Loot_MAG_Orin_Cloth_Rare_L3_0"
+type "Armor"
+using "MAG_Orin_Cloth"
+data "Rarity" "Rare"
+data "RootTemplate" "cf1da857-8973-5cb2-b02d-176dc709c763"
+data "Boosts" "UnlockSpell(Target_LesserRestoration)"
+data "PassivesOnEquip" "MAG_Orin_ShapeshifterGambit_Passive;MAG_Orin_ShapeshifterProwess_Passive;ENR_LootPassive_AURA_OF_DEVOTION_BUFF"
+
+
+new entry "ENR_Loot_MAG_Orin_Cloth_Rare_L4_0"
+type "Armor"
+using "MAG_Orin_Cloth"
+data "Rarity" "Rare"
+data "RootTemplate" "f33e4f59-695f-54c0-80d0-336860c7e423"
+data "Boosts" "Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "MAG_Orin_ShapeshifterGambit_Passive;MAG_Orin_ShapeshifterProwess_Passive;ENR_LootPassive_BEACON_OF_HOPE"
+
+
+new entry "ENR_Loot_MAG_Orin_Cloth_Rare_L5_0"
+type "Armor"
+using "MAG_Orin_Cloth"
+data "Rarity" "Rare"
+data "RootTemplate" "62f9fa1a-48a0-51fa-8e8e-552a31e90b30"
+data "Boosts" "Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "MAG_Orin_ShapeshifterGambit_Passive;MAG_Orin_ShapeshifterProwess_Passive;ENR_LootPassive_RESISTANCE_ACID"
+
+
+new entry "ENR_Loot_MAG_Orin_Cloth_VeryRare_L0_0"
+type "Armor"
+using "MAG_Orin_Cloth"
+data "Rarity" "VeryRare"
+data "RootTemplate" "8eebcabe-3732-5277-bf75-46f23168d5cd"
+data "Boosts" "UnlockSpell(Target_BurstingSinew);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "MAG_Orin_ShapeshifterGambit_Passive;MAG_Orin_ShapeshifterProwess_Passive;ENR_LootPassive_DAYLIGHT;ENR_LootPassive_MAGIC_WEAPON"
+
+
+new entry "ENR_Loot_MAG_Orin_Cloth_VeryRare_L1_0"
+type "Armor"
+using "MAG_Orin_Cloth"
+data "Rarity" "VeryRare"
+data "RootTemplate" "92056340-24e2-5c77-9a6c-5005810c6038"
+data "Boosts" "UnlockSpell(Target_HoldPerson);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "MAG_Orin_ShapeshifterGambit_Passive;MAG_Orin_ShapeshifterProwess_Passive;ENR_LootPassive_MIRROR_IMAGE_2;ENR_LootPassive_RESISTANCE_COLD"
+
+
+new entry "ENR_Loot_MAG_Orin_Cloth_VeryRare_L2_0"
+type "Armor"
+using "MAG_Orin_Cloth"
+data "Rarity" "VeryRare"
+data "RootTemplate" "aa3ab1e1-35e0-5c13-a88d-21ea33380efc"
+data "Boosts" "UnlockSpell(Projectile_HailOfThorns);Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "MAG_Orin_ShapeshifterGambit_Passive;MAG_Orin_ShapeshifterProwess_Passive;ENR_LootPassive_HEROES_FEAST;ENR_LootPassive_FLY"
+
+
+new entry "ENR_Loot_MAG_Orin_Cloth_VeryRare_L3_0"
+type "Armor"
+using "MAG_Orin_Cloth"
+data "Rarity" "VeryRare"
+data "RootTemplate" "f6ce908b-099a-5e03-9966-8d0bd55a5af2"
+data "Boosts" "UnlockSpell(Teleportation_DimensionDoor);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "MAG_Orin_ShapeshifterGambit_Passive;MAG_Orin_ShapeshifterProwess_Passive;ENR_LootPassive_RALLY;ENR_LootPassive_BULLS_STRENGTH"
+
+
+new entry "ENR_Loot_MAG_Orin_Cloth_VeryRare_L4_0"
+type "Armor"
+using "MAG_Orin_Cloth"
+data "Rarity" "VeryRare"
+data "RootTemplate" "b5b76438-19ec-5534-9451-e0eca1a398dc"
+data "Boosts" "UnlockSpell(Target_Smite_Wrathful);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "MAG_Orin_ShapeshifterGambit_Passive;MAG_Orin_ShapeshifterProwess_Passive;ENR_LootPassive_AURA_OF_PROTECTION_BUFF;ENR_LootPassive_MOBILE_NO_AOO"
+
+
+new entry "ENR_Loot_MAG_Orin_Cloth_VeryRare_L5_0"
+type "Armor"
+using "MAG_Orin_Cloth"
+data "Rarity" "VeryRare"
+data "RootTemplate" "89aaf2d1-fd7d-59f7-834a-6bb64c2b89e2"
+data "Boosts" "UnlockSpell(Projectile_GuidingBolt);Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "MAG_Orin_ShapeshifterGambit_Passive;MAG_Orin_ShapeshifterProwess_Passive;ENR_LootPassive_UNDEAD_FORTITUDE;ENR_LootPassive_ASPECT_OF_THE_ELK"
+
+
+new entry "ENR_Loot_MAG_Orin_Cloth_Legendary_L0_0"
+type "Armor"
+using "MAG_Orin_Cloth"
+data "Rarity" "Legendary"
+data "RootTemplate" "6cd0f9a7-583f-5523-96ed-853b6e41087d"
+data "Boosts" "UnlockSpell(Projectile_WitchBolt);UnlockSpell(Shout_FeatherFall);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "MAG_Orin_ShapeshifterGambit_Passive;MAG_Orin_ShapeshifterProwess_Passive;ENR_LootPassive_PROTECTION_FROM_ENERGY_LIGHT_d7917a;ENR_LootPassive_LONGSTRIDER"
+
+
+new entry "ENR_Loot_MAG_Orin_Cloth_Legendary_L1_0"
+type "Armor"
+using "MAG_Orin_Cloth"
+data "Rarity" "Legendary"
+data "RootTemplate" "2c6874b5-2cda-5b07-949c-b1a7a095bc0f"
+data "Boosts" "UnlockSpell(Target_MistyStep);UnlockSpell(Target_HeatMetal);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "MAG_Orin_ShapeshifterGambit_Passive;MAG_Orin_ShapeshifterProwess_Passive;ENR_LootPassive_BARKSKIN;ENR_LootPassive_FRIENDS"
+
+
+new entry "ENR_Loot_MAG_Orin_Cloth_Legendary_L2_0"
+type "Armor"
+using "MAG_Orin_Cloth"
+data "Rarity" "Legendary"
+data "RootTemplate" "b3ef27bd-5a92-5bd6-8857-32570cb88587"
+data "Boosts" "UnlockSpell(Zone_Fear);UnlockSpell(Target_AnimateDead);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "MAG_Orin_ShapeshifterGambit_Passive;MAG_Orin_ShapeshifterProwess_Passive;ENR_LootPassive_FOXS_CUNNING;ENR_LootPassive_EAGLES_SPLENDOR"
+
+
+new entry "ENR_Loot_MAG_Orin_Cloth_Legendary_L3_0"
+type "Armor"
+using "MAG_Orin_Cloth"
+data "Rarity" "Legendary"
+data "RootTemplate" "bbb305b2-40fe-59c3-8f4b-afb9120d511d"
+data "Boosts" "UnlockSpell(Target_SpeakWithDead);UnlockSpell(Projectile_PoisonSpray);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "MAG_Orin_ShapeshifterGambit_Passive;MAG_Orin_ShapeshifterProwess_Passive;ENR_LootPassive_BLADE_FLOURISH_DEFENSIVE;ENR_LootPassive_CATS_GRACE"
+
+
+new entry "ENR_Loot_MAG_Orin_Cloth_Legendary_L4_0"
+type "Armor"
+using "MAG_Orin_Cloth"
+data "Rarity" "Legendary"
+data "RootTemplate" "e4025f71-9484-5e46-846d-984c4fcccd13"
+data "Boosts" "UnlockSpell(Projectile_LightningBlade_Explosion);UnlockSpell(Zone_LightningBolt);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "MAG_Orin_ShapeshifterGambit_Passive;MAG_Orin_ShapeshifterProwess_Passive;ENR_LootPassive_SPEAK_WITH_DEAD;ENR_LootPassive_DAYLIGHT"
+
+
+new entry "ENR_Loot_MAG_Orin_Cloth_Legendary_L5_0"
+type "Armor"
+using "MAG_Orin_Cloth"
+data "Rarity" "Legendary"
+data "RootTemplate" "9ac83cc7-d93f-543c-a63e-86925d0527c4"
+data "Boosts" "UnlockSpell(Shout_DispelEvilAndGood);UnlockSpell(Target_CharmPerson);Ability(Charisma,2,20,true)"
+data "PassivesOnEquip" "MAG_Orin_ShapeshifterGambit_Passive;MAG_Orin_ShapeshifterProwess_Passive;ENR_LootPassive_MAGIC_WEAPON;ENR_LootPassive_MIRROR_IMAGE_3"
+
+
+new entry "ENR_Loot_MAG_Paladin_MomentumOnConcen_c58b4b_Uncommon_L0_0"
+type "Armor"
+using "MAG_Paladin_MomentumOnConcentration_Boots"
+data "Rarity" "Uncommon"
+data "RootTemplate" "49520b93-a7d6-5aba-81a2-4c957c820ce2"
+data "Boosts" "Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "MAG_Paladin_MomentumOnConcentration_Boots_Passive;MAG_Paladin_MomentumOnConcentration_Boots_Technical_Passive"
+
+
+new entry "ENR_Loot_MAG_Paladin_MomentumOnConcen_c58b4b_Uncommon_L1_0"
+type "Armor"
+using "MAG_Paladin_MomentumOnConcentration_Boots"
+data "Rarity" "Uncommon"
+data "RootTemplate" "9f9295c9-99c8-59da-87b7-27876e919ef3"
+data "Boosts" ""
+data "PassivesOnEquip" "MAG_Paladin_MomentumOnConcentration_Boots_Passive;MAG_Paladin_MomentumOnConcentration_Boots_Technical_Passive;ENR_LootPassive_RESISTANCE_THUNDER"
+
+
+new entry "ENR_Loot_MAG_Paladin_MomentumOnConcen_c58b4b_Uncommon_L2_0"
+type "Armor"
+using "MAG_Paladin_MomentumOnConcentration_Boots"
+data "Rarity" "Uncommon"
+data "RootTemplate" "946230e5-3825-5fc7-8ee9-0e110b97daf6"
+data "Boosts" ""
+data "PassivesOnEquip" "MAG_Paladin_MomentumOnConcentration_Boots_Passive;MAG_Paladin_MomentumOnConcentration_Boots_Technical_Passive;ENR_LootPassive_PROTECTION_FROM_ENERGY_ACID"
+
+
+new entry "ENR_Loot_MAG_Paladin_MomentumOnConcen_c58b4b_Uncommon_L3_0"
+type "Armor"
+using "MAG_Paladin_MomentumOnConcentration_Boots"
+data "Rarity" "Uncommon"
+data "RootTemplate" "92d6735b-a076-5026-b7ad-e1231728e13a"
+data "Boosts" ""
+data "PassivesOnEquip" "MAG_Paladin_MomentumOnConcentration_Boots_Passive;MAG_Paladin_MomentumOnConcentration_Boots_Technical_Passive;ENR_LootPassive_CATS_GRACE"
+
+
+new entry "ENR_Loot_MAG_Paladin_MomentumOnConcen_c58b4b_Uncommon_L4_0"
+type "Armor"
+using "MAG_Paladin_MomentumOnConcentration_Boots"
+data "Rarity" "Uncommon"
+data "RootTemplate" "c8cdfac0-4500-5e80-b50b-09303b3b04fb"
+data "Boosts" "UnlockSpell(Shout_DestructiveWave)"
+data "PassivesOnEquip" "MAG_Paladin_MomentumOnConcentration_Boots_Passive;MAG_Paladin_MomentumOnConcentration_Boots_Technical_Passive"
+
+
+new entry "ENR_Loot_MAG_Paladin_MomentumOnConcen_c58b4b_Uncommon_L5_0"
+type "Armor"
+using "MAG_Paladin_MomentumOnConcentration_Boots"
+data "Rarity" "Uncommon"
+data "RootTemplate" "87158fd1-6809-57f6-ab20-e232bed4c70d"
+data "Boosts" "Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "MAG_Paladin_MomentumOnConcentration_Boots_Passive;MAG_Paladin_MomentumOnConcentration_Boots_Technical_Passive"
+
+
+new entry "ENR_Loot_MAG_Paladin_MomentumOnConcen_c58b4b_Rare_L0_0"
+type "Armor"
+using "MAG_Paladin_MomentumOnConcentration_Boots"
+data "Rarity" "Rare"
+data "RootTemplate" "8c73ea07-25f7-59f7-93d1-a23f57ae7a9f"
+data "Boosts" "UnlockSpell(Target_AnimalFriendship);Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "MAG_Paladin_MomentumOnConcentration_Boots_Passive;MAG_Paladin_MomentumOnConcentration_Boots_Technical_Passive"
+
+
+new entry "ENR_Loot_MAG_Paladin_MomentumOnConcen_c58b4b_Rare_L1_0"
+type "Armor"
+using "MAG_Paladin_MomentumOnConcentration_Boots"
+data "Rarity" "Rare"
+data "RootTemplate" "09dc3227-0424-583f-affc-539debc9f81e"
+data "Boosts" "UnlockSpell(Shout_HellishRebuke_AsmodeusTiefling);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "MAG_Paladin_MomentumOnConcentration_Boots_Passive;MAG_Paladin_MomentumOnConcentration_Boots_Technical_Passive"
+
+
+new entry "ENR_Loot_MAG_Paladin_MomentumOnConcen_c58b4b_Rare_L2_0"
+type "Armor"
+using "MAG_Paladin_MomentumOnConcentration_Boots"
+data "Rarity" "Rare"
+data "RootTemplate" "5db4a2ce-abe6-57f3-821b-c125d563abb0"
+data "Boosts" "UnlockSpell(Target_DissonantWhispers);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "MAG_Paladin_MomentumOnConcentration_Boots_Passive;MAG_Paladin_MomentumOnConcentration_Boots_Technical_Passive"
+
+
+new entry "ENR_Loot_MAG_Paladin_MomentumOnConcen_c58b4b_Rare_L3_0"
+type "Armor"
+using "MAG_Paladin_MomentumOnConcentration_Boots"
+data "Rarity" "Rare"
+data "RootTemplate" "60ffacc2-211c-5376-8506-e9a4d3e1d154"
+data "Boosts" "Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "MAG_Paladin_MomentumOnConcentration_Boots_Passive;MAG_Paladin_MomentumOnConcentration_Boots_Technical_Passive;ENR_LootPassive_BULLS_STRENGTH"
+
+
+new entry "ENR_Loot_MAG_Paladin_MomentumOnConcen_c58b4b_Rare_L4_0"
+type "Armor"
+using "MAG_Paladin_MomentumOnConcentration_Boots"
+data "Rarity" "Rare"
+data "RootTemplate" "e2132c2e-e6d8-5766-babb-7c80c130e629"
+data "Boosts" "UnlockSpell(Projectile_EldritchBlast)"
+data "PassivesOnEquip" "MAG_Paladin_MomentumOnConcentration_Boots_Passive;MAG_Paladin_MomentumOnConcentration_Boots_Technical_Passive;ENR_LootPassive_FLY"
+
+
+new entry "ENR_Loot_MAG_Paladin_MomentumOnConcen_c58b4b_Rare_L5_0"
+type "Armor"
+using "MAG_Paladin_MomentumOnConcentration_Boots"
+data "Rarity" "Rare"
+data "RootTemplate" "366fd590-8d5a-5839-acb3-168e3702148c"
+data "Boosts" "UnlockSpell(Target_ChillTouch)"
+data "PassivesOnEquip" "MAG_Paladin_MomentumOnConcentration_Boots_Passive;MAG_Paladin_MomentumOnConcentration_Boots_Technical_Passive;ENR_LootPassive_AURA_OF_PROTECTION_BUFF"
+
+
+new entry "ENR_Loot_MAG_Paladin_MomentumOnConcen_c58b4b_VeryRare_L0_0"
+type "Armor"
+using "MAG_Paladin_MomentumOnConcentration_Boots"
+data "Rarity" "VeryRare"
+data "RootTemplate" "e99e09dd-f0ce-5264-be0a-787ffd893f9f"
+data "Boosts" "UnlockSpell(Target_Bless);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "MAG_Paladin_MomentumOnConcentration_Boots_Passive;MAG_Paladin_MomentumOnConcentration_Boots_Technical_Passive;ENR_LootPassive_BLUR;ENR_LootPassive_AURA_OF_DEVOTION_BUFF"
+
+
+new entry "ENR_Loot_MAG_Paladin_MomentumOnConcen_c58b4b_VeryRare_L1_0"
+type "Armor"
+using "MAG_Paladin_MomentumOnConcentration_Boots"
+data "Rarity" "VeryRare"
+data "RootTemplate" "61af8c8e-19d4-5028-9201-708bbc9be38e"
+data "Boosts" "UnlockSpell(Target_MentalSlam_Githyanki);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "MAG_Paladin_MomentumOnConcentration_Boots_Passive;MAG_Paladin_MomentumOnConcentration_Boots_Technical_Passive;ENR_LootPassive_PROTECTION_FROM_POISON;ENR_LootPassive_SPEAK_WITH_DEAD"
+
+
+new entry "ENR_Loot_MAG_Paladin_MomentumOnConcen_c58b4b_VeryRare_L2_0"
+type "Armor"
+using "MAG_Paladin_MomentumOnConcentration_Boots"
+data "Rarity" "VeryRare"
+data "RootTemplate" "339983b9-1eed-517e-afc1-3be1384c4f13"
+data "Boosts" "UnlockSpell(Target_Levitate);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "MAG_Paladin_MomentumOnConcentration_Boots_Passive;MAG_Paladin_MomentumOnConcentration_Boots_Technical_Passive;ENR_LootPassive_RESISTANCE_FORCE;ENR_LootPassive_FLY"
+
+
+new entry "ENR_Loot_MAG_Paladin_MomentumOnConcen_c58b4b_VeryRare_L3_0"
+type "Armor"
+using "MAG_Paladin_MomentumOnConcentration_Boots"
+data "Rarity" "VeryRare"
+data "RootTemplate" "869621ca-f782-5030-968f-187153885be9"
+data "Boosts" "UnlockSpell(Target_Confusion);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "MAG_Paladin_MomentumOnConcentration_Boots_Passive;MAG_Paladin_MomentumOnConcentration_Boots_Technical_Passive;ENR_LootPassive_RESISTANCE_FIRE;ENR_LootPassive_RESISTANCE_FORCE"
+
+
+new entry "ENR_Loot_MAG_Paladin_MomentumOnConcen_c58b4b_VeryRare_L4_0"
+type "Armor"
+using "MAG_Paladin_MomentumOnConcentration_Boots"
+data "Rarity" "VeryRare"
+data "RootTemplate" "786237e3-afe4-5b9d-881d-8a1fd125ca1a"
+data "Boosts" "UnlockSpell(Target_CalmEmotions);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "MAG_Paladin_MomentumOnConcentration_Boots_Passive;MAG_Paladin_MomentumOnConcentration_Boots_Technical_Passive;ENR_LootPassive_CALM_EMOTIONS;ENR_LootPassive_ARMOR_OF_AGATHYS"
+
+
+new entry "ENR_Loot_MAG_Paladin_MomentumOnConcen_c58b4b_VeryRare_L5_0"
+type "Armor"
+using "MAG_Paladin_MomentumOnConcentration_Boots"
+data "Rarity" "VeryRare"
+data "RootTemplate" "d853ce2f-0f1d-58f8-8270-0db5b47110a1"
+data "Boosts" "UnlockSpell(Target_DominatePerson);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "MAG_Paladin_MomentumOnConcentration_Boots_Passive;MAG_Paladin_MomentumOnConcentration_Boots_Technical_Passive;ENR_LootPassive_TRUE_STRIKE;ENR_LootPassive_RESISTANCE_NECROTIC"
+
+
+new entry "ENR_Loot_MAG_Paladin_MomentumOnConcen_c58b4b_Legendary_L0_0"
+type "Armor"
+using "MAG_Paladin_MomentumOnConcentration_Boots"
+data "Rarity" "Legendary"
+data "RootTemplate" "9c6b8f72-7031-5cea-a2c9-031a430e674c"
+data "Boosts" "UnlockSpell(Target_CompelledDuel);UnlockSpell(Shout_DisguiseSelf);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "MAG_Paladin_MomentumOnConcentration_Boots_Passive;MAG_Paladin_MomentumOnConcentration_Boots_Technical_Passive;ENR_LootPassive_PROTECTION_FROM_EVIL_AND_GOO_749824;ENR_LootPassive_PRODUCE_FLAME"
+
+
+new entry "ENR_Loot_MAG_Paladin_MomentumOnConcen_c58b4b_Legendary_L1_0"
+type "Armor"
+using "MAG_Paladin_MomentumOnConcentration_Boots"
+data "Rarity" "Legendary"
+data "RootTemplate" "f1674d0e-959f-56c2-9b3a-9d708c19df45"
+data "Boosts" "UnlockSpell(Shout_Aid);UnlockSpell(Shout_Shillelagh);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "MAG_Paladin_MomentumOnConcentration_Boots_Passive;MAG_Paladin_MomentumOnConcentration_Boots_Technical_Passive;ENR_LootPassive_BLESS;ENR_LootPassive_LONGSTRIDER"
+
+
+new entry "ENR_Loot_MAG_Paladin_MomentumOnConcen_c58b4b_Legendary_L2_0"
+type "Armor"
+using "MAG_Paladin_MomentumOnConcentration_Boots"
+data "Rarity" "Legendary"
+data "RootTemplate" "ed3f0535-0eb1-5e9b-9901-efabd5c6d801"
+data "Boosts" "UnlockSpell(Target_Daylight);UnlockSpell(Target_Sleep);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "MAG_Paladin_MomentumOnConcentration_Boots_Passive;MAG_Paladin_MomentumOnConcentration_Boots_Technical_Passive;ENR_LootPassive_OWLS_WISDOM;ENR_LootPassive_COMPREHEND_LANGUAGES"
+
+
+new entry "ENR_Loot_MAG_Paladin_MomentumOnConcen_c58b4b_Legendary_L3_0"
+type "Armor"
+using "MAG_Paladin_MomentumOnConcentration_Boots"
+data "Rarity" "Legendary"
+data "RootTemplate" "fd4cf551-b60f-5267-a707-216f415de016"
+data "Boosts" "UnlockSpell(Zone_Thunderwave);UnlockSpell(Target_GaseousForm);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "MAG_Paladin_MomentumOnConcentration_Boots_Passive;MAG_Paladin_MomentumOnConcentration_Boots_Technical_Passive;ENR_LootPassive_INSPIRING_LEADER;ENR_LootPassive_RESISTANCE_THUNDER"
+
+
+new entry "ENR_Loot_MAG_Paladin_MomentumOnConcen_c58b4b_Legendary_L4_0"
+type "Armor"
+using "MAG_Paladin_MomentumOnConcentration_Boots"
+data "Rarity" "Legendary"
+data "RootTemplate" "72d828ad-1217-5b75-b8c2-0ea6165333a1"
+data "Boosts" "UnlockSpell(Target_FlameBlade_Attack);UnlockSpell(Target_Command_Halt);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "MAG_Paladin_MomentumOnConcentration_Boots_Passive;MAG_Paladin_MomentumOnConcentration_Boots_Technical_Passive;ENR_LootPassive_RESISTANCE_ACID;ENR_LootPassive_SHIELD_OF_FAITH"
+
+
+new entry "ENR_Loot_MAG_Paladin_MomentumOnConcen_c58b4b_Legendary_L5_0"
+type "Armor"
+using "MAG_Paladin_MomentumOnConcentration_Boots"
+data "Rarity" "Legendary"
+data "RootTemplate" "30ac5d3c-2c2d-5e9d-8acd-951a52576a79"
+data "Boosts" "UnlockSpell(Projectile_AcidArrow);UnlockSpell(Target_AnimateDead_FlyingGhoul_6);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "MAG_Paladin_MomentumOnConcentration_Boots_Passive;MAG_Paladin_MomentumOnConcentration_Boots_Technical_Passive;ENR_LootPassive_HASTE;ENR_LootPassive_RALLY"
+
+
+new entry "ENR_Loot_MAG_SHA_SeluneBlessing_Spear_Uncommon_L0_0"
+type "Weapon"
+using "MAG_SHA_SeluneBlessing_Spear"
+data "Rarity" "Uncommon"
+data "RootTemplate" "dccdc1f1-8fcd-59c4-a525-777d5b7ef00a"
+data "Boosts" "UnlockSpell(Target_SHA_SelunesBlessing_Moonbeam);UnlockSpell(Target_SHA_SeluneBlessing_Moonfire)"
+data "PassivesOnEquip" "MAG_SHA_SeluneBlessing_Spear_Passive;Darkvision;ENR_LootPassive_RESISTANCE_ACID"
+
+
+new entry "ENR_Loot_MAG_SHA_SeluneBlessing_Spear_Uncommon_L1_0"
+type "Weapon"
+using "MAG_SHA_SeluneBlessing_Spear"
+data "Rarity" "Uncommon"
+data "RootTemplate" "6b7a5df8-4e26-5e67-b87a-59fc24d06f0d"
+data "Boosts" "UnlockSpell(Target_SHA_SelunesBlessing_Moonbeam);UnlockSpell(Target_SHA_SeluneBlessing_Moonfire);UnlockSpell(Target_PhantasmalForce)"
+data "PassivesOnEquip" "MAG_SHA_SeluneBlessing_Spear_Passive;Darkvision"
+
+
+new entry "ENR_Loot_MAG_SHA_SeluneBlessing_Spear_Uncommon_L2_0"
+type "Weapon"
+using "MAG_SHA_SeluneBlessing_Spear"
+data "Rarity" "Uncommon"
+data "RootTemplate" "09e1a16f-f13c-5e2e-acff-40e08d48e521"
+data "Boosts" "UnlockSpell(Target_SHA_SelunesBlessing_Moonbeam);UnlockSpell(Target_SHA_SeluneBlessing_Moonfire);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SeluneBlessing_Spear_Passive;Darkvision"
+
+
+new entry "ENR_Loot_MAG_SHA_SeluneBlessing_Spear_Uncommon_L3_0"
+type "Weapon"
+using "MAG_SHA_SeluneBlessing_Spear"
+data "Rarity" "Uncommon"
+data "RootTemplate" "e6017b6c-9625-52a2-b25f-7c64d3f3d565"
+data "Boosts" "UnlockSpell(Target_SHA_SelunesBlessing_Moonbeam);UnlockSpell(Target_SHA_SeluneBlessing_Moonfire);Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SeluneBlessing_Spear_Passive;Darkvision"
+
+
+new entry "ENR_Loot_MAG_SHA_SeluneBlessing_Spear_Uncommon_L4_0"
+type "Weapon"
+using "MAG_SHA_SeluneBlessing_Spear"
+data "Rarity" "Uncommon"
+data "RootTemplate" "8720c8ff-81d2-5b74-b97e-ae1c39110587"
+data "Boosts" "UnlockSpell(Target_SHA_SelunesBlessing_Moonbeam);UnlockSpell(Target_SHA_SeluneBlessing_Moonfire);UnlockSpell(Target_Daylight)"
+data "PassivesOnEquip" "MAG_SHA_SeluneBlessing_Spear_Passive;Darkvision"
+
+
+new entry "ENR_Loot_MAG_SHA_SeluneBlessing_Spear_Uncommon_L5_0"
+type "Weapon"
+using "MAG_SHA_SeluneBlessing_Spear"
+data "Rarity" "Uncommon"
+data "RootTemplate" "277356ab-0b0d-5cfc-9b7d-e1d8ac79d959"
+data "Boosts" "UnlockSpell(Target_SHA_SelunesBlessing_Moonbeam);UnlockSpell(Target_SHA_SeluneBlessing_Moonfire)"
+data "PassivesOnEquip" "MAG_SHA_SeluneBlessing_Spear_Passive;Darkvision;ENR_LootPassive_PRODUCE_FLAME"
+
+
+new entry "ENR_Loot_MAG_SHA_SeluneBlessing_Spear_Rare_L0_0"
+type "Weapon"
+using "MAG_SHA_SeluneBlessing_Spear"
+data "Rarity" "Rare"
+data "RootTemplate" "219ef264-649e-5d95-aba1-5a3c544aebc8"
+data "Boosts" "UnlockSpell(Target_SHA_SelunesBlessing_Moonbeam);UnlockSpell(Target_SHA_SeluneBlessing_Moonfire);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SeluneBlessing_Spear_Passive;Darkvision;ENR_LootPassive_FLY"
+
+
+new entry "ENR_Loot_MAG_SHA_SeluneBlessing_Spear_Rare_L1_0"
+type "Weapon"
+using "MAG_SHA_SeluneBlessing_Spear"
+data "Rarity" "Rare"
+data "RootTemplate" "db26038b-0381-5dff-a891-16d568c44284"
+data "Boosts" "UnlockSpell(Target_SHA_SelunesBlessing_Moonbeam);UnlockSpell(Target_SHA_SeluneBlessing_Moonfire);UnlockSpell(Target_Jump)"
+data "PassivesOnEquip" "MAG_SHA_SeluneBlessing_Spear_Passive;Darkvision;ENR_LootPassive_PASS_WITHOUT_TRACE"
+
+
+new entry "ENR_Loot_MAG_SHA_SeluneBlessing_Spear_Rare_L2_0"
+type "Weapon"
+using "MAG_SHA_SeluneBlessing_Spear"
+data "Rarity" "Rare"
+data "RootTemplate" "dd249404-5797-5373-b0d9-068caad50a4c"
+data "Boosts" "UnlockSpell(Target_SHA_SelunesBlessing_Moonbeam);UnlockSpell(Target_SHA_SeluneBlessing_Moonfire);UnlockSpell(Projectile_MagicMissile);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SeluneBlessing_Spear_Passive;Darkvision"
+
+
+new entry "ENR_Loot_MAG_SHA_SeluneBlessing_Spear_Rare_L3_0"
+type "Weapon"
+using "MAG_SHA_SeluneBlessing_Spear"
+data "Rarity" "Rare"
+data "RootTemplate" "18eba3b0-db98-529e-b636-98d368ec538d"
+data "Boosts" "UnlockSpell(Target_SHA_SelunesBlessing_Moonbeam);UnlockSpell(Target_SHA_SeluneBlessing_Moonfire);Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SeluneBlessing_Spear_Passive;Darkvision;ENR_LootPassive_PATIENT_DEFENCE"
+
+
+new entry "ENR_Loot_MAG_SHA_SeluneBlessing_Spear_Rare_L4_0"
+type "Weapon"
+using "MAG_SHA_SeluneBlessing_Spear"
+data "Rarity" "Rare"
+data "RootTemplate" "5fca3f08-e4bc-5e8b-b02c-1fd177de8468"
+data "Boosts" "UnlockSpell(Target_SHA_SelunesBlessing_Moonbeam);UnlockSpell(Target_SHA_SeluneBlessing_Moonfire);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SeluneBlessing_Spear_Passive;Darkvision;ENR_LootPassive_SHIELD_OF_FAITH"
+
+
+new entry "ENR_Loot_MAG_SHA_SeluneBlessing_Spear_Rare_L5_0"
+type "Weapon"
+using "MAG_SHA_SeluneBlessing_Spear"
+data "Rarity" "Rare"
+data "RootTemplate" "42f700be-dbc3-56d9-a1ba-59dcad98dacf"
+data "Boosts" "UnlockSpell(Target_SHA_SelunesBlessing_Moonbeam);UnlockSpell(Target_SHA_SeluneBlessing_Moonfire);UnlockSpell(Target_CalmEmotions);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SeluneBlessing_Spear_Passive;Darkvision"
+
+
+new entry "ENR_Loot_MAG_SHA_SeluneBlessing_Spear_VeryRare_L0_0"
+type "Weapon"
+using "MAG_SHA_SeluneBlessing_Spear"
+data "Rarity" "VeryRare"
+data "RootTemplate" "d1948eec-f5ae-5328-80c8-9f8f100e12e2"
+data "Boosts" "UnlockSpell(Target_SHA_SelunesBlessing_Moonbeam);UnlockSpell(Target_SHA_SeluneBlessing_Moonfire);UnlockSpell(Target_Jump);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SeluneBlessing_Spear_Passive;Darkvision;ENR_LootPassive_AURA_OF_WARDING_BUFF;ENR_LootPassive_CATS_GRACE"
+
+
+new entry "ENR_Loot_MAG_SHA_SeluneBlessing_Spear_VeryRare_L1_0"
+type "Weapon"
+using "MAG_SHA_SeluneBlessing_Spear"
+data "Rarity" "VeryRare"
+data "RootTemplate" "b6547ff4-23a7-5b6a-bf2d-558c66922ec0"
+data "Boosts" "UnlockSpell(Target_SHA_SelunesBlessing_Moonbeam);UnlockSpell(Target_SHA_SeluneBlessing_Moonfire);UnlockSpell(Target_TrueStrike);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SeluneBlessing_Spear_Passive;Darkvision;ENR_LootPassive_REFLECTIVE_SHELL;ENR_LootPassive_FALSE_LIFE"
+
+
+new entry "ENR_Loot_MAG_SHA_SeluneBlessing_Spear_VeryRare_L2_0"
+type "Weapon"
+using "MAG_SHA_SeluneBlessing_Spear"
+data "Rarity" "VeryRare"
+data "RootTemplate" "be986bf1-288d-5acb-aec3-0f97a3f6703d"
+data "Boosts" "UnlockSpell(Target_SHA_SelunesBlessing_Moonbeam);UnlockSpell(Target_SHA_SeluneBlessing_Moonfire);UnlockSpell(Target_Smite_Wrathful);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SeluneBlessing_Spear_Passive;Darkvision;ENR_LootPassive_BLUR;ENR_LootPassive_ALCH_ELIXIR_ENLARGE"
+
+
+new entry "ENR_Loot_MAG_SHA_SeluneBlessing_Spear_VeryRare_L3_0"
+type "Weapon"
+using "MAG_SHA_SeluneBlessing_Spear"
+data "Rarity" "VeryRare"
+data "RootTemplate" "f95c0494-670a-5e9a-b308-92e9ce0716e2"
+data "Boosts" "UnlockSpell(Target_SHA_SelunesBlessing_Moonbeam);UnlockSpell(Target_SHA_SeluneBlessing_Moonfire);UnlockSpell(Target_CharmPerson);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SeluneBlessing_Spear_Passive;Darkvision;ENR_LootPassive_AURA_OF_PROTECTION_BUFF;ENR_LootPassive_FLAME_BLADE"
+
+
+new entry "ENR_Loot_MAG_SHA_SeluneBlessing_Spear_VeryRare_L4_0"
+type "Weapon"
+using "MAG_SHA_SeluneBlessing_Spear"
+data "Rarity" "VeryRare"
+data "RootTemplate" "01499894-9549-5ca5-9703-cff9da155f6c"
+data "Boosts" "UnlockSpell(Target_SHA_SelunesBlessing_Moonbeam);UnlockSpell(Target_SHA_SeluneBlessing_Moonfire);UnlockSpell(Target_DestroyWater);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SeluneBlessing_Spear_Passive;Darkvision;ENR_LootPassive_STONESKIN;ENR_LootPassive_FEATHER_FALL"
+
+
+new entry "ENR_Loot_MAG_SHA_SeluneBlessing_Spear_VeryRare_L5_0"
+type "Weapon"
+using "MAG_SHA_SeluneBlessing_Spear"
+data "Rarity" "VeryRare"
+data "RootTemplate" "2b210f2c-5b1a-5644-abfd-085c3c5cea24"
+data "Boosts" "UnlockSpell(Target_SHA_SelunesBlessing_Moonbeam);UnlockSpell(Target_SHA_SeluneBlessing_Moonfire);UnlockSpell(Target_Command_Halt);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SeluneBlessing_Spear_Passive;Darkvision;ENR_LootPassive_EXPEDITIOUS_RETREAT;ENR_LootPassive_PROTECTION_FROM_EVIL_AND_GOO_749824"
+
+
+new entry "ENR_Loot_MAG_SHA_SeluneBlessing_Spear_Legendary_L0_0"
+type "Weapon"
+using "MAG_SHA_SeluneBlessing_Spear"
+data "Rarity" "Legendary"
+data "RootTemplate" "6bcead24-d39c-50bb-ae01-01c83ae6dac6"
+data "Boosts" "UnlockSpell(Target_SHA_SelunesBlessing_Moonbeam);UnlockSpell(Target_SHA_SeluneBlessing_Moonfire);UnlockSpell(Target_CreateWater);UnlockSpell(Target_CureWounds);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SeluneBlessing_Spear_Passive;Darkvision;ENR_LootPassive_PROTECTION_FROM_ENERGY_ACID;ENR_LootPassive_RESISTANCE_ACID"
+
+
+new entry "ENR_Loot_MAG_SHA_SeluneBlessing_Spear_Legendary_L1_0"
+type "Weapon"
+using "MAG_SHA_SeluneBlessing_Spear"
+data "Rarity" "Legendary"
+data "RootTemplate" "a10dd7e4-e87e-544e-8a83-a90fa9497461"
+data "Boosts" "UnlockSpell(Target_SHA_SelunesBlessing_Moonbeam);UnlockSpell(Target_SHA_SeluneBlessing_Moonfire);UnlockSpell(Shout_SeeInvisibility);UnlockSpell(Shout_ShadowBlade);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SeluneBlessing_Spear_Passive;Darkvision;ENR_LootPassive_STONESKIN;ENR_LootPassive_MIRROR_IMAGE_2"
+
+
+new entry "ENR_Loot_MAG_SHA_SeluneBlessing_Spear_Legendary_L2_0"
+type "Weapon"
+using "MAG_SHA_SeluneBlessing_Spear"
+data "Rarity" "Legendary"
+data "RootTemplate" "10d07364-ddac-591f-a170-727e26355713"
+data "Boosts" "UnlockSpell(Target_SHA_SelunesBlessing_Moonbeam);UnlockSpell(Target_SHA_SeluneBlessing_Moonfire);UnlockSpell(Target_Moonbeam);UnlockSpell(Projectile_RayOfFrost);Ability(Charisma,2,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SeluneBlessing_Spear_Passive;Darkvision;ENR_LootPassive_RESISTANCE_POISON;ENR_LootPassive_BEARS_ENDURANCE"
+
+
+new entry "ENR_Loot_MAG_SHA_SeluneBlessing_Spear_Legendary_L3_0"
+type "Weapon"
+using "MAG_SHA_SeluneBlessing_Spear"
+data "Rarity" "Legendary"
+data "RootTemplate" "2d9e356a-e533-584c-8ad6-3d71a3453209"
+data "Boosts" "UnlockSpell(Target_SHA_SelunesBlessing_Moonbeam);UnlockSpell(Target_SHA_SeluneBlessing_Moonfire);UnlockSpell(Target_PhantasmalKiller);UnlockSpell(Target_ProtectionFromPoison);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SeluneBlessing_Spear_Passive;Darkvision;ENR_LootPassive_FALSE_LIFE;ENR_LootPassive_RALLY"
+
+
+new entry "ENR_Loot_MAG_SHA_SeluneBlessing_Spear_Legendary_L4_0"
+type "Weapon"
+using "MAG_SHA_SeluneBlessing_Spear"
+data "Rarity" "Legendary"
+data "RootTemplate" "d7f5d740-c93f-50e6-831d-ac4eb4cf5394"
+data "Boosts" "UnlockSpell(Target_SHA_SelunesBlessing_Moonbeam);UnlockSpell(Target_SHA_SeluneBlessing_Moonfire);UnlockSpell(Target_StinkingCloud);UnlockSpell(Shout_HellishRebuke);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SeluneBlessing_Spear_Passive;Darkvision;ENR_LootPassive_PASS_WITHOUT_TRACE;ENR_LootPassive_FLAME_BLADE"
+
+
+new entry "ENR_Loot_MAG_SHA_SeluneBlessing_Spear_Legendary_L5_0"
+type "Weapon"
+using "MAG_SHA_SeluneBlessing_Spear"
+data "Rarity" "Legendary"
+data "RootTemplate" "c5630bcd-a6f6-5a85-95d6-f07b7f806667"
+data "Boosts" "UnlockSpell(Target_SHA_SelunesBlessing_Moonbeam);UnlockSpell(Target_SHA_SeluneBlessing_Moonfire);UnlockSpell(Shout_CrusadersMantle);UnlockSpell(Target_AnimateDead_Skeleton_4);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SeluneBlessing_Spear_Passive;Darkvision;ENR_LootPassive_BLUR;ENR_LootPassive_FRIENDS"
+
+
+new entry "ENR_Loot_MAG_SHA_SharBlessing_Spear_Uncommon_L0_0"
+type "Weapon"
+using "MAG_SHA_SharBlessing_Spear"
+data "Rarity" "Uncommon"
+data "RootTemplate" "6525eba3-0f32-5e11-93b9-f9e964210c98"
+data "Boosts" "UnlockSpell(Target_SHA_SharsBlessing_Darkness);UnlockSpell(Projectile_IceKnife)"
+data "PassivesOnEquip" "MAG_SHA_SharBlessing_Spear_Passive;MAG_Shadow_BlindImmunity_Ring_Passive"
+
+
+new entry "ENR_Loot_MAG_SHA_SharBlessing_Spear_Uncommon_L1_0"
+type "Weapon"
+using "MAG_SHA_SharBlessing_Spear"
+data "Rarity" "Uncommon"
+data "RootTemplate" "2bf475aa-faaf-5d9b-b8c7-bd725760b2f5"
+data "Boosts" "UnlockSpell(Target_SHA_SharsBlessing_Darkness);UnlockSpell(Shout_ShadowBlade)"
+data "PassivesOnEquip" "MAG_SHA_SharBlessing_Spear_Passive;MAG_Shadow_BlindImmunity_Ring_Passive"
+
+
+new entry "ENR_Loot_MAG_SHA_SharBlessing_Spear_Uncommon_L2_0"
+type "Weapon"
+using "MAG_SHA_SharBlessing_Spear"
+data "Rarity" "Uncommon"
+data "RootTemplate" "1aeca5b7-ca5b-51e4-8d75-0c3a39c98ae5"
+data "Boosts" "UnlockSpell(Target_SHA_SharsBlessing_Darkness)"
+data "PassivesOnEquip" "MAG_SHA_SharBlessing_Spear_Passive;MAG_Shadow_BlindImmunity_Ring_Passive;ENR_LootPassive_LONG_JUMP"
+
+
+new entry "ENR_Loot_MAG_SHA_SharBlessing_Spear_Uncommon_L3_0"
+type "Weapon"
+using "MAG_SHA_SharBlessing_Spear"
+data "Rarity" "Uncommon"
+data "RootTemplate" "73916453-b533-5605-8a9c-d542bb312d8b"
+data "Boosts" "UnlockSpell(Target_SHA_SharsBlessing_Darkness);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SharBlessing_Spear_Passive;MAG_Shadow_BlindImmunity_Ring_Passive"
+
+
+new entry "ENR_Loot_MAG_SHA_SharBlessing_Spear_Uncommon_L4_0"
+type "Weapon"
+using "MAG_SHA_SharBlessing_Spear"
+data "Rarity" "Uncommon"
+data "RootTemplate" "df6428ef-be6d-5520-9aba-c17bb15e58c0"
+data "Boosts" "UnlockSpell(Target_SHA_SharsBlessing_Darkness)"
+data "PassivesOnEquip" "MAG_SHA_SharBlessing_Spear_Passive;MAG_Shadow_BlindImmunity_Ring_Passive;ENR_LootPassive_CALM_EMOTIONS"
+
+
+new entry "ENR_Loot_MAG_SHA_SharBlessing_Spear_Uncommon_L5_0"
+type "Weapon"
+using "MAG_SHA_SharBlessing_Spear"
+data "Rarity" "Uncommon"
+data "RootTemplate" "bce45002-fb00-5d02-8590-ea1b6fe489c9"
+data "Boosts" "UnlockSpell(Target_SHA_SharsBlessing_Darkness);UnlockSpell(Target_Smite_Branding)"
+data "PassivesOnEquip" "MAG_SHA_SharBlessing_Spear_Passive;MAG_Shadow_BlindImmunity_Ring_Passive"
+
+
+new entry "ENR_Loot_MAG_SHA_SharBlessing_Spear_Rare_L0_0"
+type "Weapon"
+using "MAG_SHA_SharBlessing_Spear"
+data "Rarity" "Rare"
+data "RootTemplate" "02e5c049-a402-5ce7-b69c-048245a3aa9f"
+data "Boosts" "UnlockSpell(Target_SHA_SharsBlessing_Darkness);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SharBlessing_Spear_Passive;MAG_Shadow_BlindImmunity_Ring_Passive;ENR_LootPassive_DETECT_EVIL_GOOD"
+
+
+new entry "ENR_Loot_MAG_SHA_SharBlessing_Spear_Rare_L1_0"
+type "Weapon"
+using "MAG_SHA_SharBlessing_Spear"
+data "Rarity" "Rare"
+data "RootTemplate" "a7b7c385-e039-54d9-bab9-1ae59c0b5b0d"
+data "Boosts" "UnlockSpell(Target_SHA_SharsBlessing_Darkness);UnlockSpell(Shout_ProduceFlame);Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SharBlessing_Spear_Passive;MAG_Shadow_BlindImmunity_Ring_Passive"
+
+
+new entry "ENR_Loot_MAG_SHA_SharBlessing_Spear_Rare_L2_0"
+type "Weapon"
+using "MAG_SHA_SharBlessing_Spear"
+data "Rarity" "Rare"
+data "RootTemplate" "47655d83-5040-55db-8ac1-148cbc98da68"
+data "Boosts" "UnlockSpell(Target_SHA_SharsBlessing_Darkness);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SharBlessing_Spear_Passive;MAG_Shadow_BlindImmunity_Ring_Passive;ENR_LootPassive_WARDING_FLARE"
+
+
+new entry "ENR_Loot_MAG_SHA_SharBlessing_Spear_Rare_L3_0"
+type "Weapon"
+using "MAG_SHA_SharBlessing_Spear"
+data "Rarity" "Rare"
+data "RootTemplate" "a2cda1a0-4247-58be-85dc-df3bb4072fd1"
+data "Boosts" "UnlockSpell(Target_SHA_SharsBlessing_Darkness);UnlockSpell(Zone_GustOfWind);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SharBlessing_Spear_Passive;MAG_Shadow_BlindImmunity_Ring_Passive"
+
+
+new entry "ENR_Loot_MAG_SHA_SharBlessing_Spear_Rare_L4_0"
+type "Weapon"
+using "MAG_SHA_SharBlessing_Spear"
+data "Rarity" "Rare"
+data "RootTemplate" "065d04ef-2dfc-5d49-9606-1635f23957e1"
+data "Boosts" "UnlockSpell(Target_SHA_SharsBlessing_Darkness);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SharBlessing_Spear_Passive;MAG_Shadow_BlindImmunity_Ring_Passive;ENR_LootPassive_BARKSKIN"
+
+
+new entry "ENR_Loot_MAG_SHA_SharBlessing_Spear_Rare_L5_0"
+type "Weapon"
+using "MAG_SHA_SharBlessing_Spear"
+data "Rarity" "Rare"
+data "RootTemplate" "79064ee1-f913-552f-92a2-46585de10012"
+data "Boosts" "UnlockSpell(Target_SHA_SharsBlessing_Darkness);UnlockSpell(Target_Mending)"
+data "PassivesOnEquip" "MAG_SHA_SharBlessing_Spear_Passive;MAG_Shadow_BlindImmunity_Ring_Passive;ENR_LootPassive_RESISTANCE_FORCE"
+
+
+new entry "ENR_Loot_MAG_SHA_SharBlessing_Spear_VeryRare_L0_0"
+type "Weapon"
+using "MAG_SHA_SharBlessing_Spear"
+data "Rarity" "VeryRare"
+data "RootTemplate" "755a9858-8d83-5a48-8f3b-91ff19fa34b1"
+data "Boosts" "UnlockSpell(Target_SHA_SharsBlessing_Darkness);UnlockSpell(Projectile_IceKnife);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SharBlessing_Spear_Passive;MAG_Shadow_BlindImmunity_Ring_Passive;ENR_LootPassive_SHILLELAGH;ENR_LootPassive_RESISTANCE_FORCE"
+
+
+new entry "ENR_Loot_MAG_SHA_SharBlessing_Spear_VeryRare_L1_0"
+type "Weapon"
+using "MAG_SHA_SharBlessing_Spear"
+data "Rarity" "VeryRare"
+data "RootTemplate" "59f88afc-35dc-53f8-bd74-66a990543e30"
+data "Boosts" "UnlockSpell(Target_SHA_SharsBlessing_Darkness);UnlockSpell(Target_CloudOfDaggers);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SharBlessing_Spear_Passive;MAG_Shadow_BlindImmunity_Ring_Passive;ENR_LootPassive_AURA_OF_DEVOTION_BUFF;ENR_LootPassive_RELENTLESS_RAGE"
+
+
+new entry "ENR_Loot_MAG_SHA_SharBlessing_Spear_VeryRare_L2_0"
+type "Weapon"
+using "MAG_SHA_SharBlessing_Spear"
+data "Rarity" "VeryRare"
+data "RootTemplate" "3f2ebaf2-4048-5857-9c2a-e55f66c8d995"
+data "Boosts" "UnlockSpell(Target_SHA_SharsBlessing_Darkness);UnlockSpell(Target_Jump);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SharBlessing_Spear_Passive;MAG_Shadow_BlindImmunity_Ring_Passive;ENR_LootPassive_AID;ENR_LootPassive_BLADE_FLOURISH_MOBILE"
+
+
+new entry "ENR_Loot_MAG_SHA_SharBlessing_Spear_VeryRare_L3_0"
+type "Weapon"
+using "MAG_SHA_SharBlessing_Spear"
+data "Rarity" "VeryRare"
+data "RootTemplate" "0457a7dc-827b-5f06-bdb9-84e29973b684"
+data "Boosts" "UnlockSpell(Target_SHA_SharsBlessing_Darkness);UnlockSpell(Shout_Blink);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SharBlessing_Spear_Passive;MAG_Shadow_BlindImmunity_Ring_Passive;ENR_LootPassive_HASTE;ENR_LootPassive_BLADE_FLOURISH_DEFENSIVE"
+
+
+new entry "ENR_Loot_MAG_SHA_SharBlessing_Spear_VeryRare_L4_0"
+type "Weapon"
+using "MAG_SHA_SharBlessing_Spear"
+data "Rarity" "VeryRare"
+data "RootTemplate" "8304c8de-fe1d-5119-a6cb-792555be22a3"
+data "Boosts" "UnlockSpell(Target_SHA_SharsBlessing_Darkness);UnlockSpell(Target_ConjureElementals_Minor_Azer);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SharBlessing_Spear_Passive;MAG_Shadow_BlindImmunity_Ring_Passive;ENR_LootPassive_VAMPIRE_REGENERATION;ENR_LootPassive_REFLECTIVE_SHELL"
+
+
+new entry "ENR_Loot_MAG_SHA_SharBlessing_Spear_VeryRare_L5_0"
+type "Weapon"
+using "MAG_SHA_SharBlessing_Spear"
+data "Rarity" "VeryRare"
+data "RootTemplate" "7916d517-6c8e-5cd0-a3c2-698d3bb55e10"
+data "Boosts" "UnlockSpell(Target_SHA_SharsBlessing_Darkness);UnlockSpell(Projectile_AcidArrow);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SharBlessing_Spear_Passive;MAG_Shadow_BlindImmunity_Ring_Passive;ENR_LootPassive_UNDEAD_FORTITUDE;ENR_LootPassive_ARMOR_OF_AGATHYS"
+
+
+new entry "ENR_Loot_MAG_SHA_SharBlessing_Spear_Legendary_L0_0"
+type "Weapon"
+using "MAG_SHA_SharBlessing_Spear"
+data "Rarity" "Legendary"
+data "RootTemplate" "1c1069b2-1d03-5276-9395-c70e67114e42"
+data "Boosts" "UnlockSpell(Target_SHA_SharsBlessing_Darkness);UnlockSpell(Target_EnsnaringStrike);UnlockSpell(Target_TollTheDead);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SharBlessing_Spear_Passive;MAG_Shadow_BlindImmunity_Ring_Passive;ENR_LootPassive_RESISTANCE_POISON;ENR_LootPassive_RESISTANCE_COLD"
+
+
+new entry "ENR_Loot_MAG_SHA_SharBlessing_Spear_Legendary_L1_0"
+type "Weapon"
+using "MAG_SHA_SharBlessing_Spear"
+data "Rarity" "Legendary"
+data "RootTemplate" "ecb6a474-2ed1-50b8-8ad5-574976691bd2"
+data "Boosts" "UnlockSpell(Target_SHA_SharsBlessing_Darkness);UnlockSpell(Target_Bane);UnlockSpell(Target_Bless);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SharBlessing_Spear_Passive;MAG_Shadow_BlindImmunity_Ring_Passive;ENR_LootPassive_FALSE_LIFE;ENR_LootPassive_BLADE_FLOURISH_DEFENSIVE"
+
+
+new entry "ENR_Loot_MAG_SHA_SharBlessing_Spear_Legendary_L2_0"
+type "Weapon"
+using "MAG_SHA_SharBlessing_Spear"
+data "Rarity" "Legendary"
+data "RootTemplate" "21ef77a0-c5e2-51a2-a706-de340a766738"
+data "Boosts" "UnlockSpell(Target_SHA_SharsBlessing_Darkness);UnlockSpell(Target_SpareTheDying);UnlockSpell(Target_DestroyWater);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SharBlessing_Spear_Passive;MAG_Shadow_BlindImmunity_Ring_Passive;ENR_LootPassive_MIRROR_IMAGE_3;ENR_LootPassive_TRUE_STRIKE"
+
+
+new entry "ENR_Loot_MAG_SHA_SharBlessing_Spear_Legendary_L3_0"
+type "Weapon"
+using "MAG_SHA_SharBlessing_Spear"
+data "Rarity" "Legendary"
+data "RootTemplate" "4f52457d-7cb7-5ade-a8ad-3deb12f0b684"
+data "Boosts" "UnlockSpell(Target_SHA_SharsBlessing_Darkness);UnlockSpell(Zone_BurningHands_MephistophelesTiefling);UnlockSpell(Target_HoldPerson);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SharBlessing_Spear_Passive;MAG_Shadow_BlindImmunity_Ring_Passive;ENR_LootPassive_VAMPIRE_REGENERATION;ENR_LootPassive_RESISTANCE_NECROTIC"
+
+
+new entry "ENR_Loot_MAG_SHA_SharBlessing_Spear_Legendary_L4_0"
+type "Weapon"
+using "MAG_SHA_SharBlessing_Spear"
+data "Rarity" "Legendary"
+data "RootTemplate" "6b282834-cadc-54b9-89c1-9535f7f066f2"
+data "Boosts" "UnlockSpell(Target_SHA_SharsBlessing_Darkness);UnlockSpell(Target_EnsnaringStrike);UnlockSpell(Target_DancingLights);Ability(Charisma,2,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SharBlessing_Spear_Passive;MAG_Shadow_BlindImmunity_Ring_Passive;ENR_LootPassive_PROTECTION_FROM_ENERGY_FIRE;ENR_LootPassive_BLUR"
+
+
+new entry "ENR_Loot_MAG_SHA_SharBlessing_Spear_Legendary_L5_0"
+type "Weapon"
+using "MAG_SHA_SharBlessing_Spear"
+data "Rarity" "Legendary"
+data "RootTemplate" "cb088781-a0f7-5b07-a4b7-ff2b6c7baaa5"
+data "Boosts" "UnlockSpell(Target_SHA_SharsBlessing_Darkness);UnlockSpell(Shout_Shield_Wizard);UnlockSpell(Target_Hex);Ability(Charisma,2,20,true)"
+data "PassivesOnEquip" "MAG_SHA_SharBlessing_Spear_Passive;MAG_Shadow_BlindImmunity_Ring_Passive;ENR_LootPassive_HEROISM;ENR_LootPassive_TRUE_STRIKE"
+
+
+new entry "ENR_Loot_MAG_Toll_Collector_Cloak_Uncommon_L0_0"
+type "Armor"
+using "MAG_Toll_Collector_Cloak"
+data "Rarity" "Uncommon"
+data "RootTemplate" "7e8caaae-0a1e-5b14-9769-a6156e24bf7e"
+data "Boosts" "Ability(Intelligence,1,20,true)"
+
+
+new entry "ENR_Loot_MAG_Toll_Collector_Cloak_Uncommon_L1_0"
+type "Armor"
+using "MAG_Toll_Collector_Cloak"
+data "Rarity" "Uncommon"
+data "RootTemplate" "db1afd2a-aec1-5967-a1bc-f3e713ff1b43"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_SURVIVAL_INSTINCT"
+
+
+new entry "ENR_Loot_MAG_Toll_Collector_Cloak_Uncommon_L2_0"
+type "Armor"
+using "MAG_Toll_Collector_Cloak"
+data "Rarity" "Uncommon"
+data "RootTemplate" "06f3b704-55a2-5d19-8353-1105d034769b"
+data "Boosts" "UnlockSpell(Projectile_RayOfEnfeeblement)"
+
+
+new entry "ENR_Loot_MAG_Toll_Collector_Cloak_Uncommon_L3_0"
+type "Armor"
+using "MAG_Toll_Collector_Cloak"
+data "Rarity" "Uncommon"
+data "RootTemplate" "bc1b4787-01d3-5b77-8c60-f5fbf0fb68f8"
+data "Boosts" "Ability(Strength,1,20,true)"
+
+
+new entry "ENR_Loot_MAG_Toll_Collector_Cloak_Uncommon_L4_0"
+type "Armor"
+using "MAG_Toll_Collector_Cloak"
+data "Rarity" "Uncommon"
+data "RootTemplate" "8aceacac-4a5e-5a52-8615-46c6ab84e3b3"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_BLADE_FLOURISH_DEFENSIVE"
+
+
+new entry "ENR_Loot_MAG_Toll_Collector_Cloak_Uncommon_L5_0"
+type "Armor"
+using "MAG_Toll_Collector_Cloak"
+data "Rarity" "Uncommon"
+data "RootTemplate" "03b4fa79-0319-5fb0-86f9-274ed2ddc0da"
+data "Boosts" "UnlockSpell(Projectile_HellfireOrb_DeathKnight)"
+
+
+new entry "ENR_Loot_MAG_Toll_Collector_Cloak_Rare_L0_0"
+type "Armor"
+using "MAG_Toll_Collector_Cloak"
+data "Rarity" "Rare"
+data "RootTemplate" "136840af-2dc7-5a52-80fb-9cb2e4806568"
+data "Boosts" "UnlockSpell(Shout_FeatherFall)"
+data "PassivesOnEquip" "ENR_LootPassive_LONGSTRIDER"
+
+
+new entry "ENR_Loot_MAG_Toll_Collector_Cloak_Rare_L1_0"
+type "Armor"
+using "MAG_Toll_Collector_Cloak"
+data "Rarity" "Rare"
+data "RootTemplate" "543311c9-7212-51c1-9fae-999a526eed89"
+data "Boosts" "UnlockSpell(Target_FloatingDisk);Ability(Wisdom,1,20,true)"
+
+
+new entry "ENR_Loot_MAG_Toll_Collector_Cloak_Rare_L2_0"
+type "Armor"
+using "MAG_Toll_Collector_Cloak"
+data "Rarity" "Rare"
+data "RootTemplate" "9192e292-ae81-5687-821d-52103dc3c095"
+data "Boosts" "Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_DIVINE_FAVOR"
+
+
+new entry "ENR_Loot_MAG_Toll_Collector_Cloak_Rare_L3_0"
+type "Armor"
+using "MAG_Toll_Collector_Cloak"
+data "Rarity" "Rare"
+data "RootTemplate" "56b15ffc-c0ff-5780-8e18-bb937d1288e5"
+data "Boosts" "UnlockSpell(Target_SpeakWithDead);Ability(Constitution,1,20,true)"
+
+
+new entry "ENR_Loot_MAG_Toll_Collector_Cloak_Rare_L4_0"
+type "Armor"
+using "MAG_Toll_Collector_Cloak"
+data "Rarity" "Rare"
+data "RootTemplate" "52500300-24f8-5d0e-887b-6114baabe928"
+data "Boosts" "UnlockSpell(Wall_WallOfFire);Ability(Dexterity,1,20,true)"
+
+
+new entry "ENR_Loot_MAG_Toll_Collector_Cloak_Rare_L5_0"
+type "Armor"
+using "MAG_Toll_Collector_Cloak"
+data "Rarity" "Rare"
+data "RootTemplate" "19919b5b-9a12-5bac-8e06-0bc59d17e21e"
+data "Boosts" "Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_AURA_OF_WARDING_BUFF"
+
+
+new entry "ENR_Loot_MAG_Toll_Collector_Cloak_VeryRare_L0_0"
+type "Armor"
+using "MAG_Toll_Collector_Cloak"
+data "Rarity" "VeryRare"
+data "RootTemplate" "35b6d5de-08a9-518f-b76b-fd040d95e86c"
+data "Boosts" "UnlockSpell(Projectile_EldritchBlast);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BARDIC_INSPIRATION;ENR_LootPassive_AURA_OF_PROTECTION_BUFF"
+
+
+new entry "ENR_Loot_MAG_Toll_Collector_Cloak_VeryRare_L1_0"
+type "Armor"
+using "MAG_Toll_Collector_Cloak"
+data "Rarity" "VeryRare"
+data "RootTemplate" "2c9bff87-67c7-5d36-aef6-f57153427d6b"
+data "Boosts" "UnlockSpell(Projectile_AcidArrow);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BARKSKIN;ENR_LootPassive_DEATH_WARD"
+
+
+new entry "ENR_Loot_MAG_Toll_Collector_Cloak_VeryRare_L2_0"
+type "Armor"
+using "MAG_Toll_Collector_Cloak"
+data "Rarity" "VeryRare"
+data "RootTemplate" "75d5fafa-40cf-5cd4-9ef5-1622d1346aae"
+data "Boosts" "UnlockSpell(Target_Light);Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BULLS_STRENGTH;ENR_LootPassive_FREEDOM_OF_MOVEMENT"
+
+
+new entry "ENR_Loot_MAG_Toll_Collector_Cloak_VeryRare_L3_0"
+type "Armor"
+using "MAG_Toll_Collector_Cloak"
+data "Rarity" "VeryRare"
+data "RootTemplate" "21a4e19c-ec1e-5f2b-a704-189a163282f1"
+data "Boosts" "UnlockSpell(Target_MistyStep_Githyanki);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_THUNDER;ENR_LootPassive_FRIENDS"
+
+
+new entry "ENR_Loot_MAG_Toll_Collector_Cloak_VeryRare_L4_0"
+type "Armor"
+using "MAG_Toll_Collector_Cloak"
+data "Rarity" "VeryRare"
+data "RootTemplate" "1158c99f-a030-5639-a4e5-6190c64cfe9f"
+data "Boosts" "UnlockSpell(Target_Grease);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_FOXS_CUNNING;ENR_LootPassive_HEROISM"
+
+
+new entry "ENR_Loot_MAG_Toll_Collector_Cloak_VeryRare_L5_0"
+type "Armor"
+using "MAG_Toll_Collector_Cloak"
+data "Rarity" "VeryRare"
+data "RootTemplate" "ecc41f65-1edc-51a9-aade-9caa86cea66a"
+data "Boosts" "UnlockSpell(Target_AnimateDead_Zombie_4);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PRODUCE_FLAME;ENR_LootPassive_RESISTANCE_ACID"
+
+
+new entry "ENR_Loot_MAG_Toll_Collector_Cloak_Legendary_L0_0"
+type "Armor"
+using "MAG_Toll_Collector_Cloak"
+data "Rarity" "Legendary"
+data "RootTemplate" "296ee66d-beec-5bdb-9512-177866c0268f"
+data "Boosts" "UnlockSpell(Projectile_ChromaticOrb_Acid);UnlockSpell(Target_CreateWater);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BARKSKIN;ENR_LootPassive_LIGHT"
+
+
+new entry "ENR_Loot_MAG_Toll_Collector_Cloak_Legendary_L1_0"
+type "Armor"
+using "MAG_Toll_Collector_Cloak"
+data "Rarity" "Legendary"
+data "RootTemplate" "59d9d264-4c19-518a-9580-19d71b2aa1bb"
+data "Boosts" "UnlockSpell(Target_CompelledDuel);UnlockSpell(Shout_MageArmor_ArmorOfShadows);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_POISON;ENR_LootPassive_HEROISM"
+
+
+new entry "ENR_Loot_MAG_Toll_Collector_Cloak_Legendary_L2_0"
+type "Armor"
+using "MAG_Toll_Collector_Cloak"
+data "Rarity" "Legendary"
+data "RootTemplate" "64973abd-d3c7-54cf-b749-60657767e207"
+data "Boosts" "UnlockSpell(Target_Sanctuary_Drider);UnlockSpell(Target_Smite_Thunderous);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BLESS;ENR_LootPassive_PROTECTION_FROM_ENERGY_ACID"
+
+
+new entry "ENR_Loot_MAG_Toll_Collector_Cloak_Legendary_L3_0"
+type "Armor"
+using "MAG_Toll_Collector_Cloak"
+data "Rarity" "Legendary"
+data "RootTemplate" "478c30d5-9883-57e4-a403-9e0bc1773724"
+data "Boosts" "UnlockSpell(Projectile_RayOfFrost);UnlockSpell(Target_Hex);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_DEATH_WARD;ENR_LootPassive_EXPEDITIOUS_RETREAT"
+
+
+new entry "ENR_Loot_MAG_Toll_Collector_Cloak_Legendary_L4_0"
+type "Armor"
+using "MAG_Toll_Collector_Cloak"
+data "Rarity" "Legendary"
+data "RootTemplate" "3a370d83-51c9-5711-b912-a3c01b0c870f"
+data "Boosts" "UnlockSpell(Shout_ComprehendLanguages);UnlockSpell(Target_ConjureWoodlandBeings);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_COMPREHEND_LANGUAGES;ENR_LootPassive_ASPECT_OF_THE_ELK"
+
+
+new entry "ENR_Loot_MAG_Toll_Collector_Cloak_Legendary_L5_0"
+type "Armor"
+using "MAG_Toll_Collector_Cloak"
+data "Rarity" "Legendary"
+data "RootTemplate" "c080b775-f81f-594b-94e7-1346e3a2689e"
+data "Boosts" "UnlockSpell(Target_Goodberry);UnlockSpell(Shout_CrusadersMantle);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_THUNDER;ENR_LootPassive_PROTECTION_FROM_EVIL_AND_GOO_749824"
+
+
+new entry "ENR_Loot_MAG_Umberlee_Robe_A_Uncommon_L0_0"
+type "Armor"
+using "MAG_LC_Umberlee_Regeneration_Robe"
+data "Rarity" "Uncommon"
+data "RootTemplate" "c32828c1-23c3-5e98-a9cb-2be088e1778e"
+data "Boosts" "UnlockSpell(Target_MAG_Umberlee_CreateDestroyWater);AC(1);UnlockSpell(Target_CreateWater)"
+data "PassivesOnEquip" "MAG_Umberlee_FireColdResistance_Passive;MAG_LC_Umberlee_Regeneration_Boots_Passive"
+
+
+new entry "ENR_Loot_MAG_Umberlee_Robe_A_Uncommon_L1_0"
+type "Armor"
+using "MAG_LC_Umberlee_Regeneration_Robe"
+data "Rarity" "Uncommon"
+data "RootTemplate" "486ef2ca-c467-51b4-99b2-10fffc77d571"
+data "Boosts" "UnlockSpell(Target_MAG_Umberlee_CreateDestroyWater);AC(1);UnlockSpell(Target_Enthrall)"
+data "PassivesOnEquip" "MAG_Umberlee_FireColdResistance_Passive;MAG_LC_Umberlee_Regeneration_Boots_Passive"
+
+
+new entry "ENR_Loot_MAG_Umberlee_Robe_A_Uncommon_L2_0"
+type "Armor"
+using "MAG_LC_Umberlee_Regeneration_Robe"
+data "Rarity" "Uncommon"
+data "RootTemplate" "55e83fbb-752a-5df1-bd17-556710d45625"
+data "Boosts" "UnlockSpell(Target_MAG_Umberlee_CreateDestroyWater);AC(1);UnlockSpell(Shout_ComprehendLanguages)"
+data "PassivesOnEquip" "MAG_Umberlee_FireColdResistance_Passive;MAG_LC_Umberlee_Regeneration_Boots_Passive"
+
+
+new entry "ENR_Loot_MAG_Umberlee_Robe_A_Uncommon_L3_0"
+type "Armor"
+using "MAG_LC_Umberlee_Regeneration_Robe"
+data "Rarity" "Uncommon"
+data "RootTemplate" "217f4e9e-e417-56c7-bb81-d3def0c7682a"
+data "Boosts" "UnlockSpell(Target_MAG_Umberlee_CreateDestroyWater);AC(1)"
+data "PassivesOnEquip" "MAG_Umberlee_FireColdResistance_Passive;MAG_LC_Umberlee_Regeneration_Boots_Passive;ENR_LootPassive_PRODUCE_FLAME"
+
+
+new entry "ENR_Loot_MAG_Umberlee_Robe_A_Uncommon_L4_0"
+type "Armor"
+using "MAG_LC_Umberlee_Regeneration_Robe"
+data "Rarity" "Uncommon"
+data "RootTemplate" "9ae2989c-4c1f-5521-ae5a-7d7c4ad7961a"
+data "Boosts" "UnlockSpell(Target_MAG_Umberlee_CreateDestroyWater);AC(1);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "MAG_Umberlee_FireColdResistance_Passive;MAG_LC_Umberlee_Regeneration_Boots_Passive"
+
+
+new entry "ENR_Loot_MAG_Umberlee_Robe_A_Uncommon_L5_0"
+type "Armor"
+using "MAG_LC_Umberlee_Regeneration_Robe"
+data "Rarity" "Uncommon"
+data "RootTemplate" "adaff3c5-34f4-57f0-84c0-69fb647b3da4"
+data "Boosts" "UnlockSpell(Target_MAG_Umberlee_CreateDestroyWater);AC(1);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "MAG_Umberlee_FireColdResistance_Passive;MAG_LC_Umberlee_Regeneration_Boots_Passive"
+
+
+new entry "ENR_Loot_MAG_Umberlee_Robe_A_Rare_L0_0"
+type "Armor"
+using "MAG_LC_Umberlee_Regeneration_Robe"
+data "Rarity" "Rare"
+data "RootTemplate" "675360b4-d2af-5a63-9338-9512b2826d04"
+data "Boosts" "UnlockSpell(Target_MAG_Umberlee_CreateDestroyWater);AC(1);UnlockSpell(Shout_HellishRebuke)"
+data "PassivesOnEquip" "MAG_Umberlee_FireColdResistance_Passive;MAG_LC_Umberlee_Regeneration_Boots_Passive;ENR_LootPassive_DARKVISION"
+
+
+new entry "ENR_Loot_MAG_Umberlee_Robe_A_Rare_L1_0"
+type "Armor"
+using "MAG_LC_Umberlee_Regeneration_Robe"
+data "Rarity" "Rare"
+data "RootTemplate" "fced6761-f04b-58f6-a08b-813a704c96ec"
+data "Boosts" "UnlockSpell(Target_MAG_Umberlee_CreateDestroyWater);AC(1);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "MAG_Umberlee_FireColdResistance_Passive;MAG_LC_Umberlee_Regeneration_Boots_Passive;ENR_LootPassive_BLADE_WARD"
+
+
+new entry "ENR_Loot_MAG_Umberlee_Robe_A_Rare_L2_0"
+type "Armor"
+using "MAG_LC_Umberlee_Regeneration_Robe"
+data "Rarity" "Rare"
+data "RootTemplate" "7426dd3f-4b6b-5ede-aa05-0121707fd31a"
+data "Boosts" "UnlockSpell(Target_MAG_Umberlee_CreateDestroyWater);AC(1);UnlockSpell(Target_Moonbeam)"
+data "PassivesOnEquip" "MAG_Umberlee_FireColdResistance_Passive;MAG_LC_Umberlee_Regeneration_Boots_Passive;ENR_LootPassive_AURA_OF_WARDING_BUFF"
+
+
+new entry "ENR_Loot_MAG_Umberlee_Robe_A_Rare_L3_0"
+type "Armor"
+using "MAG_LC_Umberlee_Regeneration_Robe"
+data "Rarity" "Rare"
+data "RootTemplate" "0e93082d-a248-5c7e-b335-5d94f22a89cd"
+data "Boosts" "UnlockSpell(Target_MAG_Umberlee_CreateDestroyWater);AC(1);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "MAG_Umberlee_FireColdResistance_Passive;MAG_LC_Umberlee_Regeneration_Boots_Passive;ENR_LootPassive_DARKVISION"
+
+
+new entry "ENR_Loot_MAG_Umberlee_Robe_A_Rare_L4_0"
+type "Armor"
+using "MAG_LC_Umberlee_Regeneration_Robe"
+data "Rarity" "Rare"
+data "RootTemplate" "ea43869d-f5f0-5e1e-9434-198f9959d5b6"
+data "Boosts" "UnlockSpell(Target_MAG_Umberlee_CreateDestroyWater);AC(1);UnlockSpell(Projectile_ChromaticOrb_Acid);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "MAG_Umberlee_FireColdResistance_Passive;MAG_LC_Umberlee_Regeneration_Boots_Passive"
+
+
+new entry "ENR_Loot_MAG_Umberlee_Robe_A_Rare_L5_0"
+type "Armor"
+using "MAG_LC_Umberlee_Regeneration_Robe"
+data "Rarity" "Rare"
+data "RootTemplate" "8da65c74-6b91-5beb-89fd-67e099cf3d4c"
+data "Boosts" "UnlockSpell(Target_MAG_Umberlee_CreateDestroyWater);AC(1);UnlockSpell(Target_MageHand);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "MAG_Umberlee_FireColdResistance_Passive;MAG_LC_Umberlee_Regeneration_Boots_Passive"
+
+
+new entry "ENR_Loot_MAG_Umberlee_Robe_A_VeryRare_L0_0"
+type "Armor"
+using "MAG_LC_Umberlee_Regeneration_Robe"
+data "Rarity" "VeryRare"
+data "RootTemplate" "2a4f5fb5-ba82-517c-8d96-8c2674c6b930"
+data "Boosts" "UnlockSpell(Target_MAG_Umberlee_CreateDestroyWater);AC(1);UnlockSpell(Target_HideousLaughter);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "MAG_Umberlee_FireColdResistance_Passive;MAG_LC_Umberlee_Regeneration_Boots_Passive;ENR_LootPassive_PROTECTION_FROM_ENERGY_THUND_18d16e;ENR_LootPassive_LONG_JUMP"
+
+
+new entry "ENR_Loot_MAG_Umberlee_Robe_A_VeryRare_L1_0"
+type "Armor"
+using "MAG_LC_Umberlee_Regeneration_Robe"
+data "Rarity" "VeryRare"
+data "RootTemplate" "563cecdd-87ec-5fef-83b9-4c7a892ced83"
+data "Boosts" "UnlockSpell(Target_MAG_Umberlee_CreateDestroyWater);AC(1);UnlockSpell(Shout_HellishRebuke_AsmodeusTiefling);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "MAG_Umberlee_FireColdResistance_Passive;MAG_LC_Umberlee_Regeneration_Boots_Passive;ENR_LootPassive_PROTECTION_FROM_ENERGY_THUND_18d16e;ENR_LootPassive_BLUR"
+
+
+new entry "ENR_Loot_MAG_Umberlee_Robe_A_VeryRare_L2_0"
+type "Armor"
+using "MAG_LC_Umberlee_Regeneration_Robe"
+data "Rarity" "VeryRare"
+data "RootTemplate" "ca780640-6afe-5173-83f1-ee7121dcbac2"
+data "Boosts" "UnlockSpell(Target_MAG_Umberlee_CreateDestroyWater);AC(1);UnlockSpell(Target_PlantGrowth);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "MAG_Umberlee_FireColdResistance_Passive;MAG_LC_Umberlee_Regeneration_Boots_Passive;ENR_LootPassive_VAMPIRE_REGENERATION;ENR_LootPassive_SHILLELAGH"
+
+
+new entry "ENR_Loot_MAG_Umberlee_Robe_A_VeryRare_L3_0"
+type "Armor"
+using "MAG_LC_Umberlee_Regeneration_Robe"
+data "Rarity" "VeryRare"
+data "RootTemplate" "98f084ca-1980-5027-b83b-3b2d4378da6e"
+data "Boosts" "UnlockSpell(Target_MAG_Umberlee_CreateDestroyWater);AC(1);UnlockSpell(Target_Jump);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "MAG_Umberlee_FireColdResistance_Passive;MAG_LC_Umberlee_Regeneration_Boots_Passive;ENR_LootPassive_MIRROR_IMAGE_2;ENR_LootPassive_RALLY"
+
+
+new entry "ENR_Loot_MAG_Umberlee_Robe_A_VeryRare_L4_0"
+type "Armor"
+using "MAG_LC_Umberlee_Regeneration_Robe"
+data "Rarity" "VeryRare"
+data "RootTemplate" "1744859d-93dd-570d-a9f2-604a3bc960dd"
+data "Boosts" "UnlockSpell(Target_MAG_Umberlee_CreateDestroyWater);AC(1);UnlockSpell(Target_Smite_Wrathful);Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "MAG_Umberlee_FireColdResistance_Passive;MAG_LC_Umberlee_Regeneration_Boots_Passive;ENR_LootPassive_AURA_OF_PROTECTION_BUFF;ENR_LootPassive_RESISTANCE_FORCE"
+
+
+new entry "ENR_Loot_MAG_Umberlee_Robe_A_VeryRare_L5_0"
+type "Armor"
+using "MAG_LC_Umberlee_Regeneration_Robe"
+data "Rarity" "VeryRare"
+data "RootTemplate" "94bc48cf-e4cf-554e-9ce9-1d8e53d2b486"
+data "Boosts" "UnlockSpell(Target_MAG_Umberlee_CreateDestroyWater);AC(1);UnlockSpell(Target_HypnoticPattern);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "MAG_Umberlee_FireColdResistance_Passive;MAG_LC_Umberlee_Regeneration_Boots_Passive;ENR_LootPassive_PROTECTION_FROM_EVIL_AND_GOO_749824;ENR_LootPassive_RESISTANCE"
+
+
+new entry "ENR_Loot_MAG_Umberlee_Robe_A_Legendary_L0_0"
+type "Armor"
+using "MAG_LC_Umberlee_Regeneration_Robe"
+data "Rarity" "Legendary"
+data "RootTemplate" "14804a1d-2391-5e4c-8a08-b1daf644108f"
+data "Boosts" "UnlockSpell(Target_MAG_Umberlee_CreateDestroyWater);AC(1);UnlockSpell(Shout_ExpeditiousRetreat);UnlockSpell(Target_Entangle);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "MAG_Umberlee_FireColdResistance_Passive;MAG_LC_Umberlee_Regeneration_Boots_Passive;ENR_LootPassive_FREEDOM_OF_MOVEMENT;ENR_LootPassive_STONESKIN"
+
+
+new entry "ENR_Loot_MAG_Umberlee_Robe_A_Legendary_L1_0"
+type "Armor"
+using "MAG_LC_Umberlee_Regeneration_Robe"
+data "Rarity" "Legendary"
+data "RootTemplate" "e9bd398c-9c6c-5280-a290-d4ec5058b757"
+data "Boosts" "UnlockSpell(Target_MAG_Umberlee_CreateDestroyWater);AC(1);UnlockSpell(Shout_Blur);UnlockSpell(Target_CompelledDuel);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "MAG_Umberlee_FireColdResistance_Passive;MAG_LC_Umberlee_Regeneration_Boots_Passive;ENR_LootPassive_LONGSTRIDER;ENR_LootPassive_HASTE"
+
+
+new entry "ENR_Loot_MAG_Umberlee_Robe_A_Legendary_L2_0"
+type "Armor"
+using "MAG_LC_Umberlee_Regeneration_Robe"
+data "Rarity" "Legendary"
+data "RootTemplate" "03ffe238-8849-57dc-9345-61a50d469422"
+data "Boosts" "UnlockSpell(Target_MAG_Umberlee_CreateDestroyWater);AC(1);UnlockSpell(Target_FlameBlade_Attack);UnlockSpell(Target_LesserRestoration);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "MAG_Umberlee_FireColdResistance_Passive;MAG_LC_Umberlee_Regeneration_Boots_Passive;ENR_LootPassive_RESISTANCE_RADIANT;ENR_LootPassive_DETECT_EVIL_GOOD"
+
+
+new entry "ENR_Loot_MAG_Umberlee_Robe_A_Legendary_L3_0"
+type "Armor"
+using "MAG_LC_Umberlee_Regeneration_Robe"
+data "Rarity" "Legendary"
+data "RootTemplate" "a22ce37f-6fe4-5540-8003-971cfeab8ab2"
+data "Boosts" "UnlockSpell(Target_MAG_Umberlee_CreateDestroyWater);AC(1);UnlockSpell(Target_Sanctuary_Drider);UnlockSpell(Target_Web);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "MAG_Umberlee_FireColdResistance_Passive;MAG_LC_Umberlee_Regeneration_Boots_Passive;ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD;ENR_LootPassive_RESISTANCE_THUNDER"
+
+
+new entry "ENR_Loot_MAG_Umberlee_Robe_A_Legendary_L4_0"
+type "Armor"
+using "MAG_LC_Umberlee_Regeneration_Robe"
+data "Rarity" "Legendary"
+data "RootTemplate" "b0927e9f-10d1-562b-9520-03a8e46b4205"
+data "Boosts" "UnlockSpell(Target_MAG_Umberlee_CreateDestroyWater);AC(1);UnlockSpell(Projectile_RayOfFrost);UnlockSpell(Target_FreedomOfMovement);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "MAG_Umberlee_FireColdResistance_Passive;MAG_LC_Umberlee_Regeneration_Boots_Passive;ENR_LootPassive_RESISTANCE_NECROTIC;ENR_LootPassive_RALLY"
+
+
+new entry "ENR_Loot_MAG_Umberlee_Robe_A_Legendary_L5_0"
+type "Armor"
+using "MAG_LC_Umberlee_Regeneration_Robe"
+data "Rarity" "Legendary"
+data "RootTemplate" "1abe82c2-1cca-5a4c-98bf-19c50d4ed42e"
+data "Boosts" "UnlockSpell(Target_MAG_Umberlee_CreateDestroyWater);AC(1);UnlockSpell(Target_PlantGrowth);UnlockSpell(Target_Fly);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "MAG_Umberlee_FireColdResistance_Passive;MAG_LC_Umberlee_Regeneration_Boots_Passive;ENR_LootPassive_HASTE;ENR_LootPassive_AURA_OF_COURAGE_BUFF"
+
+
+new entry "ENR_Loot_MAG_WATCHER_Human_Crossbow_Uncommon_L0_0"
+type "Weapon"
+using "MAG_WATCHER_Human_Crossbow"
+data "Rarity" "Uncommon"
+data "RootTemplate" "b1240b03-d525-58b9-963e-56d5d8e20c1f"
+data "Boosts" "UnlockSpell(Projectile_MAG_LightningArrow_Shot)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_FIRE"
+
+
+new entry "ENR_Loot_MAG_WATCHER_Human_Crossbow_Uncommon_L1_0"
+type "Weapon"
+using "MAG_WATCHER_Human_Crossbow"
+data "Rarity" "Uncommon"
+data "RootTemplate" "ce64b790-84f2-5a5f-981b-a74bf322aaa2"
+data "Boosts" "UnlockSpell(Projectile_MAG_LightningArrow_Shot);UnlockSpell(Projectile_GuidingBolt)"
+
+
+new entry "ENR_Loot_MAG_WATCHER_Human_Crossbow_Uncommon_L2_0"
+type "Weapon"
+using "MAG_WATCHER_Human_Crossbow"
+data "Rarity" "Uncommon"
+data "RootTemplate" "b107ce09-5b09-58ff-948d-f1b64d500174"
+data "Boosts" "UnlockSpell(Projectile_MAG_LightningArrow_Shot);Ability(Charisma,1,20,true)"
+
+
+new entry "ENR_Loot_MAG_WATCHER_Human_Crossbow_Uncommon_L3_0"
+type "Weapon"
+using "MAG_WATCHER_Human_Crossbow"
+data "Rarity" "Uncommon"
+data "RootTemplate" "297e6f5a-ca65-5550-b6e1-27a7b025b548"
+data "Boosts" "UnlockSpell(Projectile_MAG_LightningArrow_Shot);UnlockSpell(Teleportation_DimensionDoor)"
+
+
+new entry "ENR_Loot_MAG_WATCHER_Human_Crossbow_Uncommon_L4_0"
+type "Weapon"
+using "MAG_WATCHER_Human_Crossbow"
+data "Rarity" "Uncommon"
+data "RootTemplate" "ecbbd27a-9723-5871-a3cd-53b3cfa1f0e4"
+data "Boosts" "UnlockSpell(Projectile_MAG_LightningArrow_Shot);Ability(Dexterity,1,20,true)"
+
+
+new entry "ENR_Loot_MAG_WATCHER_Human_Crossbow_Uncommon_L5_0"
+type "Weapon"
+using "MAG_WATCHER_Human_Crossbow"
+data "Rarity" "Uncommon"
+data "RootTemplate" "12ba14d4-ceab-5047-9aa9-3ea4caff0add"
+data "Boosts" "UnlockSpell(Projectile_MAG_LightningArrow_Shot)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_PSYCHIC"
+
+
+new entry "ENR_Loot_MAG_WATCHER_Human_Crossbow_Rare_L0_0"
+type "Weapon"
+using "MAG_WATCHER_Human_Crossbow"
+data "Rarity" "Rare"
+data "RootTemplate" "28224486-8875-543e-8ee4-4767eefa017a"
+data "Boosts" "UnlockSpell(Projectile_MAG_LightningArrow_Shot);UnlockSpell(Target_Heroism)"
+data "PassivesOnEquip" "ENR_LootPassive_FLY"
+
+
+new entry "ENR_Loot_MAG_WATCHER_Human_Crossbow_Rare_L1_0"
+type "Weapon"
+using "MAG_WATCHER_Human_Crossbow"
+data "Rarity" "Rare"
+data "RootTemplate" "17c3ff01-2fc3-58c7-bf22-020bbb05fac1"
+data "Boosts" "UnlockSpell(Projectile_MAG_LightningArrow_Shot);UnlockSpell(Target_ThornWhip);Ability(Charisma,1,20,true)"
+
+
+new entry "ENR_Loot_MAG_WATCHER_Human_Crossbow_Rare_L2_0"
+type "Weapon"
+using "MAG_WATCHER_Human_Crossbow"
+data "Rarity" "Rare"
+data "RootTemplate" "961c37ff-77e9-5503-b378-a0a9d9e13b37"
+data "Boosts" "UnlockSpell(Projectile_MAG_LightningArrow_Shot);UnlockSpell(Target_StinkingCloud);Ability(Strength,1,20,true)"
+
+
+new entry "ENR_Loot_MAG_WATCHER_Human_Crossbow_Rare_L3_0"
+type "Weapon"
+using "MAG_WATCHER_Human_Crossbow"
+data "Rarity" "Rare"
+data "RootTemplate" "85e931b3-c1f8-5a99-be58-5a4674914f4f"
+data "Boosts" "UnlockSpell(Projectile_MAG_LightningArrow_Shot);UnlockSpell(Target_Darkvision);Ability(Dexterity,1,20,true)"
+
+
+new entry "ENR_Loot_MAG_WATCHER_Human_Crossbow_Rare_L4_0"
+type "Weapon"
+using "MAG_WATCHER_Human_Crossbow"
+data "Rarity" "Rare"
+data "RootTemplate" "32435ce3-2735-58d5-bdfd-b12e0282b710"
+data "Boosts" "UnlockSpell(Projectile_MAG_LightningArrow_Shot);UnlockSpell(Target_Blight)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD"
+
+
+new entry "ENR_Loot_MAG_WATCHER_Human_Crossbow_Rare_L5_0"
+type "Weapon"
+using "MAG_WATCHER_Human_Crossbow"
+data "Rarity" "Rare"
+data "RootTemplate" "0a9595dc-aaea-5efe-b3c3-10e89e6cbd8f"
+data "Boosts" "UnlockSpell(Projectile_MAG_LightningArrow_Shot);UnlockSpell(Target_Guidance)"
+data "PassivesOnEquip" "ENR_LootPassive_SHIELD"
+
+
+new entry "ENR_Loot_MAG_WATCHER_Human_Crossbow_VeryRare_L0_0"
+type "Weapon"
+using "MAG_WATCHER_Human_Crossbow"
+data "Rarity" "VeryRare"
+data "RootTemplate" "9a4ea560-7319-5bbd-9e55-f37aee459646"
+data "Boosts" "UnlockSpell(Projectile_MAG_LightningArrow_Shot);UnlockSpell(Shout_HellishRebuke);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_LONGSTRIDER;ENR_LootPassive_REFLECTIVE_SHELL"
+
+
+new entry "ENR_Loot_MAG_WATCHER_Human_Crossbow_VeryRare_L1_0"
+type "Weapon"
+using "MAG_WATCHER_Human_Crossbow"
+data "Rarity" "VeryRare"
+data "RootTemplate" "d14b2fff-ac29-51c5-acb0-dc58d11914b9"
+data "Boosts" "UnlockSpell(Projectile_MAG_LightningArrow_Shot);UnlockSpell(Target_TrueStrike);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_MAGIC_WEAPON;ENR_LootPassive_EXPEDITIOUS_RETREAT"
+
+
+new entry "ENR_Loot_MAG_WATCHER_Human_Crossbow_VeryRare_L2_0"
+type "Weapon"
+using "MAG_WATCHER_Human_Crossbow"
+data "Rarity" "VeryRare"
+data "RootTemplate" "778fe51c-21c8-5ae1-9d96-90ece7ed428c"
+data "Boosts" "UnlockSpell(Projectile_MAG_LightningArrow_Shot);UnlockSpell(Shout_FeatherFall);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_GUIDANCE;ENR_LootPassive_AURA_OF_COURAGE_BUFF"
+
+
+new entry "ENR_Loot_MAG_WATCHER_Human_Crossbow_VeryRare_L3_0"
+type "Weapon"
+using "MAG_WATCHER_Human_Crossbow"
+data "Rarity" "VeryRare"
+data "RootTemplate" "5afc20c5-855f-5f6d-af87-43b410392ed1"
+data "Boosts" "UnlockSpell(Projectile_MAG_LightningArrow_Shot);UnlockSpell(Target_ThornWhip);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_LIGHTNING;ENR_LootPassive_PASS_WITHOUT_TRACE"
+
+
+new entry "ENR_Loot_MAG_WATCHER_Human_Crossbow_VeryRare_L4_0"
+type "Weapon"
+using "MAG_WATCHER_Human_Crossbow"
+data "Rarity" "VeryRare"
+data "RootTemplate" "95e4ed02-91f3-57e2-b6c7-208c94bb3cdf"
+data "Boosts" "UnlockSpell(Projectile_MAG_LightningArrow_Shot);UnlockSpell(Target_Sleep);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_AURA_OF_WARDING_BUFF;ENR_LootPassive_FLY"
+
+
+new entry "ENR_Loot_MAG_WATCHER_Human_Crossbow_VeryRare_L5_0"
+type "Weapon"
+using "MAG_WATCHER_Human_Crossbow"
+data "Rarity" "VeryRare"
+data "RootTemplate" "92eea516-4c1c-51de-91ec-04ec32776419"
+data "Boosts" "UnlockSpell(Projectile_MAG_LightningArrow_Shot);UnlockSpell(Projectile_ScorchingRay);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_DETECT_THOUGHTS;ENR_LootPassive_DAYLIGHT"
+
+
+new entry "ENR_Loot_MAG_WATCHER_Human_Crossbow_Legendary_L0_0"
+type "Weapon"
+using "MAG_WATCHER_Human_Crossbow"
+data "Rarity" "Legendary"
+data "RootTemplate" "79a4e898-7d88-587c-a14d-06152a702023"
+data "Boosts" "UnlockSpell(Projectile_MAG_LightningArrow_Shot);UnlockSpell(Projectile_GuidingBolt);UnlockSpell(Target_DancingLights);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_PSYCHIC;ENR_LootPassive_AURA_OF_COURAGE_BUFF"
+
+
+new entry "ENR_Loot_MAG_WATCHER_Human_Crossbow_Legendary_L1_0"
+type "Weapon"
+using "MAG_WATCHER_Human_Crossbow"
+data "Rarity" "Legendary"
+data "RootTemplate" "37f388a7-b1c5-5187-9b2b-da74977194f2"
+data "Boosts" "UnlockSpell(Projectile_MAG_LightningArrow_Shot);UnlockSpell(Target_AnimalFriendship);UnlockSpell(Shout_HellishRebuke);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_MOBILE_NO_AOO;ENR_LootPassive_SACRED_WEAPON"
+
+
+new entry "ENR_Loot_MAG_WATCHER_Human_Crossbow_Legendary_L2_0"
+type "Weapon"
+using "MAG_WATCHER_Human_Crossbow"
+data "Rarity" "Legendary"
+data "RootTemplate" "c0db1a42-0b8a-52ab-8709-b65115388ca2"
+data "Boosts" "UnlockSpell(Projectile_MAG_LightningArrow_Shot);UnlockSpell(Projectile_GuidingBolt);UnlockSpell(Target_DissonantWhispers);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BEACON_OF_HOPE;ENR_LootPassive_BLADE_WARD"
+
+
+new entry "ENR_Loot_MAG_WATCHER_Human_Crossbow_Legendary_L3_0"
+type "Weapon"
+using "MAG_WATCHER_Human_Crossbow"
+data "Rarity" "Legendary"
+data "RootTemplate" "362ffb8e-7ba8-5e96-9653-93cf49cf86d2"
+data "Boosts" "UnlockSpell(Projectile_MAG_LightningArrow_Shot);UnlockSpell(Target_BestowCurse);UnlockSpell(Target_Enthrall);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_PSYCHIC;ENR_LootPassive_SHILLELAGH"
+
+
+new entry "ENR_Loot_MAG_WATCHER_Human_Crossbow_Legendary_L4_0"
+type "Weapon"
+using "MAG_WATCHER_Human_Crossbow"
+data "Rarity" "Legendary"
+data "RootTemplate" "d4c759f8-7ffe-58a7-860d-c7178457ee7f"
+data "Boosts" "UnlockSpell(Projectile_MAG_LightningArrow_Shot);UnlockSpell(Shout_FalseLife);UnlockSpell(Target_Heroism);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_DIVINE_FAVOR;ENR_LootPassive_SHIELD"
+

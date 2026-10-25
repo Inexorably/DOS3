@@ -21,9 +21,13 @@ if [[ ! -d "$SRC" ]]; then
     exit 1
 fi
 if [[ "$MOD" == "EnemyRandomization" ]]; then
-    echo "Regenerating Enemy Randomization loot and champion catalogs"
-    (cd "$ROOT" && python scripts/generate-enr-loot.py)
-    (cd "$ROOT" && python scripts/generate-enr-champions.py)
+    if [[ "${ENR_SKIP_GENERATION:-0}" == "1" ]]; then
+        echo "Using committed Enemy Randomization generated assets"
+    else
+        echo "Regenerating Enemy Randomization loot and champion catalogs"
+        (cd "$ROOT" && python scripts/generate-enr-loot.py)
+        (cd "$ROOT" && python scripts/generate-enr-champions.py)
+    fi
 fi
 
 echo "Packing $SRC"

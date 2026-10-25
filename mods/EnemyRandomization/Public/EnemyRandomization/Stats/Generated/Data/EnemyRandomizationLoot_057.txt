@@ -1,0 +1,2615 @@
+-- Enemy Randomization generated loot catalog chunk 57.
+new entry "ENR_Loot_WPN_SURGEON_BoneSaw_REF_Legendary_L5_0"
+type "Weapon"
+using "WPN_Handaxe"
+data "Rarity" "Legendary"
+data "RootTemplate" "32ba6db6-50d9-5675-af5c-5bb9a1f577e2"
+data "Boosts" "UnlockSpell(Target_DispelMagic);UnlockSpell(Zone_Thunderwave);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BEARS_ENDURANCE;ENR_LootPassive_SHILLELAGH"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_Uncommon_L0_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "e9c064b6-964a-514b-a617-ec0dd0b8ac5e"
+data "Boosts" "UnlockSpell(Shout_SpeakWithAnimals)"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_Uncommon_L1_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "3d8c2d66-37e0-537c-aa4b-506b5ad0bcf5"
+data "Boosts" "Ability(Intelligence,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_Uncommon_L2_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "e34b859a-0276-5ae0-ab2f-230283c57d8b"
+data "Boosts" "UnlockSpell(Target_AnimalFriendship)"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_Uncommon_L3_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "4038e7dd-b8ce-5ad1-a3a5-f9689f461461"
+data "Boosts" "UnlockSpell(Projectile_WitchBolt)"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_Uncommon_L4_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "f08fd25d-d4f6-5c93-b666-cfeb930b0afc"
+data "Boosts" "UnlockSpell(Target_Darkvision)"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_Uncommon_L5_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "c8b10fe0-1271-5463-8443-b5443054ac6a"
+data "Boosts" "Ability(Dexterity,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_Rare_L0_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Rare"
+data "RootTemplate" "c9bb39d7-e8b3-53b4-bb00-7b32d56bd1bb"
+data "Boosts" "Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_DARK_ONES_BLESSING"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_Rare_L1_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Rare"
+data "RootTemplate" "b04c9410-59d8-5026-811a-29d46b5ca619"
+data "Boosts" "Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_Rare_L2_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Rare"
+data "RootTemplate" "6067a7b6-5d16-5500-a44a-d45e68589b9b"
+data "Boosts" "UnlockSpell(Target_GlyphOfWarding)"
+data "PassivesOnEquip" "ENR_LootPassive_ALCH_ELIXIR_ENLARGE"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_Rare_L3_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Rare"
+data "RootTemplate" "0d6fc4b4-de09-5b52-9911-a50c7133f748"
+data "Boosts" "UnlockSpell(Projectile_Fireball);Ability(Wisdom,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_Rare_L4_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Rare"
+data "RootTemplate" "e3184a31-4cef-5de0-9f89-5d2c5687f077"
+data "Boosts" "Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_FOXS_CUNNING"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_Rare_L5_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Rare"
+data "RootTemplate" "7e67968b-1dca-5e50-a9ee-ed77734b3a3a"
+data "Boosts" "UnlockSpell(Target_CrownOfMadness)"
+data "PassivesOnEquip" "ENR_LootPassive_DARKVISION"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_VeryRare_L0_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "0697875c-63de-5aee-89a5-8b9ad8e109f7"
+data "Boosts" "UnlockSpell(Target_ViciousMockery);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_HEROISM;ENR_LootPassive_DIVINE_SENSE"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_VeryRare_L1_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "775f127c-0210-5e05-82a9-a3b4e034e5fd"
+data "Boosts" "UnlockSpell(Target_Hex);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_CATS_GRACE;ENR_LootPassive_PASS_WITHOUT_TRACE"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_VeryRare_L2_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "9ea0eac4-10b2-5b2c-a393-d4af7d7434f5"
+data "Boosts" "UnlockSpell(Target_MistyStep_Shadow_TEST);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_COLD;ENR_LootPassive_RESISTANCE_PSYCHIC"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_VeryRare_L3_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "336d2cdc-8b4a-5e5a-985a-37083fb245a2"
+data "Boosts" "UnlockSpell(Target_Polymorph);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BLESS;ENR_LootPassive_OWLS_WISDOM"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_VeryRare_L4_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "01b0e2bf-ef53-5b49-9b52-907988ddb0d7"
+data "Boosts" "UnlockSpell(Target_Slow);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RALLY;ENR_LootPassive_RESISTANCE_NECROTIC"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_VeryRare_L5_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "8583384b-495f-57e2-b52c-2c81b4573f6b"
+data "Boosts" "UnlockSpell(Target_Fly);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BLADE_WARD;ENR_LootPassive_BLESS"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_Legendary_L0_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Legendary"
+data "RootTemplate" "a9926b1e-0d90-5561-b54f-9d42f3057df7"
+data "Boosts" "UnlockSpell(Target_Entangle);UnlockSpell(Target_MentalSlam_Githyanki);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_ACID;ENR_LootPassive_SHILLELAGH"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_Legendary_L1_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Legendary"
+data "RootTemplate" "299adab3-1874-5cc6-8e89-3c35316f657f"
+data "Boosts" "UnlockSpell(Projectile_RayOfSickness);UnlockSpell(Shout_MageArmor_ArmorOfShadows);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_VAMPIRE_REGENERATION;ENR_LootPassive_CATS_GRACE"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_Legendary_L2_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Legendary"
+data "RootTemplate" "fbc7f039-ccfe-5bb5-b025-78c581668d77"
+data "Boosts" "UnlockSpell(Target_Web);UnlockSpell(Target_Knock);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_LIGHT_d7917a;ENR_LootPassive_FLAME_BLADE"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_Legendary_L3_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Legendary"
+data "RootTemplate" "4b57876e-7ed1-52fe-aa47-595eafaf26bc"
+data "Boosts" "UnlockSpell(Target_WardingBond);UnlockSpell(Target_Sanctuary_Drider);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BLADE_FLOURISH_MOBILE;ENR_LootPassive_OWLS_WISDOM"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_Legendary_L4_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Legendary"
+data "RootTemplate" "e845ef35-f3db-53d4-97d1-fdaec4362dc9"
+data "Boosts" "UnlockSpell(Target_ElementalWeapon);UnlockSpell(Wall_WallOfFire);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_FLAME_BLADE;ENR_LootPassive_CRYSTALSKIN"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_Legendary_L5_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Legendary"
+data "RootTemplate" "c6a2dba6-46b5-5171-b479-3c600056dac8"
+data "Boosts" "UnlockSpell(Target_SpiritualWeapon);UnlockSpell(Target_MinorIllusion);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_AURA_OF_DEVOTION_BUFF;ENR_LootPassive_PATIENT_DEFENCE"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_REF_Uncommon_L0_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "8e2276f7-2fd9-5119-9fbb-a9d36a55ee34"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_REFLECTIVE_SHELL"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_REF_Uncommon_L1_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "d5a570b8-4100-5695-a4d3-88f9f17a2d08"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_UNDEAD_FORTITUDE"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_REF_Uncommon_L2_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "6621fe79-4e91-507e-8ea8-58150ece273e"
+data "Boosts" "Ability(Intelligence,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_REF_Uncommon_L3_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "87dd1561-81c7-5f2b-a004-3cc43d43453f"
+data "Boosts" "Ability(Dexterity,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_REF_Uncommon_L4_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "ea0e4a46-d90f-5c0b-b24a-cef6f3b6c58f"
+data "Boosts" "UnlockSpell(Shout_SeeInvisibility_Seek)"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_REF_Uncommon_L5_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "c15d4208-4d72-5658-9491-9299d2d6f496"
+data "Boosts" "Ability(Strength,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_REF_Rare_L0_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Rare"
+data "RootTemplate" "831f45c5-aa12-5979-87ba-85c25617f154"
+data "Boosts" "UnlockSpell(Target_ThornWhip)"
+data "PassivesOnEquip" "ENR_LootPassive_AURA_OF_WARDING_BUFF"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_REF_Rare_L1_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Rare"
+data "RootTemplate" "af001658-70eb-5163-ac44-57c517dbca3e"
+data "Boosts" "UnlockSpell(Target_Smite_Branding);Ability(Constitution,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_REF_Rare_L2_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Rare"
+data "RootTemplate" "cdac7f38-fe32-5256-b45d-c7b9e36ea088"
+data "Boosts" "UnlockSpell(Target_PhantasmalForce)"
+data "PassivesOnEquip" "ENR_LootPassive_FRIENDS"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_REF_Rare_L3_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Rare"
+data "RootTemplate" "2869eb1a-3df9-5649-8148-be3d9299ef39"
+data "Boosts" "UnlockSpell(Target_FeignDeath)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_FORCE"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_REF_Rare_L4_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Rare"
+data "RootTemplate" "3e828a5e-dd0c-535d-aaaa-234ad8a2394b"
+data "Boosts" "Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BLADE_FLOURISH_MOBILE"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_REF_Rare_L5_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Rare"
+data "RootTemplate" "b7402482-870f-50e9-8781-8d0686c9d2eb"
+data "Boosts" "UnlockSpell(Target_Knock);Ability(Dexterity,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_REF_VeryRare_L0_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "83c30ac7-0216-5d25-8353-50e48473075f"
+data "Boosts" "UnlockSpell(Projectile_FireBolt);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_THUNDER;ENR_LootPassive_UNDEAD_FORTITUDE"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_REF_VeryRare_L1_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "1581d60f-8521-50c7-91b7-e8ff9c75cb3d"
+data "Boosts" "UnlockSpell(Projectile_RayOfFrost);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BLADE_FLOURISH_DEFENSIVE;ENR_LootPassive_RELENTLESS_RAGE"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_REF_VeryRare_L2_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "bbf740df-5e6f-5dbd-879b-49e61612a696"
+data "Boosts" "UnlockSpell(Target_Levitate);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_ACID;ENR_LootPassive_BARDIC_INSPIRATION"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_REF_VeryRare_L3_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "13ef20a8-f071-5554-b347-f65c599c37fa"
+data "Boosts" "UnlockSpell(Target_Bless);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_AID;ENR_LootPassive_BULLS_STRENGTH"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_REF_VeryRare_L4_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "1d2b78fb-2e69-5d14-8b6f-dc4a01c30174"
+data "Boosts" "UnlockSpell(Shout_ArmsOfHadar);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_ASPECT_OF_THE_STALLION;ENR_LootPassive_RESISTANCE_THUNDER"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_REF_VeryRare_L5_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "4df2cd6a-d28b-5b63-b38b-2a888c591936"
+data "Boosts" "UnlockSpell(Target_AnimateDead_Skeleton_4);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_GUIDANCE;ENR_LootPassive_DARKVISION"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_REF_Legendary_L0_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Legendary"
+data "RootTemplate" "a105241c-554f-52e4-8068-b6737c7162b9"
+data "Boosts" "UnlockSpell(Target_BurstingSinew);UnlockSpell(Target_HuntersMark);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BLADE_WARD;ENR_LootPassive_DARK_ONES_BLESSING"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_REF_Legendary_L1_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Legendary"
+data "RootTemplate" "895f216a-abea-596d-82f2-147f6c3cf6fd"
+data "Boosts" "UnlockSpell(Target_Shatter);UnlockSpell(Target_MageHand);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RALLY;ENR_LootPassive_SHIELD"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_REF_Legendary_L2_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Legendary"
+data "RootTemplate" "19892d0e-33b0-547a-a6a3-0a5efb3fc2b7"
+data "Boosts" "UnlockSpell(Projectile_FireBolt);UnlockSpell(Shout_AuraOfVitality);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BARKSKIN;ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_REF_Legendary_L3_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Legendary"
+data "RootTemplate" "6b091bbc-14ee-57f0-befa-a87403347f51"
+data "Boosts" "UnlockSpell(Target_TrueStrike);UnlockSpell(Shout_MirrorImage);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_EVIL_AND_GOO_749824;ENR_LootPassive_RESISTANCE_LIGHTNING"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_REF_Legendary_L4_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Legendary"
+data "RootTemplate" "458e7cc6-6819-5a3f-9006-4f36c3cb27c5"
+data "Boosts" "UnlockSpell(Projectile_EnsnaringStrike);UnlockSpell(Shout_AlterSelf);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_ALCH_ELIXIR_ENLARGE;ENR_LootPassive_LONGSTRIDER"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Leech_REF_Legendary_L5_0"
+type "Weapon"
+using "WPN_Longsword"
+data "Rarity" "Legendary"
+data "RootTemplate" "08d12702-119a-5550-8e23-9e1c8ba200d9"
+data "Boosts" "UnlockSpell(Target_AnimateDead_Ghoul_6);UnlockSpell(Target_ConjureWoodlandBeings);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_SHIELD_OF_FAITH;ENR_LootPassive_MIRROR_IMAGE_1"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_Uncommon_L0_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "fc80a212-25fb-5f44-89f8-207a707e495f"
+data "Boosts" "UnlockSpell(Target_TollTheDead)"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_Uncommon_L1_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "cfc61c16-806e-5e69-9883-ab1559cb5c03"
+data "Boosts" "UnlockSpell(Target_Invisibility)"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_Uncommon_L2_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "7036de8f-12a6-5718-bd39-3318d3ed0407"
+data "Boosts" "Ability(Charisma,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_Uncommon_L3_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "03a4865c-3f55-5d5f-be7c-1d3b5a28b95f"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_STONESKIN"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_Uncommon_L4_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "4d7bce23-b796-5de0-8381-3285c5c19d17"
+data "Boosts" "Ability(Dexterity,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_Uncommon_L5_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "85355608-967a-5cb4-a898-22a20b931680"
+data "Boosts" "Ability(Wisdom,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_Rare_L0_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Rare"
+data "RootTemplate" "a485f882-658c-595c-ab29-da4bfcf915f8"
+data "Boosts" "Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_SHIELD_OF_FAITH"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_Rare_L1_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Rare"
+data "RootTemplate" "e0e17bcd-2799-50a9-b9ed-a070cd9aec33"
+data "Boosts" "UnlockSpell(Target_CharmPerson)"
+data "PassivesOnEquip" "ENR_LootPassive_FREEDOM_OF_MOVEMENT"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_Rare_L2_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Rare"
+data "RootTemplate" "188cf76e-6062-5d63-9121-a7ab4293ba1b"
+data "Boosts" "Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BEACON_OF_HOPE"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_Rare_L3_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Rare"
+data "RootTemplate" "77ad673b-76a2-593c-be02-f73a82e46ff7"
+data "Boosts" "UnlockSpell(Target_Sanctuary_Drider)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_COLD"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_Rare_L4_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Rare"
+data "RootTemplate" "4580a007-b452-565b-bf7f-0100efa76153"
+data "Boosts" "UnlockSpell(Shout_SpeakWithAnimals)"
+data "PassivesOnEquip" "ENR_LootPassive_SHIELD_OF_FAITH"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_Rare_L5_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Rare"
+data "RootTemplate" "3784416a-350b-54f6-9081-64b3b4ed0794"
+data "Boosts" "UnlockSpell(Target_ConjureElemental_Container);Ability(Charisma,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_VeryRare_L0_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "3aab9595-3bce-5e69-9b3a-13d272ff09b9"
+data "Boosts" "UnlockSpell(Shout_ShillelaghTestAnimation_Melee);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PATIENT_DEFENCE;ENR_LootPassive_FLAME_BLADE"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_VeryRare_L1_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "9b9374dc-08ef-5565-b5b1-3e300ae6fe8a"
+data "Boosts" "UnlockSpell(Projectile_Smite_Branding);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_VAMPIRIC_TOUCH;ENR_LootPassive_DAYLIGHT"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_VeryRare_L2_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "3f2a3be8-4ade-51e0-822e-ed54fe1418df"
+data "Boosts" "UnlockSpell(Shout_Shillelagh);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_FIRE;ENR_LootPassive_RESISTANCE_RADIANT"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_VeryRare_L3_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "3fe7453e-e196-503c-a739-8cfdc9aeefcd"
+data "Boosts" "UnlockSpell(Target_Longstrider);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_RADIANT;ENR_LootPassive_PROTECTION_FROM_EVIL_AND_GOO_749824"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_VeryRare_L4_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "a13084d2-195d-5760-b0ba-bc8e9c7b0145"
+data "Boosts" "UnlockSpell(Target_SpareTheDying);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_SHIELD_OF_FAITH;ENR_LootPassive_BULLS_STRENGTH"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_VeryRare_L5_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "5d70b66d-cabc-5264-b092-04aed9e98998"
+data "Boosts" "UnlockSpell(Target_AnimateDead_Skeleton_4);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_SPEAK_WITH_DEAD;ENR_LootPassive_RESISTANCE_FORCE"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_Legendary_L0_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Legendary"
+data "RootTemplate" "f6a8f854-d586-50aa-8fe5-7a8aa5b18f0a"
+data "Boosts" "UnlockSpell(Target_FogCloud);UnlockSpell(Target_FindFamiliar);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_MIRROR_IMAGE_2;ENR_LootPassive_DRUNKEN_TECHNIQUE"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_Legendary_L1_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Legendary"
+data "RootTemplate" "d6a535aa-7671-5067-a6a9-10173ae79a4c"
+data "Boosts" "UnlockSpell(Target_HAG_HoldPerson);UnlockSpell(Target_MinorIllusion);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_DRUNKEN_TECHNIQUE;ENR_LootPassive_MAGE_ARMOR"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_Legendary_L2_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Legendary"
+data "RootTemplate" "81fcaaa5-dca5-5656-b465-3a6d1b5b10a7"
+data "Boosts" "UnlockSpell(Projectile_ScorchingRay);UnlockSpell(Target_CompelledDuel);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_HEROES_FEAST;ENR_LootPassive_RELENTLESS_RAGE"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_Legendary_L3_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Legendary"
+data "RootTemplate" "bd814db3-8a85-5cda-a425-f04c6d61c035"
+data "Boosts" "UnlockSpell(Shout_PassWithoutTrace);UnlockSpell(Projectile_Fireball);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BLADE_FLOURISH_MOBILE;ENR_LootPassive_DARKVISION"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_Legendary_L4_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Legendary"
+data "RootTemplate" "8fcb0fd1-2e98-5ff2-aad2-0c1748e47f50"
+data "Boosts" "UnlockSpell(Target_Haste);UnlockSpell(Zone_BurningHands_MephistophelesTiefling);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_REFLECTIVE_SHELL;ENR_LootPassive_STONESKIN"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_Legendary_L5_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Legendary"
+data "RootTemplate" "cb26aedf-9e69-5a7f-88e2-e89a7d63b172"
+data "Boosts" "UnlockSpell(Target_AnimateDead_Zombie_4);UnlockSpell(Target_CircleOfDeath);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BLUR;ENR_LootPassive_BARKSKIN"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_REF_Uncommon_L0_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "99822fdc-6c87-5d1c-98f0-0220a4407fcf"
+data "Boosts" "UnlockSpell(Target_Identify)"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_REF_Uncommon_L1_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "ce26cd15-6f0a-503b-bd01-e91db4ef563b"
+data "Boosts" "UnlockSpell(Projectile_SteelWatcher_Quadruped_SelfDestructExplosion)"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_REF_Uncommon_L2_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "fb65c29a-8f7a-523c-acd2-91db640d0e21"
+data "Boosts" "Ability(Charisma,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_REF_Uncommon_L3_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "e901fc65-801c-5ca6-82bc-b4f3b9188c4e"
+data "Boosts" "Ability(Charisma,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_REF_Uncommon_L4_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "1a779068-e7d4-57e3-9b1e-3be4e8626236"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_SHIELD"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_REF_Uncommon_L5_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "52605c34-27f9-5b52-8acc-07b79e9da463"
+data "Boosts" "Ability(Constitution,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_REF_Rare_L0_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Rare"
+data "RootTemplate" "2be8cce8-792a-54e0-ad5a-56293ea9d4cf"
+data "Boosts" "UnlockSpell(Target_Resistance);Ability(Constitution,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_REF_Rare_L1_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Rare"
+data "RootTemplate" "3a4582f0-0963-5fab-a788-8f12591d2d57"
+data "Boosts" "Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BLADE_WARD"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_REF_Rare_L2_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Rare"
+data "RootTemplate" "6f8c0e71-6f31-556c-a2ee-af57da1211ce"
+data "Boosts" "UnlockSpell(Target_Enthrall)"
+data "PassivesOnEquip" "ENR_LootPassive_FOXS_CUNNING"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_REF_Rare_L3_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Rare"
+data "RootTemplate" "e2059f09-f8de-56d2-b83f-1217067f7dbf"
+data "Boosts" "Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_POISON"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_REF_Rare_L4_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Rare"
+data "RootTemplate" "6dc32832-877b-5d98-8825-8c619b338d34"
+data "Boosts" "UnlockSpell(Shout_Blur);Ability(Dexterity,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_REF_Rare_L5_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Rare"
+data "RootTemplate" "ba8b92fe-86b4-5a5a-904a-5ce21d67352f"
+data "Boosts" "Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_FEATHER_FALL"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_REF_VeryRare_L0_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "d7aad373-e039-57bd-8477-eab00195c415"
+data "Boosts" "UnlockSpell(Projectile_IceKnife);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_TRUE_STRIKE;ENR_LootPassive_FALSE_LIFE"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_REF_VeryRare_L1_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "d9e93467-b2fc-5187-b648-8831a1084590"
+data "Boosts" "UnlockSpell(Projectile_IceKnife);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_VAMPIRIC_TOUCH;ENR_LootPassive_AURA_OF_WARDING_BUFF"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_REF_VeryRare_L2_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "e7a1fe12-d805-592b-abe0-d8f94d357419"
+data "Boosts" "UnlockSpell(Target_TollTheDead);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_DETECT_EVIL_GOOD;ENR_LootPassive_FLAME_BLADE"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_REF_VeryRare_L3_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "ae0babb0-e7d3-5f5d-b4e5-1ac6e3459e82"
+data "Boosts" "UnlockSpell(Target_CrownOfMadness);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_DEATH_WARD;ENR_LootPassive_DETECT_THOUGHTS"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_REF_VeryRare_L4_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "6c96330c-a1c6-5752-89ba-4f735a5eb83f"
+data "Boosts" "UnlockSpell(Target_ViciousMockery);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_AURA_OF_COURAGE_BUFF;ENR_LootPassive_SANCTUARY"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_REF_VeryRare_L5_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "a744efc1-b4ba-5515-8739-337c3d7a5b94"
+data "Boosts" "UnlockSpell(Projectile_CursedTome_CurriculumofStrategy);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_FLY;ENR_LootPassive_PROTECTION_FROM_POISON"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_REF_Legendary_L0_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Legendary"
+data "RootTemplate" "f7bfcc60-0749-5f6e-bcf2-0cda4c36e66e"
+data "Boosts" "UnlockSpell(Target_GLO_CursedIronFlask_CaptureCreature);UnlockSpell(Target_SpareTheDying);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_TRUE_STRIKE;ENR_LootPassive_VAMPIRE_REGENERATION"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_REF_Legendary_L1_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Legendary"
+data "RootTemplate" "bdf62f9f-66cf-519c-b189-4e0c6b84053e"
+data "Boosts" "UnlockSpell(Projectile_ChromaticOrb_Acid);UnlockSpell(Target_HellishRebuke);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_LONG_JUMP;ENR_LootPassive_RESISTANCE"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_REF_Legendary_L2_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Legendary"
+data "RootTemplate" "62f4e9c0-4a5d-5594-844a-77c3360d71e5"
+data "Boosts" "UnlockSpell(Target_CompelledDuel);UnlockSpell(Target_VampiricTouch);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_ASPECT_OF_THE_WOLF;ENR_LootPassive_AID"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_REF_Legendary_L3_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Legendary"
+data "RootTemplate" "4ca5cd67-6356-5e22-8aee-6808e8d1c83a"
+data "Boosts" "UnlockSpell(Target_PhantasmalKiller);UnlockSpell(Shout_DetectThoughts);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BLADE_FLOURISH_MOBILE;ENR_LootPassive_TRUE_STRIKE"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_REF_Legendary_L4_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Legendary"
+data "RootTemplate" "a8110057-1eaf-5b4c-a3f0-3a0aaee32f23"
+data "Boosts" "UnlockSpell(Target_SpikeGrowth);UnlockSpell(Shout_HealingWord_Mass);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_HASTE;ENR_LootPassive_FEATHER_FALL"
+
+
+new entry "ENR_Loot_WPN_SURGEON_Syringe_REF_Legendary_L5_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Legendary"
+data "RootTemplate" "2c64ee9e-5a77-52c7-a1c2-2d24eb72e3a1"
+data "Boosts" "UnlockSpell(Target_Darkvision);UnlockSpell(Zone_BurningHands_MephistophelesTiefling);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_DIVINE_SENSE;ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_A_Uncommon_L0_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Uncommon"
+data "RootTemplate" "cf9ac522-64aa-570f-ab5f-a467f0841d3c"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_DARK_ONES_BLESSING"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_A_Uncommon_L1_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Uncommon"
+data "RootTemplate" "a1bf57e9-8644-5c04-9281-746f09ff175e"
+data "Boosts" "Ability(Wisdom,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_A_Uncommon_L2_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Uncommon"
+data "RootTemplate" "c5cc0932-de24-5d2c-836d-e8783e22afec"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_SANCTUARY"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_A_Uncommon_L3_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Uncommon"
+data "RootTemplate" "b7349f9e-3df1-5b46-bb33-293fe1426e6b"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_ASPECT_OF_THE_WOLF"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_A_Uncommon_L4_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Uncommon"
+data "RootTemplate" "9bf10c94-7b30-5d53-8b84-f0de45cd093b"
+data "Boosts" "UnlockSpell(Teleportation_DimensionDoor)"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_A_Uncommon_L5_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Uncommon"
+data "RootTemplate" "04e5e215-b067-5703-bd51-a02d60a8c838"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_SANCTUARY"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_A_Rare_L0_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Rare"
+data "RootTemplate" "ae2cbdf9-d441-533d-af08-9efab2c172b4"
+data "Boosts" "UnlockSpell(Target_SpareTheDying);Ability(Wisdom,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_A_Rare_L1_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Rare"
+data "RootTemplate" "90dece0f-3db6-5583-96ec-1315cae5fa2c"
+data "Boosts" "Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_MIRROR_IMAGE_1"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_A_Rare_L2_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Rare"
+data "RootTemplate" "71aea52d-11cf-5767-85ef-15ecd89f869b"
+data "Boosts" "Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_CATS_GRACE"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_A_Rare_L3_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Rare"
+data "RootTemplate" "2a25b99e-d141-5f7f-9699-ecfbffcb620f"
+data "Boosts" "UnlockSpell(Shout_ArmsOfHadar);Ability(Dexterity,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_A_Rare_L4_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Rare"
+data "RootTemplate" "dfb8ce0d-7f6e-5f52-9d14-aec7e72072a9"
+data "Boosts" "Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_FALSE_LIFE"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_A_Rare_L5_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Rare"
+data "RootTemplate" "c7c427f1-e5b5-521f-aba2-492cc0571e4d"
+data "Boosts" "UnlockSpell(Target_DispelMagic);Ability(Charisma,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_A_VeryRare_L0_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "VeryRare"
+data "RootTemplate" "1e8fa47d-0be2-5f6d-ae23-a7f40ba29edf"
+data "Boosts" "UnlockSpell(Shout_Shillelagh);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_SANCTUARY;ENR_LootPassive_DIVINE_SENSE"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_A_VeryRare_L1_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "VeryRare"
+data "RootTemplate" "79dfd5f4-6938-5f5b-b0d5-062549d2a448"
+data "Boosts" "UnlockSpell(Projectile_LightningBlade_Explosion);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_ASPECT_OF_THE_STALLION;ENR_LootPassive_PROTECTION_FROM_ENERGY_LIGHT_d7917a"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_A_VeryRare_L2_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "VeryRare"
+data "RootTemplate" "1df4c565-190e-5618-b10b-f4e26e7b0ebe"
+data "Boosts" "UnlockSpell(Shout_DetectThoughts);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_DETECT_EVIL_GOOD;ENR_LootPassive_FEATHER_FALL"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_A_VeryRare_L3_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "VeryRare"
+data "RootTemplate" "df629994-7868-5462-8b6a-9056c978e07e"
+data "Boosts" "UnlockSpell(Target_Smite_Searing);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_HASTE;ENR_LootPassive_SHIELD"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_A_VeryRare_L4_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "VeryRare"
+data "RootTemplate" "6ff65909-5c07-5290-9890-e97888b71bee"
+data "Boosts" "UnlockSpell(Target_GreaterRestoration);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_FLY;ENR_LootPassive_SHIELD_OF_FAITH"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_A_VeryRare_L5_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "VeryRare"
+data "RootTemplate" "6b24792c-3be6-5dbe-980f-65d51b6dc1b7"
+data "Boosts" "UnlockSpell(Target_EnsnaringStrike);Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_MULTIATTACKDEFENSE;ENR_LootPassive_PROTECTION_FROM_POISON"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_A_Legendary_L0_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Legendary"
+data "RootTemplate" "43951b74-0022-59df-a0c5-1b6b52d5fbee"
+data "Boosts" "UnlockSpell(Target_Heroism);UnlockSpell(Target_HideousLaughter);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_PSYCHIC;ENR_LootPassive_SPEAK_WITH_DEAD"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_A_Legendary_L1_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Legendary"
+data "RootTemplate" "efa6b197-6b61-5d8a-869c-4dcee364327f"
+data "Boosts" "UnlockSpell(Projectile_IceKnife);UnlockSpell(Target_HAG_HoldPerson);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_UNDEAD_FORTITUDE;ENR_LootPassive_PROTECTION_FROM_EVIL_AND_GOO_749824"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_A_Legendary_L2_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Legendary"
+data "RootTemplate" "360413fd-e5f2-500c-a6e4-1999570b39ca"
+data "Boosts" "UnlockSpell(Target_CallLightning);UnlockSpell(Target_ProtectionFromPoison);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_EXPEDITIOUS_RETREAT;ENR_LootPassive_PROTECTION_FROM_ENERGY_THUND_18d16e"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_A_Legendary_L3_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Legendary"
+data "RootTemplate" "f68c643d-595e-50ae-9102-02c7f181c952"
+data "Boosts" "UnlockSpell(Target_GuardianOfFaith);UnlockSpell(Target_MinorIllusion);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BLADE_FLOURISH_DEFENSIVE;ENR_LootPassive_FREEDOM_OF_MOVEMENT"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_A_Legendary_L4_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Legendary"
+data "RootTemplate" "cef3fa2c-fa5c-5c0d-922e-7fc66d2af410"
+data "Boosts" "UnlockSpell(Projectile_AcidArrow);UnlockSpell(Target_Counterspell);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_PSYCHIC;ENR_LootPassive_AURA_OF_WARDING_BUFF"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_A_Legendary_L5_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Legendary"
+data "RootTemplate" "31906f33-6105-55bb-a582-b6d0a9c94b5b"
+data "Boosts" "UnlockSpell(Target_ConjureElementals_Minor_MudMephit_5);UnlockSpell(Target_ArcaneLock);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BLADE_WARD;ENR_LootPassive_SURVIVAL_INSTINCT"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_C_0eb3c7_Uncommon_L0_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_ConjureElemental"
+data "Rarity" "Uncommon"
+data "RootTemplate" "7991d09e-523c-5ebf-ac1d-62e63bc317cd"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_RALLY"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_C_0eb3c7_Uncommon_L1_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_ConjureElemental"
+data "Rarity" "Uncommon"
+data "RootTemplate" "775316c1-aa4d-5fd7-b727-db5eee4f0507"
+data "Boosts" "UnlockSpell(Shout_ArmsOfHadar)"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_C_0eb3c7_Uncommon_L2_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_ConjureElemental"
+data "Rarity" "Uncommon"
+data "RootTemplate" "da487405-e012-54a4-bdf7-9e991ec5b384"
+data "Boosts" "Ability(Wisdom,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_C_0eb3c7_Uncommon_L3_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_ConjureElemental"
+data "Rarity" "Uncommon"
+data "RootTemplate" "5c177d9c-80f1-517d-973b-64276319b866"
+data "Boosts" "UnlockSpell(Target_DeathWard)"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_C_0eb3c7_Uncommon_L4_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_ConjureElemental"
+data "Rarity" "Uncommon"
+data "RootTemplate" "965b8471-7648-570c-a355-be36546d1ef4"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_BEACON_OF_HOPE"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_C_0eb3c7_Uncommon_L5_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_ConjureElemental"
+data "Rarity" "Uncommon"
+data "RootTemplate" "1a1cfbdc-df72-51ff-aedf-aa0efda898fa"
+data "Boosts" "Ability(Constitution,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_C_0eb3c7_Rare_L0_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_ConjureElemental"
+data "Rarity" "Rare"
+data "RootTemplate" "73e50cff-323f-5212-8a54-7872034d23c4"
+data "Boosts" "UnlockSpell(Target_FogCloud);Ability(Charisma,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_C_0eb3c7_Rare_L1_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_ConjureElemental"
+data "Rarity" "Rare"
+data "RootTemplate" "13594ac2-6ac9-5e59-b4af-4267dceca3a5"
+data "Boosts" "UnlockSpell(Target_Bless)"
+data "PassivesOnEquip" "ENR_LootPassive_HEROES_FEAST"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_C_0eb3c7_Rare_L2_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_ConjureElemental"
+data "Rarity" "Rare"
+data "RootTemplate" "0970663d-30af-526b-83a5-140644b4750a"
+data "Boosts" "UnlockSpell(Target_Resistance);Ability(Strength,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_C_0eb3c7_Rare_L3_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_ConjureElemental"
+data "Rarity" "Rare"
+data "RootTemplate" "d3f00cf4-b078-5210-af01-6dd2e855d9b6"
+data "Boosts" "Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_THUNDER"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_C_0eb3c7_Rare_L4_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_ConjureElemental"
+data "Rarity" "Rare"
+data "RootTemplate" "b214d15d-a732-5bf5-92bc-51b06f77139c"
+data "Boosts" "Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_SHILLELAGH"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_C_0eb3c7_Rare_L5_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_ConjureElemental"
+data "Rarity" "Rare"
+data "RootTemplate" "b7b3a95f-a25b-5fbb-bc2c-488da4a56ebb"
+data "Boosts" "UnlockSpell(Target_ShieldOfFaith);Ability(Intelligence,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_C_0eb3c7_VeryRare_L0_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_ConjureElemental"
+data "Rarity" "VeryRare"
+data "RootTemplate" "559f800d-b8f6-5643-8931-28c668fa76d0"
+data "Boosts" "UnlockSpell(Shout_DisguiseSelf);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_ALCH_ELIXIR_ENLARGE;ENR_LootPassive_DEATH_WARD"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_C_0eb3c7_VeryRare_L1_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_ConjureElemental"
+data "Rarity" "VeryRare"
+data "RootTemplate" "52cf086c-cc29-5981-8a16-15e7a40eea0c"
+data "Boosts" "UnlockSpell(Target_LesserRestoration);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_VAMPIRE_REGENERATION;ENR_LootPassive_RESISTANCE_LIGHTNING"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_C_0eb3c7_VeryRare_L2_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_ConjureElemental"
+data "Rarity" "VeryRare"
+data "RootTemplate" "7b8a9e9b-8757-5e02-a96d-8b4fcf34eff1"
+data "Boosts" "UnlockSpell(Target_Command_Halt);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BLADE_WARD;ENR_LootPassive_FLAME_BLADE"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_C_0eb3c7_VeryRare_L3_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_ConjureElemental"
+data "Rarity" "VeryRare"
+data "RootTemplate" "77706211-2ace-5180-b235-151818423dbb"
+data "Boosts" "UnlockSpell(Target_Smite_Wrathful);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_MAGIC_WEAPON;ENR_LootPassive_LONGSTRIDER"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_C_0eb3c7_VeryRare_L4_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_ConjureElemental"
+data "Rarity" "VeryRare"
+data "RootTemplate" "ee23e07e-e847-5318-81e6-8e34d943c475"
+data "Boosts" "UnlockSpell(Shout_UND_SocietyOfBrilliance_Teleportation);Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_STONESKIN;ENR_LootPassive_HASTE"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_C_0eb3c7_VeryRare_L5_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_ConjureElemental"
+data "Rarity" "VeryRare"
+data "RootTemplate" "1b2250bf-a145-56c2-b2ea-7c0074a5809f"
+data "Boosts" "UnlockSpell(Target_Slow);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_HEROES_FEAST;ENR_LootPassive_SPEAK_WITH_DEAD"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_C_0eb3c7_Legendary_L0_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_ConjureElemental"
+data "Rarity" "Legendary"
+data "RootTemplate" "9a2dd528-a6e1-56c5-a233-e9740fd8946e"
+data "Boosts" "UnlockSpell(Target_Smite_Thunderous);UnlockSpell(Target_Sanctuary);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PATIENT_DEFENCE;ENR_LootPassive_AURA_OF_DEVOTION_BUFF"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_C_0eb3c7_Legendary_L1_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_ConjureElemental"
+data "Rarity" "Legendary"
+data "RootTemplate" "96f2f533-bac8-5db3-8384-d623f535c54a"
+data "Boosts" "UnlockSpell(Target_Mending);UnlockSpell(Shout_FalseLife);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_MIRROR_IMAGE_1;ENR_LootPassive_FLY"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_C_0eb3c7_Legendary_L2_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_ConjureElemental"
+data "Rarity" "Legendary"
+data "RootTemplate" "c3f7e232-b625-5f8e-81c3-57b718c879c4"
+data "Boosts" "UnlockSpell(Projectile_LightningBlade_Explosion);UnlockSpell(Target_CallLightning);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD;ENR_LootPassive_HEROES_FEAST"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_C_0eb3c7_Legendary_L3_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_ConjureElemental"
+data "Rarity" "Legendary"
+data "RootTemplate" "b3795e8d-ea9e-5fc2-98ad-bff84e74d5b1"
+data "Boosts" "UnlockSpell(Target_Confusion);UnlockSpell(Target_Longstrider);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_SANCTUARY;ENR_LootPassive_RESISTANCE_PSYCHIC"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_C_0eb3c7_Legendary_L4_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_ConjureElemental"
+data "Rarity" "Legendary"
+data "RootTemplate" "69a2db4a-e4ec-5d9c-ac34-8c7445c1c71e"
+data "Boosts" "UnlockSpell(Shout_SpeakWithAnimals);UnlockSpell(Projectile_MagicMissile);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_SPEAK_WITH_DEAD;ENR_LootPassive_FRIENDS"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_C_0eb3c7_Legendary_L5_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_ConjureElemental"
+data "Rarity" "Legendary"
+data "RootTemplate" "3e5363b1-3276-5107-9d2e-1806f728bc7e"
+data "Boosts" "UnlockSpell(Target_MistyStep_Githyanki);UnlockSpell(Target_GuardianOfFaith);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE;ENR_LootPassive_BARDIC_INSPIRATION"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_W_63b071_Uncommon_L0_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_Wildshape"
+data "Rarity" "Uncommon"
+data "RootTemplate" "56f2901a-d4d4-504b-903b-2b92c4e8fea2"
+data "Boosts" "UnlockSpell(Target_FieryStrike_Wildshape_Myrmidon_Fire);UnlockSpell(Shout_SeeInvisibility_Seek)"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_W_63b071_Uncommon_L1_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_Wildshape"
+data "Rarity" "Uncommon"
+data "RootTemplate" "30787ee5-7b50-5ecd-9383-64557e710168"
+data "Boosts" "UnlockSpell(Target_FieryStrike_Wildshape_Myrmidon_Fire);Ability(Intelligence,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_W_63b071_Uncommon_L2_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_Wildshape"
+data "Rarity" "Uncommon"
+data "RootTemplate" "6d6a56f0-e66f-5c30-8532-c9b4b516e0cb"
+data "Boosts" "UnlockSpell(Target_FieryStrike_Wildshape_Myrmidon_Fire);Ability(Dexterity,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_W_63b071_Uncommon_L3_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_Wildshape"
+data "Rarity" "Uncommon"
+data "RootTemplate" "2f864404-9ca6-587e-bd2a-d8cff2c3a5d9"
+data "Boosts" "UnlockSpell(Target_FieryStrike_Wildshape_Myrmidon_Fire)"
+data "PassivesOnEquip" "ENR_LootPassive_ALCH_ELIXIR_ENLARGE"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_W_63b071_Uncommon_L4_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_Wildshape"
+data "Rarity" "Uncommon"
+data "RootTemplate" "9d5b051b-794d-5c18-b91d-d26d0d5066a4"
+data "Boosts" "UnlockSpell(Target_FieryStrike_Wildshape_Myrmidon_Fire)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_FORCE"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_W_63b071_Uncommon_L5_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_Wildshape"
+data "Rarity" "Uncommon"
+data "RootTemplate" "2500bfbc-035e-5665-a3e4-69841c50ad86"
+data "Boosts" "UnlockSpell(Target_FieryStrike_Wildshape_Myrmidon_Fire)"
+data "PassivesOnEquip" "ENR_LootPassive_RAGE"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_W_63b071_Rare_L0_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_Wildshape"
+data "Rarity" "Rare"
+data "RootTemplate" "87c94c5a-f2e4-5861-949a-0905bf4a6300"
+data "Boosts" "UnlockSpell(Target_FieryStrike_Wildshape_Myrmidon_Fire);UnlockSpell(Projectile_EldritchBlast)"
+data "PassivesOnEquip" "ENR_LootPassive_FREEDOM_OF_MOVEMENT"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_W_63b071_Rare_L1_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_Wildshape"
+data "Rarity" "Rare"
+data "RootTemplate" "5a641bc4-9df4-5580-a0ee-1bc9caba945e"
+data "Boosts" "UnlockSpell(Target_FieryStrike_Wildshape_Myrmidon_Fire);UnlockSpell(Target_FogCloud)"
+data "PassivesOnEquip" "ENR_LootPassive_COMPREHEND_LANGUAGES"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_W_63b071_Rare_L2_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_Wildshape"
+data "Rarity" "Rare"
+data "RootTemplate" "69b30c54-8b31-543b-92ff-5348d8ff1d6e"
+data "Boosts" "UnlockSpell(Target_FieryStrike_Wildshape_Myrmidon_Fire);UnlockSpell(Target_HellishRebuke);Ability(Wisdom,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_W_63b071_Rare_L3_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_Wildshape"
+data "Rarity" "Rare"
+data "RootTemplate" "adac4210-be9c-5b94-9335-af0c5a5a2e0f"
+data "Boosts" "UnlockSpell(Target_FieryStrike_Wildshape_Myrmidon_Fire);UnlockSpell(Projectile_ChromaticOrb_Acid);Ability(Dexterity,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_W_63b071_Rare_L4_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_Wildshape"
+data "Rarity" "Rare"
+data "RootTemplate" "12e0d2f4-e971-5a3f-a186-19e4817380ae"
+data "Boosts" "UnlockSpell(Target_FieryStrike_Wildshape_Myrmidon_Fire);UnlockSpell(Target_SacredFlame);Ability(Strength,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_W_63b071_Rare_L5_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_Wildshape"
+data "Rarity" "Rare"
+data "RootTemplate" "c001b158-4fbc-53b9-9d2f-a7684119afb0"
+data "Boosts" "UnlockSpell(Target_FieryStrike_Wildshape_Myrmidon_Fire);UnlockSpell(Target_Levitate)"
+data "PassivesOnEquip" "ENR_LootPassive_RAGE"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_W_63b071_VeryRare_L0_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_Wildshape"
+data "Rarity" "VeryRare"
+data "RootTemplate" "b24a2802-1cc4-5679-bbdc-afc5000d13ae"
+data "Boosts" "UnlockSpell(Target_FieryStrike_Wildshape_Myrmidon_Fire);UnlockSpell(Target_CharmPerson);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_PSYCHIC;ENR_LootPassive_RELENTLESS_RAGE"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_W_63b071_VeryRare_L1_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_Wildshape"
+data "Rarity" "VeryRare"
+data "RootTemplate" "ff1e5dab-ee50-58bf-acff-f715a6b5c899"
+data "Boosts" "UnlockSpell(Target_FieryStrike_Wildshape_Myrmidon_Fire);UnlockSpell(Target_FaerieFire);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BEACON_OF_HOPE;ENR_LootPassive_SURVIVAL_INSTINCT"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_W_63b071_VeryRare_L2_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_Wildshape"
+data "Rarity" "VeryRare"
+data "RootTemplate" "baefd7b1-5121-5cd6-8178-5a719655e488"
+data "Boosts" "UnlockSpell(Target_FieryStrike_Wildshape_Myrmidon_Fire);UnlockSpell(Zone_Thunderwave);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_LIGHT_d7917a;ENR_LootPassive_SHIELD"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_W_63b071_VeryRare_L3_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_Wildshape"
+data "Rarity" "VeryRare"
+data "RootTemplate" "6db92e22-dddb-5cff-9df4-122075ecd680"
+data "Boosts" "UnlockSpell(Target_FieryStrike_Wildshape_Myrmidon_Fire);UnlockSpell(Target_ResilientSphere);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_ASPECT_OF_THE_WOLF;ENR_LootPassive_PROTECTION_FROM_ENERGY_THUND_18d16e"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_W_63b071_VeryRare_L4_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_Wildshape"
+data "Rarity" "VeryRare"
+data "RootTemplate" "20517196-9d25-51b2-8f0e-624aca6d6c1b"
+data "Boosts" "UnlockSpell(Target_FieryStrike_Wildshape_Myrmidon_Fire);UnlockSpell(Target_BestowCurse);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_DIVINE_SENSE;ENR_LootPassive_RESISTANCE_POISON"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_W_63b071_VeryRare_L5_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_Wildshape"
+data "Rarity" "VeryRare"
+data "RootTemplate" "64932de5-57c8-5f5b-b29b-f5ad0bc45479"
+data "Boosts" "UnlockSpell(Target_FieryStrike_Wildshape_Myrmidon_Fire);UnlockSpell(Target_WardingBond);Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_PSYCHIC;ENR_LootPassive_PATIENT_DEFENCE"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_W_63b071_Legendary_L0_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_Wildshape"
+data "Rarity" "Legendary"
+data "RootTemplate" "0e0a11ed-f3f1-5bac-8c9c-d7931e079f95"
+data "Boosts" "UnlockSpell(Target_FieryStrike_Wildshape_Myrmidon_Fire);UnlockSpell(Shout_DetectEvilAndGood);UnlockSpell(Target_Smite_Wrathful);Ability(Charisma,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_EVIL_AND_GOO_749824;ENR_LootPassive_LONGSTRIDER"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_W_63b071_Legendary_L1_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_Wildshape"
+data "Rarity" "Legendary"
+data "RootTemplate" "99c52840-101c-5c17-85be-39a154dc7bb9"
+data "Boosts" "UnlockSpell(Target_FieryStrike_Wildshape_Myrmidon_Fire);UnlockSpell(Target_HuntersMark);UnlockSpell(Zone_ColorSpray);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_ACID;ENR_LootPassive_MIRROR_IMAGE_3"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_W_63b071_Legendary_L2_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_Wildshape"
+data "Rarity" "Legendary"
+data "RootTemplate" "ec0f0cc2-4803-5db8-91cf-0fc0ffb43dfd"
+data "Boosts" "UnlockSpell(Target_FieryStrike_Wildshape_Myrmidon_Fire);UnlockSpell(Target_DissonantWhispers);UnlockSpell(Projectile_MagicMissile);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_DEATH_WARD;ENR_LootPassive_RESISTANCE_ACID"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_W_63b071_Legendary_L3_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_Wildshape"
+data "Rarity" "Legendary"
+data "RootTemplate" "2358384a-223c-5fdf-98ea-10d9ee0ba3b5"
+data "Boosts" "UnlockSpell(Target_FieryStrike_Wildshape_Myrmidon_Fire);UnlockSpell(Shout_SeeInvisibility);UnlockSpell(Target_MistyStep_Shadow_TEST);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_POISON;ENR_LootPassive_SANCTUARY"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_W_63b071_Legendary_L4_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_Wildshape"
+data "Rarity" "Legendary"
+data "RootTemplate" "fd6fabab-d53e-5ea2-8076-581a3adedc5c"
+data "Boosts" "UnlockSpell(Target_FieryStrike_Wildshape_Myrmidon_Fire);UnlockSpell(Target_Cloudkill);UnlockSpell(Target_RemoveCurse);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BEACON_OF_HOPE;ENR_LootPassive_PROTECTION_FROM_ENERGY_LIGHT_d7917a"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Fire_Myrmidon_W_63b071_Legendary_L5_0"
+type "Weapon"
+using "WPN_Scimitar_Fire_Myrmidon_Wildshape"
+data "Rarity" "Legendary"
+data "RootTemplate" "6d14ce04-61ed-5a17-8403-343265a279e7"
+data "Boosts" "UnlockSpell(Target_FieryStrike_Wildshape_Myrmidon_Fire);UnlockSpell(Target_ConjureElementals_Minor_Container);UnlockSpell(Shout_Blur);Ability(Charisma,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_LONGSTRIDER;ENR_LootPassive_RESISTANCE_FORCE"
+
+
+new entry "ENR_Loot_WPN_Scimitar_REF_Uncommon_L0_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Uncommon"
+data "RootTemplate" "b40ce1cb-ce06-5953-a6a8-645a63dd4d69"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_OWLS_WISDOM"
+
+
+new entry "ENR_Loot_WPN_Scimitar_REF_Uncommon_L1_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Uncommon"
+data "RootTemplate" "8c42effb-b224-5de3-b72e-a616619e8b63"
+data "Boosts" "Ability(Constitution,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Scimitar_REF_Uncommon_L2_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Uncommon"
+data "RootTemplate" "d6d506fc-eb6a-51de-b316-979f02df532b"
+data "Boosts" "Ability(Charisma,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Scimitar_REF_Uncommon_L3_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Uncommon"
+data "RootTemplate" "e60ff8cc-3d40-5ae8-96a2-67024312fdb7"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_TRUE_STRIKE"
+
+
+new entry "ENR_Loot_WPN_Scimitar_REF_Uncommon_L4_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Uncommon"
+data "RootTemplate" "19d1e2a4-0ba0-5fea-a857-3507359019ad"
+data "Boosts" "Ability(Charisma,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Scimitar_REF_Uncommon_L5_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Uncommon"
+data "RootTemplate" "5647e4cd-d50a-5b59-b4eb-6f7acf438700"
+data "Boosts" "Ability(Strength,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Scimitar_REF_Rare_L0_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Rare"
+data "RootTemplate" "1bdaf619-89ec-5c02-8ca1-d29de64fe949"
+data "Boosts" "UnlockSpell(Target_CompelledDuel);Ability(Dexterity,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Scimitar_REF_Rare_L1_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Rare"
+data "RootTemplate" "7f0105a8-37b8-574c-ab92-8f8443171d5c"
+data "Boosts" "UnlockSpell(Target_Sleep);Ability(Strength,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Scimitar_REF_Rare_L2_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Rare"
+data "RootTemplate" "2c3e4877-45fe-5920-a2ef-40066f3baf0f"
+data "Boosts" "UnlockSpell(Shout_PassWithoutTrace)"
+data "PassivesOnEquip" "ENR_LootPassive_ASPECT_OF_THE_WOLF"
+
+
+new entry "ENR_Loot_WPN_Scimitar_REF_Rare_L3_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Rare"
+data "RootTemplate" "994c3fdf-dc8b-5382-948d-51c45e96edc8"
+data "Boosts" "UnlockSpell(Target_Blight)"
+data "PassivesOnEquip" "ENR_LootPassive_MAGE_ARMOR"
+
+
+new entry "ENR_Loot_WPN_Scimitar_REF_Rare_L4_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Rare"
+data "RootTemplate" "ead2e1dd-3a3a-5e3a-a8dd-47eb228913cd"
+data "Boosts" "UnlockSpell(Target_ConjureElementals_Minor_MudMephit_5);Ability(Intelligence,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Scimitar_REF_Rare_L5_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Rare"
+data "RootTemplate" "f1ace335-e67e-5e81-8d0c-9fd9b1e7ac47"
+data "Boosts" "UnlockSpell(Target_SpareTheDying)"
+data "PassivesOnEquip" "ENR_LootPassive_MOBILE_NO_AOO"
+
+
+new entry "ENR_Loot_WPN_Scimitar_REF_VeryRare_L0_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "VeryRare"
+data "RootTemplate" "71ff0d19-534f-569d-8e96-750291257d01"
+data "Boosts" "UnlockSpell(Target_Grease);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_SANCTUARY;ENR_LootPassive_SACRED_WEAPON"
+
+
+new entry "ENR_Loot_WPN_Scimitar_REF_VeryRare_L1_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "VeryRare"
+data "RootTemplate" "955e63dc-43cd-52b9-a32d-44bfbba1a155"
+data "Boosts" "UnlockSpell(Target_Grease);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_FRIENDS;ENR_LootPassive_BLADE_FLOURISH_DEFENSIVE"
+
+
+new entry "ENR_Loot_WPN_Scimitar_REF_VeryRare_L2_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "VeryRare"
+data "RootTemplate" "1014c5d3-1477-5df5-b103-1d9cbf3cf8e0"
+data "Boosts" "UnlockSpell(Target_FogCloud);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_AURA_OF_WARDING_BUFF;ENR_LootPassive_UNDEAD_FORTITUDE"
+
+
+new entry "ENR_Loot_WPN_Scimitar_REF_VeryRare_L3_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "VeryRare"
+data "RootTemplate" "20f45d11-2859-5de2-a51c-0883358bee2a"
+data "Boosts" "UnlockSpell(Projectile_EldritchBlast);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_LIGHT_d7917a;ENR_LootPassive_SHIELD"
+
+
+new entry "ENR_Loot_WPN_Scimitar_REF_VeryRare_L4_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "VeryRare"
+data "RootTemplate" "5ad29fa4-db01-5d58-965c-62296aabf275"
+data "Boosts" "UnlockSpell(Target_Grease);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_TRUE_STRIKE;ENR_LootPassive_VAMPIRE_REGENERATION"
+
+
+new entry "ENR_Loot_WPN_Scimitar_REF_VeryRare_L5_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "VeryRare"
+data "RootTemplate" "3d3d4c2c-65d7-508b-84cb-ecfc09cbd533"
+data "Boosts" "UnlockSpell(Target_InsectPlague);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_ARMOR_OF_AGATHYS;ENR_LootPassive_PROTECTION_FROM_ENERGY_THUND_18d16e"
+
+
+new entry "ENR_Loot_WPN_Scimitar_REF_Legendary_L0_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Legendary"
+data "RootTemplate" "bb523a83-5af7-5b54-a871-4fba5ea9b5b8"
+data "Boosts" "UnlockSpell(Target_Bane);UnlockSpell(Target_InflictWounds);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PASS_WITHOUT_TRACE;ENR_LootPassive_MIRROR_IMAGE_1"
+
+
+new entry "ENR_Loot_WPN_Scimitar_REF_Legendary_L1_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Legendary"
+data "RootTemplate" "887096e9-3bbd-50f9-9778-2b4f93eef9d5"
+data "Boosts" "UnlockSpell(Target_GLO_CursedIronFlask_CaptureCreature);UnlockSpell(Projectile_FireBolt);Ability(Charisma,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_DARKVISION;ENR_LootPassive_PROTECTION_FROM_ENERGY_ACID"
+
+
+new entry "ENR_Loot_WPN_Scimitar_REF_Legendary_L2_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Legendary"
+data "RootTemplate" "fc16c0d7-38d0-5f5c-8a9d-44686016cfd8"
+data "Boosts" "UnlockSpell(Shout_ComprehendLanguages);UnlockSpell(Target_Goodberry);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_UNDEAD_FORTITUDE;ENR_LootPassive_PROTECTION_FROM_ENERGY_ACID"
+
+
+new entry "ENR_Loot_WPN_Scimitar_REF_Legendary_L3_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Legendary"
+data "RootTemplate" "5252c0a6-2b42-5e71-ba84-87cb654fa735"
+data "Boosts" "UnlockSpell(Target_CalmEmotions);UnlockSpell(Target_Barkskin);Ability(Dexterity,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_HEROES_FEAST;ENR_LootPassive_DIVINE_FAVOR"
+
+
+new entry "ENR_Loot_WPN_Scimitar_REF_Legendary_L4_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Legendary"
+data "RootTemplate" "5baf4e1a-3646-5181-ad6c-05610f7ffc78"
+data "Boosts" "UnlockSpell(Projectile_EldritchBlast);UnlockSpell(Shout_PassWithoutTrace);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_LIGHT;ENR_LootPassive_PASS_WITHOUT_TRACE"
+
+
+new entry "ENR_Loot_WPN_Scimitar_REF_Legendary_L5_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Legendary"
+data "RootTemplate" "117999bb-38c3-5d42-be8b-baf506df09a1"
+data "Boosts" "UnlockSpell(Target_ArcaneLock);UnlockSpell(Target_ViciousMockery);Ability(Charisma,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_ARMOR_OF_AGATHYS;ENR_LootPassive_BLADE_FLOURISH_MOBILE"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Water_Myrmidon_96b0e5_Uncommon_L0_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Uncommon"
+data "RootTemplate" "224f2f81-5f5b-5224-b57d-56e101a0e6e8"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_BLADE_FLOURISH_MOBILE"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Water_Myrmidon_96b0e5_Uncommon_L1_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Uncommon"
+data "RootTemplate" "57050a44-aa82-55e3-b2ce-0411eebb3871"
+data "Boosts" "Ability(Charisma,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Water_Myrmidon_96b0e5_Uncommon_L2_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Uncommon"
+data "RootTemplate" "d0bd3355-f024-51f2-a1fe-1f9c060533fd"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Water_Myrmidon_96b0e5_Uncommon_L3_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Uncommon"
+data "RootTemplate" "6bfa396f-10de-508a-9014-1210d551f827"
+data "Boosts" "UnlockSpell(Target_HellishRebuke)"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Water_Myrmidon_96b0e5_Uncommon_L4_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Uncommon"
+data "RootTemplate" "3d9a113d-fd57-5595-b001-7bd080982d0d"
+data "Boosts" "Ability(Constitution,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Water_Myrmidon_96b0e5_Uncommon_L5_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Uncommon"
+data "RootTemplate" "5cefadc3-b7fa-5e58-918f-c35c342c10c8"
+data "Boosts" "Ability(Constitution,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Water_Myrmidon_96b0e5_Rare_L0_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Rare"
+data "RootTemplate" "8252d64c-bad0-5d70-b180-6fa4f5532584"
+data "Boosts" "UnlockSpell(Shout_DivineFavor);Ability(Charisma,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Water_Myrmidon_96b0e5_Rare_L1_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Rare"
+data "RootTemplate" "3e9058f7-3ed9-5794-8c8f-2cbb23d8816f"
+data "Boosts" "Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_LIGHT_d7917a"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Water_Myrmidon_96b0e5_Rare_L2_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Rare"
+data "RootTemplate" "c5f668c7-98c1-5ad7-a4cf-6e0f9a4fdb10"
+data "Boosts" "UnlockSpell(Target_Goodberry)"
+data "PassivesOnEquip" "ENR_LootPassive_BLESS"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Water_Myrmidon_96b0e5_Rare_L3_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Rare"
+data "RootTemplate" "f9424a5d-4703-59c3-9608-b37f0d1fc393"
+data "Boosts" "UnlockSpell(Target_Identify);Ability(Strength,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Water_Myrmidon_96b0e5_Rare_L4_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Rare"
+data "RootTemplate" "cf3792a8-749d-554d-8ab5-3a73e0717d63"
+data "Boosts" "UnlockSpell(Target_Bane)"
+data "PassivesOnEquip" "ENR_LootPassive_DRUNKEN_TECHNIQUE"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Water_Myrmidon_96b0e5_Rare_L5_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Rare"
+data "RootTemplate" "7a90b56f-d715-5058-a715-8de5841613f2"
+data "Boosts" "UnlockSpell(Target_Sanctuary_Drider);Ability(Constitution,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Water_Myrmidon_96b0e5_VeryRare_L0_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "VeryRare"
+data "RootTemplate" "7824eab4-e16c-5550-bd7d-ea858c900e50"
+data "Boosts" "UnlockSpell(Target_CharmPerson);Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_ASPECT_OF_THE_WOLF;ENR_LootPassive_BLADE_FLOURISH_MOBILE"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Water_Myrmidon_96b0e5_VeryRare_L1_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "VeryRare"
+data "RootTemplate" "6a69ca64-8969-53a7-85bb-37ae6e8836f9"
+data "Boosts" "UnlockSpell(Target_Friends);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BEACON_OF_HOPE;ENR_LootPassive_DETECT_EVIL_GOOD"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Water_Myrmidon_96b0e5_VeryRare_L2_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "VeryRare"
+data "RootTemplate" "5b72a731-b389-5f2b-96ee-bb1f83b7af0f"
+data "Boosts" "UnlockSpell(Projectile_PoisonSpray);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PRODUCE_FLAME;ENR_LootPassive_COMPREHEND_LANGUAGES"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Water_Myrmidon_96b0e5_VeryRare_L3_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "VeryRare"
+data "RootTemplate" "665eeabf-0f72-5172-a42e-56b00b1d01f5"
+data "Boosts" "UnlockSpell(Target_Command_Halt);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_LONG_JUMP;ENR_LootPassive_RESISTANCE_LIGHTNING"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Water_Myrmidon_96b0e5_VeryRare_L4_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "VeryRare"
+data "RootTemplate" "fdbc1526-0c34-59b1-b2eb-cd7ef4c6e7ab"
+data "Boosts" "UnlockSpell(Projectile_Smite_Branding);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_DAYLIGHT;ENR_LootPassive_DEATH_WARD"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Water_Myrmidon_96b0e5_VeryRare_L5_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "VeryRare"
+data "RootTemplate" "b051ebc5-bbae-51ed-9ee2-315d2f902b76"
+data "Boosts" "UnlockSpell(Target_LesserRestoration);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BEACON_OF_HOPE;ENR_LootPassive_HEROISM"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Water_Myrmidon_96b0e5_Legendary_L0_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Legendary"
+data "RootTemplate" "97ee2de5-45ec-5dbe-a192-8565b675b8b8"
+data "Boosts" "UnlockSpell(Target_ChillTouch);UnlockSpell(Target_Command_Halt);Ability(Charisma,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_SHIELD;ENR_LootPassive_RESISTANCE_ACID"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Water_Myrmidon_96b0e5_Legendary_L1_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Legendary"
+data "RootTemplate" "a35ad07e-98c6-54da-89c1-5113bd618677"
+data "Boosts" "UnlockSpell(Shout_MirrorImage);UnlockSpell(Shout_PassWithoutTrace);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BEARS_ENDURANCE;ENR_LootPassive_SHILLELAGH"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Water_Myrmidon_96b0e5_Legendary_L2_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Legendary"
+data "RootTemplate" "be432b2f-2464-5b4e-8b23-32e58811796e"
+data "Boosts" "UnlockSpell(Target_Daylight);UnlockSpell(Target_Shatter);Ability(Charisma,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_HEROISM;ENR_LootPassive_RESISTANCE_NECROTIC"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Water_Myrmidon_96b0e5_Legendary_L3_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Legendary"
+data "RootTemplate" "1a80505a-b24f-56d6-8957-368a701e4aab"
+data "Boosts" "UnlockSpell(Target_ProtectionFromPoison);UnlockSpell(Target_HypnoticPattern);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_THUND_18d16e;ENR_LootPassive_PRODUCE_FLAME"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Water_Myrmidon_96b0e5_Legendary_L4_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Legendary"
+data "RootTemplate" "36f0b9f7-b8bb-5436-8cb2-98a39c113f75"
+data "Boosts" "UnlockSpell(Target_ConjureElementals_Minor_IceMephit_5);UnlockSpell(Target_Banishment);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_FALSE_LIFE;ENR_LootPassive_ALCH_ELIXIR_ENLARGE"
+
+
+new entry "ENR_Loot_WPN_Scimitar_Water_Myrmidon_96b0e5_Legendary_L5_0"
+type "Weapon"
+using "WPN_Scimitar"
+data "Rarity" "Legendary"
+data "RootTemplate" "6e5e7072-7822-5eaa-bc68-a262565afbf2"
+data "Boosts" "UnlockSpell(Zone_Thunderwave_Djinni);UnlockSpell(Target_Seeming);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_TRUE_STRIKE;ENR_LootPassive_FALSE_LIFE"
+
+
+new entry "ENR_Loot_WPN_Shield_REF_Uncommon_L0_0"
+type "Armor"
+using "ARM_Shield"
+data "Rarity" "Uncommon"
+data "RootTemplate" "f0e3a549-3ee8-59ab-a850-e754bc5f68f1"
+data "Boosts" "Ability(Strength,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Shield_REF_Uncommon_L1_0"
+type "Armor"
+using "ARM_Shield"
+data "Rarity" "Uncommon"
+data "RootTemplate" "dd6d4900-2156-5afe-a1a8-f34a7ba99b19"
+data "Boosts" "UnlockSpell(Target_Enthrall)"
+
+
+new entry "ENR_Loot_WPN_Shield_REF_Uncommon_L2_0"
+type "Armor"
+using "ARM_Shield"
+data "Rarity" "Uncommon"
+data "RootTemplate" "a81eaf40-50df-5cbe-90b8-097e7e6c0751"
+data "Boosts" "Ability(Wisdom,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Shield_REF_Uncommon_L3_0"
+type "Armor"
+using "ARM_Shield"
+data "Rarity" "Uncommon"
+data "RootTemplate" "16d49ca7-9eaa-5d59-96cf-f6de0b0ecfc2"
+data "Boosts" "UnlockSpell(Target_SleetStorm)"
+
+
+new entry "ENR_Loot_WPN_Shield_REF_Uncommon_L4_0"
+type "Armor"
+using "ARM_Shield"
+data "Rarity" "Uncommon"
+data "RootTemplate" "51c2de26-a759-55c6-b9e1-6456541aa661"
+data "Boosts" "Ability(Strength,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Shield_REF_Uncommon_L5_0"
+type "Armor"
+using "ARM_Shield"
+data "Rarity" "Uncommon"
+data "RootTemplate" "841fe44f-526c-5b3a-b216-f8f50123bc5e"
+data "Boosts" "UnlockSpell(Projectile_WitchBolt)"
+
+
+new entry "ENR_Loot_WPN_Shield_REF_Rare_L0_0"
+type "Armor"
+using "ARM_Shield"
+data "Rarity" "Rare"
+data "RootTemplate" "c61574e9-2e06-5c66-b309-c62e3add4106"
+data "Boosts" "Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_HEROISM"
+
+
+new entry "ENR_Loot_WPN_Shield_REF_Rare_L1_0"
+type "Armor"
+using "ARM_Shield"
+data "Rarity" "Rare"
+data "RootTemplate" "df54ec2c-bd5c-50b2-9bac-358204cff497"
+data "Boosts" "UnlockSpell(Target_ProtectionFromEvilAndGood);Ability(Dexterity,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Shield_REF_Rare_L2_0"
+type "Armor"
+using "ARM_Shield"
+data "Rarity" "Rare"
+data "RootTemplate" "f9b49bc3-d9a4-5688-bef3-7ddb38cee233"
+data "Boosts" "UnlockSpell(Target_SpikeGrowth)"
+data "PassivesOnEquip" "ENR_LootPassive_RELENTLESS_RAGE"
+
+
+new entry "ENR_Loot_WPN_Shield_REF_Rare_L3_0"
+type "Armor"
+using "ARM_Shield"
+data "Rarity" "Rare"
+data "RootTemplate" "697bbb13-4b35-542a-9bf9-7e18cf4297ae"
+data "Boosts" "Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_FLY"
+
+
+new entry "ENR_Loot_WPN_Shield_REF_Rare_L4_0"
+type "Armor"
+using "ARM_Shield"
+data "Rarity" "Rare"
+data "RootTemplate" "0fcdb153-5977-51ca-a10a-e1dad9e584a6"
+data "Boosts" "Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_MIRROR_IMAGE_3"
+
+
+new entry "ENR_Loot_WPN_Shield_REF_Rare_L5_0"
+type "Armor"
+using "ARM_Shield"
+data "Rarity" "Rare"
+data "RootTemplate" "7d193656-fc49-5775-b860-c16856125719"
+data "Boosts" "Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_MIRROR_IMAGE_1"
+
+
+new entry "ENR_Loot_WPN_Shield_REF_VeryRare_L0_0"
+type "Armor"
+using "ARM_Shield"
+data "Rarity" "VeryRare"
+data "RootTemplate" "7a323daa-240b-58de-8913-ad1fb14a1d98"
+data "Boosts" "UnlockSpell(Target_MentalSlam_Githyanki);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_DARKVISION;ENR_LootPassive_MIRROR_IMAGE_1"
+
+
+new entry "ENR_Loot_WPN_Shield_REF_VeryRare_L1_0"
+type "Armor"
+using "ARM_Shield"
+data "Rarity" "VeryRare"
+data "RootTemplate" "925f0001-748d-5376-bf89-d3b5364cee22"
+data "Boosts" "UnlockSpell(Projectile_LightningBlade_Explosion);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_EAGLES_SPLENDOR;ENR_LootPassive_PROTECTION_FROM_POISON"
+
+
+new entry "ENR_Loot_WPN_Shield_REF_VeryRare_L2_0"
+type "Armor"
+using "ARM_Shield"
+data "Rarity" "VeryRare"
+data "RootTemplate" "6c4b3997-3efc-5e34-82d3-cf43238b834e"
+data "Boosts" "UnlockSpell(Target_Sleep);Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE;ENR_LootPassive_DARK_ONES_BLESSING"
+
+
+new entry "ENR_Loot_WPN_Shield_REF_VeryRare_L3_0"
+type "Armor"
+using "ARM_Shield"
+data "Rarity" "VeryRare"
+data "RootTemplate" "c8c7fd2a-9ec5-5ab1-98f2-e3f865863494"
+data "Boosts" "UnlockSpell(Target_HungerOfHadar);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BLADE_WARD;ENR_LootPassive_FALSE_LIFE"
+
+
+new entry "ENR_Loot_WPN_Shield_REF_VeryRare_L4_0"
+type "Armor"
+using "ARM_Shield"
+data "Rarity" "VeryRare"
+data "RootTemplate" "209b9a3a-58a6-57b4-b34d-209e98a9e932"
+data "Boosts" "UnlockSpell(Zone_BurningHands);Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PRODUCE_FLAME;ENR_LootPassive_REFLECTIVE_SHELL"
+
+
+new entry "ENR_Loot_WPN_Shield_REF_VeryRare_L5_0"
+type "Armor"
+using "ARM_Shield"
+data "Rarity" "VeryRare"
+data "RootTemplate" "72bfbb3a-2cfc-56aa-9c8d-e53239152e49"
+data "Boosts" "UnlockSpell(Shout_AuraOfVitality);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_SPEAK_WITH_DEAD;ENR_LootPassive_DRUNKEN_TECHNIQUE"
+
+
+new entry "ENR_Loot_WPN_Shield_REF_Legendary_L0_0"
+type "Armor"
+using "ARM_Shield"
+data "Rarity" "Legendary"
+data "RootTemplate" "4f64b314-13e9-5d12-a58c-81b60330c38c"
+data "Boosts" "UnlockSpell(Target_Smite_Thunderous);UnlockSpell(Shout_FeatherFall);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_FIRE;ENR_LootPassive_STONESKIN"
+
+
+new entry "ENR_Loot_WPN_Shield_REF_Legendary_L1_0"
+type "Armor"
+using "ARM_Shield"
+data "Rarity" "Legendary"
+data "RootTemplate" "dda701de-7e8c-5512-9161-398090657926"
+data "Boosts" "UnlockSpell(Target_MistyStep_Shadow_TEST);UnlockSpell(Target_Blindness);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_SHIELD;ENR_LootPassive_MULTIATTACKDEFENSE"
+
+
+new entry "ENR_Loot_WPN_Shield_REF_Legendary_L2_0"
+type "Armor"
+using "ARM_Shield"
+data "Rarity" "Legendary"
+data "RootTemplate" "efc7b7e6-4da4-5075-a22c-2e78505b5ea0"
+data "Boosts" "UnlockSpell(Target_TollTheDead);UnlockSpell(Target_FloatingDisk);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_ASPECT_OF_THE_ELK;ENR_LootPassive_MULTIATTACKDEFENSE"
+
+
+new entry "ENR_Loot_WPN_Shield_REF_Legendary_L3_0"
+type "Armor"
+using "ARM_Shield"
+data "Rarity" "Legendary"
+data "RootTemplate" "51b94e54-abbe-5f21-8669-36070880c769"
+data "Boosts" "UnlockSpell(Target_ConjureWoodlandBeings);UnlockSpell(Target_BlackTentacles);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_SACRED_WEAPON;ENR_LootPassive_PROTECTION_FROM_POISON"
+
+
+new entry "ENR_Loot_WPN_Shield_REF_Legendary_L4_0"
+type "Armor"
+using "ARM_Shield"
+data "Rarity" "Legendary"
+data "RootTemplate" "beebe40a-7f5a-51a8-91be-43358b5ac79a"
+data "Boosts" "UnlockSpell(Shout_HellishRebuke_AsmodeusTiefling);UnlockSpell(Target_MageHand);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_RADIANT;ENR_LootPassive_BARKSKIN"
+
+
+new entry "ENR_Loot_WPN_Shield_REF_Legendary_L5_0"
+type "Armor"
+using "ARM_Shield"
+data "Rarity" "Legendary"
+data "RootTemplate" "97941ff6-9bc9-53ba-bfcb-62497fb8626b"
+data "Boosts" "UnlockSpell(Target_Goodberry);UnlockSpell(Target_EnsnaringStrike);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_MULTIATTACKDEFENSE;ENR_LootPassive_SHIELD"
+
+
+new entry "ENR_Loot_WPN_Shortbow_REF_Uncommon_L0_0"
+type "Weapon"
+using "WPN_Shortbow"
+data "Rarity" "Uncommon"
+data "RootTemplate" "313e2ee5-8e6c-53eb-af30-51ceeb8e8165"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_REFLECTIVE_SHELL"
+
+
+new entry "ENR_Loot_WPN_Shortbow_REF_Uncommon_L1_0"
+type "Weapon"
+using "WPN_Shortbow"
+data "Rarity" "Uncommon"
+data "RootTemplate" "75f83516-fb8f-5d59-a4b0-625420980b50"
+data "Boosts" "UnlockSpell(Shout_FlameBlade)"
+
+
+new entry "ENR_Loot_WPN_Shortbow_REF_Uncommon_L2_0"
+type "Weapon"
+using "WPN_Shortbow"
+data "Rarity" "Uncommon"
+data "RootTemplate" "7e463cfa-0e68-5413-8807-e9d4c31f7bd8"
+data "Boosts" "Ability(Intelligence,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Shortbow_REF_Uncommon_L3_0"
+type "Weapon"
+using "WPN_Shortbow"
+data "Rarity" "Uncommon"
+data "RootTemplate" "2416c949-c651-544a-b37e-f183b751cb34"
+data "Boosts" "Ability(Wisdom,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Shortbow_REF_Uncommon_L4_0"
+type "Weapon"
+using "WPN_Shortbow"
+data "Rarity" "Uncommon"
+data "RootTemplate" "ef363e70-5b65-5445-ae3c-6ef6433986e9"
+data "Boosts" "Ability(Dexterity,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Shortbow_REF_Uncommon_L5_0"
+type "Weapon"
+using "WPN_Shortbow"
+data "Rarity" "Uncommon"
+data "RootTemplate" "58ccb25c-7e88-50e2-a8e1-79408b704a33"
+data "Boosts" "Ability(Strength,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Shortbow_REF_Rare_L0_0"
+type "Weapon"
+using "WPN_Shortbow"
+data "Rarity" "Rare"
+data "RootTemplate" "036428bd-f1ee-50be-b2e7-51bce61cc9d5"
+data "Boosts" "UnlockSpell(Target_DissonantWhispers);Ability(Strength,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Shortbow_REF_Rare_L1_0"
+type "Weapon"
+using "WPN_Shortbow"
+data "Rarity" "Rare"
+data "RootTemplate" "dcc55f87-83ae-54f6-92ab-6a5d2c34b408"
+data "Boosts" "Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_SPEAK_WITH_DEAD"
+
+
+new entry "ENR_Loot_WPN_Shortbow_REF_Rare_L2_0"
+type "Weapon"
+using "WPN_Shortbow"
+data "Rarity" "Rare"
+data "RootTemplate" "5402b02a-6dfc-5d46-b252-507aa3d57deb"
+data "Boosts" "UnlockSpell(Target_CreateDestroyWater);Ability(Intelligence,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Shortbow_REF_Rare_L3_0"
+type "Weapon"
+using "WPN_Shortbow"
+data "Rarity" "Rare"
+data "RootTemplate" "fe0290cb-6394-5490-8047-315e3dbdcdae"
+data "Boosts" "Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_LIGHT"
+
+
+new entry "ENR_Loot_WPN_Shortbow_REF_Rare_L4_0"
+type "Weapon"
+using "WPN_Shortbow"
+data "Rarity" "Rare"
+data "RootTemplate" "375e117d-6b3d-5a04-8e31-9ba49d9d0afc"
+data "Boosts" "Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_ASPECT_OF_THE_STALLION"
+
+
+new entry "ENR_Loot_WPN_Shortbow_REF_Rare_L5_0"
+type "Weapon"
+using "WPN_Shortbow"
+data "Rarity" "Rare"
+data "RootTemplate" "c17a72e8-7a61-5152-a475-b1d8b1782591"
+data "Boosts" "UnlockSpell(Target_Blindness)"
+data "PassivesOnEquip" "ENR_LootPassive_OWLS_WISDOM"
+
+
+new entry "ENR_Loot_WPN_Shortbow_REF_VeryRare_L0_0"
+type "Weapon"
+using "WPN_Shortbow"
+data "Rarity" "VeryRare"
+data "RootTemplate" "1f058e2b-3d4a-5b87-b049-2a21c937f548"
+data "Boosts" "UnlockSpell(Target_Bless);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_TRUE_STRIKE;ENR_LootPassive_BLESS"
+
+
+new entry "ENR_Loot_WPN_Shortbow_REF_VeryRare_L1_0"
+type "Weapon"
+using "WPN_Shortbow"
+data "Rarity" "VeryRare"
+data "RootTemplate" "f5965002-34cf-5f1b-a8c0-631c5c1ae8b7"
+data "Boosts" "UnlockSpell(Zone_GustOfWind);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BLADE_WARD;ENR_LootPassive_ALCH_ELIXIR_ENLARGE"
+
+
+new entry "ENR_Loot_WPN_Shortbow_REF_VeryRare_L2_0"
+type "Weapon"
+using "WPN_Shortbow"
+data "Rarity" "VeryRare"
+data "RootTemplate" "b8110b14-6181-5e67-a86c-5fc893bacd4e"
+data "Boosts" "UnlockSpell(Zone_LightningBolt);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_EXPEDITIOUS_RETREAT;ENR_LootPassive_MAGIC_WEAPON"
+
+
+new entry "ENR_Loot_WPN_Shortbow_REF_VeryRare_L3_0"
+type "Weapon"
+using "WPN_Shortbow"
+data "Rarity" "VeryRare"
+data "RootTemplate" "5611ee26-036d-501a-b8a4-95f7131bc922"
+data "Boosts" "UnlockSpell(Projectile_LightningBlade_Explosion);Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_CALM_EMOTIONS;ENR_LootPassive_BARDIC_INSPIRATION"
+
+
+new entry "ENR_Loot_WPN_Shortbow_REF_VeryRare_L4_0"
+type "Weapon"
+using "WPN_Shortbow"
+data "Rarity" "VeryRare"
+data "RootTemplate" "08175cf1-233e-5edf-beb6-90fa7a17ba63"
+data "Boosts" "UnlockSpell(Target_HAG_HoldPerson);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_RADIANT;ENR_LootPassive_MIRROR_IMAGE_3"
+
+
+new entry "ENR_Loot_WPN_Shortbow_REF_VeryRare_L5_0"
+type "Weapon"
+using "WPN_Shortbow"
+data "Rarity" "VeryRare"
+data "RootTemplate" "acc0e838-efce-5047-ae91-2a01c795dd17"
+data "Boosts" "UnlockSpell(Projectile_ScorchingRay);Ability(Charisma,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BLESS;ENR_LootPassive_RESISTANCE_COLD"
+
+
+new entry "ENR_Loot_WPN_Shortbow_REF_Legendary_L0_0"
+type "Weapon"
+using "WPN_Shortbow"
+data "Rarity" "Legendary"
+data "RootTemplate" "26c4170e-52de-5c47-86bd-794f12b008bb"
+data "Boosts" "UnlockSpell(Target_ViciousMockery);UnlockSpell(Target_MageArmor);Ability(Constitution,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_MIRROR_IMAGE_2;ENR_LootPassive_PROTECTION_FROM_ENERGY_LIGHT_d7917a"
+
+
+new entry "ENR_Loot_WPN_Shortbow_REF_Legendary_L1_0"
+type "Weapon"
+using "WPN_Shortbow"
+data "Rarity" "Legendary"
+data "RootTemplate" "5f3ea507-d095-520b-be13-4379ca061987"
+data "Boosts" "UnlockSpell(Target_PhantasmalForce);UnlockSpell(Shout_BladeWard);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BEACON_OF_HOPE;ENR_LootPassive_COMPREHEND_LANGUAGES"
+
+
+new entry "ENR_Loot_WPN_Shortbow_REF_Legendary_L2_0"
+type "Weapon"
+using "WPN_Shortbow"
+data "Rarity" "Legendary"
+data "RootTemplate" "4f9c6f5e-fd5e-5af9-bcf6-c8a019aaa88b"
+data "Boosts" "UnlockSpell(Target_Counterspell);UnlockSpell(Target_Guidance);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_MAGE_ARMOR;ENR_LootPassive_SANCTUARY"
+
+
+new entry "ENR_Loot_WPN_Shortbow_REF_Legendary_L3_0"
+type "Weapon"
+using "WPN_Shortbow"
+data "Rarity" "Legendary"
+data "RootTemplate" "17dec904-398a-5f79-92a7-a47f1a70cd48"
+data "Boosts" "UnlockSpell(Target_PhantasmalKiller);UnlockSpell(Zone_LightningBolt);Ability(Charisma,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_SPEAK_WITH_DEAD;ENR_LootPassive_RESISTANCE_FORCE"
+
+
+new entry "ENR_Loot_WPN_Shortbow_REF_Legendary_L4_0"
+type "Weapon"
+using "WPN_Shortbow"
+data "Rarity" "Legendary"
+data "RootTemplate" "75133cf7-8cf6-5ec7-ba91-d4121c0c6c11"
+data "Boosts" "UnlockSpell(Target_PlanarBinding);UnlockSpell(Target_BestowCurse);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_FRIENDS;ENR_LootPassive_DETECT_EVIL_GOOD"
+
+
+new entry "ENR_Loot_WPN_Shortbow_REF_Legendary_L5_0"
+type "Weapon"
+using "WPN_Shortbow"
+data "Rarity" "Legendary"
+data "RootTemplate" "6f898c51-037f-5010-81d5-eaa50b947f40"
+data "Boosts" "UnlockSpell(Shout_ArmorOfAgathys);UnlockSpell(Shout_DetectEvilAndGood);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_FREEDOM_OF_MOVEMENT;ENR_LootPassive_RELENTLESS_RAGE"
+
+
+new entry "ENR_Loot_WPN_Shortsword_REF_Uncommon_L0_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "580c0e02-17c8-5ef8-8790-3645a4885b7c"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_ASPECT_OF_THE_WOLF"
+
+
+new entry "ENR_Loot_WPN_Shortsword_REF_Uncommon_L1_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "88fb0974-f162-5f80-9e60-523d2b0c02b3"
+data "Boosts" "Ability(Wisdom,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Shortsword_REF_Uncommon_L2_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "eec04425-f6b9-5d12-a3d1-6bd22b843523"
+data "Boosts" "UnlockSpell(Target_DancingLights)"
+
+
+new entry "ENR_Loot_WPN_Shortsword_REF_Uncommon_L3_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "9db033cd-2a3e-5ff4-b792-60b47c8261d3"
+data "Boosts" "Ability(Strength,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Shortsword_REF_Uncommon_L4_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "9b865070-8f6c-590c-a293-5145836e87e7"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_INSPIRING_LEADER"
+
+
+new entry "ENR_Loot_WPN_Shortsword_REF_Uncommon_L5_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Uncommon"
+data "RootTemplate" "f2c7b316-8b45-5aa6-ba83-6427b301329b"
+data "Boosts" "UnlockSpell(Shout_UND_SocietyOfBrilliance_Teleportation)"
+
+
+new entry "ENR_Loot_WPN_Shortsword_REF_Rare_L0_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Rare"
+data "RootTemplate" "0149f36e-139e-55be-badf-feb54795bca4"
+data "Boosts" "UnlockSpell(Shout_ArmsOfHadar)"
+data "PassivesOnEquip" "ENR_LootPassive_ASPECT_OF_THE_STALLION"
+
+
+new entry "ENR_Loot_WPN_Shortsword_REF_Rare_L1_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Rare"
+data "RootTemplate" "d34d5d37-de9b-54e5-b722-329ecd864002"
+data "Boosts" "UnlockSpell(Target_MistyStep_Shadow_TEST);Ability(Constitution,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Shortsword_REF_Rare_L2_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Rare"
+data "RootTemplate" "635cf69a-b8de-52a3-a000-eabde4341e2e"
+data "Boosts" "UnlockSpell(Target_AnimalFriendship)"
+data "PassivesOnEquip" "ENR_LootPassive_DEATH_WARD"
+
+
+new entry "ENR_Loot_WPN_Shortsword_REF_Rare_L3_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Rare"
+data "RootTemplate" "4530a00b-a172-5a73-b6c4-f77f4913df05"
+data "Boosts" "Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_FLY"
+
+
+new entry "ENR_Loot_WPN_Shortsword_REF_Rare_L4_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Rare"
+data "RootTemplate" "3e6745d4-24b2-59dd-8dd2-99d70240ef8b"
+data "Boosts" "UnlockSpell(Target_ShieldOfFaith);Ability(Dexterity,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Shortsword_REF_Rare_L5_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Rare"
+data "RootTemplate" "9393f6c6-8b85-5bce-998b-d4577f18539e"
+data "Boosts" "UnlockSpell(Target_Smite_Searing);Ability(Dexterity,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Shortsword_REF_VeryRare_L0_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "5e538b17-7f11-5d7a-91a6-a5df5d588b6b"
+data "Boosts" "UnlockSpell(Target_ThornWhip);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD;ENR_LootPassive_DIVINE_SENSE"
+
+
+new entry "ENR_Loot_WPN_Shortsword_REF_VeryRare_L1_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "e1bd2f42-2e00-515f-a03f-98e58447f5c0"
+data "Boosts" "UnlockSpell(Target_EnlargeReduce);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_FLAME_BLADE;ENR_LootPassive_PATIENT_DEFENCE"
+
+
+new entry "ENR_Loot_WPN_Shortsword_REF_VeryRare_L2_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "b0b82fa2-222b-5b0b-b3de-f9f92ca01b67"
+data "Boosts" "UnlockSpell(Target_VampiricTouch);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_DIVINE_SENSE;ENR_LootPassive_SPEAK_WITH_DEAD"
+
+
+new entry "ENR_Loot_WPN_Shortsword_REF_VeryRare_L3_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "d28acdc7-9d6a-5bed-b7c3-bc2cc0a5de93"
+data "Boosts" "UnlockSpell(Target_WardingBond);Ability(Constitution,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BLADE_WARD;ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD"
+
+
+new entry "ENR_Loot_WPN_Shortsword_REF_VeryRare_L4_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "a6de5605-4156-57d5-8e0f-95639b472f6d"
+data "Boosts" "UnlockSpell(Shout_WYR_StinkingCloudCheese);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PRODUCE_FLAME;ENR_LootPassive_EAGLES_SPLENDOR"
+
+
+new entry "ENR_Loot_WPN_Shortsword_REF_VeryRare_L5_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "VeryRare"
+data "RootTemplate" "2a0e822b-5e81-5174-9202-5a021b7df9cf"
+data "Boosts" "UnlockSpell(Target_Sanctuary_Drider);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PATIENT_DEFENCE;ENR_LootPassive_PROTECTION_FROM_ENERGY_LIGHT_d7917a"
+
+
+new entry "ENR_Loot_WPN_Shortsword_REF_Legendary_L0_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Legendary"
+data "RootTemplate" "e4251afa-4a6f-5e80-bd13-4f4f822b9bbd"
+data "Boosts" "UnlockSpell(Target_GLO_CursedIronFlask_CaptureCreature);UnlockSpell(Target_Identify);Ability(Strength,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BLESS;ENR_LootPassive_SPEAK_WITH_DEAD"
+
+
+new entry "ENR_Loot_WPN_Shortsword_REF_Legendary_L1_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Legendary"
+data "RootTemplate" "2f8f0406-1e0d-5974-901b-5cf83662b519"
+data "Boosts" "UnlockSpell(Target_EnsnaringStrike);UnlockSpell(Target_GLO_CursedIronFlask_CaptureCreature);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_POISON;ENR_LootPassive_PROTECTION_FROM_EVIL_AND_GOO_749824"
+
+
+new entry "ENR_Loot_WPN_Shortsword_REF_Legendary_L2_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Legendary"
+data "RootTemplate" "dde8003d-b6b6-51ff-8434-daac98c0d3c9"
+data "Boosts" "UnlockSpell(Target_AnimalFriendship);UnlockSpell(Zone_Thunderwave);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_BLADE_FLOURISH_MOBILE;ENR_LootPassive_PASS_WITHOUT_TRACE"
+
+
+new entry "ENR_Loot_WPN_Shortsword_REF_Legendary_L3_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Legendary"
+data "RootTemplate" "4a8ecc03-c1eb-5d9a-9dfb-3a86b2ca3e37"
+data "Boosts" "UnlockSpell(Target_SpikeGrowth);UnlockSpell(Target_Smite_Divine);Ability(Intelligence,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_EVIL_AND_GOO_749824;ENR_LootPassive_FREEDOM_OF_MOVEMENT"
+
+
+new entry "ENR_Loot_WPN_Shortsword_REF_Legendary_L4_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Legendary"
+data "RootTemplate" "930abcb7-00b3-5206-a19c-47c70989b494"
+data "Boosts" "UnlockSpell(Target_HypnoticPattern);UnlockSpell(Target_Sanctuary_Drider);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_SANCTUARY;ENR_LootPassive_SHIELD_OF_FAITH"
+
+
+new entry "ENR_Loot_WPN_Shortsword_REF_Legendary_L5_0"
+type "Weapon"
+using "WPN_Shortsword"
+data "Rarity" "Legendary"
+data "RootTemplate" "13939daa-eecf-5cb0-ab67-a3db69799689"
+data "Boosts" "UnlockSpell(Shout_BeaconOfHope);UnlockSpell(Target_DominatePerson_Mindflayer);Ability(Wisdom,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_DIVINE_FAVOR;ENR_LootPassive_RESISTANCE"
+
+
+new entry "ENR_Loot_WPN_Sickle_REF_Uncommon_L0_0"
+type "Weapon"
+using "WPN_Sickle"
+data "Rarity" "Uncommon"
+data "RootTemplate" "b8f75be0-bd71-59eb-b75d-a08a532e6cc9"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_TRUE_STRIKE"
+
+
+new entry "ENR_Loot_WPN_Sickle_REF_Uncommon_L1_0"
+type "Weapon"
+using "WPN_Sickle"
+data "Rarity" "Uncommon"
+data "RootTemplate" "93a02c62-42ad-50eb-90b3-e61c629a6f48"
+data "Boosts" "Ability(Dexterity,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Sickle_REF_Uncommon_L2_0"
+type "Weapon"
+using "WPN_Sickle"
+data "Rarity" "Uncommon"
+data "RootTemplate" "f3486c25-837b-5ea5-8c8a-322949be4b1c"
+data "Boosts" "UnlockSpell(Projectile_RayOfEnfeeblement)"
+
+
+new entry "ENR_Loot_WPN_Sickle_REF_Uncommon_L3_0"
+type "Weapon"
+using "WPN_Sickle"
+data "Rarity" "Uncommon"
+data "RootTemplate" "4cfd8b93-df4c-5c22-91d8-8b1e5eaa6c43"
+data "Boosts" "Ability(Dexterity,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Sickle_REF_Uncommon_L4_0"
+type "Weapon"
+using "WPN_Sickle"
+data "Rarity" "Uncommon"
+data "RootTemplate" "d218866b-f397-5baf-b028-9afe36399d58"
+data "Boosts" ""
+data "PassivesOnEquip" "ENR_LootPassive_SANCTUARY"
+
+
+new entry "ENR_Loot_WPN_Sickle_REF_Uncommon_L5_0"
+type "Weapon"
+using "WPN_Sickle"
+data "Rarity" "Uncommon"
+data "RootTemplate" "7b6fede2-a8a6-53fa-80a0-4a907d5b1816"
+data "Boosts" "Ability(Constitution,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Sickle_REF_Rare_L0_0"
+type "Weapon"
+using "WPN_Sickle"
+data "Rarity" "Rare"
+data "RootTemplate" "885d0358-5190-537d-a5bd-2fb9cd7ae60d"
+data "Boosts" "UnlockSpell(Projectile_EldritchBlast)"
+data "PassivesOnEquip" "ENR_LootPassive_BARDIC_INSPIRATION"
+
+
+new entry "ENR_Loot_WPN_Sickle_REF_Rare_L1_0"
+type "Weapon"
+using "WPN_Sickle"
+data "Rarity" "Rare"
+data "RootTemplate" "7ce1cab8-b19e-5fb4-b0ce-fcfcde8899d9"
+data "Boosts" "UnlockSpell(Target_Grease)"
+data "PassivesOnEquip" "ENR_LootPassive_SURVIVAL_INSTINCT"
+
+
+new entry "ENR_Loot_WPN_Sickle_REF_Rare_L2_0"
+type "Weapon"
+using "WPN_Sickle"
+data "Rarity" "Rare"
+data "RootTemplate" "ec590d05-f4b0-5485-b2d1-0fbc4d3f3e6e"
+data "Boosts" "UnlockSpell(Target_PhantasmalForce);Ability(Intelligence,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Sickle_REF_Rare_L3_0"
+type "Weapon"
+using "WPN_Sickle"
+data "Rarity" "Rare"
+data "RootTemplate" "c4d59b16-e147-54f6-99bd-e0dfd8d3c926"
+data "Boosts" "UnlockSpell(Target_MageArmor);Ability(Constitution,1,20,true)"
+
+
+new entry "ENR_Loot_WPN_Sickle_REF_Rare_L4_0"
+type "Weapon"
+using "WPN_Sickle"
+data "Rarity" "Rare"
+data "RootTemplate" "216b28f6-c80d-5516-83e2-02c9bb966925"
+data "Boosts" "Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_MIRROR_IMAGE_2"
+

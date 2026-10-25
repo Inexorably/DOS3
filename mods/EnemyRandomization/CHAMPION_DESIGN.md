@@ -243,10 +243,13 @@ Public/EnemyRandomization/Stats/Generated/Data/EnemyRandomizationLoot_*.txt
 ScriptExtender/Lua/Server/GeneratedLoot.lua
 ```
 
-Both are gitignored build outputs. The temporary `.analysis/enr_loot_roots.lsx`
-is merged into the single `RootTemplates/_merged.lsf` by
-`generate-enr-champions.py`. Custom roots are required because Osiris item-stat
-assignment APIs are unavailable in this BG3SE build.
+These generated files are committed so GitHub Actions can package the mod
+without extracted BG3 data. Local builds regenerate them by default; set
+`ENR_SKIP_GENERATION=1` to use the committed copies. The temporary
+`.analysis/enr_loot_roots.lsx` is merged into the single
+`RootTemplates/_merged.lsf` by `generate-enr-champions.py`. Custom roots are
+required because Osiris item-stat assignment APIs are unavailable in this
+BG3SE build.
 
 At runtime, `Server/Loot.lua` listens for `DiedEvent`. It rolls one item per
 champion condition. Normal champions use 60/20/15/5 Uncommon/Rare/Very

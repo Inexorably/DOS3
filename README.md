@@ -58,10 +58,18 @@ Install the packaged files:
 
 `EnemyRandomization` regenerates its deterministic champion and loot catalogs
 during `build.sh`. The generators require extracted BG3 data under `.analysis`;
-that directory is intentionally gitignored. Packaging is therefore a
-local/Windows step, not an Ubuntu CI step.
+that directory is intentionally gitignored.
 
-## Testing and CI
+The generated Enemy Randomization build inputs are committed to the repository
+so GitHub Actions can package the mod without access to extracted BG3 data.
+Local builds regenerate those inputs by default. Set `ENR_SKIP_GENERATION=1` to
+make `build.sh` use the committed copies instead:
+
+```bash
+ENR_SKIP_GENERATION=1 ./scripts/build.sh EnemyRandomization
+```
+
+## Testing and CI/CD
 
 Install developer dependencies:
 
@@ -83,11 +91,15 @@ python scripts/validate-mod.py --all
 
 GitHub Actions runs:
 
-- a dynamic matrix with one validation job per discovered mod
-- a shared full test suite on Ubuntu
+- **CI** on Ubuntu: a dynamic matrix with one validation job per discovered mod,
+  plus the shared full test suite.
+- **CD** after a successful `master` CI run: a Windows packaging matrix builds
+  all discovered mods with LSLib and replaces the single **latest** GitHub
+  release with the new `.pak` assets.
 
-The workflow does not build `.pak` files because LSLib and extracted BG3 assets
-are not present on a clean runner.
+CD keeps only one release, tagged `latest`; previous release assets and tags are
+deleted before the new release is created. Packaging is not run on a clean
+Ubuntu runner because LSLib requires Windows.
 
 ## DOS2 Combat Overhaul
 
@@ -246,9 +258,10 @@ Spells are existing BG3 spells. Conditions are permanent positive native
 statuses while the item is equipped. Ability boosts are capped at 20. Loot
 keeps the base item's name, icon, and visual while overriding its rarity.
 
-The loot catalog is generated deterministically at build time. Generated loot
-files are not tracked in git, but `./scripts/build.sh EnemyRandomization`
-regenerates and packages them automatically.
+The loot catalog is generated deterministically at build time. The generated
+catalog is committed so CD can package it without extracted BG3 data; local
+`./scripts/build.sh EnemyRandomization` regenerates it from `.analysis` unless
+`ENR_SKIP_GENERATION=1` is set.
 
 ### Saves and multiplayer
 
@@ -345,6 +358,7 @@ scripts/
   generate-enr-*.py     deterministic Enemy Randomization generators
 tests/                  unittest and Lua harness tests
 .github/workflows/ci.yml dynamic mod validation matrix and test suite
+.github/workflows/cd.yml package all mods and replace the latest release
 ```
 
 ## Developer Documentation
