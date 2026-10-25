@@ -567,21 +567,123 @@ local function patchCastingAbilityTooltips(name, stat)
     return changed
 end
 
-local function patchEldritchBlastTooltip(name, stat)
-    if name ~= "Projectile_EldritchBlast" then return false end
-    local cfg = DOS2C.Config
-    if not cfg.CASTING_ABILITY_SPELL_DAMAGE then return false end
+local TOOLTIP_RIDERS = {}
+local RIDER_FUNCTORS = {
+    "DamageBonus",
+    "DealDamage",
+    "WeaponDamage",
+    "CharacterWeaponDamage",
+    "CharacterUnarmedDamage",
+    "EntityThrowDamage",
+}
+
+local function balancedCall(text, start)
+    local open = text:find("(", start, true)
+    if not open then return nil end
+    local depth = 0
+    for i = open, #text do
+        local ch = text:sub(i, i)
+        if ch == "(" then
+            depth = depth + 1
+        elseif ch == ")" then
+            depth = depth - 1
+            if depth == 0 then return text:sub(start, i) end
+        end
+    end
+    return nil
+end
+
+local function riderCalls(text)
+    local calls = {}
+    for _, fn in ipairs(RIDER_FUNCTORS) do
+        local pos = 1
+        while true do
+            local first, last = text:find(fn .. "(", pos, true)
+            if not first then break end
+            local call = balancedCall(text, first)
+            if call then calls[#calls + 1] = call end
+            pos = last + 1
+        end
+    end
+    return calls
+end
+
+local function riderSpellIds(text)
+    local ids = {}
+    for id in text:gmatch("SpellId%(%s*'([^']+)'%s*%)") do
+        ids[#ids + 1] = id
+    end
+    for id in text:gmatch('SpellId%(%s*"([^"]+)"%s*%)') do
+        ids[#ids + 1] = id
+    end
+    return ids
+end
+
+local function collectTooltipRiders()
+    TOOLTIP_RIDERS = {}
+    if not (Ext and Ext.Stats and Ext.Stats.GetStats) then return 0 end
+
+    local added = 0
+    for _, statType in ipairs({ "PassiveData", "StatusData" }) do
+        local ok, names = pcall(Ext.Stats.GetStats, statType)
+        if ok and type(names) == "table" then
+            for _, name in ipairs(names) do
+                local got, stat = pcall(Ext.Stats.Get, name, statType)
+                if got and stat then
+                    local boosts = U.SafeGet(stat, "Boosts")
+                    if type(boosts) == "string" and boosts ~= ""
+                        and boosts:find("SpellId", 1, true) then
+                        for clause in boosts:gmatch("[^;]+") do
+                            if clause:find("SpellId", 1, true) then
+                                local calls = riderCalls(clause)
+                                local ids = riderSpellIds(clause)
+                                if #calls > 0 and #ids > 0 then
+                                    for _, spell in ipairs(ids) do
+                                        local list = TOOLTIP_RIDERS[spell] or {}
+                                        for _, call in ipairs(calls) do
+                                            local exists = false
+                                            for _, existing in ipairs(list) do
+                                                if existing == call then exists = true; break end
+                                            end
+                                            if not exists then
+                                                list[#list + 1] = call
+                                                added = added + 1
+                                            end
+                                        end
+                                        TOOLTIP_RIDERS[spell] = list
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    if added > 0 then
+        U.Log("tooltip riders discovered: %d entries", added)
+    end
+    return added
+end
+
+local function patchTooltipRiders(name, stat)
+    local riders = TOOLTIP_RIDERS[name]
+    if not riders or #riders == 0 then return false end
 
     local changed = false
     for _, field in ipairs(TOOLTIP_CASTING_FIELDS) do
         local value = U.SafeGet(stat, field)
         if type(value) == "string" and value ~= ""
-            and value:find("DealDamage", 1, true)
-            and not value:find("CharismaModifier", 1, true) then
-            local separator = value:sub(-1) == ";" and "" or ";"
-            local addition = "DamageBonus(CharismaModifier,Force)"
-            if U.SafeSet(stat, field, value .. separator .. addition) then
-                changed = true
+            and value:find("DealDamage", 1, true) then
+            for _, rider in ipairs(riders) do
+                if not value:find(rider, 1, true) then
+                    local separator = value:sub(-1) == ";" and "" or ";"
+                    local updated = value .. separator .. rider
+                    if U.SafeSet(stat, field, updated) then
+                        value = updated
+                        changed = true
+                    end
+                end
             end
         end
     end
@@ -627,7 +729,7 @@ local function patchSpell(name, stat)
     local changed = patchAstralKnowledge(name, stat)
     changed = patchConcentration(name, stat) or changed
     changed = patchCastingAbilityTooltips(name, stat) or changed
-    changed = patchEldritchBlastTooltip(name, stat) or changed
+    changed = patchTooltipRiders(name, stat) or changed
 
     local costs = U.SafeGet(stat, "UseCosts")
     rememberNativeCooldown(name, stat)
@@ -1253,20 +1355,22 @@ function S.PatchAll(runtime)
         local damage = patchCharacterDamage(stat)
         return ap or damage
     end)
-    local nSpells = eachStat("SpellData", function(name, stat)
-        return patchSpell(name, stat)
-    end)
     local nWeapons = eachStat("Weapon", function(_, stat)
         return patchWeapon(stat)
     end)
     local nArmor = eachStat("Armor", function(name, stat)
         return patchArmor(name, stat)
     end)
-    local nStatuses = eachStat("StatusData", function(_, stat)
+    local nStatuses = eachStat("StatusData", function(name, stat)
         return patchStatusDamage(name, stat)
     end)
     local nPassives = eachStat("PassiveData", function(_, stat)
         return patchPassiveDamage(stat)
+    end)
+
+    collectTooltipRiders()
+    local nSpells = eachStat("SpellData", function(name, stat)
+        return patchSpell(name, stat)
     end)
 
     if runtime then
