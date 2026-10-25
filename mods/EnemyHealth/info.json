@@ -1,0 +1,13 @@
+{
+  "Mods": [
+    {
+      "Name": "Enemy Health Multiplier",
+      "Author": "Shawn",
+      "Description": "Increases the base health of all non-party enemies by a configurable multiplier. Works independently or alongside Enemy Randomization and DOS2 Combat Overhaul.",
+      "Version": "0.1.0",
+      "UUID": "a44e00dc-9c8a-48b5-8a06-bf623968ff80",
+      "Folder": "EnemyHealth",
+      "Dependencies": []
+    }
+  ]
+}
