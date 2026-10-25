@@ -256,10 +256,15 @@ Known DOS2 visual references for the current test spells:
 
 ## DOS2 Combat compatibility gaps
 
-- [ ] Decide and implement the attack-roll model. `REMOVE_ATTACK_ROLLS=true`
-      currently clears `SpellRoll`, so accuracy modifiers, Blinded/Frightened/
-      Prone disadvantage, advantage, critical hits, and riders such as
-      Great Weapon Master / Sharpshooter may no longer work as intended.
+- [x] Use no hit-roll RNG. Every AC source now becomes generic physical/magic
+      armor; native AC and Dodge no longer affect hit chance.
+- [x] Apply a final-damage multiplier when native critical-hit metadata is
+      present.
+- [ ] Convert attack-roll passives/statuses to damage, range, or deterministic
+      effects now that attacks cannot miss.
+- [ ] Replace Blinded's attack-roll penalty with a 1-1.5 m range cap plus a
+      melee damage penalty; convert generic disadvantage to reduced outgoing
+      damage.
 - [ ] Audit passives/statuses that grant or consume `BonusActionPoint`:
       Fast Hands, Quickened Spell, War Magic, War Priest, Mind Sanctuary,
       Assassinate, Wild Shape combat, and the War Magic/War Priest extra-attack
@@ -276,9 +281,11 @@ Known DOS2 visual references for the current test spells:
 - [ ] Audit spell-slot recovery and charge features: Arcane Recovery, Sorcerer
       points, Warlock pact slots, item charges, scrolls, and effects that reset
       spell slots or cooldowns.
-- [ ] Audit AC-boosting statuses that are not in `ARMOR_SKILL_BONUSES`:
-      Defensive Duelist, Shield Master, Haste, Bladesong, Aura of Protection,
-      and item/passive AC boosts may still affect hit chance or do nothing.
+- [x] AC from gear, spells, passives, and enemy natural armor is converted
+      through one generic armor calculation. Item AC no longer suppresses hit
+      chance.
+- [ ] Verify the generic AC split for Mage Armor, Shield, Shield of Faith,
+      Barkskin, Armor of Agathys, Blade Ward, heavy armor, and shields.
 - [ ] Revisit two-weapon fighting and offhand attacks: both currently use the
       basic 2 AP cost, while Extra Attack is a free follow-up.
 - [ ] Audit reaction and legendary-action economy, especially Shield,

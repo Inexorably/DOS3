@@ -179,17 +179,17 @@ local function removeAPBoost(stat)
 end
 
 local function addBaseAttackBonus(stat, cfg)
-    if cfg.BASE_ATTACK_ROLL_BONUS == nil or cfg.BASE_ATTACK_ROLL_BONUS == 0 then
-        return false
-    end
     local current = U.SafeGet(stat, "DefaultBoosts")
     if type(current) ~= "string" then current = "" end
     local bonus = tonumber(cfg.BASE_ATTACK_ROLL_BONUS) or 0
-    local token = string.format("WeaponAttackRollBonus(%d)", bonus)
-    if current:find(token, 1, true) then return false end
-    -- Remove an older configured value if it changed.
     local cleaned = current:gsub("%s*;?%s*WeaponAttackRollBonus%(%s*%d+%s*%)", "")
     cleaned = cleaned:gsub("^%s*;%s*", ""):gsub("%s*;%s*$", "")
+    if bonus == 0 then
+        if cleaned ~= current then return U.SafeSet(stat, "DefaultBoosts", cleaned) end
+        return false
+    end
+    local token = string.format("WeaponAttackRollBonus(%d)", bonus)
+    if cleaned == current and current:find(token, 1, true) then return false end
     local updated = cleaned ~= "" and (cleaned .. ";" .. token) or token
     return U.SafeSet(stat, "DefaultBoosts", updated)
 end
@@ -886,8 +886,18 @@ local function patchHasteLethargy(name, stat)
     return U.SafeSet(stat, "OnRemoveFunctors", updated)
 end
 
+local function cleanupAttackDebuff(stat)
+    local boosts = U.SafeGet(stat, "Boosts")
+    if type(boosts) ~= "string" or boosts == "" then return false end
+    local updated = boosts:gsub("%s*;?%s*WeaponAttackRollBonus%(%s*%-100%s*%)", "")
+    updated = updated:gsub("^%s*;%s*", ""):gsub("%s*;%s*$", "")
+    if updated == boosts then return false end
+    return U.SafeSet(stat, "Boosts", updated)
+end
+
 local function patchStatusDamage(name, stat)
     local changed = stripDeadSavingThrowBoosts(stat)
+    if cleanupAttackDebuff(stat) then changed = true end
     if patchExtraAttackStatus(name, stat) then changed = true end
     if patchHasteLethargy(name, stat) then changed = true end
     if patchAttackDisadvantage(stat) then changed = true end
