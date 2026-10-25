@@ -103,7 +103,7 @@ local function costForSpell(name, level)
     -- spellbooks and do not always carry a usable Level field. Their intended
     -- cost is always 2 AP; do not let the level-based fallback turn them into
     -- 1 AP spells.
-    if name and name:find("^ENR_Summon_") then return 2 end
+    if name and name:find("^ENR_Summon_") then return 4 end
     local explicit = cfg.DOS2_AP_COSTS and cfg.DOS2_AP_COSTS[name]
     if explicit ~= nil then return tonumber(explicit) or 1 end
     local lvl = tonumber(level) or 0
@@ -801,12 +801,19 @@ local function patchSpell(name, stat)
         end
         if clearRoll then
             if originalRolls[name] == nil then originalRolls[name] = roll end
-            local cleared = U.SafeSet(stat, "SpellRoll", "")
+            -- SpellRoll is exposed as a stats expression table, so assigning a
+            -- Lua string can report success without changing the underlying
+            -- expression. SetRawAttribute writes the actual stats property.
+            local cleared = false
+            if stat.SetRawAttribute then
+                local ok, result = pcall(function()
+                    return stat:SetRawAttribute("SpellRoll", "")
+                end)
+                cleared = ok and result ~= false
+            end
+            if not cleared then cleared = U.SafeSet(stat, "SpellRoll", "") end
             if not cleared then cleared = U.SafeSet(stat, "SpellRoll", nil) end
             if not cleared then cleared = U.SafeSet(stat, "SpellRoll", {}) end
-            if not cleared and stat.SetRawAttribute then
-                cleared = pcall(function() return stat:SetRawAttribute("SpellRoll", "") end)
-            end
             if cleared then
                 changed = true
             else

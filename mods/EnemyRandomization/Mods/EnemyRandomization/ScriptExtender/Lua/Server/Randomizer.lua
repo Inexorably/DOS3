@@ -451,6 +451,12 @@ local function applyOne(entity, party)
     -- regular-buff marker can still roll/adopt a champion.
     if applyChampion(guid, entityIsBoss(entity), entity) then applied = true end
 
+    -- Barkskin and other random AC buffs can be applied after the initial
+    -- armor pass. Reapply the no-dodge suppression after all status grants.
+    if DOS2C and DOS2C.Armor and DOS2C.Armor.ForceNoDodge then
+        pcall(DOS2C.Armor.ForceNoDodge, guid)
+    end
+
     buffed[guid] = true
     return applied
 end

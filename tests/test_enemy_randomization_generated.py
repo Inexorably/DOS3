@@ -66,6 +66,16 @@ class GeneratedEnemyRandomizationTests(unittest.TestCase):
         hp = [int(self.stats[f"ENR_Redcap_L{level}"]["Vitality"]) for level in range(1, 21)]
         self.assertEqual(hp, sorted(hp))
 
+    def test_summoning_champions_summons_cost_four_ap(self):
+        for name, data in self.stats.items():
+            if name.startswith("ENR_Summon_"):
+                with self.subTest(spell=name):
+                    self.assertEqual(data.get("UseCosts"), "ActionPoint:4")
+
+    def test_monstrosities_champion_has_valid_icon(self):
+        data = self.stats["ENR_CHAMPION_MONSTROSITIES"]
+        self.assertEqual(data.get("Icon"), "Action_Monster_Bulette_Bite")
+
     def test_generated_buff_pool_is_larger_than_old_fallback(self):
         block = re.search(r"buffs = \{(.*?)\n  \},", self.generated, re.S)
         self.assertIsNotNone(block)

@@ -45,6 +45,14 @@ local function suppressHitChanceAC(handle)
     if not guid or not (Osi and Osi.ApplyStatus) then return false end
     if hasStatus(guid, "DOS2C_NoDodge") then return true end
     local ok = pcall(Osi.ApplyStatus, guid, "DOS2C_NoDodge", -1, 1)
+    -- Also force the live Armor component to the baseline. This is a fallback
+    -- for status-order edge cases where a later AC boost is evaluated first.
+    if ok and Osi.SetArmorClass then
+        pcall(Osi.SetArmorClass, guid, 10)
+    end
+    if ok and Osi.SetArmorClassBoost then
+        pcall(Osi.SetArmorClassBoost, guid, 0)
+    end
     if not ok then U.Log("could not suppress native AC for %s", tostring(guid)) end
     return ok
 end

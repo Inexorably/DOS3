@@ -387,10 +387,10 @@ CHAMPIONS = [
     {
         'key': 'MONSTROSITIES',
         'name': 'Champion of Monstrosities',
-        'icon': 'Icon_Bulette',
+        'icon': 'Action_Monster_Bulette_Bite',
         'summons': [
-            summon('Bulette', 'Bulette', 'Bulette', 'Bulette', 'Icon_Bulette'),
-            summon('HookHorror', 'Hook Horror', 'HookHorror', 'HookHorror_A', 'Icon_HookHorror'),
+            summon('Bulette', 'Bulette', 'Bulette', 'Bulette', 'Action_Monster_Bulette_Bite'),
+            summon('HookHorror', 'Hook Horror', 'HookHorror', 'HookHorror_A', 'Action_HookHorror_Hook'),
         ],
     },
     {
@@ -841,7 +841,7 @@ def build_stats_and_loca(guids, stats_by_tag):
                 'data "TargetConditions" "%s"' % summon_conditions(guids, item),
                 'data "SpellContainerID" ""',
                 'data "ContainerSpells" ""',
-                'data "UseCosts" "ActionPoint:2"',
+                'data "UseCosts" "ActionPoint:4"',
                 'data "Cooldown" "UntilRest"',
                 'data "SpellFlags" "IsEnemySpell"',
                 'data "Icon" "%s"' % item['icon'],
