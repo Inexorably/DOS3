@@ -383,12 +383,19 @@ Known DOS2 visual references for the current test spells:
       while HP and armor scale with the summoned level.
 - [x] Stopped scaling summoned-enemy ability scores by level; generated
       templates preserve the source Ability values and scale HP/armor only.
-- [ ] Verify summon skills cost 2 AP and still enforce the five-turn cooldown.
+- [ ] Verify summon skills cost 4 AP and still enforce the five-turn cooldown.
 - [ ] Evaluate polymorph/wildshape statuses as a separate opt-in loot category.
       Use at most one form per item, likely Legendary-only, and verify model,
       equipment, spellcasting, removal, and save/reload behavior before
       adding them to the normal random condition pool.
 
+
+## Summon economy
+
+- [ ] Change summoned enemies to **3 AP per turn instead of 4**, and spawn
+      them with the **lethargic** status so their first turn is effectively a
+      setup/wait turn. Verify AP regeneration, cooldown ticks, and multiplayer
+      replication for summon first turns.
 
 ## Respec Anywhere
 

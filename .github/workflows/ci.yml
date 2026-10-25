@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  discover-mods:
+    name: Discover mods
+    runs-on: ubuntu-latest
+    outputs:
+      mods: ${{ steps.mods.outputs.mods }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build mod matrix
+        id: mods
+        shell: bash
+        run: |
+          python -c "import json, pathlib; print(json.dumps(sorted(p.name for p in pathlib.Path('mods').iterdir() if (p / 'info.json').is_file())))" > /tmp/mods.json
+          echo "mods=$(cat /tmp/mods.json)" >> "$GITHUB_OUTPUT"
+
+  validate-mod:
+    name: Validate ${{ matrix.mod }}
+    needs: discover-mods
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        mod: ${{ fromJSON(needs.discover-mods.outputs.mods) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install test dependencies
+        run: python -m pip install -r requirements-dev.txt
+      - name: Validate mod source
+        run: python scripts/validate-mod.py "${{ matrix.mod }}"
+
+  test-suite:
+    name: Full source test suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install test dependencies
+        run: python -m pip install -r requirements-dev.txt
+      - name: Run tests
+        run: python -m unittest discover -s tests -t . -v
+
+  # Packaging is intentionally not part of this Ubuntu workflow.
+  # scripts/build.sh requires LSLib/Divine.exe plus extracted BG3 data
+  # (.analysis/*), neither of which is checked into this repository.
