@@ -16,6 +16,14 @@ ER.Config = {
     CHAMPION_HP_MULTIPLIER = 1.5,
     CHAMPION_HP_MARKER = "ENR_CHAMPION_HP_SCALED",
 
+    -- Summoned enemies scale HP/armor through their generated Character
+    -- templates. Their native weapons and multiattacks still carry source
+    -- damage, so apply a level-relative outgoing damage scale as well.
+    SUMMON_DAMAGE_SCALE_ENABLED = true,
+    SUMMON_DAMAGE_PER_LEVEL = 0.15,
+    SUMMON_DAMAGE_MIN_SCALE = 0.5,
+    SUMMON_DAMAGE_MAX_SCALE = 1.5,
+
     -- Boss tiers are matched primarily against the runtime display name. The
     -- lists intentionally use short lowercase aliases so localized titles and
     -- variants such as "Apostle of Myrkul" still match.
@@ -105,6 +113,10 @@ ER.Config = {
     end)(),
 }
 
+
+if Ext and Ext.Utils and Ext.Utils.Print then
+    pcall(Ext.Utils.Print, ER.Config.LOG_PREFIX .. " random buff pool: " .. tostring(#ER.Config.BUFFS))
+end
 
 -- Restore the persisted champion chance for existing saves. ModVars are
 -- registered by BootstrapServer before this file loads.
