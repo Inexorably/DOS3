@@ -254,6 +254,40 @@ Known DOS2 visual references for the current test spells:
 - [ ] Verify dynamic sizing no longer clips the bottom or becomes too wide.
 - [x] Add `!dos2c_armorui on|off` to broadcast the armor UI visibility toggle.
 
+## DOS2 Combat compatibility gaps
+
+- [ ] Decide and implement the attack-roll model. `REMOVE_ATTACK_ROLLS=true`
+      currently clears `SpellRoll`, so accuracy modifiers, Blinded/Frightened/
+      Prone disadvantage, advantage, critical hits, and riders such as
+      Great Weapon Master / Sharpshooter may no longer work as intended.
+- [ ] Audit passives/statuses that grant or consume `BonusActionPoint`:
+      Fast Hands, Quickened Spell, War Magic, War Priest, Mind Sanctuary,
+      Assassinate, Wild Shape combat, and the War Magic/War Priest extra-attack
+      statuses are not converted by the SpellData cost patch.
+- [ ] Audit item and consumable actions (potions, coatings, thrown items,
+      scrolls) whose costs are not `SpellData` and therefore bypass
+      `rebuildCosts`.
+- [ ] Audit saving-throw-only passives/statuses after saving throws are removed:
+      War Caster, Aura of Protection, Danger Sense, Gnome Cunning, Halfling
+      Lucky, Immutable Form, IronMind, and similar features may be dead.
+- [ ] Audit concentration-dependent passives/statuses after concentration is
+      removed: War Caster, Mage Slayer, Focused Conjuration, and concentration
+      item passives.
+- [ ] Audit spell-slot recovery and charge features: Arcane Recovery, Sorcerer
+      points, Warlock pact slots, item charges, scrolls, and effects that reset
+      spell slots or cooldowns.
+- [ ] Audit AC-boosting statuses that are not in `ARMOR_SKILL_BONUSES`:
+      Defensive Duelist, Shield Master, Haste, Bladesong, Aura of Protection,
+      and item/passive AC boosts may still affect hit chance or do nothing.
+- [ ] Revisit two-weapon fighting and offhand attacks: both currently use the
+      basic 2 AP cost, while Extra Attack is a free follow-up.
+- [ ] Audit reaction and legendary-action economy, especially Shield,
+      Counterspell, opportunity attacks, and boss legendary actions.
+- [ ] Audit enemy AI assumptions: bonus actions, spell slots, native cooldowns,
+      and `SpellBookCooldowns` are not understood by native AI.
+- [ ] Update tooltips/UI for AP costs, removed saving throws, removed
+      concentration, spell slots, and the Dodge/AC split.
+
 ## Verification checklist
 
 - [ ] Firebolt tooltip shows a compressed range and actual damage stays within
