@@ -144,6 +144,26 @@ local function setAP(entity, amount, maxAmount)
     return touched
 end
 
+local function setAPMax(entity, maxAmount)
+    local entries = apEntriesOf(entity)
+    if not entries then return false end
+    maxAmount = tonumber(maxAmount) or tonumber(CFG.SUMMON_AP_MAX) or 3
+    local touched = false
+    for _, entry in ipairs(entries) do
+        local currentAmount = tonumber(entry.Amount) or 0
+        if tonumber(entry.MaxAmount) ~= maxAmount then
+            entry.MaxAmount = maxAmount
+            touched = true
+        end
+        if currentAmount > maxAmount then
+            entry.Amount = maxAmount
+            touched = true
+        end
+    end
+    if touched then pcall(function() entity:Replicate("ActionResources") end) end
+    return touched
+end
+
 local function isGeneratedSummon(entity)
     local stats = statsId(entity)
     return stats ~= nil and stats:match("^ENR_") ~= nil and stats:match("_L%d+$") ~= nil
@@ -153,7 +173,7 @@ local function markSummon(entity)
     local guid = guidOf(entity)
     if not guid or not isGeneratedSummon(entity) then return false end
     if hasStatus(guid, CFG.SUMMON_ECONOMY_MARKER) then
-        setAP(entity, CFG.SUMMON_AP_MAX, CFG.SUMMON_AP_MAX)
+        setAPMax(entity, CFG.SUMMON_AP_MAX)
         return true
     end
 

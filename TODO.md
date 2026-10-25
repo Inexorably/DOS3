@@ -48,42 +48,21 @@
 
 ## Hit chance
 
-- [x] Stop removing native attack rolls. `SpellRoll` attack expressions and
-      `IF(Attack(...))` effect gates are preserved, so Blinded, Frightened,
-      Prone/Restrained, cover, and high-ground attack modifiers work again.
-- [x] Keep saving throws removed for now; only saving-throw effects are
-      unwrapped.
-- [x] Keep the real equipment AC on the item for tooltip/resistance use, and
-      add a matching negative `AC(...)` boost so gear no longer contributes to
-      native hit chance.
-- [x] Native attack rolls now use the remaining AC as the Dodge value:
-      base 10 plus explicit Dodge/AC boosts.
-- [x] Add `WeaponAttackRollBonus(100)` to every character so normal attacks
-      default to the native 100% hit cap.
-- [x] Statuses with `Disadvantage(AttackRoll)` append
-      `WeaponAttackRollBonus(-100)`, so Blinded and similar effects can miss.
-- [x] Client hover overlay shows the physical/magic resistance of a hovered
-      armor item.
-- [x] Armor overlay now shows P/M, Dodge, and the engine-reported Accuracy.
-- [x] Native AC labels are renamed to Dodge; P/M values remain available via
-      the armor passives and hover overlay.
-- [x] Accuracy comes from the engine hit-chance query; Dodge is derived from
-      the remaining native AC rather than a static baseline.
-- [x] Accepted native d20 5% attack steps instead of an exact DOS2 linear
-      accuracy-minus-dodge formula.
-- [x] Audit statuses that modify saving throws in the verification dump.
-- [x] Give mental ability scores combat value again by adding the
-      casting-ability modifier to spell damage now that attack rolls and
-      saving throws are removed.
-- [ ] Verify the casting-ability spell damage is applied and that the updated
-      TooltipDamageList/DescriptionParams tooltips show the same bonus.
-- [x] Update spell tooltips to show the casting-ability damage bonus. The
-      relevant TooltipDamageList, DescriptionParams, ExtraDescriptionParams,
-      and TooltipUpcastDescriptionParams fields now receive a separate
-      DealDamage(max(0,SpellCastingAbilityModifier), <type>) expression while
-      weapon tooltips and already-patched fields are skipped.
-- [x] Strip saving-throw-only boost tokens from status/passive tooltips; they
-      remain intentionally deprecated because DOS2 has no saving throws.
+- [x] Remove native attack rolls entirely (`REMOVE_ATTACK_ROLLS = true`) and do
+      not add a baseline accuracy boost.
+- [x] Keep saving throws removed; unwrap saving-throw-only effect gates.
+- [x] Convert AC from gear, spells, passives, and enemy native AC into one
+      generic physical/magic armor value.
+- [x] Convert native attack-roll advantage/disadvantage statuses and passives
+      into deterministic outgoing-damage modifiers; advantage and disadvantage
+      cancel if both are present.
+- [x] Convert native critical thresholds and forced-critical effects into the
+      custom server-side critical table.
+- [x] Convert Blinded to a 1.5 m ranged targeting cap plus a damage penalty.
+- [x] Add the spellcasting-ability modifier to spell damage and tooltips so
+      mental ability scores remain meaningful.
+- [ ] Verify in-game that no attack-roll percentage appears, custom criticals
+      apply only to attacks, and tooltip damage matches resolved damage.
 
 ## Spell cooldowns
 
