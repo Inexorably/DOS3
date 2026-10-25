@@ -110,7 +110,7 @@ status boost immediately re-granting it.
 
 Both skills:
 
-- Cost `2` AP.
+- Cost `4` AP.
 - Have a `5` turn numeric cooldown enforced by `Server/SummonCooldown.lua`.
 - Use distinct summon stack IDs:
   - `ENR_DinoAlioramusStack`
@@ -217,7 +217,7 @@ rebuilding the mod does not change the root-template GUIDs.
 BG3 armor, weapon, spell, and status data.
 
 For every base equipment root and every rarity, it generates
-`VARIANTS_PER_RARITY` variants. The default is 6, producing 17,208 variants
+`VARIANTS_PER_RARITY` variants. The default is 1, producing one deterministic variant
 across all 717 base equipment roots.
 
 Each variant gets:

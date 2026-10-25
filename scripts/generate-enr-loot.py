@@ -55,7 +55,7 @@ WEAPON_SOURCES = list(STATS_ROOT.glob('*/Stats/Generated/Data/Weapon.txt'))
 SPELL_SOURCES = list(STATS_ROOT.glob('*/Stats/Generated/Data/Spell_*.txt'))
 STATUS_SOURCES = list(STATS_ROOT.glob('*/Stats/Generated/Data/Status_*.txt'))
 
-# The current design from thonks.txt. Keep these values in one place so the
+# The current loot design documented in README.md. Keep these values in one place so the
 # catalog can be regenerated when the design changes.
 RARITIES = [
     {
@@ -82,9 +82,9 @@ RARITIES = [
     },
 ]
 
-# A player-level cap from thonks.txt. The item grants one spell set per band;
+# A player-level cap documented in README.md. The item grants one spell set per band;
 # only the band matching the wearer's level is active.
-# Cumulative spell-level caps from thonks.txt:
+# Cumulative spell-level caps documented in README.md:
 # player 1-2 -> 0-1, 3-4 -> 0-2, 5-6 -> 0-3, 7-8 -> 0-4,
 # 9-10 -> 0-5, 11+ -> 0-6.
 SPELL_LEVEL_BANDS = [

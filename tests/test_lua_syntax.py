@@ -29,8 +29,13 @@ class LuaSyntaxTests(unittest.TestCase):
             root = path.parent
             text = read(path)
             for required in __import__("re").findall(r'Ext\.Require\("([^"]+)"\)', text):
+                target = root / required
+                # GeneratedLoot.lua is produced by build.sh from extracted BG3
+                # data and is intentionally gitignored.
+                if required == "Server/GeneratedLoot.lua" and not target.exists():
+                    continue
                 with self.subTest(bootstrap=str(path.relative_to(MODS)), module=required):
-                    self.assertTrue((root / required).exists(), f"missing {root / required}")
+                    self.assertTrue(target.exists(), f"missing {target}")
 
 
 if __name__ == "__main__":

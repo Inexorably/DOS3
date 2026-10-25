@@ -1,8 +1,43 @@
 # DOS2 Combat Overhaul TODO
 
-## Code review
+## Code review backlog
 
-- [ ] Work through CODE_REVIEW.md findings and remove the file when the checklist is complete.
+- [ ] Generate `ArmorPassives.txt` from the runtime armor formula, or validate
+      every computed `P/M` combination at build time. Shields and high-AC heavy
+      armor currently request missing `_M0`/`P13_M8`/`P14_M8` entries.
+- [ ] Resolve the summon ability policy: `SummonPolish.lua` still applies a
+      level offset that contradicts the generator's fixed-ability policy.
+- [ ] Export one cooldown enum/turn table from `Config` and consume it from
+      `StatsPatcher`, `Cooldowns`, and `scripts/audit-enemy-cooldowns.py`.
+- [ ] Unify `COOLDOWN_OVERRIDES` and `ENEMY_COOLDOWN_OVERRIDES` matching
+      semantics and define precedence.
+- [ ] Make `outOfCombatSeconds` local in `Cooldowns.lua`; it is currently a
+      shared global.
+- [ ] Pick one owner for `SpellBookCooldowns` on `ENR_Summon_*` spells, or have
+      `SummonCooldown` delegate to `DOS2C.Cooldowns` when available.
+- [ ] Consolidate duplicated party/GUID/status/log/in-combat helpers into
+      shared per-mod modules.
+- [ ] Share the armor formula between `StatsPatcher`, `Armor`, and `ArmorUI`;
+      unify the two different definitions of "heavy" armor.
+- [ ] Add assertions for manually synchronized config invariants such as
+      `AP_BOOST_AMOUNT == AP_MAX - AP_BASE` and cooldown values.
+- [ ] Remove dead or unused code: `addAPBoost`, `COOLDOWN_BY_LEVEL`,
+      `CompressLevelMapReferences`, `CompressDealDamage`, `GetCooldown`,
+      `Cooldowns.SetFor`, `enemyACStripped`, unused `ArmorUI` overhead helpers,
+      unused diagnostic probes, and `Respec` `OPEN_CHANNEL`/`RSA.Respec.Open`.
+- [ ] Remove redundant `SummonPolish` Crimson/Alioramus name special-cases and
+      legacy `ENR_COOLDOWN_ALIORAMUS`/`ENR_COOLDOWN_CRIMSON` markers.
+- [ ] Consolidate the overlapping AC-suppression mechanisms in
+      `Armor.stripEnemyAC` so status, `SetArmorClass`, boost reset, and
+      `AddBoosts` fallbacks cannot fight each other by order.
+- [ ] Remove unused `cooldownForSpell` parameters and the unreachable
+      `WeaponRuntime.sidesOf` string branch.
+- [ ] Reduce the full `Tooltips.xaml` vanilla snapshot to a maintainable
+      override and promote its snapshot procedure into `scripts/`.
+- [ ] De-duplicate `TargetInfo.xaml` and `TargetInfo_c.xaml` armor-label
+      changes.
+- [ ] Reconcile documentation comments that still describe old cooldown,
+      armor-pool, rest-event, and summon-cooldown behavior.
 
 ## Damage variance
 
@@ -374,7 +409,7 @@ Known DOS2 visual references for the current test spells:
 - [x] Generate the deterministic gear catalog for all equipment roots and
       rarities, with rarity override, spells, permanent conditions, and ability
       boosts.
-- [x] Updated loot composition to the newer thonks.txt rules, including
+- [x] Updated loot composition to the documented README loot rules, including
       cumulative player-level spell caps and per-rarity category slots.
 - [ ] Verify champion loot drops one item per champion condition, that bosses
       roll only Very Rare/Legendary, and that generated item stats/passives
