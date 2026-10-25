@@ -10,8 +10,6 @@ DOS2C.ArmorUI = DOS2C.ArmorUI or {}
 
 local UI = DOS2C.ArmorUI
 local values = {}
-local originals = {}
-local lastText = {}
 local tickCount = 0
 local logged = false
 
@@ -27,64 +25,6 @@ local function guidOf(entity)
     end)
     if ok and guid then return tostring(guid) end
     return nil
-end
-
-local function originalName(entity, guid)
-    if originals[guid] then return originals[guid] end
-
-    local name
-    if entity.DisplayName and entity.DisplayName.Name then
-        local ok, text = pcall(function() return entity.DisplayName.Name:Get() end)
-        if ok and text then name = tostring(text) end
-    end
-    if not name and entity.CustomName then
-        name = tostring(entity.CustomName.Name or "")
-    end
-    if not name or name == "" then name = guid end
-
-    originals[guid] = name
-    return name
-end
-
-local function setOverheadName(entity, guid, physical, magic)
-    local base = originalName(entity, guid)
-    local text = string.format("%s  [P%d M%d]", base,
-        math.floor(physical + 0.5), math.floor(magic + 0.5))
-    if lastText[guid] == text then return true end
-
-    local applied = false
-
-    -- CustomName is used by player-authored names, but the native overhead
-    -- widget may prefer DisplayName. Set both so the suffix is visible whether
-    -- the entity is a party member or an enemy.
-    local name = entity.CustomName
-    if not name then
-        local ok, created = pcall(function()
-            return entity:CreateComponent("CustomName")
-        end)
-        if ok then name = created end
-    end
-    if name then
-        local ok = pcall(function() name.Name = text end)
-        if ok then applied = true end
-    end
-
-    -- Build a per-entity translated-string handle and point DisplayName at it.
-    -- This targets the actual label used by the native overhead HP widget.
-    if entity.DisplayName and entity.DisplayName.Name and Ext.Loca then
-        local key = "DOS2C_ARMOR_" .. tostring(guid):gsub("[^%w_]", "_")
-        local ok, updated = pcall(Ext.Loca.UpdateTranslatedString, key, text)
-        if ok and updated then
-            local handleOk = pcall(function()
-                entity.DisplayName.Name.Handle.Handle = key
-                entity.DisplayName.Name.Handle.Version = 0
-            end)
-            if handleOk then applied = true end
-        end
-    end
-
-    if applied then lastText[guid] = text end
-    return applied
 end
 
 local function applyAll()
@@ -188,20 +128,11 @@ end
 local function itemArmorText(entity)
     local armor = entity and entity.Armor
     if not armor then return "" end
-    local ac = tonumber(armor.ArmorClass) or 0
-    local gain = math.max(0, armor.Shield and ac or (ac - 9))
-    if gain <= 0 then return "" end
-    local heavy = (tonumber(armor.ArmorType) or 0) >= 6
-    local physical = gain
-    local magic = gain
-    if heavy then
-        physical = physical * 1.25
-        magic = magic * 0.75
-    end
-    if armor.Shield then
-        physical = physical * 1.5
-        magic = 0
-    end
+    local formula = DOS2C.ArmorFormula
+    if not formula then return "" end
+    local physical, magic = formula.Pair(
+        armor.ArmorClass, armor.Shield, formula.IsHeavyStat(armor), DOS2C.Config)
+    if physical <= 0 and magic <= 0 then return "" end
     return string.format("Physical Armor: %d    Magic Armor: %d",
         math.floor(physical + 0.5), math.floor(magic + 0.5))
 end

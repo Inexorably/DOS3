@@ -24,26 +24,49 @@ DOS2C.Config = {
     KEEP_CLASS_RESOURCES = true, -- keep Rage/Ki/SuperiorityDie/etc. costs
     REMOVE_SPELL_SLOTS = true,   -- DOS2 has no per-rest spell slots
 
-    -- TODO: cooldowns are not implemented yet.
-    -- SpellData cooldown sources should be inspected; short-rest recharge
-    -- spells get a 3-turn cooldown, long-rest recharge spells get 5 turns.
-    COOLDOWN_ONCE_PER_TURN = 1,
-    COOLDOWN_ONCE_PER_TURN_NO_REALTIME = 2,
-    COOLDOWN_UNTIL_SHORT_REST = 3,
-    COOLDOWN_ONCE_PER_SHORT_REST_PER_ITEM = 4,
-    COOLDOWN_UNTIL_REST = 5,
-    COOLDOWN_UNTIL_PER_REST_PER_ITEM = 6,
-    COOLDOWN_SHORT_REST = 3,
-    COOLDOWN_LONG_REST = 5,
-    COOLDOWN_ONCE_PER_COMBAT = 5,
+    -- Single source of truth for native cooldown enum -> numeric turns.
+    -- StatsPatcher, Cooldowns, and the Python audit use these values.
+    COOLDOWN_ENUMS = {
+        OncePerTurn = 1,
+        OncePerTurnNoRealtime = 2,
+        OncePerShortRest = 3,
+        UntilShortRest = 3,
+        OncePerShortRestPerItem = 4,
+        UntilShortRestPerItem = 4,
+        OncePerCombat = 5,
+        OncePerRest = 5,
+        UntilRest = 5,
+        OncePerRestPerItem = 6,
+        UntilPerRestPerItem = 6,
+        UntilRestPerItem = 6,
+    },
+    -- Runtime subtype names consumed by the Tooltips.xaml override.
+    COOLDOWN_RUNTIME_TYPES = {
+        OncePerTurn = "OncePerTurn",
+        OncePerTurnNoRealtime = "OncePerTurnNoRealtime",
+        OncePerCombat = "OncePerCombat",
+        OncePerShortRest = "UntilShortRest",
+        UntilShortRest = "UntilShortRest",
+        OncePerShortRestPerItem = "UntilShortRestPerItem",
+        UntilShortRestPerItem = "UntilShortRestPerItem",
+        OncePerRest = "OncePerRest",
+        UntilRest = "UntilRest",
+        OncePerRestPerItem = "UntilRestPerItem",
+        UntilPerRestPerItem = "UntilRestPerItem",
+        UntilRestPerItem = "UntilRestPerItem",
+    },
+    -- Fallback subtype used when the exact enum is unavailable.
+    COOLDOWN_TYPE_BY_TURNS = {
+        [1] = "OncePerTurn",
+        [2] = "OncePerTurnNoRealtime",
+        [3] = "UntilShortRest",
+        [4] = "UntilShortRestPerItem",
+        [5] = "UntilRest",
+        [6] = "UntilRestPerItem",
+        [7] = "UntilRestPerItem",
+    },
     -- These values are for rebalancing BG3-native spells. Ported DOS2 spells
     -- use their original DOS2 cooldown from DOS2_COOLDOWNS below.
-    -- BG3-native spell rebalancing only; ported DOS2 spells use DOS2_COOLDOWNS.
-    -- DOS2 player skills cluster around 3-5 turn cooldowns, with the biggest
-    -- effects at 6. Indexed by spell level (0 = cantrip).
-    -- Level-based fallback: cooldown turns = Level + 1.
-    -- Level 0 cantrips therefore receive 1 turn; level 6 receives 7.
-    COOLDOWN_BY_LEVEL = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
     -- Rough BG3 HP baseline per spell level, used only for the damage bump.
     COOLDOWN_HP_BY_LEVEL = { 10, 15, 25, 35, 45, 55, 65, 75, 85, 95, 105 },
     COOLDOWN_DAMAGE_BUMP_RATIO = 0.80,   -- >= 80% of baseline HP -> +1 turn
@@ -111,7 +134,7 @@ DOS2C.Config = {
     -- Original DOS2 cooldowns for ported skills. These are intentionally not
     -- rebalanced; only BG3-native spells use the heuristics above.
     -- External Enemy Randomization summon skills are intentionally kept at
-    -- 2 AP when both mods are loaded; DOS2Combat's default spell-level mapping
+    -- 4 AP when both mods are loaded; DOS2Combat's default spell-level mapping
     -- would otherwise reduce these custom spells to 1 AP.
     DOS2_AP_COSTS = {
         ENR_Summon_ChultAlioramus = 4,
@@ -139,9 +162,9 @@ DOS2C.Config = {
     PORTED_DAMAGE_MAX_SCALE = 1.00,
 
     -- Determinism ----------------------------------------------------------
-    -- Keep native attack rolls so attack-roll statuses (Blinded,
-    -- Frightened, Prone, etc.) still affect hit chance. AC is used as the
-    -- dodge/defense side of the native d20 check for now.
+    -- No hit-roll RNG: native attack rolls are removed. AC is converted into
+    -- flat armor; attack-roll advantage/disadvantage statuses are converted
+    -- into deterministic outgoing damage modifiers by StatsPatcher/Armor.
     REMOVE_ATTACK_ROLLS = true,
     REMOVE_CONCENTRATION = true, -- DOS2 has no concentration; strip it from every skill
     -- No hit-roll RNG: attacks are resolved without attack rolls.
@@ -197,15 +220,25 @@ DOS2C.Config = {
     ARMOR_HEAVY_PHYSICAL_MULT = 1.25,
     ARMOR_HEAVY_MAGIC_MULT = 0.75,
     ARMOR_SHIELD_PHYSICAL_MULT = 1.5,
-    ARMOR_SHIELD_MAGIC_MULT = 0.5,
+    ARMOR_SHIELD_MAGIC_MULT = 0,
     CRIT_DAMAGE_MULTIPLIER = 2.0, -- final damage multiplier on a critical hit
     CRIT_BASE_CHANCE = 0.05,       -- server-side critical chance independent of hit chance
     CRIT_CHANCE_BONUSES = {},      -- status name -> additive chance
+    CRIT_CHANCE_PASSIVES = {},     -- passive name -> additive chance
     CRIT_FORCED_STATUSES = {},     -- statuses that always critically hit
     CRIT_FORCED_PASSIVES = {},     -- passives that always critically hit
-    ENEMY_INNATE_ARMOR_ENABLED = true, -- enemies without gear use native AC
-    ENEMY_ARMOR_PER_AC = 1,            -- flat P resistance per AC above 9
-    ENEMY_MAGIC_PER_AC = 1,            -- flat M resistance per AC above 9
+    -- Native attack-roll advantage/disadvantage is converted into a
+    -- deterministic outgoing attack-damage modifier because hit rolls are off.
+    ATTACK_ADVANTAGE_DAMAGE_MULT = 1.25,
+    ATTACK_DISADVANTAGE_DAMAGE_MULT = 0.75,
+    ATTACK_ADVANTAGE_STATUSES = {},
+    ATTACK_ADVANTAGE_PASSIVES = {},
+    ATTACK_DISADVANTAGE_STATUSES = {},
+    ATTACK_DISADVANTAGE_PASSIVES = {},
+    -- Blinded/ranged restriction: cap ranged spell and weapon targeting while
+    -- blinded. Native attack-roll disadvantage is converted into damage too.
+    BLINDED_RANGE_CAP_ENABLED = true,
+    BLINDED_RANGE_CAP = 1.5,
     ARMOR_RESET_ON_REST = true,
     -- AC is converted generically into physical/magic armor. These weights
     -- are applied to the AC total contributed by the active effect. Default
@@ -233,3 +266,14 @@ DOS2C.Config = {
     DEBUG = true,
     LOG_PREFIX = "[DOS2C]",
 }
+
+-- Keep the AP boost consistent with the configured AP pool. AP_MAX is the
+-- gameplay cap; AP_BASE is the engine-clamped base value.
+DOS2C.Config.AP_BOOST_AMOUNT = math.max(0,
+    (tonumber(DOS2C.Config.AP_MAX) or 6) - (tonumber(DOS2C.Config.AP_BASE) or 1))
+
+-- Keep the fallback cooldown subtype table bounded by the highest enum value
+-- the UI override understands.
+if (DOS2C.Config.COOLDOWN_MAX or 0) > 7 then
+    DOS2C.Config.COOLDOWN_MAX = 7
+end

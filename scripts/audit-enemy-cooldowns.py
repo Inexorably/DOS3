@@ -19,16 +19,20 @@ STATS = os.path.join(
     ROOT, ".analysis", "bg3", "Public", "Shared", "Stats", "Generated", "Data"
 )
 
+# Keep in sync with DOS2C.Config.COOLDOWN_ENUMS.
 COOLDOWN_TURNS = {
     "OncePerTurn": 1,
-    "OncePerTurnNoRealtime": 1,
+    "OncePerTurnNoRealtime": 2,
     "OncePerShortRest": 3,
-    "OncePerShortRestPerItem": 3,
     "UntilShortRest": 3,
+    "OncePerShortRestPerItem": 4,
+    "UntilShortRestPerItem": 4,
     "OncePerCombat": 5,
     "OncePerRest": 5,
-    "OncePerRestPerItem": 5,
     "UntilRest": 5,
+    "OncePerRestPerItem": 6,
+    "UntilPerRestPerItem": 6,
+    "UntilRestPerItem": 6,
 }
 
 

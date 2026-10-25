@@ -1,8 +1,8 @@
 -- DOS2 Combat Overhaul - debug console commands.
 -- In the Script Extender console:
---   !dos2c_armor [guid]        print armor pools
---   !dos2c_setarmor 40 25      set host armor pools (and max)
---   !dos2c_resetarmor          refill every tracked pool
+--   !dos2c_armor [guid]        print flat physical/magic resistance
+--   !dos2c_setarmor 40 25      override host resistance
+--   !dos2c_resetarmor          clear and recompute resistance caches
 --   !dos2c_patch               re-apply the stat patch pass
 --   !dos2c_rolls on|off        restore/clear BG3 attack and save rolls
 --   !dos2c_debug on|off        toggle logging

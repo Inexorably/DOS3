@@ -8,27 +8,20 @@ data "Description" "This enemy has already received an Enemy Randomization buff.
 data "StackId" "ENR_RANDOMIZED"
 data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"
 
-new entry "ENR_COOLDOWN_ALIORAMUS"
-type "StatusData"
-data "StatusType" "BOOST"
-data "DisplayName" "Summon Cooldown"
-data "Description" "Chult Alioramus summon is on cooldown."
-data "StackId" "ENR_COOLDOWN_ALIORAMUS"
-data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"
-
-new entry "ENR_COOLDOWN_CRIMSON"
-type "StatusData"
-data "StatusType" "BOOST"
-data "DisplayName" "Summon Cooldown"
-data "Description" "Crimson summon is on cooldown."
-data "StackId" "ENR_COOLDOWN_CRIMSON"
-data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"
-
-
 new entry "ENR_CHAMPION_HP_SCALED"
 type "StatusData"
 data "StatusType" "BOOST"
 data "DisplayName" "Champion Health"
 data "Description" "This champion has already received its increased health."
 data "StackId" "ENR_CHAMPION_HP_SCALED"
+data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"
+
+-- Marks generated summons that use the reduced AP economy. The status has no
+-- gameplay boosts; SummonEconomy.lua applies the 3 AP cap at runtime.
+new entry "ENR_SUMMON_ECONOMY"
+type "StatusData"
+data "StatusType" "BOOST"
+data "DisplayName" "Summon Economy"
+data "Description" "This summon uses the reduced summon AP economy."
+data "StackId" "ENR_SUMMON_ECONOMY"
 data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"

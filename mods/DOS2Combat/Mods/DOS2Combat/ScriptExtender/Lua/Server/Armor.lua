@@ -14,8 +14,6 @@ local U = DOS2C.Utils
 
 local resistances = {}
 local originalACs = {}
-local extraACs = {}
-local enemyACStripped = {}
 
 local ARMOR_SLOTS = {
     "Helmet", "Breast", "Cloak", "Gloves", "Boots",
@@ -25,7 +23,9 @@ local ARMOR_SLOTS = {
 
 local function hasStatus(handle, status)
     if not (Osi and Osi.HasStatus) then return false end
-    local ok, result = pcall(Osi.HasStatus, handle, status)
+    local guid = U.GuidOf(handle)
+    if not guid then return false end
+    local ok, result = pcall(Osi.HasStatus, guid, status)
     return ok and (result == 1 or result == true)
 end
 
@@ -45,15 +45,13 @@ local function suppressHitChanceAC(handle)
     if not guid or not (Osi and Osi.ApplyStatus) then return false end
     if hasStatus(guid, "DOS2C_NoDodge") then return true end
     local ok = pcall(Osi.ApplyStatus, guid, "DOS2C_NoDodge", -1, 1)
-    -- Also force the live Armor component to the baseline. This is a fallback
-    -- for status-order edge cases where a later AC boost is evaluated first.
-    if ok and Osi.SetArmorClass then
-        pcall(Osi.SetArmorClass, guid, 10)
+    if not ok then
+        -- Status application is the normal path. The live component setters
+        -- are a fallback only, so the two mechanisms do not fight each other.
+        if Osi.SetArmorClass then pcall(Osi.SetArmorClass, guid, 10) end
+        if Osi.SetArmorClassBoost then pcall(Osi.SetArmorClassBoost, guid, 0) end
+        U.Log("could not suppress native AC via status for %s", tostring(guid))
     end
-    if ok and Osi.SetArmorClassBoost then
-        pcall(Osi.SetArmorClassBoost, guid, 0)
-    end
-    if not ok then U.Log("could not suppress native AC for %s", tostring(guid)) end
     return ok
 end
 
@@ -67,7 +65,7 @@ local function equipmentProfile(handle)
             local entity = U.EntityOf(item)
             local armor = entity and entity.Armor
             if armor then
-                if (tonumber(armor.ArmorType) or 0) >= 6 then heavy = true end
+                if DOS2C.ArmorFormula and DOS2C.ArmorFormula.IsHeavyStat(armor) then heavy = true end
                 if armor.Shield then shield = true end
             end
         end
@@ -78,15 +76,6 @@ end
 local function armorSplit(handle)
     local cfg = DOS2C.Config
     local physical, magic = 1.0, 1.0
-    local heavy, shield = equipmentProfile(handle)
-    if heavy then
-        physical = physical * (cfg.ARMOR_HEAVY_PHYSICAL_MULT or 1)
-        magic = magic * (cfg.ARMOR_HEAVY_MAGIC_MULT or 1)
-    end
-    if shield then
-        physical = physical * (cfg.ARMOR_SHIELD_PHYSICAL_MULT or 1)
-        magic = magic * (cfg.ARMOR_SHIELD_MAGIC_MULT or 1)
-    end
     for _, status in ipairs(cfg.ARMOR_AC_SPLIT_ORDER or {}) do
         local split = cfg.ARMOR_AC_SPLITS and cfg.ARMOR_AC_SPLITS[status]
         if split and hasStatus(handle, status) then
@@ -101,71 +90,6 @@ end
 -- negative AC boost cancels its native attack-roll contribution, so equipment
 -- does not also act as hit avoidance. Native attack rolls use base AC plus
 -- explicit Dodge/AC boosts for hit chance.
-local function originalArmorClass(entity, armor)
-    local data = entity and entity.Data
-    local statName = data and data.StatsId
-    if statName ~= nil and DOS2C.ArmorOriginalAC then
-        local value = DOS2C.ArmorOriginalAC[tostring(statName)]
-        if value then return tonumber(value) or 0 end
-    end
-    return tonumber(armor.ArmorClass) or 0
-end
-
-local function addResistanceFromItem(armor, entity, physical, magic, pieces)
-    local cfg = DOS2C.Config
-    local ac = originalArmorClass(entity, armor)
-    local gain = math.max(0, armor.Shield and ac or (ac - 9))
-    if gain <= 0 then return physical, magic, pieces end
-
-    local heavy = (tonumber(armor.ArmorType) or 0) >= 6
-    local p = gain * cfg.ARMOR_PHYSICAL_PER_AC
-    local m = gain * cfg.ARMOR_MAGIC_PER_AC
-    if heavy then
-        p = p * cfg.ARMOR_HEAVY_PHYSICAL_MULT
-        m = m * cfg.ARMOR_HEAVY_MAGIC_MULT
-    end
-    if armor.Shield then
-        p = p * cfg.ARMOR_SHIELD_PHYSICAL_MULT
-        m = 0
-    end
-    return physical + p, magic + m, pieces + 1
-end
-
-local function armorFromGear(handle)
-    local guid = U.GuidOf(handle)
-    if not guid or not (Osi and Osi.GetEquippedItem) then return 0, 0, 0 end
-
-    local physical, magic, pieces = 0, 0, 0
-    for _, slot in ipairs(ARMOR_SLOTS) do
-        local ok, item = pcall(Osi.GetEquippedItem, guid, slot)
-        if ok and item then
-            local entity = U.EntityOf(item)
-            local armor = entity and entity.Armor
-            if armor then
-                physical, magic, pieces = addResistanceFromItem(armor, entity, physical, magic, pieces)
-            end
-        end
-    end
-    return physical, magic, pieces
-end
-
-local function gearArmorClass(handle)
-    local guid = U.GuidOf(handle)
-    if not guid or not (Osi and Osi.GetEquippedItem) then return 0 end
-    local total = 0
-    for _, slot in ipairs(ARMOR_SLOTS) do
-        local ok, item = pcall(Osi.GetEquippedItem, guid, slot)
-        if ok and item then
-            local entity = U.EntityOf(item)
-            local armor = entity and entity.Armor
-            if armor then
-                total = total + originalArmorClass(entity, armor)
-            end
-        end
-    end
-    return total
-end
-
 local function isPartyCharacter(handle, entity)
     local guid = U.GuidOf(handle)
     if not guid then return true end
@@ -203,49 +127,6 @@ local function isPartyCharacter(handle, entity)
     return false
 end
 
-local function stripEnemyAC(handle)
-    local cfg = DOS2C.Config
-    if not cfg.ENEMY_INNATE_ARMOR_ENABLED then return false end
-    local guid = U.GuidOf(handle)
-    if not guid then return false end
-
-    local function noDodgeActive()
-        if not (Osi and Osi.HasStatus) then return false end
-        local ok, result = pcall(Osi.HasStatus, guid, "DOS2C_NoDodge")
-        return ok and (result == 1 or result == true)
-    end
-
-    -- Keep a permanent, hidden -100 AC status on enemies. Unlike a one-time
-    -- ArmorClass setter, this also cancels AC granted later by champion
-    -- statuses, spells, gear, or passives. Enemy AC has already been converted
-    -- into flat armor by armorFromInnate/gear handling before this runs.
-    local applied = false
-    if Osi and Osi.ApplyStatus and not noDodgeActive() then
-        applied = pcall(Osi.ApplyStatus, guid, "DOS2C_NoDodge", -1, 1)
-    elseif noDodgeActive() then
-        applied = true
-    end
-
-    if Osi and Osi.SetArmorClass then
-        pcall(Osi.SetArmorClass, guid, 10)
-    end
-    if Osi and Osi.SetArmorClassBoost then
-        pcall(Osi.SetArmorClassBoost, guid, 0)
-    end
-
-    if not applied and Osi and Osi.AddBoosts then
-        applied = pcall(Osi.AddBoosts, guid, "AC(-100)", "DOS2C_NoDodge")
-    end
-
-    if applied then
-        enemyACStripped[guid] = true
-        U.Log("enemy AC converted to armor and hit-chance AC suppressed: %s", guid)
-    else
-        U.Log("enemy AC could not be removed: %s", guid)
-    end
-    return applied
-end
-
 local function nativeArmorClass(handle, entity)
     if entity and entity.Armor then
         local ac = tonumber(entity.Armor.ArmorClass) or 0
@@ -256,48 +137,6 @@ local function nativeArmorClass(handle, entity)
         if ok and tonumber(ac) and tonumber(ac) > 0 then return tonumber(ac), nil end
     end
     return nil, nil
-end
-
-local function armorFromInnate(handle, entity, pieces)
-    local cfg = DOS2C.Config
-    if not cfg.ENEMY_INNATE_ARMOR_ENABLED then return 0, 0, nil end
-    if pieces > 0 or isPartyCharacter(handle, entity) then return 0, 0, nil end
-    local guid = U.GuidOf(handle)
-    local ac, armor = nil, nil
-    if guid and originalACs[guid] then
-        ac = originalACs[guid]
-        armor = entity and entity.Armor or nil
-    else
-        ac, armor = nativeArmorClass(handle, entity)
-        if ac and guid then originalACs[guid] = ac end
-    end
-    if not ac then return 0, 0, nil end
-    local gain = math.max(0, ac - 9)
-    if gain <= 0 then return 0, 0, ac end
-    local p = gain * cfg.ENEMY_ARMOR_PER_AC
-    local m = gain * cfg.ENEMY_MAGIC_PER_AC
-    local heavy = armor and (tonumber(armor.ArmorType) or 0) >= 6
-    if heavy then
-        p = p * cfg.ARMOR_HEAVY_PHYSICAL_MULT
-        m = m * cfg.ARMOR_HEAVY_MAGIC_MULT
-    end
-    if armor and armor.Shield then
-        p = p * cfg.ARMOR_SHIELD_PHYSICAL_MULT
-        m = 0
-    end
-    return p, m, ac
-end
-
-local function armorFromSkills(handle)
-    local cfg = DOS2C.Config
-    local physical, magic = 0, 0
-    for status, bonus in pairs(cfg.ARMOR_SKILL_BONUSES or {}) do
-        if hasStatus(handle, status) then
-            physical = physical + (bonus.physical or 0)
-            magic = magic + (bonus.magic or 0)
-        end
-    end
-    return physical, magic
 end
 
 local function computeResistance(handle)
@@ -319,11 +158,12 @@ local function computeResistance(handle)
     -- Every AC source, including gear, spells, passives, and enemy natural AC,
     -- now feeds one generic armor value. There is no Dodge/hit-chance split.
     local gain = math.max(0, ac - 9)
+    local heavy, shield = equipmentProfile(handle)
+    local formula = assert(DOS2C.ArmorFormula, "Shared/ArmorFormula.lua must load first")
+    local basePhysical, baseMagic = formula.Pair(ac, shield, heavy, cfg)
     local pMult, mMult = armorSplit(handle)
-    local physical = (cfg.ARMOR_BASE_PHYSICAL or 0)
-        + gain * (cfg.ARMOR_PHYSICAL_PER_AC or 1) * pMult
-    local magic = (cfg.ARMOR_BASE_MAGIC or 0)
-        + gain * (cfg.ARMOR_MAGIC_PER_AC or 1) * mMult
+    local physical = (cfg.ARMOR_BASE_PHYSICAL or 0) + basePhysical * pMult
+    local magic = (cfg.ARMOR_BASE_MAGIC or 0) + baseMagic * mMult
 
     return {
         physical = physical,
@@ -514,6 +354,11 @@ local function critChanceFor(attacker)
             chance = chance + (tonumber(bonus) or 0)
         end
     end
+    for passive, bonus in pairs(cfg.CRIT_CHANCE_PASSIVES or {}) do
+        if hasPassive(attacker, passive) then
+            chance = chance + (tonumber(bonus) or 0)
+        end
+    end
     for _, status in ipairs(cfg.CRIT_FORCED_STATUSES or {}) do
         if hasStatus(attacker, status) then return 1.0 end
     end
@@ -525,7 +370,43 @@ local function critChanceFor(attacker)
     return chance
 end
 
-local function multiplyDamage(hit, multiplier)
+local multiplyDamage
+
+local function attackDamageMultiplier(attacker)
+    local cfg = DOS2C.Config
+    local advantage = false
+    local disadvantage = false
+    for status in pairs(cfg.ATTACK_ADVANTAGE_STATUSES or {}) do
+        if hasStatus(attacker, status) then advantage = true break end
+    end
+    for passive in pairs(cfg.ATTACK_ADVANTAGE_PASSIVES or {}) do
+        if hasPassive(attacker, passive) then advantage = true break end
+    end
+    for status in pairs(cfg.ATTACK_DISADVANTAGE_STATUSES or {}) do
+        if hasStatus(attacker, status) then disadvantage = true break end
+    end
+    for passive in pairs(cfg.ATTACK_DISADVANTAGE_PASSIVES or {}) do
+        if hasPassive(attacker, passive) then disadvantage = true break end
+    end
+    if advantage and not disadvantage then
+        return tonumber(cfg.ATTACK_ADVANTAGE_DAMAGE_MULT) or 1.25
+    elseif disadvantage and not advantage then
+        return tonumber(cfg.ATTACK_DISADVANTAGE_DAMAGE_MULT) or 0.75
+    end
+    return 1.0
+end
+
+local function applyAttackRollDamageModifier(ev, hit)
+    if not isAttackDamage(ev, hit) then return false end
+    local attacker = attackerOf(ev, hit)
+    local multiplier = attackDamageMultiplier(attacker)
+    if multiplier == 1.0 then return false end
+    local added = multiplyDamage(hit, multiplier)
+    U.Log("attack-roll damage modifier x%.2f (+%d)", multiplier, added)
+    return true
+end
+
+multiplyDamage = function(hit, multiplier)
     if not hit or not multiplier or multiplier == 1 then return 0 end
     local list = hit.DamageList
     local changed = 0
@@ -619,6 +500,7 @@ local function resistDamage(ev)
     end
 
     -- Native critical metadata is converted into a final-damage multiplier.
+    applyAttackRollDamageModifier(ev, hit)
     applyCriticalMultiplier(ev, hit)
 end
 
@@ -706,7 +588,6 @@ if Ext.Events and Ext.Events.SessionLoaded then
     Ext.Events.SessionLoaded:Subscribe(function()
         resistances = {}
         originalACs = {}
-        extraACs = {}
         if Ext.Timer and Ext.Timer.WaitFor then
             for _, delay in ipairs({ 500, 1500, 3000 }) do
                 Ext.Timer.WaitFor(delay, function() pcall(A.PrepareAll) end)

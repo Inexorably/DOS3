@@ -3,7 +3,7 @@
 -- Runs once on StatsLoaded and rewrites:
 --   * Character.ActionResources : 4 AP, no bonus action, keep class resources
 --   * SpellData.UseCosts        : AP costs derived from spell level
---   * SpellData.SpellRoll       : attack rolls preserved; saving throws removed
+--   * SpellData.SpellRoll       : attack and saving throws removed
 --   * damage dice               : replaced with their averages
 --   * Weapon.Damage             : replaced with its average
 --
@@ -101,7 +101,7 @@ local function costForSpell(name, level)
     end
     -- Enemy Randomization summon skills are dynamically added to enemy
     -- spellbooks and do not always carry a usable Level field. Their intended
-    -- cost is always 2 AP; do not let the level-based fallback turn them into
+    -- cost is always 4 AP; do not let the level-based fallback turn them into
     -- 1 AP spells.
     if name and name:find("^ENR_Summon_") then return 4 end
     local explicit = cfg.DOS2_AP_COSTS and cfg.DOS2_AP_COSTS[name]
@@ -134,23 +134,6 @@ local function rebuildCosts(costs, apCost)
         if keep then parts[#parts + 1] = token end
     end
     return table.concat(parts, ";")
-end
-
-local function addAPBoost(stat)
-    local cfg = DOS2C.Config
-    if not cfg.USE_AP_BOOST or cfg.AP_BOOST_AMOUNT <= 0 then return false end
-
-    local current = U.SafeGet(stat, "DefaultBoosts")
-    if type(current) ~= "string" then current = "" end
-
-    -- Remove any ActionPoint boost from a previous pass, otherwise changing
-    -- AP_BOOST_AMOUNT would stack (eg. +3 then +5 => +8).
-    current = current:gsub("%s*;?%s*ActionResource%(%s*ActionPoint%s*,%s*%d+%s*,%s*%d+%s*%)", "")
-    current = current:gsub("^%s*;%s*", ""):gsub("%s*;%s*$", "")
-
-    local boost = string.format("ActionResource(ActionPoint,%d,0)", cfg.AP_BOOST_AMOUNT)
-    if current ~= "" then current = current .. ";" end
-    return U.SafeSet(stat, "DefaultBoosts", current .. boost)
 end
 
 local function cleanTestSpellUnlocks(stat)
@@ -229,8 +212,11 @@ local function addCastingAbilityDamage(stat)
     return U.SafeSet(stat, "DefaultBoosts", current .. CASTING_DAMAGE_TOKEN)
 end
 
+local stripBonusActionBoosts
+
 local function patchCharacter(stat)
     local cfg = DOS2C.Config
+    local applied = stripBonusActionBoosts(stat)
     local resources = U.SafeGet(stat, "ActionResources")
     if type(resources) ~= "string" or resources == "" then
         -- Character entries that inherit ActionResources do not repeat it.
@@ -260,7 +246,7 @@ local function patchCharacter(stat)
         parts[#parts + 1] = "BonusActionPoint:1"
     end
 
-    local applied = U.SafeSet(stat, "ActionResources", table.concat(parts, ";"))
+    if U.SafeSet(stat, "ActionResources", table.concat(parts, ";")) then applied = true end
     -- AP max is provided by the DOS2C_APBoost passive at runtime so existing
     -- saves receive it too; remove any old DefaultBoosts AP boost.
     if removeAPBoost(stat) then applied = true end
@@ -272,7 +258,7 @@ end
 
 local function flattenField(stat, field, changed)
     local original = U.SafeGet(stat, field)
-    local value = U.CompressLevelMapReferences(original)
+    local value = original
     if type(value) ~= "string" or value == "" then return changed end
     local flat = U.FlattenDice(value)
     if flat ~= original then
@@ -286,13 +272,13 @@ local function compressField(stat, field, changed, direct)
     if state and state[field] then return changed end
 
     local original = U.SafeGet(stat, field)
-    local value = U.CompressLevelMapReferences(original)
+    local value = original
     if type(value) ~= "string" or value == "" then return changed end
 
     local cfg = DOS2C.Config
     local compressed = direct
         and U.CompressDamageValue(value, cfg.DAMAGE_RANGE_COMPRESSION)
-        or U.CompressDealDamage(value, cfg.DAMAGE_RANGE_COMPRESSION)
+        or U.CompressDamageFunctors(value, cfg.DAMAGE_RANGE_COMPRESSION)
     if compressed ~= original and U.SafeSet(stat, field, compressed) then
         state = state or {}
         state[field] = true
@@ -399,24 +385,7 @@ end
 
 local function explicitCooldownToTurns(explicit, cfg)
     if type(explicit) ~= "string" or explicit == "" then return nil end
-    if explicit == "OncePerTurn" then
-        return cfg.COOLDOWN_ONCE_PER_TURN
-    elseif explicit == "OncePerTurnNoRealtime" then
-        return cfg.COOLDOWN_ONCE_PER_TURN_NO_REALTIME
-    elseif explicit == "OncePerShortRest" or explicit == "UntilShortRest" then
-        return cfg.COOLDOWN_UNTIL_SHORT_REST
-    elseif explicit == "OncePerShortRestPerItem" then
-        return cfg.COOLDOWN_ONCE_PER_SHORT_REST_PER_ITEM
-    elseif explicit == "OncePerCombat" then
-        return cfg.COOLDOWN_ONCE_PER_COMBAT
-    elseif explicit == "OncePerRest" or explicit == "OncePerRestPerItem" then
-        return cfg.COOLDOWN_UNTIL_REST
-    elseif explicit == "UntilRest" then
-        return cfg.COOLDOWN_UNTIL_REST
-    elseif explicit == "UntilPerRestPerItem" or explicit == "UntilRestPerItem" then
-        return cfg.COOLDOWN_UNTIL_PER_REST_PER_ITEM
-    end
-    return nil
+    return (cfg.COOLDOWN_ENUMS or {})[explicit]
 end
 
 -- Map a native stats cooldown label to the runtime SpellBookCooldowns
@@ -429,23 +398,10 @@ local function runtimeCooldownType(explicit, explicitTurns, turns, recharge)
         local rechargeTurns = rechargeToTurns(recharge)
         if rechargeTurns and explicitTurns and rechargeTurns > explicitTurns then return nil end
     end
-    local map = {
-        OncePerTurn = "OncePerTurn",
-        OncePerTurnNoRealtime = "OncePerTurnNoRealtime",
-        OncePerCombat = "OncePerCombat",
-        OncePerShortRest = "UntilShortRest",
-        UntilShortRest = "UntilShortRest",
-        OncePerShortRestPerItem = "UntilShortRestPerItem",
-        UntilShortRestPerItem = "UntilShortRestPerItem",
-        OncePerRest = "OncePerRest",
-        UntilRest = "UntilRest",
-        UntilPerRestPerItem = "UntilRestPerItem",
-        UntilRestPerItem = "UntilRestPerItem",
-    }
-    return map[explicit]
+    return (cfg.COOLDOWN_RUNTIME_TYPES or {})[explicit]
 end
 
-local function cooldownForSpell(name, stat, level, costs, damageScale)
+local function cooldownForSpell(name, stat, level)
     local cfg = DOS2C.Config
 
     -- Extra Attack is a once-per-turn follow-up controlled by BG3's passive.
@@ -456,12 +412,9 @@ local function cooldownForSpell(name, stat, level, costs, damageScale)
     -- spells go through the level/damage rebalancing below.
     if isDefaultAttack(name) then return 0 end
 
-    if type(cfg.COOLDOWN_OVERRIDES) == "table" then
-        for key, turns in pairs(cfg.COOLDOWN_OVERRIDES) do
-            if name == key or name:sub(1, #key + 1) == key .. "_" then
-                return math.min(cfg.COOLDOWN_MAX, math.max(1, tonumber(turns) or 1))
-            end
-        end
+    local override = U.LookupCooldownOverride(cfg.COOLDOWN_OVERRIDES, name)
+    if override ~= nil then
+        return math.min(cfg.COOLDOWN_MAX, math.max(1, tonumber(override) or 1))
     end
 
     local dos2Cooldown = cfg.DOS2_COOLDOWNS and cfg.DOS2_COOLDOWNS[name]
@@ -488,7 +441,7 @@ local function cooldownForSpell(name, stat, level, costs, damageScale)
         if rechargeTurns then
             return math.min(cfg.COOLDOWN_MAX, math.max(1, rechargeTurns))
         end
-        return cfg.COOLDOWN_SHORT_REST
+        return (cfg.COOLDOWN_ENUMS or {}).OncePerShortRest or 3
     end
 
     -- Level-based fallback: cooldown turns = Level + 1.
@@ -740,7 +693,7 @@ local function patchSpell(name, stat)
     local explicitCooldown = U.SafeGet(stat, "Cooldown")
     local explicitTurns = explicitCooldownToTurns(explicitCooldown, cfg)
     local recharge = U.SafeGet(stat, "RechargeValues")
-    local cooldown = cooldownForSpell(name, stat, level, costs, damageScale)
+    local cooldown = cooldownForSpell(name, stat, level)
     spellLevels[name] = level
     local cooldownType = runtimeCooldownType(explicitCooldown, explicitTurns, cooldown, recharge)
     spellCooldowns[name] = cooldown
@@ -871,14 +824,8 @@ local function patchSpell(name, stat)
     return changed
 end
 
--- Equipment AC is captured for the DOS2 flat-resistance calculation, then
--- removed from the native AC used by attack rolls. The native AC that remains
--- (base 10 plus any explicit Dodge/AC boosts) is the isolated Dodge value.
-local HEAVY_ARMOR_TYPES = {
-    ChainShirt = true, ScaleMail = true, BreastPlate = true, HalfPlate = true,
-    RingMail = true, ChainMail = true, Splint = true, Plate = true,
-}
-
+-- Equipment AC is captured for the DOS2 flat-resistance calculation. The
+-- shared formula keeps server stats and the client hover tooltip aligned.
 local function patchArmor(name, stat)
     local ac = tonumber(U.SafeGet(stat, "ArmorClass"))
     if not ac or ac <= 0 then return false end
@@ -890,22 +837,10 @@ local function patchArmor(name, stat)
     -- for tooltips and for the generic AC-to-armor calculation; do not add a
     -- negative AC boost here.
     local shield = tostring(U.SafeGet(stat, "Shield") or ""):lower() == "yes"
-
-    local cfg = DOS2C.Config
-    local gain = math.max(0, shield and ac or (ac - 9))
-    local passivePhysical = gain * cfg.ARMOR_PHYSICAL_PER_AC
-    local passiveMagic = gain * cfg.ARMOR_MAGIC_PER_AC
-    local heavy = HEAVY_ARMOR_TYPES[tostring(U.SafeGet(stat, "ArmorType") or "")] == true
-    if heavy then
-        passivePhysical = passivePhysical * cfg.ARMOR_HEAVY_PHYSICAL_MULT
-        passiveMagic = passiveMagic * cfg.ARMOR_HEAVY_MAGIC_MULT
-    end
-    if shield then
-        passivePhysical = passivePhysical * cfg.ARMOR_SHIELD_PHYSICAL_MULT
-        passiveMagic = 0
-    end
-    local passive = string.format("DOS2C_ArmorInfo_P%d_M%d",
-        math.floor(passivePhysical + 0.5), math.floor(passiveMagic + 0.5))
+    local formula = assert(DOS2C.ArmorFormula, "Shared/ArmorFormula.lua must load first")
+    local passivePhysical, passiveMagic = formula.Pair(
+        ac, shield, formula.IsHeavyStat(stat), DOS2C.Config)
+    local passive = formula.PassiveName(passivePhysical, passiveMagic)
     local passives = U.SafeGet(stat, "PassivesOnEquip")
     if type(passives) ~= "string" then passives = "" end
     local updatedPassives = passives
@@ -941,6 +876,76 @@ end
 -- Saving throws are removed, so saving-throw-only modifiers would otherwise
 -- remain visible on status/passive tooltips while doing nothing. Strip those
 -- dead boost tokens. SavingThrow(...) functors/conditions are left alone.
+local function recordMap(map, key, value)
+    if type(map) ~= "table" or type(key) ~= "string" or key == "" then return end
+    local current = tonumber(map[key]) or 0
+    local candidate = tonumber(value) or 0
+    if candidate > current then map[key] = candidate end
+end
+
+-- Convert native d20 critical-threshold and attack-roll advantage metadata into
+-- the custom deterministic critical/damage maps used by Armor.lua. This keeps
+-- feats and statuses meaningful after attack rolls are removed.
+stripBonusActionBoosts = function(stat)
+    local changed = false
+    for _, field in ipairs({ "Boosts", "DefaultBoosts" }) do
+        local current = U.SafeGet(stat, field)
+        if type(current) == "string" and current ~= "" then
+            local cleaned = current:gsub("%s*;?%s*ActionResource%(%s*BonusActionPoint%s*,%s*%d+%s*,%s*%d+%s*%)", "")
+            cleaned = cleaned:gsub("%s*;?%s*BonusActionPoint%(%s*%d+%s*%)", "")
+            cleaned = cleaned:gsub("^%s*;%s*", ""):gsub("%s*;%s*$", "")
+            if cleaned ~= current and U.SafeSet(stat, field, cleaned) then changed = true end
+        end
+    end
+    return changed
+end
+
+local function recordCombatModifiers(name, stat, passive)
+    local cfg = DOS2C.Config
+    local text = U.SafeGet(stat, "Boosts")
+    if type(text) ~= "string" then text = "" end
+    local functors = U.SafeGet(stat, "StatsFunctors")
+    if type(functors) == "string" and functors ~= "" then
+        text = text .. ";" .. functors
+    end
+    if text == "" then return false end
+    local changed = false
+
+    for count in text:gmatch("ReduceCriticalAttackThreshold%(%s*(%d+)%s*%)") do
+        local bonus = (tonumber(count) or 0) * 0.05
+        local map = passive and cfg.CRIT_CHANCE_PASSIVES or cfg.CRIT_CHANCE_BONUSES
+        recordMap(map, name, bonus)
+        changed = true
+    end
+
+    if text:find("CriticalHit%(AttackRoll,Success,Always", 1) then
+        local threshold = text:match("CriticalHit%(AttackRoll,Success,Always,%s*(%d+)")
+        local bonus = threshold and math.max(0, (20 - tonumber(threshold)) / 20) or 0.05
+        local map = passive and cfg.CRIT_CHANCE_PASSIVES or cfg.CRIT_CHANCE_BONUSES
+        recordMap(map, name, bonus)
+        changed = true
+    elseif text:find("CriticalHit%(AttackRoll,Success,ForcedAlways", 1) then
+        local list = passive and cfg.CRIT_FORCED_PASSIVES or cfg.CRIT_FORCED_STATUSES
+        if not list[name] then
+            list[#list + 1] = name
+            list[name] = true
+        end
+        changed = true
+    end
+
+    local advMap = passive and cfg.ATTACK_ADVANTAGE_PASSIVES or cfg.ATTACK_ADVANTAGE_STATUSES
+    local disMap = passive and cfg.ATTACK_DISADVANTAGE_PASSIVES or cfg.ATTACK_DISADVANTAGE_STATUSES
+    if text:find("Advantage%(AttackRoll", 1) then
+        if not advMap[name] then advMap[name] = true end
+        changed = true
+    end
+    if text:find("Disadvantage%(AttackRoll", 1) then
+        if not disMap[name] then disMap[name] = true end
+        changed = true
+    end
+    return changed
+end
+
 local function stripDeadSavingThrowBoosts(stat)
     if not DOS2C.Config.STRIP_DEAD_SAVING_THROW_BOOSTS then return false end
     local current = U.SafeGet(stat, "Boosts")
@@ -1026,8 +1031,29 @@ local function cleanupAttackDebuff(stat)
     return U.SafeSet(stat, "Boosts", updated)
 end
 
+local function patchBlindedRange(name, stat)
+    local cfg = DOS2C.Config
+    if not cfg.BLINDED_RANGE_CAP_ENABLED then return false end
+    if name ~= "BLINDED" and name ~= "BLINDED_DARKNESS" and name ~= "BLINDNESS" then
+        return false
+    end
+    local boosts = U.SafeGet(stat, "Boosts")
+    if type(boosts) ~= "string" then return false end
+    local cap = tostring(tonumber(cfg.BLINDED_RANGE_CAP) or 1.5)
+    if boosts:find("ModifyTargetRadius(Override," .. cap .. ")", 1, true) then return false end
+    local variant = "UnlockSpellVariant(DistantSpellCheck(),ModifyTargetRadius(Override,"
+        .. cap .. "),ModifyTooltipDescription())"
+        .. ";UnlockSpellVariant(RangedSpellAttackCheck(),ModifyTargetRadius(Override,"
+        .. cap .. "),ModifyTooltipDescription())"
+    local updated = boosts ~= "" and (boosts .. ";" .. variant) or variant
+    return U.SafeSet(stat, "Boosts", updated)
+end
+
 local function patchStatusDamage(name, stat)
     local changed = stripDeadSavingThrowBoosts(stat)
+    if stripBonusActionBoosts(stat) then changed = true end
+    if recordCombatModifiers(name, stat, false) then changed = true end
+    if patchBlindedRange(name, stat) then changed = true end
     if cleanupAttackDebuff(stat) then changed = true end
     if patchExtraAttackStatus(name, stat) then changed = true end
     if patchHasteLethargy(name, stat) then changed = true end
@@ -1040,8 +1066,10 @@ local function patchStatusDamage(name, stat)
     return changed
 end
 
-local function patchPassiveDamage(stat)
+local function patchPassiveDamage(name, stat)
     local changed = stripDeadSavingThrowBoosts(stat)
+    if stripBonusActionBoosts(stat) then changed = true end
+    if recordCombatModifiers(name, stat, true) then changed = true end
     if DOS2C.Config.COMPRESS_DAMAGE_RANGES then
         for _, field in ipairs(PASSIVE_DAMAGE_FIELDS) do
             changed = compressField(stat, field, changed, false)
@@ -1362,13 +1390,6 @@ function S.RestoreRolls(runtime)
     end)())
 end
 
-function S.GetCooldown(name)
-    local cd = spellCooldowns[name]
-    if cd ~= nil then return cd end
-    local base = tostring(name or ""):gsub("_%d+$", "")
-    return spellCooldowns[base] or 0
-end
-
 function S.PatchAll(runtime)
     if not (Ext and Ext.Stats) then return end
 
@@ -1386,8 +1407,8 @@ function S.PatchAll(runtime)
     local nStatuses = eachStat("StatusData", function(name, stat)
         return patchStatusDamage(name, stat)
     end)
-    local nPassives = eachStat("PassiveData", function(_, stat)
-        return patchPassiveDamage(stat)
+    local nPassives = eachStat("PassiveData", function(name, stat)
+        return patchPassiveDamage(name, stat)
     end)
 
     collectTooltipRiders()

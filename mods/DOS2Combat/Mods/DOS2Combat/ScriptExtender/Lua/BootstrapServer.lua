@@ -2,6 +2,7 @@
 -- BG3 Script Extender loads this file automatically.
 -- All gameplay logic lives in Server/*.lua and runs on the host/server.
 
+Ext.Require("Shared/ArmorFormula.lua")
 Ext.Require("Server/Config.lua")
 Ext.Require("Server/Util.lua")
 Ext.Require("Server/Cooldowns.lua")

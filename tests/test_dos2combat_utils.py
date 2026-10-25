@@ -86,3 +86,30 @@ class Dos2CombatUtilTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+@unittest.skipUnless(lupa is not None, "lupa is not installed")
+class ArmorFormulaTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.lua = lua_runtime()
+        run_lua_file(
+            cls.lua,
+            MODS
+            / "DOS2Combat"
+            / "Mods"
+            / "DOS2Combat"
+            / "ScriptExtender"
+            / "Lua"
+            / "Shared"
+            / "ArmorFormula.lua",
+        )
+        cls.formula = cls.lua.globals().DOS2C.ArmorFormula
+
+    def test_base_and_gear_pairs(self):
+        physical, magic = self.formula.Pair(10, False, False)
+        self.assertEqual((physical, magic), (1, 1))
+        physical, magic = self.formula.Pair(14, False, False)
+        self.assertEqual((physical, magic), (5, 5))
+        physical, magic = self.formula.Pair(2, True, False)
+        self.assertEqual((physical, magic), (3, 0))
+        self.assertEqual(self.formula.PassiveName(13.2, 7.6), "DOS2C_ArmorInfo_P13_M8")

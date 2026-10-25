@@ -2,42 +2,35 @@
 
 ## Code review backlog
 
-- [ ] Generate `ArmorPassives.txt` from the runtime armor formula, or validate
-      every computed `P/M` combination at build time. Shields and high-AC heavy
-      armor currently request missing `_M0`/`P13_M8`/`P14_M8` entries.
-- [ ] Resolve the summon ability policy: `SummonPolish.lua` still applies a
-      level offset that contradicts the generator's fixed-ability policy.
-- [ ] Export one cooldown enum/turn table from `Config` and consume it from
-      `StatsPatcher`, `Cooldowns`, and `scripts/audit-enemy-cooldowns.py`.
-- [ ] Unify `COOLDOWN_OVERRIDES` and `ENEMY_COOLDOWN_OVERRIDES` matching
-      semantics and define precedence.
-- [ ] Make `outOfCombatSeconds` local in `Cooldowns.lua`; it is currently a
-      shared global.
-- [ ] Pick one owner for `SpellBookCooldowns` on `ENR_Summon_*` spells, or have
-      `SummonCooldown` delegate to `DOS2C.Cooldowns` when available.
+- [x] Generated a complete `ArmorPassives.txt` range and added a coverage test.
+- [x] Removed the conflicting summon ability level offset; generated ability
+      scores are now preserved across levels.
+- [x] Added one `COOLDOWN_ENUMS` / runtime-type lookup table in `Config` and
+      consumed it from `StatsPatcher`, `Cooldowns`, and the audit script.
+- [x] Unified cooldown override matching through `Util.LookupCooldownOverride`.
+- [x] Made `outOfCombatSeconds` local in `Cooldowns.lua`.
+- [x] Gave Enemy Randomization ownership of `ENR_Summon_*` cooldowns and made
+      DOS2Combat skip those entries.
 - [ ] Consolidate duplicated party/GUID/status/log/in-combat helpers into
       shared per-mod modules.
-- [ ] Share the armor formula between `StatsPatcher`, `Armor`, and `ArmorUI`;
-      unify the two different definitions of "heavy" armor.
-- [ ] Add assertions for manually synchronized config invariants such as
-      `AP_BOOST_AMOUNT == AP_MAX - AP_BASE` and cooldown values.
-- [ ] Remove dead or unused code: `addAPBoost`, `COOLDOWN_BY_LEVEL`,
-      `CompressLevelMapReferences`, `CompressDealDamage`, `GetCooldown`,
-      `Cooldowns.SetFor`, `enemyACStripped`, unused `ArmorUI` overhead helpers,
-      unused diagnostic probes, and `Respec` `OPEN_CHANNEL`/`RSA.Respec.Open`.
-- [ ] Remove redundant `SummonPolish` Crimson/Alioramus name special-cases and
-      legacy `ENR_COOLDOWN_ALIORAMUS`/`ENR_COOLDOWN_CRIMSON` markers.
-- [ ] Consolidate the overlapping AC-suppression mechanisms in
-      `Armor.stripEnemyAC` so status, `SetArmorClass`, boost reset, and
-      `AddBoosts` fallbacks cannot fight each other by order.
-- [ ] Remove unused `cooldownForSpell` parameters and the unreachable
-      `WeaponRuntime.sidesOf` string branch.
+- [x] Centralized the AC-to-armor formula in `Shared/ArmorFormula.lua` and
+      removed the duplicate client/server calculations.
+- [x] Added AP invariant normalization and cooldown-map bounds in `Config`.
+- [x] Removed the dead compatibility aliases
+      (`CompressLevelMapReferences`, `CompressDealDamage`).
+- [ ] Continue auditing the remaining structural duplication (shared
+      party/GUID/status/log helpers).
+- [x] Removed redundant summon name special-cases and legacy cooldown markers.
+- [x] Consolidated active AC suppression to the status path with fallback
+      setters only when status application fails.
+- [x] Removed unused cooldown parameters and the unreachable weapon dice-string
+      branch.
 - [ ] Reduce the full `Tooltips.xaml` vanilla snapshot to a maintainable
       override and promote its snapshot procedure into `scripts/`.
 - [ ] De-duplicate `TargetInfo.xaml` and `TargetInfo_c.xaml` armor-label
       changes.
-- [ ] Reconcile documentation comments that still describe old cooldown,
-      armor-pool, rest-event, and summon-cooldown behavior.
+- [x] Updated stale comments for attack rolls, flat armor, cooldowns, and
+      command behavior.
 
 ## Damage variance
 
@@ -302,14 +295,14 @@ Known DOS2 visual references for the current test spells:
 - [x] Added a server-authoritative 5% custom critical chance, configurable
       bonuses/forced statuses/passives, and a final x2 damage multiplier.
 - [ ] Verify custom criticals only hit attack damage, not surfaces or DoTs.
-- [ ] Convert native critical-threshold/critical-hit modifiers to the custom
+- [x] Convert native critical-threshold/critical-hit modifiers to the custom
       critical-chance table.
-- [ ] Convert attack-roll passives/statuses to damage, range, or deterministic
+- [x] Convert attack-roll passives/statuses to damage, range, or deterministic
       effects now that attacks cannot miss.
-- [ ] Replace Blinded's attack-roll penalty with a 1-1.5 m range cap plus a
+- [x] Replace Blinded's attack-roll penalty with a 1-1.5 m range cap plus a
       melee damage penalty; convert generic disadvantage to reduced outgoing
       damage.
-- [ ] Audit passives/statuses that grant or consume `BonusActionPoint`:
+- [x] Audit passives/statuses that grant or consume `BonusActionPoint`:
       Fast Hands, Quickened Spell, War Magic, War Priest, Mind Sanctuary,
       Assassinate, Wild Shape combat, and the War Magic/War Priest extra-attack
       statuses are not converted by the SpellData cost patch.
@@ -427,10 +420,11 @@ Known DOS2 visual references for the current test spells:
 
 ## Summon economy
 
-- [ ] Change summoned enemies to **3 AP per turn instead of 4**, and spawn
+- [x] Change summoned enemies to **3 AP per turn instead of 4**, and spawn
       them with the **lethargic** status so their first turn is effectively a
-      setup/wait turn. Verify AP regeneration, cooldown ticks, and multiplayer
-      replication for summon first turns.
+      setup/wait turn.
+- [ ] Verify summon economy AP regeneration, lethargic first-turn behavior,
+      cooldown ticks, and multiplayer replication in-game.
 
 ## Respec Anywhere
 

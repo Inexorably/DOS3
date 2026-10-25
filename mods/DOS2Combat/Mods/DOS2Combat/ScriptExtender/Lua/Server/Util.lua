@@ -23,6 +23,18 @@ function U.Log(fmt, ...)
     end
 end
 
+function U.LookupCooldownOverride(map, name)
+    if type(map) ~= "table" or type(name) ~= "string" or name == "" then
+        return nil
+    end
+    for key, turns in pairs(map) do
+        if type(key) == "string" and (name == key or name:sub(1, #key + 1) == key .. "_") then
+            return turns
+        end
+    end
+    return nil
+end
+
 function U.SafeGet(stat, field)
     if not stat then return nil end
     local ok, value = pcall(function() return stat[field] end)
@@ -329,24 +341,6 @@ local function compressDamageExpression(expr, ratio)
     return buildRangeExpression(newMin, newMax) or expr
 end
 
--- LevelMap resource entries can only contain plain dice or integers, not
--- dice+offset expressions. Replace level-map references with a compressed
--- dice map plus an offset map, both added to LevelMapValues.lsx.
-local COMPRESSED_LEVEL_MAPS = {
-}
-
-function U.CompressLevelMapReferences(value)
-    if type(value) ~= "string" or value == "" then return value end
-    local out = value
-    for _, name in ipairs(COMPRESSED_LEVEL_MAPS) do
-        local custom = "DOS2C_" .. name
-        out = out:gsub("LevelMapValue%(%s*" .. name .. "%s*%)",
-            "(LevelMapValue(" .. custom .. "_Dice)+LevelMapValue("
-            .. custom .. "_Offset))")
-    end
-    return out
-end
-
 local DAMAGE_FUNCTORS = {
     "DealDamage",
     "DamageBonus",
@@ -373,11 +367,6 @@ function U.CompressDamageFunctors(value, ratio)
         if ok then out = updated end
     end
     return out
-end
-
--- Backwards-compatible name used by StatsPatcher.
-function U.CompressDealDamage(value, ratio)
-    return U.CompressDamageFunctors(value, ratio)
 end
 
 -- Also handle plain damage fields such as Weapon.Damage = "1d8".

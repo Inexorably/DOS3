@@ -168,7 +168,9 @@ Wild, and the Sun.
 
 Summon skills currently cost **4 AP** and have a **5-turn cooldown**. Cooldowns
 are per caster and enforced by removing/re-granting the summon skill while the
-cooldown is active.
+cooldown is active. Summoned enemies use a separate **3 AP per turn** economy
+and spawn with BG3's **lethargic** status, so their first turn is a setup/wait
+turn.
 
 ### Champion chance
 
@@ -360,6 +362,7 @@ scripts/
   validate-mod.py       source validation for one mod or --all
   test.sh               full Python test suite
   generate-enr-*.py     deterministic Enemy Randomization generators
+  generate-armor-passives.py  AC armor tooltip passive catalog
 tests/                  unittest and Lua harness tests
 .github/workflows/ci.yml dynamic mod validation matrix and test suite
 .github/workflows/cd.yml package all mods and replace the latest release

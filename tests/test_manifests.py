@@ -68,6 +68,36 @@ class ManifestTests(unittest.TestCase):
         self.assertIn("SpellSaveDC(2)", boosts)
         self.assertNotIn("IncreaseMaxHP(30%)", boosts)
 
+    def test_armor_passives_cover_full_formula_range(self):
+        path = (
+            MODS
+            / "DOS2Combat"
+            / "Public"
+            / "DOS2Combat"
+            / "Stats"
+            / "Generated"
+            / "Data"
+            / "ArmorPassives.txt"
+        )
+        stats = parse_stats(path)
+        for physical, magic in ((0, 0), (1, 1), (3, 0), (13, 8), (40, 25)):
+            with self.subTest(physical=physical, magic=magic):
+                self.assertIn(f"DOS2C_ArmorInfo_P{physical}_M{magic}", stats)
+
+    def test_summon_economy_marker_is_defined(self):
+        path = (
+            MODS
+            / "EnemyRandomization"
+            / "Public"
+            / "EnemyRandomization"
+            / "Stats"
+            / "Generated"
+            / "Data"
+            / "EnemyRandomizationStatuses.txt"
+        )
+        stats = parse_stats(path)
+        self.assertIn("ENR_SUMMON_ECONOMY", stats)
+
     def test_stats_files_have_no_obvious_broken_data_lines(self):
         for path in sorted(MODS.glob("*/Public/*/Stats/Generated/Data/*.txt")):
             with self.subTest(path=str(path.relative_to(MODS))):

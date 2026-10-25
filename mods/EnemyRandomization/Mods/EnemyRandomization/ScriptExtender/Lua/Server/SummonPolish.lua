@@ -70,15 +70,16 @@ local function onSummonCreated(eventEntity)
     end
 
     if statsKey then
-        local levelFromStats = tonumber(stats:match("_L(%d+)$")) or level
-        local nativeLevel = (generated.nativeLevels and generated.nativeLevels[statsKey]) or 1
-        local offset = math.floor((levelFromStats - 1) / 4) - math.floor((nativeLevel - 1) / 4)
+        -- Ability scores are intentionally fixed at the source creature's
+        -- values. HP and armor are the level-scaled parts of the generated
+        -- Character stat. Repair only if the engine failed to apply the
+        -- generated ability array, not to apply a second level offset.
         local base = (generated.abilities and generated.abilities[statsKey])
             or { 19, 13, 17, 2, 12, 5 }
         local changed = false
         if summon.Stats and summon.Stats.Abilities then
             for i = 1, 6 do
-                local expected = base[i] + offset
+                local expected = base[i]
                 if abilities[i] ~= expected then
                     local ok = pcall(function() summon.Stats.Abilities[i] = expected end)
                     if ok then changed = true end
@@ -94,18 +95,6 @@ local function onSummonCreated(eventEntity)
                 log("summon ability repair: %s -> %s", table.concat(abilities, ","),
                     table.concat(repaired, ","))
             end
-        end
-    end
-
-    if stats and stats:find("Crimson", 1, true) then
-        local guid = summon.Uuid and summon.Uuid.EntityUuid
-        if guid and Osi and Osi.SetDisplayName then
-            pcall(Osi.SetDisplayName, tostring(guid), "Crimson")
-        end
-    elseif stats and stats:find("Alioramus", 1, true) then
-        local guid = summon.Uuid and summon.Uuid.EntityUuid
-        if guid and Osi and Osi.SetDisplayName then
-            pcall(Osi.SetDisplayName, tostring(guid), "Chult Alioramus")
         end
     end
 

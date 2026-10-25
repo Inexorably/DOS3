@@ -16,19 +16,15 @@ local DEFAULT_COOLDOWN_TYPE = "Default"
 local defs = {}       -- spell name -> turns
 local defTypes = {}   -- spell name -> runtime cooldown subtype
 local active = {}     -- character guid -> { [spell name] = remaining turns }
-local charDefs = {}   -- character guid -> { [spell name] = override turns }
 local originals = {}  -- character guid -> { [spell name] = original CooldownType }
+local outOfCombatSeconds = {}
 
 -- The native tooltip only understands enum labels. Map our numeric turn
 -- counts onto the closest supported enum so the hotbar shows a cooldown.
 local function cooldownTypeForTurns(turns)
     turns = tonumber(turns) or 1
-    if turns >= 6 then return "UntilRestPerItem" end
-    if turns >= 5 then return "UntilRest" end
-    if turns >= 4 then return "UntilShortRestPerItem" end
-    if turns >= 3 then return "UntilShortRest" end
-    if turns >= 2 then return "OncePerTurnNoRealtime" end
-    return "OncePerTurn"
+    local map = (DOS2C.Config and DOS2C.Config.COOLDOWN_TYPE_BY_TURNS) or {}
+    return map[turns] or map[7] or "OncePerTurn"
 end
 
 local function normalize(name)
@@ -336,25 +332,7 @@ function C.Get(name)
     return defs[baseName(key)] or 0
 end
 
--- Optional per-character override for bosses/enemies that need a different
--- cooldown than the shared spell definition.
-function C.SetFor(handle, name, turns)
-    local guid = U.GuidOf(handle)
-    if not guid or type(name) ~= "string" or name == "" then return false end
-    charDefs[guid] = charDefs[guid] or {}
-    charDefs[guid][normalize(name)] = tonumber(turns) or 0
-    return true
-end
-
 function C.GetFor(handle, name)
-    local guid = U.GuidOf(handle)
-    local key = normalize(name)
-    if guid and charDefs[guid] then
-        local turns = charDefs[guid][key]
-        if turns ~= nil then return turns end
-        turns = charDefs[guid][baseName(key)]
-        if turns ~= nil then return turns end
-    end
     return C.Get(name)
 end
 
@@ -376,6 +354,12 @@ end
 
 function C.OnSpellCast(caster, spell)
     local name = spellName(spell)
+    if name:match("^ENR_Summon_") and ER and ER.SummonCooldown then
+        -- Enemy Randomization has its own persistent, per-caster five-turn
+        -- summon cooldown that also removes/restores the spell. Do not let two
+        -- modules write SpellBookCooldowns for the same summon.
+        return
+    end
     local turns = C.GetFor(caster, name)
     if turns <= 0 then return end
 
@@ -388,8 +372,7 @@ function C.OnSpellCast(caster, spell)
     end
 
     if not partyMember then
-        local override = cfg.ENEMY_COOLDOWN_OVERRIDES
-            and cfg.ENEMY_COOLDOWN_OVERRIDES[name]
+        local override = U.LookupCooldownOverride(cfg.ENEMY_COOLDOWN_OVERRIDES, name)
         if override ~= nil then turns = override end
     end
 
@@ -483,7 +466,6 @@ local function clearCharacter(entity)
     end
     active[guid] = nil
     outOfCombatSeconds[guid] = nil
-    charDefs[guid] = nil
     originals[guid] = nil
 end
 
@@ -537,7 +519,6 @@ function C.ClearAll()
         for _, entity in ipairs(entities) do clearCharacter(entity) end
     end
     active = {}
-    charDefs = {}
     originals = {}
     U.Log("cooldowns cleared")
 end
@@ -548,8 +529,7 @@ if Ext and Ext.Events and Ext.Events.SessionLoaded then
         -- a previous session must not leak into the new one.
         active = {}
         outOfCombatSeconds = {}
-        charDefs = {}
-        originals = {}
+            originals = {}
 
         if not (Ext.Timer and Ext.Timer.WaitFor) then
             C.NormalizeAll()

@@ -16,6 +16,14 @@ ER.Config = {
     CHAMPION_HP_MULTIPLIER = 1.5,
     CHAMPION_HP_MARKER = "ENR_CHAMPION_HP_SCALED",
 
+    -- Summon economy: generated summons start and regenerate with 3 AP, not
+    -- the normal 4 AP combatant turn. They also spawn with BG3's lethargic
+    -- status so their first turn is a setup/wait turn.
+    SUMMON_AP_MAX = 3,
+    SUMMON_ECONOMY_MARKER = "ENR_SUMMON_ECONOMY",
+    SUMMON_LETHARGIC_STATUS = "HASTE_LETHARGY",
+    SUMMON_LETHARGIC_TURNS = 1,
+
     -- Summoned enemies scale HP/armor through their generated Character
     -- templates. Their native weapons and multiattacks still carry source
     -- damage, so apply a level-relative outgoing damage scale as well.

@@ -34,15 +34,7 @@ end
 
 local function sidesOf(roll)
     local raw = tonumber(roll.DiceValue)
-    if raw and DICE_SIDES[raw] then return DICE_SIDES[raw] end
-    local text = tostring(roll.DiceValue or "")
-    for sides in pairs(DICE_ENUM) do
-        if text == "D" .. tostring(sides) or text == "d" .. tostring(sides)
-            or text == tostring(sides) then
-            return sides
-        end
-    end
-    return nil
+    return raw and DICE_SIDES[raw] or nil
 end
 
 local function chooseValidDie(count)

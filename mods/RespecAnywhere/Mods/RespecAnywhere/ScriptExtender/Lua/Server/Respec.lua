@@ -7,7 +7,6 @@ RSA = RSA or {}
 RSA.Respec = RSA.Respec or {}
 
 local REQUEST_CHANNEL = "RespecAnywhere_Request"
-local OPEN_CHANNEL = "RespecAnywhere_Open"
 
 local function log(text, ...)
     local message = text
@@ -142,18 +141,6 @@ local function launchRespec(guid)
         if ok then return true end
     end
 
-    -- Keep the client request as a diagnostic fallback. On this build the
-    -- client has no Osi table, so this normally only confirms that fact.
-    if Ext and Ext.Net and Ext.Net.PostMessageToClient then
-        local ok, result = pcall(Ext.Net.PostMessageToClient,
-            guid, OPEN_CHANNEL, tostring(guid))
-        log("[RSA] respec UI request to client ok=%s result=%s guid=%s",
-            tostring(ok), tostring(result), tostring(guid))
-        if ok then return true end
-    else
-        log("[RSA] PostMessageToClient unavailable")
-    end
-
     return false
 end
 
@@ -171,10 +158,6 @@ local function requestOpen(guid, userId)
         return false
     end
     return launchRespec(tostring(guid))
-end
-
-function RSA.Respec.Open(guid)
-    return requestOpen(guid)
 end
 
 if Ext and Ext.RegisterConsoleCommand then
