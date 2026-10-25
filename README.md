@@ -345,6 +345,9 @@ The host is authoritative. If a client appears out of sync:
 ## Repository Layout
 
 ```text
+AGENTS.md               coding-agent and contributor guardrails
+GLOSSARY.md             BG3/DOS2/BG3SE terminology
+docs/ARCHITECTURE.md    module and event-flow reference
 mods/
   DOS2Combat/           DOS2 combat rules and client UI
   EnemyHealth/          Tactician HEALTHBOOST_HARDCORE override
@@ -363,6 +366,9 @@ tests/                  unittest and Lua harness tests
 
 ## Developer Documentation
 
+- `AGENTS.md` - repository guardrails for coding agents and new contributors
+- `GLOSSARY.md` - BG3/DOS2/BG3SE and project terminology
+- `docs/ARCHITECTURE.md` - module boundaries, load order, event flow, and build pipeline
 - `TODO.md` - implementation backlog and in-game verification checklist
 - `mods/EnemyRandomization/CHAMPION_DESIGN.md` - champion, summon, and loot architecture
 - `tests/README.md` - test coverage and limitations
