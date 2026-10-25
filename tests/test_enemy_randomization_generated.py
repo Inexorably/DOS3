@@ -85,6 +85,23 @@ class GeneratedEnemyRandomizationTests(unittest.TestCase):
             with self.subTest(buff=buff):
                 self.assertIn(buff, self.stats, f"missing generated buff status {buff}")
 
+    def test_survival_instinct_is_not_in_generated_positive_pools(self):
+        block = re.search(r"buffs = \{(.*?)\n  \},", self.generated, re.S)
+        self.assertIsNotNone(block)
+        self.assertNotIn("SURVIVAL_INSTINCT", block.group(1))
+
+        generated_dir = (
+            MOD_DIR
+            / "Public"
+            / "EnemyRandomization"
+            / "Stats"
+            / "Generated"
+            / "Data"
+        )
+        for path in generated_dir.glob("EnemyRandomization*.txt"):
+            with self.subTest(path=path.name):
+                self.assertNotIn("SURVIVAL_INSTINCT", read(path))
+
     def test_loot_manifest_is_present_when_pregenerated(self):
         loot_lua = (
             MOD_DIR

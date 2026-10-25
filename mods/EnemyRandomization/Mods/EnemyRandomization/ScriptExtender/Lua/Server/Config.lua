@@ -97,6 +97,14 @@ ER.Config = {
     -- multiplayer clients from seeing different results.
     MARKER_STATUS = "ENR_RANDOMIZED",
 
+    -- Statuses that were previously selected from the positive pool but are
+    -- unsafe for enemies (for example, delayed-death effects that make them
+    -- effectively immortal). Existing saves are cleaned up on the next scan.
+    REMOVED_BUFF_STATUSES = {
+        ENR_Perm_SURVIVAL_INSTINCT = true,
+        SURVIVAL_INSTINCT = true,
+    },
+
     -- Native BG3 statuses used by the first pass. Every entry here must be a
     -- beneficial/positive status. Do not add Burning, Bleeding, Bloodless, or
     -- other damaging/debuff statuses to this list. Add more entries only as we

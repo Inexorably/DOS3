@@ -1,21 +1,4 @@
 -- Enemy Randomization generated loot catalog chunk 35.
-new entry "ENR_Loot_Underwear_Dwarves_A_Green_Legendary_L5_0"
-type "Armor"
-using "ARM_Underwear_Dwarves_Green"
-data "Rarity" "Legendary"
-data "RootTemplate" "87a43dbd-69c9-597b-bbb6-4c561db96fde"
-data "Boosts" "UnlockSpell(Projectile_CursedTome_Dethrone);UnlockSpell(Target_MistyStep_Githyanki);Ability(Intelligence,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RELENTLESS_RAGE;ENR_LootPassive_ASPECT_OF_THE_WOLF"
-
-
-new entry "ENR_Loot_Underwear_Elves_A_Uncommon_L0_0"
-type "Armor"
-using "ARM_Underwear_Elves"
-data "Rarity" "Uncommon"
-data "RootTemplate" "4cb684e4-50ef-5227-a98d-91f78c47d73d"
-data "Boosts" "Ability(Charisma,1,20,true)"
-
-
 new entry "ENR_Loot_Underwear_Elves_A_Uncommon_L1_0"
 type "Armor"
 using "ARM_Underwear_Elves"
@@ -80,7 +63,7 @@ using "ARM_Underwear_Elves"
 data "Rarity" "Rare"
 data "RootTemplate" "630ff577-016c-5a1c-b66e-33e7a4ae4153"
 data "Boosts" "UnlockSpell(Target_GlyphOfWarding)"
-data "PassivesOnEquip" "ENR_LootPassive_SHIELD"
+data "PassivesOnEquip" "ENR_LootPassive_SHIELD_OF_FAITH"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Rare_L3_0"
@@ -97,7 +80,7 @@ using "ARM_Underwear_Elves"
 data "Rarity" "Rare"
 data "RootTemplate" "2ddb721b-bada-50d4-9923-05245284c68f"
 data "Boosts" "UnlockSpell(Target_SleetStorm)"
-data "PassivesOnEquip" "ENR_LootPassive_MIRROR_IMAGE_1"
+data "PassivesOnEquip" "ENR_LootPassive_MIRROR_IMAGE_2"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Rare_L5_0"
@@ -114,7 +97,7 @@ using "ARM_Underwear_Elves"
 data "Rarity" "VeryRare"
 data "RootTemplate" "575f5049-a979-564d-aa82-b110c6a70f2b"
 data "Boosts" "UnlockSpell(Projectile_AcidSplash);Ability(Constitution,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_ACID;ENR_LootPassive_DIVINE_SENSE"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_COLD;ENR_LootPassive_DIVINE_SENSE"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_VeryRare_L1_0"
@@ -123,7 +106,7 @@ using "ARM_Underwear_Elves"
 data "Rarity" "VeryRare"
 data "RootTemplate" "e5ce9e1a-e74f-5809-a0d7-9f6f3baf7a09"
 data "Boosts" "UnlockSpell(Target_CalmEmotions);Ability(Dexterity,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_TRUE_STRIKE;ENR_LootPassive_DRUNKEN_TECHNIQUE"
+data "PassivesOnEquip" "ENR_LootPassive_UNDEAD_FORTITUDE;ENR_LootPassive_DRUNKEN_TECHNIQUE"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_VeryRare_L2_0"
@@ -132,7 +115,7 @@ using "ARM_Underwear_Elves"
 data "Rarity" "VeryRare"
 data "RootTemplate" "a96afae9-48f8-50c1-be38-b9800b477789"
 data "Boosts" "UnlockSpell(Target_SpeakWithDead);Ability(Wisdom,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_DEATH_WARD;ENR_LootPassive_MOBILE_NO_AOO"
+data "PassivesOnEquip" "ENR_LootPassive_ALCH_ELIXIR_ENLARGE;ENR_LootPassive_MOBILE_NO_AOO"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_VeryRare_L3_0"
@@ -141,7 +124,7 @@ using "ARM_Underwear_Elves"
 data "Rarity" "VeryRare"
 data "RootTemplate" "7ec128e7-7ec5-5730-a3fe-8b5c231c6866"
 data "Boosts" "UnlockSpell(Target_Invisibility);Ability(Dexterity,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_FRIENDS;ENR_LootPassive_VAMPIRIC_TOUCH"
+data "PassivesOnEquip" "ENR_LootPassive_FRIENDS;ENR_LootPassive_WARDING_FLARE"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_VeryRare_L4_0"
@@ -150,7 +133,7 @@ using "ARM_Underwear_Elves"
 data "Rarity" "VeryRare"
 data "RootTemplate" "bce6f5d2-916e-50a8-89c9-7e0546a4fcff"
 data "Boosts" "UnlockSpell(Projectile_Fireball);Ability(Charisma,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_CATS_GRACE;ENR_LootPassive_RESISTANCE_THUNDER"
+data "PassivesOnEquip" "ENR_LootPassive_CATS_GRACE;ENR_LootPassive_REFLECTIVE_SHELL"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_VeryRare_L5_0"
@@ -177,7 +160,7 @@ using "ARM_Underwear_Elves"
 data "Rarity" "Legendary"
 data "RootTemplate" "f35fbf2b-6520-5cf9-88ed-f6e1d4be2617"
 data "Boosts" "UnlockSpell(Target_ChillTouch);UnlockSpell(Target_MageHand);Ability(Strength,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_FLY;ENR_LootPassive_SHIELD"
+data "PassivesOnEquip" "ENR_LootPassive_FREEDOM_OF_MOVEMENT;ENR_LootPassive_SHIELD_OF_FAITH"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Legendary_L2_0"
@@ -186,7 +169,7 @@ using "ARM_Underwear_Elves"
 data "Rarity" "Legendary"
 data "RootTemplate" "d9a41652-2c0e-51b6-9d4f-bda4be1e95a0"
 data "Boosts" "UnlockSpell(Target_Command_Halt);UnlockSpell(Shout_BeaconOfHope);Ability(Charisma,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_BARKSKIN;ENR_LootPassive_HASTE"
+data "PassivesOnEquip" "ENR_LootPassive_BLADE_WARD;ENR_LootPassive_HEROISM"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Legendary_L3_0"
@@ -195,7 +178,7 @@ using "ARM_Underwear_Elves"
 data "Rarity" "Legendary"
 data "RootTemplate" "b35bf37c-325e-5eec-adfc-3f0216124b82"
 data "Boosts" "UnlockSpell(Target_ArcaneLock);UnlockSpell(Target_RemoveCurse);Ability(Strength,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_DARK_ONES_BLESSING;ENR_LootPassive_RESISTANCE_RADIANT"
+data "PassivesOnEquip" "ENR_LootPassive_DARK_ONES_BLESSING;ENR_LootPassive_RESISTANCE_THUNDER"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Legendary_L4_0"
@@ -204,7 +187,7 @@ using "ARM_Underwear_Elves"
 data "Rarity" "Legendary"
 data "RootTemplate" "5e11d5df-ebae-541e-bf41-466786c1462f"
 data "Boosts" "UnlockSpell(Projectile_CursedTome_CurriculumofStrategy);UnlockSpell(Target_Darkness);Ability(Constitution,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_DARK_ONES_BLESSING;ENR_LootPassive_FREEDOM_OF_MOVEMENT"
+data "PassivesOnEquip" "ENR_LootPassive_DARK_ONES_BLESSING;ENR_LootPassive_HASTE"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Legendary_L5_0"
@@ -222,7 +205,7 @@ using "ARM_Underwear_Elves_Blue"
 data "Rarity" "Uncommon"
 data "RootTemplate" "3246fa54-acdb-5a27-a996-e44708d7196b"
 data "Boosts" ""
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_THUNDER"
+data "PassivesOnEquip" "ENR_LootPassive_REFLECTIVE_SHELL"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Blue_Uncommon_L1_0"
@@ -255,7 +238,7 @@ using "ARM_Underwear_Elves_Blue"
 data "Rarity" "Uncommon"
 data "RootTemplate" "3cf623be-a534-5ad3-880b-1c4cebecf879"
 data "Boosts" ""
-data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_THUND_18d16e"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_EVIL_AND_GOO_749824"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Blue_Uncommon_L5_0"
@@ -264,7 +247,7 @@ using "ARM_Underwear_Elves_Blue"
 data "Rarity" "Uncommon"
 data "RootTemplate" "9b008fc2-dbe7-5cb1-99d4-84492311c98e"
 data "Boosts" ""
-data "PassivesOnEquip" "ENR_LootPassive_FLY"
+data "PassivesOnEquip" "ENR_LootPassive_FREEDOM_OF_MOVEMENT"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Blue_Rare_L0_0"
@@ -308,8 +291,8 @@ type "Armor"
 using "ARM_Underwear_Elves_Blue"
 data "Rarity" "Rare"
 data "RootTemplate" "16d89721-f546-5ab6-89dc-7d3a22cf0c9b"
-data "Boosts" "Ability(Wisdom,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_WARDING_FLARE"
+data "Boosts" "Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_HEROISM"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Blue_Rare_L5_0"
@@ -327,7 +310,7 @@ using "ARM_Underwear_Elves_Blue"
 data "Rarity" "VeryRare"
 data "RootTemplate" "ae5e1dde-4fb8-52a2-8380-67a9f04debd4"
 data "Boosts" "UnlockSpell(Projectile_PoisonSpray);Ability(Dexterity,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_EVIL_AND_GOO_749824;ENR_LootPassive_LIGHT"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_POISON;ENR_LootPassive_LIGHT"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Blue_VeryRare_L1_0"
@@ -336,7 +319,7 @@ using "ARM_Underwear_Elves_Blue"
 data "Rarity" "VeryRare"
 data "RootTemplate" "ba7bd491-2659-5832-b5b1-d4e9df57f582"
 data "Boosts" "UnlockSpell(Projectile_WitchBolt);Ability(Intelligence,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_EAGLES_SPLENDOR;ENR_LootPassive_PROTECTION_FROM_ENERGY_LIGHT_d7917a"
+data "PassivesOnEquip" "ENR_LootPassive_EAGLES_SPLENDOR;ENR_LootPassive_PROTECTION_FROM_ENERGY_THUND_18d16e"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Blue_VeryRare_L2_0"
@@ -345,7 +328,7 @@ using "ARM_Underwear_Elves_Blue"
 data "Rarity" "VeryRare"
 data "RootTemplate" "74b7570a-2b8d-55ce-b18b-05cf62b94f9c"
 data "Boosts" "UnlockSpell(Target_HoldPerson);Ability(Constitution,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD;ENR_LootPassive_DETECT_EVIL_GOOD"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_FIRE;ENR_LootPassive_DETECT_EVIL_GOOD"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Blue_VeryRare_L3_0"
@@ -354,7 +337,7 @@ using "ARM_Underwear_Elves_Blue"
 data "Rarity" "VeryRare"
 data "RootTemplate" "c3dfab23-f805-5a99-b9d3-140e035c746f"
 data "Boosts" "UnlockSpell(Target_FloatingDisk);Ability(Charisma,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_VAMPIRIC_TOUCH;ENR_LootPassive_PROTECTION_FROM_ENERGY_ACID"
+data "PassivesOnEquip" "ENR_LootPassive_WARDING_FLARE;ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Blue_VeryRare_L4_0"
@@ -363,7 +346,7 @@ using "ARM_Underwear_Elves_Blue"
 data "Rarity" "VeryRare"
 data "RootTemplate" "d14e28a7-ca1a-5272-a497-e456ca66f27b"
 data "Boosts" "UnlockSpell(Projectile_EldritchBlast);Ability(Charisma,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD;ENR_LootPassive_RALLY"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_FIRE;ENR_LootPassive_RALLY"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Blue_VeryRare_L5_0"
@@ -381,7 +364,7 @@ using "ARM_Underwear_Elves_Blue"
 data "Rarity" "Legendary"
 data "RootTemplate" "a7fa03e3-a792-5e8e-a57f-718d5d9d9427"
 data "Boosts" "UnlockSpell(Target_ShockingGrasp);UnlockSpell(Target_HellishRebuke);Ability(Wisdom,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_POISON;ENR_LootPassive_FRIENDS"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_PSYCHIC;ENR_LootPassive_FRIENDS"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Blue_Legendary_L1_0"
@@ -399,7 +382,7 @@ using "ARM_Underwear_Elves_Blue"
 data "Rarity" "Legendary"
 data "RootTemplate" "705a0252-5e17-53b2-807a-5c52743d84e2"
 data "Boosts" "UnlockSpell(Projectile_AcidArrow);UnlockSpell(Target_Friends);Ability(Constitution,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_THUND_18d16e;ENR_LootPassive_MAGE_ARMOR"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_EVIL_AND_GOO_749824;ENR_LootPassive_MIRROR_IMAGE_1"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Blue_Legendary_L3_0"
@@ -408,7 +391,7 @@ using "ARM_Underwear_Elves_Blue"
 data "Rarity" "Legendary"
 data "RootTemplate" "f99a780e-a0a1-5425-818f-94f7d5af6034"
 data "Boosts" "UnlockSpell(Target_Counterspell);UnlockSpell(Target_MageArmor);Ability(Strength,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_THUNDER;ENR_LootPassive_ASPECT_OF_THE_STALLION"
+data "PassivesOnEquip" "ENR_LootPassive_REFLECTIVE_SHELL;ENR_LootPassive_ASPECT_OF_THE_STALLION"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Blue_Legendary_L4_0"
@@ -417,7 +400,7 @@ using "ARM_Underwear_Elves_Blue"
 data "Rarity" "Legendary"
 data "RootTemplate" "975f375d-9f1d-5a73-8a5d-91a6276286ef"
 data "Boosts" "UnlockSpell(Shout_Shield_Wizard);UnlockSpell(Shout_DispelEvilAndGood);Ability(Constitution,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_MULTIATTACKDEFENSE;ENR_LootPassive_BLESS"
+data "PassivesOnEquip" "ENR_LootPassive_MULTIATTACKDEFENSE;ENR_LootPassive_BLUR"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Blue_Legendary_L5_0"
@@ -426,7 +409,7 @@ using "ARM_Underwear_Elves_Blue"
 data "Rarity" "Legendary"
 data "RootTemplate" "852d38f1-c26b-5b9c-8c58-e1069ebb4d46"
 data "Boosts" "UnlockSpell(Target_MagicWeapon);UnlockSpell(Target_HideousLaughter);Ability(Intelligence,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_AURA_OF_PROTECTION_BUFF;ENR_LootPassive_RESISTANCE_ACID"
+data "PassivesOnEquip" "ENR_LootPassive_AURA_OF_PROTECTION_BUFF;ENR_LootPassive_RESISTANCE_COLD"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Purple_Uncommon_L0_0"
@@ -508,7 +491,7 @@ using "ARM_Underwear_Elves_Purple"
 data "Rarity" "Rare"
 data "RootTemplate" "daf98c8e-47cc-560b-a84d-2232cbd58b15"
 data "Boosts" "Ability(Strength,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_VAMPIRIC_TOUCH"
+data "PassivesOnEquip" "ENR_LootPassive_WARDING_FLARE"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Purple_Rare_L4_0"
@@ -525,8 +508,8 @@ type "Armor"
 using "ARM_Underwear_Elves_Purple"
 data "Rarity" "Rare"
 data "RootTemplate" "2f36b1c6-6ed0-5f57-a7a5-36127abeb9fe"
-data "Boosts" "Ability(Dexterity,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_WARDING_FLARE"
+data "Boosts" "Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_DETECT_EVIL_GOOD"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Purple_VeryRare_L0_0"
@@ -535,7 +518,7 @@ using "ARM_Underwear_Elves_Purple"
 data "Rarity" "VeryRare"
 data "RootTemplate" "b9a5170c-9a46-5ff9-8d10-f1c5f8cd5760"
 data "Boosts" "UnlockSpell(Target_ThornWhip);Ability(Constitution,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_BLADE_FLOURISH_DEFENSIVE;ENR_LootPassive_PROTECTION_FROM_POISON"
+data "PassivesOnEquip" "ENR_LootPassive_BLADE_FLOURISH_DEFENSIVE;ENR_LootPassive_RESISTANCE_ACID"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Purple_VeryRare_L1_0"
@@ -543,8 +526,8 @@ type "Armor"
 using "ARM_Underwear_Elves_Purple"
 data "Rarity" "VeryRare"
 data "RootTemplate" "c2f3c57d-0f54-556c-8765-bb2606caa44f"
-data "Boosts" "UnlockSpell(Target_HeatMetal);Ability(Charisma,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_ASPECT_OF_THE_WOLF;ENR_LootPassive_WARDING_FLARE"
+data "Boosts" "UnlockSpell(Target_HeatMetal);Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_ASPECT_OF_THE_WOLF;ENR_LootPassive_SHIELD"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Purple_VeryRare_L2_0"
@@ -553,7 +536,7 @@ using "ARM_Underwear_Elves_Purple"
 data "Rarity" "VeryRare"
 data "RootTemplate" "0574e16e-9530-56fc-ae9a-dbf71584b023"
 data "Boosts" "UnlockSpell(Target_ProtectionFromEnergy);Ability(Wisdom,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_PASS_WITHOUT_TRACE;ENR_LootPassive_RESISTANCE_PSYCHIC"
+data "PassivesOnEquip" "ENR_LootPassive_PASS_WITHOUT_TRACE;ENR_LootPassive_RESISTANCE_RADIANT"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Purple_VeryRare_L3_0"
@@ -562,7 +545,7 @@ using "ARM_Underwear_Elves_Purple"
 data "Rarity" "VeryRare"
 data "RootTemplate" "44286134-8444-5f25-bb9b-d85396c6e961"
 data "Boosts" "UnlockSpell(Zone_BurningHands_MephistophelesTiefling);Ability(Wisdom,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_UNDEAD_FORTITUDE;ENR_LootPassive_MOBILE_NO_AOO"
+data "PassivesOnEquip" "ENR_LootPassive_VAMPIRE_REGENERATION;ENR_LootPassive_MOBILE_NO_AOO"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Purple_VeryRare_L4_0"
@@ -571,7 +554,7 @@ using "ARM_Underwear_Elves_Purple"
 data "Rarity" "VeryRare"
 data "RootTemplate" "a3548b75-767c-582b-82a4-2842762740d4"
 data "Boosts" "UnlockSpell(Shout_WYR_StinkingCloudCheese);Ability(Wisdom,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_MAGIC_WEAPON;ENR_LootPassive_RESISTANCE_PSYCHIC"
+data "PassivesOnEquip" "ENR_LootPassive_MAGIC_WEAPON;ENR_LootPassive_RESISTANCE_RADIANT"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Purple_VeryRare_L5_0"
@@ -580,7 +563,7 @@ using "ARM_Underwear_Elves_Purple"
 data "Rarity" "VeryRare"
 data "RootTemplate" "5ed1b6f4-5d50-58cd-a0e4-7b2e37199f16"
 data "Boosts" "UnlockSpell(Target_MentalSlam_Githyanki);Ability(Intelligence,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_SANCTUARY;ENR_LootPassive_UNDEAD_FORTITUDE"
+data "PassivesOnEquip" "ENR_LootPassive_SHIELD;ENR_LootPassive_VAMPIRE_REGENERATION"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Purple_Legendary_L0_0"
@@ -589,7 +572,7 @@ using "ARM_Underwear_Elves_Purple"
 data "Rarity" "Legendary"
 data "RootTemplate" "a1efa4c4-6fd2-5287-9a2b-c0cd0323ae43"
 data "Boosts" "UnlockSpell(Target_Entangle);UnlockSpell(Target_ShieldOfFaith);Ability(Wisdom,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_ALCH_ELIXIR_ENLARGE;ENR_LootPassive_MIRROR_IMAGE_1"
+data "PassivesOnEquip" "ENR_LootPassive_FEATHER_FALL;ENR_LootPassive_MIRROR_IMAGE_2"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Purple_Legendary_L1_0"
@@ -598,7 +581,7 @@ using "ARM_Underwear_Elves_Purple"
 data "Rarity" "Legendary"
 data "RootTemplate" "d621b07b-e8f0-5c21-b960-8d26f9181c86"
 data "Boosts" "UnlockSpell(Target_Light);UnlockSpell(Target_Barkskin);Ability(Strength,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_POISON;ENR_LootPassive_MAGE_ARMOR"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_PSYCHIC;ENR_LootPassive_MIRROR_IMAGE_1"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Purple_Legendary_L2_0"
@@ -607,7 +590,7 @@ using "ARM_Underwear_Elves_Purple"
 data "Rarity" "Legendary"
 data "RootTemplate" "66cb245c-f316-530a-8aa4-b952f8f33183"
 data "Boosts" "UnlockSpell(Target_HypnoticPattern);UnlockSpell(Target_Resistance);Ability(Wisdom,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_ASPECT_OF_THE_STALLION;ENR_LootPassive_RESISTANCE_THUNDER"
+data "PassivesOnEquip" "ENR_LootPassive_ASPECT_OF_THE_STALLION;ENR_LootPassive_REFLECTIVE_SHELL"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Purple_Legendary_L3_0"
@@ -616,7 +599,7 @@ using "ARM_Underwear_Elves_Purple"
 data "Rarity" "Legendary"
 data "RootTemplate" "4a71a9a2-34e5-59c8-9f75-21ce2085a516"
 data "Boosts" "UnlockSpell(Target_Friends);UnlockSpell(Projectile_FireBolt);Ability(Charisma,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_FEATHER_FALL;ENR_LootPassive_BARDIC_INSPIRATION"
+data "PassivesOnEquip" "ENR_LootPassive_FLY;ENR_LootPassive_BARDIC_INSPIRATION"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Purple_Legendary_L4_0"
@@ -625,7 +608,7 @@ using "ARM_Underwear_Elves_Purple"
 data "Rarity" "Legendary"
 data "RootTemplate" "8ef9dbff-500f-586b-9723-327a6aee0ae5"
 data "Boosts" "UnlockSpell(Target_CrownOfMadness);UnlockSpell(Target_CureWounds_Mass);Ability(Strength,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_DAYLIGHT;ENR_LootPassive_RESISTANCE_PSYCHIC"
+data "PassivesOnEquip" "ENR_LootPassive_DAYLIGHT;ENR_LootPassive_RESISTANCE_RADIANT"
 
 
 new entry "ENR_Loot_Underwear_Elves_A_Purple_Legendary_L5_0"
@@ -684,7 +667,7 @@ using "ARM_Underwear_Githyanki"
 data "Rarity" "Uncommon"
 data "RootTemplate" "3ed33ffe-6ca5-5715-941d-1b7204748b30"
 data "Boosts" ""
-data "PassivesOnEquip" "ENR_LootPassive_FLY"
+data "PassivesOnEquip" "ENR_LootPassive_FREEDOM_OF_MOVEMENT"
 
 
 new entry "ENR_Loot_Underwear_Githyanki_A_Rare_L0_0"
@@ -693,7 +676,7 @@ using "ARM_Underwear_Githyanki"
 data "Rarity" "Rare"
 data "RootTemplate" "a40f8b55-376d-5295-8008-d72b6dbc2538"
 data "Boosts" "Ability(Intelligence,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_FREEDOM_OF_MOVEMENT"
+data "PassivesOnEquip" "ENR_LootPassive_HASTE"
 
 
 new entry "ENR_Loot_Underwear_Githyanki_A_Rare_L1_0"
@@ -711,7 +694,7 @@ using "ARM_Underwear_Githyanki"
 data "Rarity" "Rare"
 data "RootTemplate" "79be647e-42fc-52f3-b9c8-4c7a508a35a0"
 data "Boosts" "UnlockSpell(Target_CalmEmotions)"
-data "PassivesOnEquip" "ENR_LootPassive_HASTE"
+data "PassivesOnEquip" "ENR_LootPassive_HEROISM"
 
 
 new entry "ENR_Loot_Underwear_Githyanki_A_Rare_L3_0"
@@ -737,7 +720,7 @@ using "ARM_Underwear_Githyanki"
 data "Rarity" "Rare"
 data "RootTemplate" "3c510271-e83e-5eae-9d7a-7592a085b53f"
 data "Boosts" "Ability(Dexterity,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_UNDEAD_FORTITUDE"
+data "PassivesOnEquip" "ENR_LootPassive_VAMPIRE_REGENERATION"
 
 
 new entry "ENR_Loot_Underwear_Githyanki_A_VeryRare_L0_0"
@@ -755,7 +738,7 @@ using "ARM_Underwear_Githyanki"
 data "Rarity" "VeryRare"
 data "RootTemplate" "cad9c8fb-e0a3-50bb-8e06-9142da3c478a"
 data "Boosts" "UnlockSpell(Target_Jump);Ability(Dexterity,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_FOXS_CUNNING;ENR_LootPassive_MAGE_ARMOR"
+data "PassivesOnEquip" "ENR_LootPassive_FOXS_CUNNING;ENR_LootPassive_MIRROR_IMAGE_1"
 
 
 new entry "ENR_Loot_Underwear_Githyanki_A_VeryRare_L2_0"
@@ -764,7 +747,7 @@ using "ARM_Underwear_Githyanki"
 data "Rarity" "VeryRare"
 data "RootTemplate" "09ff3c86-70e8-5e4b-a1ef-d522b9820cc5"
 data "Boosts" "UnlockSpell(Projectile_ChromaticOrb_Acid);Ability(Intelligence,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_DEATH_WARD;ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD"
+data "PassivesOnEquip" "ENR_LootPassive_ALCH_ELIXIR_ENLARGE;ENR_LootPassive_PROTECTION_FROM_ENERGY_FIRE"
 
 
 new entry "ENR_Loot_Underwear_Githyanki_A_VeryRare_L3_0"
@@ -773,7 +756,7 @@ using "ARM_Underwear_Githyanki"
 data "Rarity" "VeryRare"
 data "RootTemplate" "83d6d8cc-8db3-541a-a5ba-a2fbcccdd60a"
 data "Boosts" "UnlockSpell(Shout_MageArmor_ArmorOfShadows);Ability(Intelligence,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_DEATH_WARD;ENR_LootPassive_RESISTANCE_NECROTIC"
+data "PassivesOnEquip" "ENR_LootPassive_ALCH_ELIXIR_ENLARGE;ENR_LootPassive_RESISTANCE_POISON"
 
 
 new entry "ENR_Loot_Underwear_Githyanki_A_VeryRare_L4_0"
@@ -782,7 +765,7 @@ using "ARM_Underwear_Githyanki"
 data "Rarity" "VeryRare"
 data "RootTemplate" "ffa92ece-9b29-518b-afe2-88253e53687f"
 data "Boosts" "UnlockSpell(Projectile_ScorchingRay);Ability(Wisdom,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE;ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE;ENR_LootPassive_PROTECTION_FROM_ENERGY_FIRE"
 
 
 new entry "ENR_Loot_Underwear_Githyanki_A_VeryRare_L5_0"
@@ -791,7 +774,7 @@ using "ARM_Underwear_Githyanki"
 data "Rarity" "VeryRare"
 data "RootTemplate" "7722dc72-d5a8-5f16-9098-0de261e9419a"
 data "Boosts" "UnlockSpell(Target_ConjureElementals_Minor_IceMephit_6);Ability(Intelligence,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_MAGIC_WEAPON;ENR_LootPassive_FEATHER_FALL"
+data "PassivesOnEquip" "ENR_LootPassive_MAGIC_WEAPON;ENR_LootPassive_FLY"
 
 
 new entry "ENR_Loot_Underwear_Githyanki_A_Legendary_L0_0"
@@ -800,7 +783,7 @@ using "ARM_Underwear_Githyanki"
 data "Rarity" "Legendary"
 data "RootTemplate" "ba51defc-7b68-571a-80d7-cde1bf8ec91c"
 data "Boosts" "UnlockSpell(Target_ChillTouch);UnlockSpell(Target_Resistance);Ability(Dexterity,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_BULLS_STRENGTH;ENR_LootPassive_BARKSKIN"
+data "PassivesOnEquip" "ENR_LootPassive_BULLS_STRENGTH;ENR_LootPassive_BLADE_WARD"
 
 
 new entry "ENR_Loot_Underwear_Githyanki_A_Legendary_L1_0"
@@ -818,7 +801,7 @@ using "ARM_Underwear_Githyanki"
 data "Rarity" "Legendary"
 data "RootTemplate" "030e1a57-54f5-5cfd-abe7-e39bdd2922b9"
 data "Boosts" "UnlockSpell(Target_PlantGrowth);UnlockSpell(Projectile_LightningBlade_Explosion);Ability(Wisdom,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD;ENR_LootPassive_VAMPIRE_REGENERATION"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_FIRE;ENR_LootPassive_BARKSKIN"
 
 
 new entry "ENR_Loot_Underwear_Githyanki_A_Legendary_L3_0"
@@ -827,7 +810,7 @@ using "ARM_Underwear_Githyanki"
 data "Rarity" "Legendary"
 data "RootTemplate" "2ce0bee3-bb2c-58e7-ac80-32858dc07286"
 data "Boosts" "UnlockSpell(Shout_ShadowBlade);UnlockSpell(Zone_GustOfWind);Ability(Intelligence,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_CALM_EMOTIONS;ENR_LootPassive_RESISTANCE_COLD"
+data "PassivesOnEquip" "ENR_LootPassive_CALM_EMOTIONS;ENR_LootPassive_RESISTANCE_FIRE"
 
 
 new entry "ENR_Loot_Underwear_Githyanki_A_Legendary_L4_0"
@@ -835,8 +818,8 @@ type "Armor"
 using "ARM_Underwear_Githyanki"
 data "Rarity" "Legendary"
 data "RootTemplate" "10ae0ead-a34f-59a9-8b92-b52f31d6e2b3"
-data "Boosts" "UnlockSpell(Target_Enthrall);UnlockSpell(Target_LesserRestoration);Ability(Wisdom,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_WARDING_FLARE;ENR_LootPassive_VAMPIRIC_TOUCH"
+data "Boosts" "UnlockSpell(Target_Enthrall);UnlockSpell(Target_LesserRestoration);Ability(Charisma,2,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_WARDING_FLARE;ENR_LootPassive_PROTECTION_FROM_ENERGY_ACID"
 
 
 new entry "ENR_Loot_Underwear_Githyanki_A_Legendary_L5_0"
@@ -845,7 +828,7 @@ using "ARM_Underwear_Githyanki"
 data "Rarity" "Legendary"
 data "RootTemplate" "824b6d31-12d1-5a04-a062-9eda0cddde89"
 data "Boosts" "UnlockSpell(Target_MageHand);UnlockSpell(Target_SpareTheDying);Ability(Constitution,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_NECROTIC;ENR_LootPassive_SPEAK_WITH_DEAD"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_POISON;ENR_LootPassive_SPEAK_WITH_DEAD"
 
 
 new entry "ENR_Loot_Underwear_Githyanki_A_Black_Uncommon_L0_0"
@@ -862,7 +845,7 @@ using "ARM_Underwear_Githyanki_Black"
 data "Rarity" "Uncommon"
 data "RootTemplate" "fd5d8d30-c3f4-5de0-b748-d07f9e875916"
 data "Boosts" ""
-data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_ACID"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD"
 
 
 new entry "ENR_Loot_Underwear_Githyanki_A_Black_Uncommon_L2_0"
@@ -879,7 +862,7 @@ using "ARM_Underwear_Githyanki_Black"
 data "Rarity" "Uncommon"
 data "RootTemplate" "f41abf2a-a619-5716-9553-a91cc1558fa7"
 data "Boosts" ""
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_NECROTIC"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_POISON"
 
 
 new entry "ENR_Loot_Underwear_Githyanki_A_Black_Uncommon_L4_0"
@@ -963,7 +946,7 @@ using "ARM_Underwear_Githyanki_Black"
 data "Rarity" "VeryRare"
 data "RootTemplate" "0de277b5-b390-532b-931f-d11d5f08effe"
 data "Boosts" "UnlockSpell(Shout_DetectThoughts);Ability(Charisma,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_ACID;ENR_LootPassive_FOXS_CUNNING"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_COLD;ENR_LootPassive_FOXS_CUNNING"
 
 
 new entry "ENR_Loot_Underwear_Githyanki_A_Black_VeryRare_L2_0"
@@ -972,7 +955,7 @@ using "ARM_Underwear_Githyanki_Black"
 data "Rarity" "VeryRare"
 data "RootTemplate" "704854da-0008-54de-b91a-98a2cffb6b54"
 data "Boosts" "UnlockSpell(Shout_FlameBlade);Ability(Intelligence,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_FEATHER_FALL;ENR_LootPassive_LONGSTRIDER"
+data "PassivesOnEquip" "ENR_LootPassive_FLY;ENR_LootPassive_MAGE_ARMOR"
 
 
 new entry "ENR_Loot_Underwear_Githyanki_A_Black_VeryRare_L3_0"
@@ -990,7 +973,7 @@ using "ARM_Underwear_Githyanki_Black"
 data "Rarity" "VeryRare"
 data "RootTemplate" "e1d967c4-a131-5d9f-9efb-9bef7012d9ae"
 data "Boosts" "UnlockSpell(Target_CrownOfMadness);Ability(Wisdom,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_NECROTIC;ENR_LootPassive_PROTECTION_FROM_ENERGY_FIRE"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_POISON;ENR_LootPassive_PROTECTION_FROM_ENERGY_LIGHT_d7917a"
 
 
 new entry "ENR_Loot_Underwear_Githyanki_A_Black_VeryRare_L5_0"
@@ -999,7 +982,7 @@ using "ARM_Underwear_Githyanki_Black"
 data "Rarity" "VeryRare"
 data "RootTemplate" "c11803c5-fd6d-53b0-b64f-82afd1295a33"
 data "Boosts" "UnlockSpell(Shout_WindWalk);Ability(Dexterity,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_TRUE_STRIKE;ENR_LootPassive_EAGLES_SPLENDOR"
+data "PassivesOnEquip" "ENR_LootPassive_UNDEAD_FORTITUDE;ENR_LootPassive_EAGLES_SPLENDOR"
 
 
 new entry "ENR_Loot_Underwear_Githyanki_A_Black_Legendary_L0_0"
@@ -1008,7 +991,7 @@ using "ARM_Underwear_Githyanki_Black"
 data "Rarity" "Legendary"
 data "RootTemplate" "64f74684-17f1-53e3-9412-614dea619af9"
 data "Boosts" "UnlockSpell(Shout_HellishRebuke);UnlockSpell(Target_Command_Halt);Ability(Dexterity,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_GUIDANCE;ENR_LootPassive_TRUE_STRIKE"
+data "PassivesOnEquip" "ENR_LootPassive_GUIDANCE;ENR_LootPassive_UNDEAD_FORTITUDE"
 
 
 new entry "ENR_Loot_Underwear_Githyanki_A_Black_Legendary_L1_0"
@@ -1017,7 +1000,7 @@ using "ARM_Underwear_Githyanki_Black"
 data "Rarity" "Legendary"
 data "RootTemplate" "c4f28c28-8e45-5316-b63d-68292fd9f03d"
 data "Boosts" "UnlockSpell(Target_MinorIllusion);UnlockSpell(Target_Blindness);Ability(Wisdom,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_BLADE_WARD;ENR_LootPassive_ARMOR_OF_AGATHYS"
+data "PassivesOnEquip" "ENR_LootPassive_BLESS;ENR_LootPassive_ARMOR_OF_AGATHYS"
 
 
 new entry "ENR_Loot_Underwear_Githyanki_A_Black_Legendary_L2_0"
@@ -1026,7 +1009,7 @@ using "ARM_Underwear_Githyanki_Black"
 data "Rarity" "Legendary"
 data "RootTemplate" "41298743-9caf-55db-a614-b4ee5a2d1659"
 data "Boosts" "UnlockSpell(Zone_Fear);UnlockSpell(Projectile_SteelWatcher_Quadruped_SelfDestructExplosion);Ability(Charisma,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_LIGHT;ENR_LootPassive_RESISTANCE_THUNDER"
+data "PassivesOnEquip" "ENR_LootPassive_LIGHT;ENR_LootPassive_REFLECTIVE_SHELL"
 
 
 new entry "ENR_Loot_Underwear_Githyanki_A_Black_Legendary_L3_0"
@@ -1044,7 +1027,7 @@ using "ARM_Underwear_Githyanki_Black"
 data "Rarity" "Legendary"
 data "RootTemplate" "61afad4a-ead5-51df-832a-d5e249b95a34"
 data "Boosts" "UnlockSpell(Target_ProtectionFromEnergy);UnlockSpell(Target_Smite_Divine);Ability(Constitution,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_DARK_ONES_BLESSING;ENR_LootPassive_RESISTANCE_LIGHTNING"
+data "PassivesOnEquip" "ENR_LootPassive_DARK_ONES_BLESSING;ENR_LootPassive_RESISTANCE_NECROTIC"
 
 
 new entry "ENR_Loot_Underwear_Githyanki_A_Black_Legendary_L5_0"
@@ -1062,7 +1045,7 @@ using "ARM_Underwear_Gnomes"
 data "Rarity" "Uncommon"
 data "RootTemplate" "321f3f9a-304f-5c10-8ca4-789af687a2bc"
 data "Boosts" ""
-data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_FIRE"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_LIGHT_d7917a"
 
 
 new entry "ENR_Loot_Underwear_Gnomes_A_Uncommon_L1_0"
@@ -1071,7 +1054,7 @@ using "ARM_Underwear_Gnomes"
 data "Rarity" "Uncommon"
 data "RootTemplate" "fe6ee694-8816-5ecc-90ee-b25ebfb4cc2e"
 data "Boosts" ""
-data "PassivesOnEquip" "ENR_LootPassive_MIRROR_IMAGE_1"
+data "PassivesOnEquip" "ENR_LootPassive_MIRROR_IMAGE_2"
 
 
 new entry "ENR_Loot_Underwear_Gnomes_A_Uncommon_L2_0"
@@ -1080,7 +1063,7 @@ using "ARM_Underwear_Gnomes"
 data "Rarity" "Uncommon"
 data "RootTemplate" "020b5dcb-4ff6-55f7-85ee-c4a28653305e"
 data "Boosts" ""
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_POISON"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_PSYCHIC"
 
 
 new entry "ENR_Loot_Underwear_Gnomes_A_Uncommon_L3_0"
@@ -1167,7 +1150,7 @@ using "ARM_Underwear_Gnomes"
 data "Rarity" "VeryRare"
 data "RootTemplate" "33c16076-9dd8-5678-85e7-319b7a5ec48a"
 data "Boosts" "UnlockSpell(Target_MageHand);Ability(Constitution,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_SHIELD_OF_FAITH;ENR_LootPassive_PROTECTION_FROM_POISON"
+data "PassivesOnEquip" "ENR_LootPassive_STONESKIN;ENR_LootPassive_RESISTANCE_ACID"
 
 
 new entry "ENR_Loot_Underwear_Gnomes_A_VeryRare_L1_0"
@@ -1176,7 +1159,7 @@ using "ARM_Underwear_Gnomes"
 data "Rarity" "VeryRare"
 data "RootTemplate" "bcdbd04d-e942-5ebd-a25d-018844bb706b"
 data "Boosts" "UnlockSpell(Target_Sleep);Ability(Constitution,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_FALSE_LIFE;ENR_LootPassive_SHIELD"
+data "PassivesOnEquip" "ENR_LootPassive_FALSE_LIFE;ENR_LootPassive_SHIELD_OF_FAITH"
 
 
 new entry "ENR_Loot_Underwear_Gnomes_A_VeryRare_L2_0"
@@ -1185,7 +1168,7 @@ using "ARM_Underwear_Gnomes"
 data "Rarity" "VeryRare"
 data "RootTemplate" "000bc211-4952-561a-ae3c-637395375b6b"
 data "Boosts" "UnlockSpell(Target_ElementalWeapon);Ability(Dexterity,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_DIVINE_SENSE;ENR_LootPassive_SHIELD_OF_FAITH"
+data "PassivesOnEquip" "ENR_LootPassive_DIVINE_SENSE;ENR_LootPassive_STONESKIN"
 
 
 new entry "ENR_Loot_Underwear_Gnomes_A_VeryRare_L3_0"
@@ -1194,7 +1177,7 @@ using "ARM_Underwear_Gnomes"
 data "Rarity" "VeryRare"
 data "RootTemplate" "924ccc4e-a2bf-5151-bf58-857aa8fe4eb9"
 data "Boosts" "UnlockSpell(Target_SCL_Drider_PsionicVengeance);Ability(Dexterity,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_SURVIVAL_INSTINCT;ENR_LootPassive_RESISTANCE"
+data "PassivesOnEquip" "ENR_LootPassive_TRUE_STRIKE;ENR_LootPassive_RESISTANCE"
 
 
 new entry "ENR_Loot_Underwear_Gnomes_A_VeryRare_L4_0"
@@ -1203,7 +1186,7 @@ using "ARM_Underwear_Gnomes"
 data "Rarity" "VeryRare"
 data "RootTemplate" "8b7ab0d4-983c-52ba-94a5-36e238edad01"
 data "Boosts" "UnlockSpell(Target_Daylight);Ability(Intelligence,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_ARMOR_OF_AGATHYS;ENR_LootPassive_SANCTUARY"
+data "PassivesOnEquip" "ENR_LootPassive_ARMOR_OF_AGATHYS;ENR_LootPassive_SHIELD"
 
 
 new entry "ENR_Loot_Underwear_Gnomes_A_VeryRare_L5_0"
@@ -1212,7 +1195,7 @@ using "ARM_Underwear_Gnomes"
 data "Rarity" "VeryRare"
 data "RootTemplate" "abe6d862-50bf-54e1-a261-22055f4a2fb8"
 data "Boosts" "UnlockSpell(Target_ProtectionFromPoison);Ability(Intelligence,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_FREEDOM_OF_MOVEMENT;ENR_LootPassive_DAYLIGHT"
+data "PassivesOnEquip" "ENR_LootPassive_HASTE;ENR_LootPassive_DAYLIGHT"
 
 
 new entry "ENR_Loot_Underwear_Gnomes_A_Legendary_L0_0"
@@ -1230,7 +1213,7 @@ using "ARM_Underwear_Gnomes"
 data "Rarity" "Legendary"
 data "RootTemplate" "f685e19a-f03c-5d87-80fc-8b62e8381f28"
 data "Boosts" "UnlockSpell(Projectile_ChromaticOrb_Acid);UnlockSpell(Shout_DetectEvilAndGood);Ability(Charisma,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_MIRROR_IMAGE_3;ENR_LootPassive_BLESS"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_ACID;ENR_LootPassive_BLUR"
 
 
 new entry "ENR_Loot_Underwear_Gnomes_A_Legendary_L2_0"
@@ -1239,7 +1222,7 @@ using "ARM_Underwear_Gnomes"
 data "Rarity" "Legendary"
 data "RootTemplate" "3b8eaf7e-1a3e-59a3-bd97-d1d4e4b3187b"
 data "Boosts" "UnlockSpell(Target_Smite_Blinding);UnlockSpell(Projectile_RayOfEnfeeblement);Ability(Intelligence,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_BEARS_ENDURANCE;ENR_LootPassive_SURVIVAL_INSTINCT"
+data "PassivesOnEquip" "ENR_LootPassive_BEARS_ENDURANCE;ENR_LootPassive_TRUE_STRIKE"
 
 
 new entry "ENR_Loot_Underwear_Gnomes_A_Legendary_L3_0"
@@ -1248,7 +1231,7 @@ using "ARM_Underwear_Gnomes"
 data "Rarity" "Legendary"
 data "RootTemplate" "1f50d794-652b-5a5a-b7bf-d2b063ec7fc5"
 data "Boosts" "UnlockSpell(Target_HideousLaughter);UnlockSpell(Target_Invisibility);Ability(Dexterity,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_SACRED_WEAPON;ENR_LootPassive_RESISTANCE_FORCE"
+data "PassivesOnEquip" "ENR_LootPassive_SACRED_WEAPON;ENR_LootPassive_RESISTANCE_LIGHTNING"
 
 
 new entry "ENR_Loot_Underwear_Gnomes_A_Legendary_L4_0"
@@ -1257,7 +1240,7 @@ using "ARM_Underwear_Gnomes"
 data "Rarity" "Legendary"
 data "RootTemplate" "f8590c22-7e87-5fbe-8ca1-f72b62aea5f6"
 data "Boosts" "UnlockSpell(Projectile_ChromaticOrb);UnlockSpell(Projectile_Fireball);Ability(Charisma,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_VAMPIRIC_TOUCH;ENR_LootPassive_REFLECTIVE_SHELL"
+data "PassivesOnEquip" "ENR_LootPassive_WARDING_FLARE;ENR_LootPassive_SANCTUARY"
 
 
 new entry "ENR_Loot_Underwear_Gnomes_A_Legendary_L5_0"
@@ -1266,7 +1249,7 @@ using "ARM_Underwear_Gnomes"
 data "Rarity" "Legendary"
 data "RootTemplate" "9bbb2ab7-28ef-5c9f-91cd-2966faeb5c0c"
 data "Boosts" "UnlockSpell(Shout_WYR_ChainsOfTyranny_Gortash);UnlockSpell(Shout_AlterSelf);Ability(Wisdom,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_SHIELD_OF_FAITH;ENR_LootPassive_RESISTANCE_PSYCHIC"
+data "PassivesOnEquip" "ENR_LootPassive_STONESKIN;ENR_LootPassive_RESISTANCE_RADIANT"
 
 
 new entry "ENR_Loot_Underwear_Gnomes_A_Blue_Uncommon_L0_0"
@@ -1319,7 +1302,7 @@ using "ARM_Underwear_Gnomes_Blue"
 data "Rarity" "Uncommon"
 data "RootTemplate" "697defc1-1981-526d-9937-b2beb8b85095"
 data "Boosts" ""
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_ACID"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_COLD"
 
 
 new entry "ENR_Loot_Underwear_Gnomes_A_Blue_Rare_L0_0"
@@ -1328,7 +1311,7 @@ using "ARM_Underwear_Gnomes_Blue"
 data "Rarity" "Rare"
 data "RootTemplate" "44fd6c23-927a-579f-9216-dd5c9d82e161"
 data "Boosts" "Ability(Strength,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_VAMPIRIC_TOUCH"
+data "PassivesOnEquip" "ENR_LootPassive_WARDING_FLARE"
 
 
 new entry "ENR_Loot_Underwear_Gnomes_A_Blue_Rare_L1_0"
@@ -1345,7 +1328,7 @@ using "ARM_Underwear_Gnomes_Blue"
 data "Rarity" "Rare"
 data "RootTemplate" "675990d9-4017-5d1e-a803-eeee7e6ba327"
 data "Boosts" "Ability(Charisma,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_SANCTUARY"
+data "PassivesOnEquip" "ENR_LootPassive_SHIELD"
 
 
 new entry "ENR_Loot_Underwear_Gnomes_A_Blue_Rare_L3_0"
@@ -1354,7 +1337,7 @@ using "ARM_Underwear_Gnomes_Blue"
 data "Rarity" "Rare"
 data "RootTemplate" "08f3fb10-31b0-57f1-bf9d-0acd6dbbead6"
 data "Boosts" "Ability(Constitution,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_VAMPIRIC_TOUCH"
+data "PassivesOnEquip" "ENR_LootPassive_WARDING_FLARE"
 
 
 new entry "ENR_Loot_Underwear_Gnomes_A_Blue_Rare_L4_0"
@@ -1379,7 +1362,7 @@ using "ARM_Underwear_Gnomes_Blue"
 data "Rarity" "VeryRare"
 data "RootTemplate" "5f810650-892e-5081-ba25-243ae5667c97"
 data "Boosts" "UnlockSpell(Shout_Shield_Wizard);Ability(Strength,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_MIRROR_IMAGE_2;ENR_LootPassive_BEARS_ENDURANCE"
+data "PassivesOnEquip" "ENR_LootPassive_MIRROR_IMAGE_3;ENR_LootPassive_BEARS_ENDURANCE"
 
 
 new entry "ENR_Loot_Underwear_Gnomes_A_Blue_VeryRare_L1_0"
@@ -1388,7 +1371,7 @@ using "ARM_Underwear_Gnomes_Blue"
 data "Rarity" "VeryRare"
 data "RootTemplate" "b598c6e1-41c8-57df-847c-13d86cc48b22"
 data "Boosts" "UnlockSpell(Target_MistyStep_Githyanki);Ability(Charisma,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_VAMPIRE_REGENERATION;ENR_LootPassive_DARK_ONES_BLESSING"
+data "PassivesOnEquip" "ENR_LootPassive_BARKSKIN;ENR_LootPassive_DARK_ONES_BLESSING"
 
 
 new entry "ENR_Loot_Underwear_Gnomes_A_Blue_VeryRare_L2_0"
@@ -1397,7 +1380,7 @@ using "ARM_Underwear_Gnomes_Blue"
 data "Rarity" "VeryRare"
 data "RootTemplate" "69ccd090-ec71-5758-bad9-c77933de625a"
 data "Boosts" "UnlockSpell(Shout_FalseLife);Ability(Strength,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_DARKVISION;ENR_LootPassive_SANCTUARY"
+data "PassivesOnEquip" "ENR_LootPassive_DEATH_WARD;ENR_LootPassive_SHIELD"
 
 
 new entry "ENR_Loot_Underwear_Gnomes_A_Blue_VeryRare_L3_0"
@@ -1415,7 +1398,7 @@ using "ARM_Underwear_Gnomes_Blue"
 data "Rarity" "VeryRare"
 data "RootTemplate" "489cccfa-583d-5db6-8965-e6f426272add"
 data "Boosts" "UnlockSpell(Projectile_Smite_Branding);Ability(Constitution,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_PSYCHIC;ENR_LootPassive_BEARS_ENDURANCE"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_RADIANT;ENR_LootPassive_BEARS_ENDURANCE"
 
 
 new entry "ENR_Loot_Underwear_Gnomes_A_Blue_VeryRare_L5_0"
@@ -1424,7 +1407,7 @@ using "ARM_Underwear_Gnomes_Blue"
 data "Rarity" "VeryRare"
 data "RootTemplate" "0bd5310a-f8d6-5845-9c69-76d9a756d4e2"
 data "Boosts" "UnlockSpell(Shout_PrayerOfHealing);Ability(Intelligence,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_VAMPIRIC_TOUCH;ENR_LootPassive_BLADE_FLOURISH_MOBILE"
+data "PassivesOnEquip" "ENR_LootPassive_WARDING_FLARE;ENR_LootPassive_BLADE_FLOURISH_MOBILE"
 
 
 new entry "ENR_Loot_Underwear_Gnomes_A_Blue_Legendary_L0_0"
@@ -1469,7 +1452,7 @@ using "ARM_Underwear_Gnomes_Blue"
 data "Rarity" "Legendary"
 data "RootTemplate" "ce5e12a9-cae8-5267-b4af-9c795a88de7a"
 data "Boosts" "UnlockSpell(Target_EnsnaringStrike);UnlockSpell(Target_AnimateDead_Skeleton_4);Ability(Dexterity,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD;ENR_LootPassive_CRYSTALSKIN"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_FIRE;ENR_LootPassive_CRYSTALSKIN"
 
 
 new entry "ENR_Loot_Underwear_Gnomes_A_Blue_Legendary_L5_0"
@@ -1478,7 +1461,7 @@ using "ARM_Underwear_Gnomes_Blue"
 data "Rarity" "Legendary"
 data "RootTemplate" "fd9366d3-caa7-5043-bb03-e0acdc8a18f1"
 data "Boosts" "UnlockSpell(Target_Eyebite);UnlockSpell(Target_DominatePerson_Mindflayer);Ability(Charisma,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_VAMPIRIC_TOUCH;ENR_LootPassive_FEATHER_FALL"
+data "PassivesOnEquip" "ENR_LootPassive_WARDING_FLARE;ENR_LootPassive_FLY"
 
 
 new entry "ENR_Loot_Underwear_HalfOrcs_A_Uncommon_L0_0"
@@ -1578,7 +1561,7 @@ using "ARM_Underwear_HalfOrcs"
 data "Rarity" "Rare"
 data "RootTemplate" "aeeb07b4-69f8-57b5-a59e-cb7760245879"
 data "Boosts" "UnlockSpell(Target_ProtectionFromEvilAndGood)"
-data "PassivesOnEquip" "ENR_LootPassive_VAMPIRIC_TOUCH"
+data "PassivesOnEquip" "ENR_LootPassive_WARDING_FLARE"
 
 
 new entry "ENR_Loot_Underwear_HalfOrcs_A_VeryRare_L0_0"
@@ -1587,7 +1570,7 @@ using "ARM_Underwear_HalfOrcs"
 data "Rarity" "VeryRare"
 data "RootTemplate" "2c708d29-c63a-5768-8343-8582346ad6a9"
 data "Boosts" "UnlockSpell(Shout_DisguiseSelf);Ability(Strength,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_TRUE_STRIKE;ENR_LootPassive_ASPECT_OF_THE_ELK"
+data "PassivesOnEquip" "ENR_LootPassive_UNDEAD_FORTITUDE;ENR_LootPassive_ASPECT_OF_THE_ELK"
 
 
 new entry "ENR_Loot_Underwear_HalfOrcs_A_VeryRare_L1_0"
@@ -1596,7 +1579,7 @@ using "ARM_Underwear_HalfOrcs"
 data "Rarity" "VeryRare"
 data "RootTemplate" "f1fa275f-a01e-505d-91a0-69a17eeeec6d"
 data "Boosts" "UnlockSpell(Target_SpareTheDying);Ability(Wisdom,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_POISON;ENR_LootPassive_DETECT_THOUGHTS"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_PSYCHIC;ENR_LootPassive_DETECT_THOUGHTS"
 
 
 new entry "ENR_Loot_Underwear_HalfOrcs_A_VeryRare_L2_0"
@@ -1605,7 +1588,7 @@ using "ARM_Underwear_HalfOrcs"
 data "Rarity" "VeryRare"
 data "RootTemplate" "8c165c73-b422-54be-ba24-d888c273667a"
 data "Boosts" "UnlockSpell(Shout_Blur);Ability(Wisdom,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_CATS_GRACE;ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD"
+data "PassivesOnEquip" "ENR_LootPassive_CATS_GRACE;ENR_LootPassive_PROTECTION_FROM_ENERGY_FIRE"
 
 
 new entry "ENR_Loot_Underwear_HalfOrcs_A_VeryRare_L3_0"
@@ -1623,7 +1606,7 @@ using "ARM_Underwear_HalfOrcs"
 data "Rarity" "VeryRare"
 data "RootTemplate" "3753e67c-8f08-52cb-b0c1-bdf11d55208a"
 data "Boosts" "UnlockSpell(Target_Banishment);Ability(Constitution,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_SANCTUARY;ENR_LootPassive_LONG_JUMP"
+data "PassivesOnEquip" "ENR_LootPassive_SHIELD;ENR_LootPassive_LONG_JUMP"
 
 
 new entry "ENR_Loot_Underwear_HalfOrcs_A_VeryRare_L5_0"
@@ -1632,7 +1615,7 @@ using "ARM_Underwear_HalfOrcs"
 data "Rarity" "VeryRare"
 data "RootTemplate" "5a345335-cf34-55e1-b030-16136bde36c2"
 data "Boosts" "UnlockSpell(Projectile_CursedTome_CurriculumofStrategy);Ability(Constitution,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_SHIELD;ENR_LootPassive_ALCH_ELIXIR_ENLARGE"
+data "PassivesOnEquip" "ENR_LootPassive_SHIELD_OF_FAITH;ENR_LootPassive_FEATHER_FALL"
 
 
 new entry "ENR_Loot_Underwear_HalfOrcs_A_Legendary_L0_0"
@@ -1641,7 +1624,7 @@ using "ARM_Underwear_HalfOrcs"
 data "Rarity" "Legendary"
 data "RootTemplate" "f93b6dea-8c2a-586c-9858-789ba72c587a"
 data "Boosts" "UnlockSpell(Target_CharmPerson);UnlockSpell(Shout_ComprehendLanguages);Ability(Constitution,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_LONG_JUMP;ENR_LootPassive_REFLECTIVE_SHELL"
+data "PassivesOnEquip" "ENR_LootPassive_LONG_JUMP;ENR_LootPassive_SANCTUARY"
 
 
 new entry "ENR_Loot_Underwear_HalfOrcs_A_Legendary_L1_0"
@@ -1659,7 +1642,7 @@ using "ARM_Underwear_HalfOrcs"
 data "Rarity" "Legendary"
 data "RootTemplate" "3204e5a0-d432-55f7-972c-0573270ea15e"
 data "Boosts" "UnlockSpell(Target_AnimateDead);UnlockSpell(Target_Haste);Ability(Constitution,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_DAYLIGHT;ENR_LootPassive_ALCH_ELIXIR_ENLARGE"
+data "PassivesOnEquip" "ENR_LootPassive_DAYLIGHT;ENR_LootPassive_FEATHER_FALL"
 
 
 new entry "ENR_Loot_Underwear_HalfOrcs_A_Legendary_L3_0"
@@ -1668,7 +1651,7 @@ using "ARM_Underwear_HalfOrcs"
 data "Rarity" "Legendary"
 data "RootTemplate" "f1703dfd-58a5-5ef3-aff4-3a4f4b7be418"
 data "Boosts" "UnlockSpell(Target_ProtectionFromEnergy);UnlockSpell(Target_EnsnaringStrike);Ability(Wisdom,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_MAGE_ARMOR;ENR_LootPassive_TRUE_STRIKE"
+data "PassivesOnEquip" "ENR_LootPassive_MIRROR_IMAGE_1;ENR_LootPassive_UNDEAD_FORTITUDE"
 
 
 new entry "ENR_Loot_Underwear_HalfOrcs_A_Legendary_L4_0"
@@ -1677,7 +1660,7 @@ using "ARM_Underwear_HalfOrcs"
 data "Rarity" "Legendary"
 data "RootTemplate" "83ead78c-4ff1-53ea-8db2-3461a9e164d9"
 data "Boosts" "UnlockSpell(Target_SCL_Drider_PsionicVengeance);UnlockSpell(Target_VampiricTouch);Ability(Intelligence,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_SANCTUARY;ENR_LootPassive_BARKSKIN"
+data "PassivesOnEquip" "ENR_LootPassive_SHIELD;ENR_LootPassive_BLADE_WARD"
 
 
 new entry "ENR_Loot_Underwear_HalfOrcs_A_Legendary_L5_0"
@@ -1719,7 +1702,7 @@ using "ARM_Underwear_HalfOrcs_Orange"
 data "Rarity" "Uncommon"
 data "RootTemplate" "177af71e-48c5-5809-bdbd-e53db674c7b5"
 data "Boosts" ""
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_THUNDER"
+data "PassivesOnEquip" "ENR_LootPassive_REFLECTIVE_SHELL"
 
 
 new entry "ENR_Loot_Underwear_HalfOrcs_A_Orange_Uncommon_L4_0"
@@ -1728,7 +1711,7 @@ using "ARM_Underwear_HalfOrcs_Orange"
 data "Rarity" "Uncommon"
 data "RootTemplate" "3f58430f-0a24-5434-8a03-b687a423409b"
 data "Boosts" ""
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_POISON"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_PSYCHIC"
 
 
 new entry "ENR_Loot_Underwear_HalfOrcs_A_Orange_Uncommon_L5_0"
@@ -1745,7 +1728,7 @@ using "ARM_Underwear_HalfOrcs_Orange"
 data "Rarity" "Rare"
 data "RootTemplate" "1974bd7a-3325-584c-80bf-407096e72001"
 data "Boosts" "Ability(Intelligence,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_EVIL_AND_GOO_749824"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_POISON"
 
 
 new entry "ENR_Loot_Underwear_HalfOrcs_A_Orange_Rare_L1_0"
@@ -1754,7 +1737,7 @@ using "ARM_Underwear_HalfOrcs_Orange"
 data "Rarity" "Rare"
 data "RootTemplate" "d543d591-af60-5271-ad5f-92930fa9d9cb"
 data "Boosts" "Ability(Intelligence,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_PSYCHIC"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_RADIANT"
 
 
 new entry "ENR_Loot_Underwear_HalfOrcs_A_Orange_Rare_L2_0"
@@ -1763,7 +1746,7 @@ using "ARM_Underwear_HalfOrcs_Orange"
 data "Rarity" "Rare"
 data "RootTemplate" "ffe7cffa-0b3c-5508-a548-69e8d8eb0bd0"
 data "Boosts" "Ability(Intelligence,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_FIRE"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_FORCE"
 
 
 new entry "ENR_Loot_Underwear_HalfOrcs_A_Orange_Rare_L3_0"
@@ -1772,7 +1755,7 @@ using "ARM_Underwear_HalfOrcs_Orange"
 data "Rarity" "Rare"
 data "RootTemplate" "63fb26e9-f1d1-5db1-a2cc-5f8cde31c5b0"
 data "Boosts" "UnlockSpell(Target_CureWounds)"
-data "PassivesOnEquip" "ENR_LootPassive_MAGE_ARMOR"
+data "PassivesOnEquip" "ENR_LootPassive_MIRROR_IMAGE_1"
 
 
 new entry "ENR_Loot_Underwear_HalfOrcs_A_Orange_Rare_L4_0"
@@ -1798,7 +1781,7 @@ using "ARM_Underwear_HalfOrcs_Orange"
 data "Rarity" "VeryRare"
 data "RootTemplate" "be9b4103-619f-565f-9d28-4fdf39cfae19"
 data "Boosts" "UnlockSpell(Projectile_RayOfSickness);Ability(Dexterity,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_THUND_18d16e;ENR_LootPassive_MULTIATTACKDEFENSE"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_EVIL_AND_GOO_749824;ENR_LootPassive_MULTIATTACKDEFENSE"
 
 
 new entry "ENR_Loot_Underwear_HalfOrcs_A_Orange_VeryRare_L1_0"
@@ -1807,7 +1790,7 @@ using "ARM_Underwear_HalfOrcs_Orange"
 data "Rarity" "VeryRare"
 data "RootTemplate" "b7e421a4-4c1a-5beb-ac71-50b917d81cb0"
 data "Boosts" "UnlockSpell(Target_HellishRebuke);Ability(Constitution,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_MAGE_ARMOR;ENR_LootPassive_SHILLELAGH"
+data "PassivesOnEquip" "ENR_LootPassive_MIRROR_IMAGE_1;ENR_LootPassive_SHILLELAGH"
 
 
 new entry "ENR_Loot_Underwear_HalfOrcs_A_Orange_VeryRare_L2_0"
@@ -1816,7 +1799,7 @@ using "ARM_Underwear_HalfOrcs_Orange"
 data "Rarity" "VeryRare"
 data "RootTemplate" "528d5cbb-a0e9-54a3-ba6a-9a9a78a617c1"
 data "Boosts" "UnlockSpell(Target_HungerOfHadar);Ability(Intelligence,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_EXPEDITIOUS_RETREAT;ENR_LootPassive_REFLECTIVE_SHELL"
+data "PassivesOnEquip" "ENR_LootPassive_EXPEDITIOUS_RETREAT;ENR_LootPassive_SANCTUARY"
 
 
 new entry "ENR_Loot_Underwear_HalfOrcs_A_Orange_VeryRare_L3_0"
@@ -1824,8 +1807,8 @@ type "Armor"
 using "ARM_Underwear_HalfOrcs_Orange"
 data "Rarity" "VeryRare"
 data "RootTemplate" "694c2d0f-1f3b-5d1c-ad6c-cd20bb10a3b8"
-data "Boosts" "UnlockSpell(Target_SpareTheDying);Ability(Constitution,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_WARDING_FLARE;ENR_LootPassive_DETECT_THOUGHTS"
+data "Boosts" "UnlockSpell(Target_SpareTheDying);Ability(Strength,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_DETECT_THOUGHTS;ENR_LootPassive_HEROES_FEAST"
 
 
 new entry "ENR_Loot_Underwear_HalfOrcs_A_Orange_VeryRare_L4_0"
@@ -1843,7 +1826,7 @@ using "ARM_Underwear_HalfOrcs_Orange"
 data "Rarity" "VeryRare"
 data "RootTemplate" "4de8bf1e-ed9a-533f-b43c-65ba4419cf59"
 data "Boosts" "UnlockSpell(Wall_WallOfStone);Ability(Strength,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_DETECT_THOUGHTS;ENR_LootPassive_MIRROR_IMAGE_1"
+data "PassivesOnEquip" "ENR_LootPassive_DETECT_THOUGHTS;ENR_LootPassive_MIRROR_IMAGE_2"
 
 
 new entry "ENR_Loot_Underwear_HalfOrcs_A_Orange_Legendary_L0_0"
@@ -1852,7 +1835,7 @@ using "ARM_Underwear_HalfOrcs_Orange"
 data "Rarity" "Legendary"
 data "RootTemplate" "e7a0ecfd-8e8a-5a75-bf50-cef89c1da303"
 data "Boosts" "UnlockSpell(Target_DancingLights);UnlockSpell(Shout_DivineFavor);Ability(Strength,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_ACID;ENR_LootPassive_DAYLIGHT"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_COLD;ENR_LootPassive_DAYLIGHT"
 
 
 new entry "ENR_Loot_Underwear_HalfOrcs_A_Orange_Legendary_L1_0"
@@ -1861,7 +1844,7 @@ using "ARM_Underwear_HalfOrcs_Orange"
 data "Rarity" "Legendary"
 data "RootTemplate" "aa5700ee-d6d0-59dc-8e3f-6995502b3e54"
 data "Boosts" "UnlockSpell(Zone_BurningHands);UnlockSpell(Projectile_RayOfEnfeeblement);Ability(Strength,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_LIGHTNING;ENR_LootPassive_AURA_OF_DEVOTION_BUFF"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_NECROTIC;ENR_LootPassive_AURA_OF_DEVOTION_BUFF"
 
 
 new entry "ENR_Loot_Underwear_HalfOrcs_A_Orange_Legendary_L2_0"
@@ -1879,7 +1862,7 @@ using "ARM_Underwear_HalfOrcs_Orange"
 data "Rarity" "Legendary"
 data "RootTemplate" "34a66853-4fe7-5559-a29e-b1d3a9ee3687"
 data "Boosts" "UnlockSpell(Target_Darkness);UnlockSpell(Target_ShockingGrasp);Ability(Intelligence,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_BLADE_FLOURISH_DEFENSIVE;ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD"
+data "PassivesOnEquip" "ENR_LootPassive_BLADE_FLOURISH_DEFENSIVE;ENR_LootPassive_PROTECTION_FROM_ENERGY_FIRE"
 
 
 new entry "ENR_Loot_Underwear_HalfOrcs_A_Orange_Legendary_L4_0"
@@ -1888,7 +1871,7 @@ using "ARM_Underwear_HalfOrcs_Orange"
 data "Rarity" "Legendary"
 data "RootTemplate" "d062f4ef-4141-5f72-bdb2-d925f6987cb0"
 data "Boosts" "UnlockSpell(Target_ProtectionFromEnergy);UnlockSpell(Target_GuardianOfFaith);Ability(Strength,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_UNDEAD_FORTITUDE;ENR_LootPassive_AURA_OF_PROTECTION_BUFF"
+data "PassivesOnEquip" "ENR_LootPassive_VAMPIRE_REGENERATION;ENR_LootPassive_AURA_OF_PROTECTION_BUFF"
 
 
 new entry "ENR_Loot_Underwear_HalfOrcs_A_Orange_Legendary_L5_0"
@@ -1897,7 +1880,7 @@ using "ARM_Underwear_HalfOrcs_Orange"
 data "Rarity" "Legendary"
 data "RootTemplate" "4c1216c9-b5f4-54f2-bb88-34d46bdebe9b"
 data "Boosts" "UnlockSpell(Target_DestroyWater);UnlockSpell(Target_HAG_HoldPerson);Ability(Charisma,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_FIRE;ENR_LootPassive_AURA_OF_PROTECTION_BUFF"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_FORCE;ENR_LootPassive_AURA_OF_PROTECTION_BUFF"
 
 
 new entry "ENR_Loot_Underwear_Halflings_A_Uncommon_L0_0"
@@ -1989,7 +1972,7 @@ using "ARM_Underwear_Halflings"
 data "Rarity" "Rare"
 data "RootTemplate" "20688402-da2f-5830-a24a-0b72c6420c87"
 data "Boosts" "UnlockSpell(Zone_ConjureBarrage_Melee)"
-data "PassivesOnEquip" "ENR_LootPassive_FREEDOM_OF_MOVEMENT"
+data "PassivesOnEquip" "ENR_LootPassive_HASTE"
 
 
 new entry "ENR_Loot_Underwear_Halflings_A_Rare_L5_0"
@@ -2006,7 +1989,7 @@ using "ARM_Underwear_Halflings"
 data "Rarity" "VeryRare"
 data "RootTemplate" "33dc1883-9abd-53f9-97e8-a9f9c6ef882e"
 data "Boosts" "UnlockSpell(Target_MentalSlam_Githyanki);Ability(Charisma,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_FIRE;ENR_LootPassive_RESISTANCE_POISON"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_LIGHT_d7917a;ENR_LootPassive_RESISTANCE_PSYCHIC"
 
 
 new entry "ENR_Loot_Underwear_Halflings_A_VeryRare_L1_0"
@@ -2015,7 +1998,7 @@ using "ARM_Underwear_Halflings"
 data "Rarity" "VeryRare"
 data "RootTemplate" "968776ab-4813-517b-8cdc-b4c6a89de05d"
 data "Boosts" "UnlockSpell(Target_Guidance);Ability(Intelligence,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_TRUE_STRIKE;ENR_LootPassive_LIGHT"
+data "PassivesOnEquip" "ENR_LootPassive_UNDEAD_FORTITUDE;ENR_LootPassive_LIGHT"
 
 
 new entry "ENR_Loot_Underwear_Halflings_A_VeryRare_L2_0"
@@ -2024,7 +2007,7 @@ using "ARM_Underwear_Halflings"
 data "Rarity" "VeryRare"
 data "RootTemplate" "d5a8996b-352d-5a2d-8a1f-4c915b8e1717"
 data "Boosts" "UnlockSpell(Target_TollTheDead);Ability(Strength,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_ACID;ENR_LootPassive_FLY"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD;ENR_LootPassive_FREEDOM_OF_MOVEMENT"
 
 
 new entry "ENR_Loot_Underwear_Halflings_A_VeryRare_L3_0"
@@ -2033,7 +2016,7 @@ using "ARM_Underwear_Halflings"
 data "Rarity" "VeryRare"
 data "RootTemplate" "2ed23c1a-6d5a-51a6-9462-21dbca0e7816"
 data "Boosts" "UnlockSpell(Target_ShockingGrasp);Ability(Strength,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_LONGSTRIDER;ENR_LootPassive_SHIELD"
+data "PassivesOnEquip" "ENR_LootPassive_MAGE_ARMOR;ENR_LootPassive_SHIELD_OF_FAITH"
 
 
 new entry "ENR_Loot_Underwear_Halflings_A_VeryRare_L4_0"
@@ -2051,7 +2034,7 @@ using "ARM_Underwear_Halflings"
 data "Rarity" "VeryRare"
 data "RootTemplate" "b718b694-a481-5e99-9a47-ad81c73f7b8e"
 data "Boosts" "UnlockSpell(Target_Slow);Ability(Wisdom,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_EXPEDITIOUS_RETREAT;ENR_LootPassive_RESISTANCE_LIGHTNING"
+data "PassivesOnEquip" "ENR_LootPassive_EXPEDITIOUS_RETREAT;ENR_LootPassive_RESISTANCE_NECROTIC"
 
 
 new entry "ENR_Loot_Underwear_Halflings_A_Legendary_L0_0"
@@ -2060,7 +2043,7 @@ using "ARM_Underwear_Halflings"
 data "Rarity" "Legendary"
 data "RootTemplate" "9d204bea-78ef-566f-8082-7f4f2a82b541"
 data "Boosts" "UnlockSpell(Shout_ArmorOfAgathys);UnlockSpell(Target_TrueStrike);Ability(Constitution,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_ASPECT_OF_THE_ELK;ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD"
+data "PassivesOnEquip" "ENR_LootPassive_ASPECT_OF_THE_ELK;ENR_LootPassive_PROTECTION_FROM_ENERGY_FIRE"
 
 
 new entry "ENR_Loot_Underwear_Halflings_A_Legendary_L1_0"
@@ -2069,7 +2052,7 @@ using "ARM_Underwear_Halflings"
 data "Rarity" "Legendary"
 data "RootTemplate" "c7f8d298-cf26-5f50-801c-1e987c6da3c7"
 data "Boosts" "UnlockSpell(Target_Levitate);UnlockSpell(Target_Smite_Wrathful);Ability(Strength,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_FLY;ENR_LootPassive_OWLS_WISDOM"
+data "PassivesOnEquip" "ENR_LootPassive_FREEDOM_OF_MOVEMENT;ENR_LootPassive_OWLS_WISDOM"
 
 
 new entry "ENR_Loot_Underwear_Halflings_A_Legendary_L2_0"
@@ -2078,7 +2061,7 @@ using "ARM_Underwear_Halflings"
 data "Rarity" "Legendary"
 data "RootTemplate" "a08595fe-b97a-5edd-92d5-10ba01afa221"
 data "Boosts" "UnlockSpell(Target_Knock);UnlockSpell(Projectile_ScorchingRay);Ability(Dexterity,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_REFLECTIVE_SHELL;ENR_LootPassive_PRODUCE_FLAME"
+data "PassivesOnEquip" "ENR_LootPassive_SANCTUARY;ENR_LootPassive_PRODUCE_FLAME"
 
 
 new entry "ENR_Loot_Underwear_Halflings_A_Legendary_L3_0"
@@ -2087,7 +2070,7 @@ using "ARM_Underwear_Halflings"
 data "Rarity" "Legendary"
 data "RootTemplate" "6dddd7ee-b308-515e-bd5e-4ca6598964c3"
 data "Boosts" "UnlockSpell(Target_ResilientSphere);UnlockSpell(Target_ConjureElementals_Minor_Azer);Ability(Intelligence,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_COLD;ENR_LootPassive_MOBILE_NO_AOO"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_FIRE;ENR_LootPassive_MOBILE_NO_AOO"
 
 
 new entry "ENR_Loot_Underwear_Halflings_A_Legendary_L4_0"
@@ -2096,7 +2079,7 @@ using "ARM_Underwear_Halflings"
 data "Rarity" "Legendary"
 data "RootTemplate" "8e8d8215-a916-5320-ba50-16c042ee44d6"
 data "Boosts" "UnlockSpell(Zone_Thunderwave_Djinni);UnlockSpell(Target_Counterspell);Ability(Wisdom,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_POISON;ENR_LootPassive_RAGE"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_PSYCHIC;ENR_LootPassive_RAGE"
 
 
 new entry "ENR_Loot_Underwear_Halflings_A_Legendary_L5_0"
@@ -2105,7 +2088,7 @@ using "ARM_Underwear_Halflings"
 data "Rarity" "Legendary"
 data "RootTemplate" "6de8688b-2f2b-54b1-af42-3617844eefba"
 data "Boosts" "UnlockSpell(Target_Sanctuary_Drider);UnlockSpell(Projectile_ChromaticOrb);Ability(Wisdom,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_LIGHTNING;ENR_LootPassive_LONG_JUMP"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_NECROTIC;ENR_LootPassive_LONG_JUMP"
 
 
 new entry "ENR_Loot_Underwear_Helper_Uncommon_L0_0"
@@ -2138,7 +2121,7 @@ using "ARM_Underwear_Helper"
 data "Rarity" "Uncommon"
 data "RootTemplate" "2bd1ed5d-839c-501d-8e60-da2a7bc8d46f"
 data "Boosts" ""
-data "PassivesOnEquip" "ENR_LootPassive_SHIELD"
+data "PassivesOnEquip" "ENR_LootPassive_SHIELD_OF_FAITH"
 
 
 new entry "ENR_Loot_Underwear_Helper_Uncommon_L4_0"
@@ -2164,7 +2147,7 @@ using "ARM_Underwear_Helper"
 data "Rarity" "Rare"
 data "RootTemplate" "a3af9cd6-14f4-580f-a884-5ddd83bc0d02"
 data "Boosts" "UnlockSpell(Target_TollTheDead)"
-data "PassivesOnEquip" "ENR_LootPassive_UNDEAD_FORTITUDE"
+data "PassivesOnEquip" "ENR_LootPassive_VAMPIRE_REGENERATION"
 
 
 new entry "ENR_Loot_Underwear_Helper_Rare_L1_0"
@@ -2173,7 +2156,7 @@ using "ARM_Underwear_Helper"
 data "Rarity" "Rare"
 data "RootTemplate" "f888c5fe-2622-5d7d-befa-f095d5995f5a"
 data "Boosts" "Ability(Constitution,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_FORCE"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_LIGHTNING"
 
 
 new entry "ENR_Loot_Underwear_Helper_Rare_L2_0"
@@ -2200,7 +2183,7 @@ using "ARM_Underwear_Helper"
 data "Rarity" "Rare"
 data "RootTemplate" "821d4e67-730f-59c4-99ce-3e67b70c3781"
 data "Boosts" "UnlockSpell(Target_Sleep)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_THUNDER"
+data "PassivesOnEquip" "ENR_LootPassive_REFLECTIVE_SHELL"
 
 
 new entry "ENR_Loot_Underwear_Helper_Rare_L5_0"
@@ -2217,7 +2200,7 @@ using "ARM_Underwear_Helper"
 data "Rarity" "VeryRare"
 data "RootTemplate" "ecb338c9-05d4-53f8-8554-4cb84077e616"
 data "Boosts" "UnlockSpell(Shout_HellishRebuke);Ability(Constitution,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_MIRROR_IMAGE_3;ENR_LootPassive_MOBILE_NO_AOO"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_ACID;ENR_LootPassive_MOBILE_NO_AOO"
 
 
 new entry "ENR_Loot_Underwear_Helper_VeryRare_L1_0"
@@ -2226,7 +2209,7 @@ using "ARM_Underwear_Helper"
 data "Rarity" "VeryRare"
 data "RootTemplate" "d159f0f2-15b7-57cc-a316-981eee3df7f0"
 data "Boosts" "UnlockSpell(Target_Smite_Divine);Ability(Wisdom,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_ACID;ENR_LootPassive_ASPECT_OF_THE_ELK"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD;ENR_LootPassive_ASPECT_OF_THE_ELK"
 
 
 new entry "ENR_Loot_Underwear_Helper_VeryRare_L2_0"
@@ -2244,7 +2227,7 @@ using "ARM_Underwear_Helper"
 data "Rarity" "VeryRare"
 data "RootTemplate" "de60e473-5e01-589f-989a-00e65f1ae74b"
 data "Boosts" "UnlockSpell(Target_CloudOfDaggers);Ability(Wisdom,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_LIGHT_d7917a;ENR_LootPassive_PROTECTION_FROM_POISON"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_THUND_18d16e;ENR_LootPassive_RESISTANCE_ACID"
 
 
 new entry "ENR_Loot_Underwear_Helper_VeryRare_L4_0"
@@ -2271,7 +2254,7 @@ using "ARM_Underwear_Helper"
 data "Rarity" "Legendary"
 data "RootTemplate" "518678f4-ef43-5bbc-be30-7687466a6d60"
 data "Boosts" "UnlockSpell(Target_TrueStrike);UnlockSpell(Target_Grease);Ability(Intelligence,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_CRYSTALSKIN;ENR_LootPassive_STONESKIN"
+data "PassivesOnEquip" "ENR_LootPassive_CRYSTALSKIN;ENR_LootPassive_VAMPIRIC_TOUCH"
 
 
 new entry "ENR_Loot_Underwear_Helper_Legendary_L1_0"
@@ -2280,7 +2263,7 @@ using "ARM_Underwear_Helper"
 data "Rarity" "Legendary"
 data "RootTemplate" "00c8d181-7415-5d4c-bced-4bfc1b7d3491"
 data "Boosts" "UnlockSpell(Target_EnhanceAbility);UnlockSpell(Target_CompelledDuel);Ability(Constitution,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_PSYCHIC;ENR_LootPassive_HEROISM"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_RADIANT;ENR_LootPassive_LONGSTRIDER"
 
 
 new entry "ENR_Loot_Underwear_Helper_Legendary_L2_0"
@@ -2289,7 +2272,7 @@ using "ARM_Underwear_Helper"
 data "Rarity" "Legendary"
 data "RootTemplate" "739899f9-2228-5f3a-8cdf-af557c0e3121"
 data "Boosts" "UnlockSpell(Target_WardingBond);UnlockSpell(Target_BurstingSinew);Ability(Charisma,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_BARKSKIN;ENR_LootPassive_BLESS"
+data "PassivesOnEquip" "ENR_LootPassive_BLADE_WARD;ENR_LootPassive_BLUR"
 
 
 new entry "ENR_Loot_Underwear_Helper_Legendary_L3_0"
@@ -2316,7 +2299,7 @@ using "ARM_Underwear_Helper"
 data "Rarity" "Legendary"
 data "RootTemplate" "83a7394c-70dd-569f-ab14-79c1ee99891a"
 data "Boosts" "UnlockSpell(Target_Seeming);UnlockSpell(Target_CureWounds_Mass);Ability(Strength,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_FLAME_BLADE;ENR_LootPassive_BARKSKIN"
+data "PassivesOnEquip" "ENR_LootPassive_FLAME_BLADE;ENR_LootPassive_BLADE_WARD"
 
 
 new entry "ENR_Loot_Underwear_Humans_A_Uncommon_L0_0"
@@ -2341,7 +2324,7 @@ using "ARM_Underwear_Humans"
 data "Rarity" "Uncommon"
 data "RootTemplate" "93626cfe-c82c-5d11-a9b3-4a7dbc6c0d0f"
 data "Boosts" ""
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_RADIANT"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_THUNDER"
 
 
 new entry "ENR_Loot_Underwear_Humans_A_Uncommon_L3_0"
@@ -2366,7 +2349,7 @@ using "ARM_Underwear_Humans"
 data "Rarity" "Uncommon"
 data "RootTemplate" "a1cb59d9-9af2-55f2-9b53-fc8d65a78a92"
 data "Boosts" ""
-data "PassivesOnEquip" "ENR_LootPassive_UNDEAD_FORTITUDE"
+data "PassivesOnEquip" "ENR_LootPassive_VAMPIRE_REGENERATION"
 
 
 new entry "ENR_Loot_Underwear_Humans_A_Rare_L0_0"
@@ -2375,7 +2358,7 @@ using "ARM_Underwear_Humans"
 data "Rarity" "Rare"
 data "RootTemplate" "25e1df7c-c22b-587b-9498-6714c9966985"
 data "Boosts" "Ability(Strength,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_ACID"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_COLD"
 
 
 new entry "ENR_Loot_Underwear_Humans_A_Rare_L1_0"
@@ -2402,7 +2385,7 @@ using "ARM_Underwear_Humans"
 data "Rarity" "Rare"
 data "RootTemplate" "efe3d9b5-a207-588c-8cd3-88689457257c"
 data "Boosts" "Ability(Strength,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_SHIELD_OF_FAITH"
+data "PassivesOnEquip" "ENR_LootPassive_STONESKIN"
 
 
 new entry "ENR_Loot_Underwear_Humans_A_Rare_L4_0"
@@ -2429,7 +2412,7 @@ using "ARM_Underwear_Humans"
 data "Rarity" "VeryRare"
 data "RootTemplate" "e75ea80a-14b1-54dc-bdea-6b501fe2975f"
 data "Boosts" "UnlockSpell(Target_FindFamiliar);Ability(Charisma,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_DEATH_WARD;ENR_LootPassive_MIRROR_IMAGE_3"
+data "PassivesOnEquip" "ENR_LootPassive_ALCH_ELIXIR_ENLARGE;ENR_LootPassive_PROTECTION_FROM_ENERGY_ACID"
 
 
 new entry "ENR_Loot_Underwear_Humans_A_VeryRare_L1_0"
@@ -2447,7 +2430,7 @@ using "ARM_Underwear_Humans"
 data "Rarity" "VeryRare"
 data "RootTemplate" "7acde013-dfcc-50fa-bf48-ad2de56a7495"
 data "Boosts" "UnlockSpell(Projectile_HailOfThorns);Ability(Constitution,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_ACID;ENR_LootPassive_ALCH_ELIXIR_ENLARGE"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_COLD;ENR_LootPassive_FEATHER_FALL"
 
 
 new entry "ENR_Loot_Underwear_Humans_A_VeryRare_L3_0"
@@ -2456,7 +2439,7 @@ using "ARM_Underwear_Humans"
 data "Rarity" "VeryRare"
 data "RootTemplate" "c5a0c450-166f-5f14-b59e-f0517d35b80e"
 data "Boosts" "UnlockSpell(Target_Confusion);Ability(Wisdom,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_AURA_OF_COURAGE_BUFF;ENR_LootPassive_PROTECTION_FROM_ENERGY_ACID"
+data "PassivesOnEquip" "ENR_LootPassive_AURA_OF_COURAGE_BUFF;ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD"
 
 
 new entry "ENR_Loot_Underwear_Humans_A_VeryRare_L4_0"
@@ -2501,7 +2484,7 @@ using "ARM_Underwear_Humans"
 data "Rarity" "Legendary"
 data "RootTemplate" "5c2025c9-bf4b-5890-bde7-a359add9f802"
 data "Boosts" "UnlockSpell(Target_Enthrall);UnlockSpell(Target_MistyStep_Shadow_TEST);Ability(Constitution,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_BARKSKIN;ENR_LootPassive_DAYLIGHT"
+data "PassivesOnEquip" "ENR_LootPassive_BLADE_WARD;ENR_LootPassive_DAYLIGHT"
 
 
 new entry "ENR_Loot_Underwear_Humans_A_Legendary_L3_0"
@@ -2519,7 +2502,7 @@ using "ARM_Underwear_Humans"
 data "Rarity" "Legendary"
 data "RootTemplate" "503da325-0ca6-5214-b589-8a1a3e36e842"
 data "Boosts" "UnlockSpell(Teleportation_DimensionDoor);UnlockSpell(Target_Sanctuary_Drider_Hardcore);Ability(Dexterity,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_STONESKIN;ENR_LootPassive_GUIDANCE"
+data "PassivesOnEquip" "ENR_LootPassive_VAMPIRIC_TOUCH;ENR_LootPassive_GUIDANCE"
 
 
 new entry "ENR_Loot_Underwear_Humans_A_Legendary_L5_0"
@@ -2528,7 +2511,7 @@ using "ARM_Underwear_Humans"
 data "Rarity" "Legendary"
 data "RootTemplate" "daef8eff-8fd6-5628-b0a3-f018d9406ece"
 data "Boosts" "UnlockSpell(Target_MistyStep_Shadow_TEST);UnlockSpell(Target_Grease);Ability(Constitution,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_FOXS_CUNNING;ENR_LootPassive_HEROISM"
+data "PassivesOnEquip" "ENR_LootPassive_FOXS_CUNNING;ENR_LootPassive_LONGSTRIDER"
 
 
 new entry "ENR_Loot_Underwear_Humans_B_Uncommon_L0_0"
@@ -2537,7 +2520,7 @@ using "ARM_Underwear_Humans_B"
 data "Rarity" "Uncommon"
 data "RootTemplate" "55fcdf59-78f6-5712-a94c-bbc03ce6ad77"
 data "Boosts" ""
-data "PassivesOnEquip" "ENR_LootPassive_VAMPIRE_REGENERATION"
+data "PassivesOnEquip" "ENR_LootPassive_BARKSKIN"
 
 
 new entry "ENR_Loot_Underwear_Humans_B_Uncommon_L1_0"
@@ -2578,7 +2561,7 @@ using "ARM_Underwear_Humans_B"
 data "Rarity" "Uncommon"
 data "RootTemplate" "0682e89f-47bb-5b88-8168-b8eb3a426f94"
 data "Boosts" ""
-data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_FIRE"
 
 
 new entry "ENR_Loot_Underwear_Humans_B_Rare_L0_0"
@@ -2587,7 +2570,7 @@ using "ARM_Underwear_Humans_B"
 data "Rarity" "Rare"
 data "RootTemplate" "f499153b-1054-5e4f-8594-f9cdf51f7012"
 data "Boosts" "UnlockSpell(Target_BurstingSinew)"
-data "PassivesOnEquip" "ENR_LootPassive_MIRROR_IMAGE_3"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_ACID"
 
 
 new entry "ENR_Loot_Underwear_Humans_B_Rare_L1_0"
@@ -2621,5 +2604,23 @@ using "ARM_Underwear_Humans_B"
 data "Rarity" "Rare"
 data "RootTemplate" "97b250d5-dce9-5972-9795-0ac19c2c69a3"
 data "Boosts" "Ability(Strength,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_BLESS"
+data "PassivesOnEquip" "ENR_LootPassive_BLUR"
+
+
+new entry "ENR_Loot_Underwear_Humans_B_Rare_L5_0"
+type "Armor"
+using "ARM_Underwear_Humans_B"
+data "Rarity" "Rare"
+data "RootTemplate" "e1e11891-009a-5ca1-9ae3-ebc44327f346"
+data "Boosts" "UnlockSpell(Shout_DisguiseSelf)"
+data "PassivesOnEquip" "ENR_LootPassive_WARDING_FLARE"
+
+
+new entry "ENR_Loot_Underwear_Humans_B_VeryRare_L0_0"
+type "Armor"
+using "ARM_Underwear_Humans_B"
+data "Rarity" "VeryRare"
+data "RootTemplate" "b51aed11-9614-525e-8eda-dd04d8c9f11b"
+data "Boosts" "UnlockSpell(Projectile_HailOfThorns);Ability(Dexterity,1,20,true)"
+data "PassivesOnEquip" "ENR_LootPassive_EAGLES_SPLENDOR;ENR_LootPassive_MAGE_ARMOR"
 

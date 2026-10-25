@@ -1,28 +1,11 @@
 -- Enemy Randomization generated loot catalog chunk 13.
-new entry "ENR_Loot_ARM_Leather_2_Legendary_L5_0"
-type "Armor"
-using "ARM_Leather_Body_2"
-data "Rarity" "Legendary"
-data "RootTemplate" "a426cee6-a9e5-5d76-b221-3adc0ceebc4b"
-data "Boosts" "UnlockSpell(Target_Slow);UnlockSpell(Projectile_FireBolt);Ability(Dexterity,2,20,true)"
-data "PassivesOnEquip" "ARM_Stealthy_1_Passive;ARM_Balance_1_Passive;ENR_LootPassive_MULTIATTACKDEFENSE;ENR_LootPassive_BLADE_FLOURISH_MOBILE"
-
-
-new entry "ENR_Loot_ARM_Leather_Destroyed_Crash_Uncommon_L0_0"
-type "Armor"
-using "ARM_Leather_Body_Destroyed"
-data "Rarity" "Uncommon"
-data "RootTemplate" "b2184270-ff94-5a8b-b0ce-bd438424be22"
-data "Boosts" "UnlockSpell(Shout_ComprehendLanguages)"
-
-
 new entry "ENR_Loot_ARM_Leather_Destroyed_Crash_Uncommon_L1_0"
 type "Armor"
 using "ARM_Leather_Body_Destroyed"
 data "Rarity" "Uncommon"
 data "RootTemplate" "8da4627b-f919-588e-bfd8-86b9ba65237c"
 data "Boosts" ""
-data "PassivesOnEquip" "ENR_LootPassive_UNDEAD_FORTITUDE"
+data "PassivesOnEquip" "ENR_LootPassive_VAMPIRE_REGENERATION"
 
 
 new entry "ENR_Loot_ARM_Leather_Destroyed_Crash_Uncommon_L2_0"
@@ -63,7 +46,7 @@ using "ARM_Leather_Body_Destroyed"
 data "Rarity" "Rare"
 data "RootTemplate" "87505e2e-0490-5a9a-9c9a-21a4b79e99bf"
 data "Boosts" "Ability(Constitution,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_FLY"
+data "PassivesOnEquip" "ENR_LootPassive_FREEDOM_OF_MOVEMENT"
 
 
 new entry "ENR_Loot_ARM_Leather_Destroyed_Crash_Rare_L1_0"
@@ -90,7 +73,7 @@ using "ARM_Leather_Body_Destroyed"
 data "Rarity" "Rare"
 data "RootTemplate" "44fd5d92-32d8-59a5-afdc-e6e639e7e095"
 data "Boosts" "UnlockSpell(Target_Moonbeam)"
-data "PassivesOnEquip" "ENR_LootPassive_SANCTUARY"
+data "PassivesOnEquip" "ENR_LootPassive_SHIELD"
 
 
 new entry "ENR_Loot_ARM_Leather_Destroyed_Crash_Rare_L4_0"
@@ -125,7 +108,7 @@ using "ARM_Leather_Body_Destroyed"
 data "Rarity" "VeryRare"
 data "RootTemplate" "26c09bec-ff56-56f4-94ce-587feb9f3c48"
 data "Boosts" "UnlockSpell(Projectile_ScorchingRay);Ability(Dexterity,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_MIRROR_IMAGE_2;ENR_LootPassive_MULTIATTACKDEFENSE"
+data "PassivesOnEquip" "ENR_LootPassive_MIRROR_IMAGE_3;ENR_LootPassive_MULTIATTACKDEFENSE"
 
 
 new entry "ENR_Loot_ARM_Leather_Destroyed_Crash_VeryRare_L2_0"
@@ -134,7 +117,7 @@ using "ARM_Leather_Body_Destroyed"
 data "Rarity" "VeryRare"
 data "RootTemplate" "b28ca136-9d71-5332-9601-68c84db1a233"
 data "Boosts" "UnlockSpell(Target_InflictWounds);Ability(Strength,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_VAMPIRIC_TOUCH;ENR_LootPassive_CALM_EMOTIONS"
+data "PassivesOnEquip" "ENR_LootPassive_WARDING_FLARE;ENR_LootPassive_CALM_EMOTIONS"
 
 
 new entry "ENR_Loot_ARM_Leather_Destroyed_Crash_VeryRare_L3_0"
@@ -143,7 +126,7 @@ using "ARM_Leather_Body_Destroyed"
 data "Rarity" "VeryRare"
 data "RootTemplate" "85d5a7a5-e103-59bc-8f5c-e236f3809e13"
 data "Boosts" "UnlockSpell(Target_Friends);Ability(Constitution,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_CATS_GRACE;ENR_LootPassive_UNDEAD_FORTITUDE"
+data "PassivesOnEquip" "ENR_LootPassive_CATS_GRACE;ENR_LootPassive_VAMPIRE_REGENERATION"
 
 
 new entry "ENR_Loot_ARM_Leather_Destroyed_Crash_VeryRare_L4_0"
@@ -152,7 +135,7 @@ using "ARM_Leather_Body_Destroyed"
 data "Rarity" "VeryRare"
 data "RootTemplate" "6473bbe5-a099-59fc-92bd-222d1a563df4"
 data "Boosts" "UnlockSpell(Projectile_ChromaticOrb);Ability(Intelligence,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_LIGHTNING;ENR_LootPassive_BLESS"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_NECROTIC;ENR_LootPassive_BLUR"
 
 
 new entry "ENR_Loot_ARM_Leather_Destroyed_Crash_VeryRare_L5_0"
@@ -161,7 +144,7 @@ using "ARM_Leather_Body_Destroyed"
 data "Rarity" "VeryRare"
 data "RootTemplate" "58dd7907-178c-52fd-b0dc-14ddbfd1d467"
 data "Boosts" "UnlockSpell(Projectile_PoisonSpray);Ability(Intelligence,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_THUND_18d16e;ENR_LootPassive_BLADE_FLOURISH_DEFENSIVE"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_EVIL_AND_GOO_749824;ENR_LootPassive_BLADE_FLOURISH_DEFENSIVE"
 
 
 new entry "ENR_Loot_ARM_Leather_Destroyed_Crash_Legendary_L0_0"
@@ -179,7 +162,7 @@ using "ARM_Leather_Body_Destroyed"
 data "Rarity" "Legendary"
 data "RootTemplate" "6d45d6e9-524f-58f9-9390-63453f5066ac"
 data "Boosts" "UnlockSpell(Target_Mending);UnlockSpell(Shout_ExpeditiousRetreat);Ability(Charisma,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_SANCTUARY;ENR_LootPassive_EXPEDITIOUS_RETREAT"
+data "PassivesOnEquip" "ENR_LootPassive_SHIELD;ENR_LootPassive_EXPEDITIOUS_RETREAT"
 
 
 new entry "ENR_Loot_ARM_Leather_Destroyed_Crash_Legendary_L2_0"
@@ -197,7 +180,7 @@ using "ARM_Leather_Body_Destroyed"
 data "Rarity" "Legendary"
 data "RootTemplate" "387a4e34-a60f-56e8-bc6f-51e766314f7c"
 data "Boosts" "UnlockSpell(Shout_HellishRebuke_AsmodeusTiefling);UnlockSpell(Projectile_EnsnaringStrike);Ability(Strength,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_MIRROR_IMAGE_1;ENR_LootPassive_EAGLES_SPLENDOR"
+data "PassivesOnEquip" "ENR_LootPassive_MIRROR_IMAGE_2;ENR_LootPassive_EAGLES_SPLENDOR"
 
 
 new entry "ENR_Loot_ARM_Leather_Destroyed_Crash_Legendary_L4_0"
@@ -206,7 +189,7 @@ using "ARM_Leather_Body_Destroyed"
 data "Rarity" "Legendary"
 data "RootTemplate" "d77132d1-de5e-56ad-9ec3-c97eb8cc1358"
 data "Boosts" "UnlockSpell(Target_RiseUndead_DeathShepherd);UnlockSpell(Shout_AlterSelf);Ability(Wisdom,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_COLD;ENR_LootPassive_STONESKIN"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_FIRE;ENR_LootPassive_VAMPIRIC_TOUCH"
 
 
 new entry "ENR_Loot_ARM_Leather_Destroyed_Crash_Legendary_L5_0"
@@ -215,7 +198,7 @@ using "ARM_Leather_Body_Destroyed"
 data "Rarity" "Legendary"
 data "RootTemplate" "245df366-8531-53a0-bcdf-718e686d6c26"
 data "Boosts" "UnlockSpell(Shout_SeeInvisibility);UnlockSpell(Target_ConjureElemental_Container);Ability(Intelligence,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_LIGHTNING;ENR_LootPassive_RESISTANCE_THUNDER"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_NECROTIC;ENR_LootPassive_REFLECTIVE_SHELL"
 
 
 new entry "ENR_Loot_ARM_Leather_Druid_A_Uncommon_L0_0"
@@ -315,7 +298,7 @@ using "ARM_Leather_Body_Druid"
 data "Rarity" "Rare"
 data "RootTemplate" "6a17c7ce-e425-5861-8166-648f79c4c5f9"
 data "Boosts" "Ability(Charisma,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_FIRE"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_LIGHT_d7917a"
 
 
 new entry "ENR_Loot_ARM_Leather_Druid_A_VeryRare_L0_0"
@@ -324,7 +307,7 @@ using "ARM_Leather_Body_Druid"
 data "Rarity" "VeryRare"
 data "RootTemplate" "9a5069d9-cf92-53ba-80c0-798e295bff94"
 data "Boosts" "UnlockSpell(Projectile_IceKnife);Ability(Dexterity,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_GUIDANCE;ENR_LootPassive_RESISTANCE_POISON"
+data "PassivesOnEquip" "ENR_LootPassive_GUIDANCE;ENR_LootPassive_RESISTANCE_PSYCHIC"
 
 
 new entry "ENR_Loot_ARM_Leather_Druid_A_VeryRare_L1_0"
@@ -333,7 +316,7 @@ using "ARM_Leather_Body_Druid"
 data "Rarity" "VeryRare"
 data "RootTemplate" "900dacaf-2202-5e40-b508-5b74b9cd9343"
 data "Boosts" "UnlockSpell(Target_FloatingDisk);Ability(Intelligence,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_BLUR;ENR_LootPassive_AURA_OF_PROTECTION_BUFF"
+data "PassivesOnEquip" "ENR_LootPassive_DARKVISION;ENR_LootPassive_AURA_OF_PROTECTION_BUFF"
 
 
 new entry "ENR_Loot_ARM_Leather_Druid_A_VeryRare_L2_0"
@@ -351,7 +334,7 @@ using "ARM_Leather_Body_Druid"
 data "Rarity" "VeryRare"
 data "RootTemplate" "82f9918f-aac3-5a42-bd34-e6714d658dae"
 data "Boosts" "UnlockSpell(Target_ViciousMockery);Ability(Intelligence,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_COLD;ENR_LootPassive_HEROISM"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_FIRE;ENR_LootPassive_LONGSTRIDER"
 
 
 new entry "ENR_Loot_ARM_Leather_Druid_A_VeryRare_L4_0"
@@ -360,7 +343,7 @@ using "ARM_Leather_Body_Druid"
 data "Rarity" "VeryRare"
 data "RootTemplate" "eb91171b-47a6-5a3c-8831-2adb2246247b"
 data "Boosts" "UnlockSpell(Target_Jump);Ability(Constitution,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_FIRE;ENR_LootPassive_BEACON_OF_HOPE"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_FORCE;ENR_LootPassive_BEACON_OF_HOPE"
 
 
 new entry "ENR_Loot_ARM_Leather_Druid_A_VeryRare_L5_0"
@@ -378,7 +361,7 @@ using "ARM_Leather_Body_Druid"
 data "Rarity" "Legendary"
 data "RootTemplate" "afb32c37-696d-53a1-a9e1-ed2004baebdd"
 data "Boosts" "UnlockSpell(Shout_ComprehendLanguages);UnlockSpell(Projectile_LightningBlade_Explosion);Ability(Constitution,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_TRUE_STRIKE;ENR_LootPassive_LONG_JUMP"
+data "PassivesOnEquip" "ENR_LootPassive_UNDEAD_FORTITUDE;ENR_LootPassive_LONG_JUMP"
 
 
 new entry "ENR_Loot_ARM_Leather_Druid_A_Legendary_L1_0"
@@ -387,7 +370,7 @@ using "ARM_Leather_Body_Druid"
 data "Rarity" "Legendary"
 data "RootTemplate" "a51bf783-07a4-5cb3-84c2-a2ea0ebbe2ec"
 data "Boosts" "UnlockSpell(Target_SpikeGrowth);UnlockSpell(Target_EnhanceAbility);Ability(Dexterity,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_MAGE_ARMOR;ENR_LootPassive_BLUR"
+data "PassivesOnEquip" "ENR_LootPassive_MIRROR_IMAGE_1;ENR_LootPassive_DARKVISION"
 
 
 new entry "ENR_Loot_ARM_Leather_Druid_A_Legendary_L2_0"
@@ -396,7 +379,7 @@ using "ARM_Leather_Body_Druid"
 data "Rarity" "Legendary"
 data "RootTemplate" "c7c35953-d2f5-5e53-9a8c-0c79b470e4cb"
 data "Boosts" "UnlockSpell(Target_Bless);UnlockSpell(Target_SpareTheDying);Ability(Charisma,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_STONESKIN;ENR_LootPassive_BULLS_STRENGTH"
+data "PassivesOnEquip" "ENR_LootPassive_VAMPIRIC_TOUCH;ENR_LootPassive_BULLS_STRENGTH"
 
 
 new entry "ENR_Loot_ARM_Leather_Druid_A_Legendary_L3_0"
@@ -405,7 +388,7 @@ using "ARM_Leather_Body_Druid"
 data "Rarity" "Legendary"
 data "RootTemplate" "89f83783-5b9a-59c5-9677-8b9243bd4c10"
 data "Boosts" "UnlockSpell(Target_Daylight);UnlockSpell(Shout_HellishRebuke);Ability(Charisma,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_LIGHT;ENR_LootPassive_RESISTANCE_THUNDER"
+data "PassivesOnEquip" "ENR_LootPassive_LIGHT;ENR_LootPassive_REFLECTIVE_SHELL"
 
 
 new entry "ENR_Loot_ARM_Leather_Druid_A_Legendary_L4_0"
@@ -414,7 +397,7 @@ using "ARM_Leather_Body_Druid"
 data "Rarity" "Legendary"
 data "RootTemplate" "6ba932de-88c7-53b6-9225-345634bcc717"
 data "Boosts" "UnlockSpell(Target_Levitate);UnlockSpell(Target_DominateBeast);Ability(Strength,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_ACID;ENR_LootPassive_RESISTANCE_RADIANT"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD;ENR_LootPassive_RESISTANCE_THUNDER"
 
 
 new entry "ENR_Loot_ARM_Leather_Druid_A_Legendary_L5_0"
@@ -506,7 +489,7 @@ using "ARM_Padded_Body"
 data "Rarity" "Rare"
 data "RootTemplate" "4514e535-fa65-5eb1-baee-badac2f60922"
 data "Boosts" "UnlockSpell(Target_PhantasmalKiller)"
-data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_POISON"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_ACID"
 
 
 new entry "ENR_Loot_ARM_Padded_Rare_L4_0"
@@ -515,7 +498,7 @@ using "ARM_Padded_Body"
 data "Rarity" "Rare"
 data "RootTemplate" "401d4c4e-bd51-5a46-b399-c2d04980bb40"
 data "Boosts" "UnlockSpell(Target_SacredFlame)"
-data "PassivesOnEquip" "ENR_LootPassive_STONESKIN"
+data "PassivesOnEquip" "ENR_LootPassive_VAMPIRIC_TOUCH"
 
 
 new entry "ENR_Loot_ARM_Padded_Rare_L5_0"
@@ -533,7 +516,7 @@ using "ARM_Padded_Body"
 data "Rarity" "VeryRare"
 data "RootTemplate" "ec2fc4ff-45d1-5b0f-a33d-a6befc26c0f5"
 data "Boosts" "UnlockSpell(Projectile_IceKnife);Ability(Charisma,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_BLADE_FLOURISH_DEFENSIVE;ENR_LootPassive_MIRROR_IMAGE_3"
+data "PassivesOnEquip" "ENR_LootPassive_BLADE_FLOURISH_DEFENSIVE;ENR_LootPassive_PROTECTION_FROM_ENERGY_ACID"
 
 
 new entry "ENR_Loot_ARM_Padded_VeryRare_L1_0"
@@ -542,7 +525,7 @@ using "ARM_Padded_Body"
 data "Rarity" "VeryRare"
 data "RootTemplate" "12159103-62e0-5378-a5eb-e745dbfb8c4d"
 data "Boosts" "UnlockSpell(Target_Goodberry);Ability(Intelligence,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_CATS_GRACE;ENR_LootPassive_PROTECTION_FROM_POISON"
+data "PassivesOnEquip" "ENR_LootPassive_CATS_GRACE;ENR_LootPassive_RESISTANCE_ACID"
 
 
 new entry "ENR_Loot_ARM_Padded_VeryRare_L2_0"
@@ -560,7 +543,7 @@ using "ARM_Padded_Body"
 data "Rarity" "VeryRare"
 data "RootTemplate" "cc3bcc63-3855-58b7-b8f7-c02a8596b488"
 data "Boosts" "UnlockSpell(Projectile_AcidSplash);Ability(Constitution,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_ALCH_ELIXIR_ENLARGE;ENR_LootPassive_RESISTANCE_RADIANT"
+data "PassivesOnEquip" "ENR_LootPassive_FEATHER_FALL;ENR_LootPassive_RESISTANCE_THUNDER"
 
 
 new entry "ENR_Loot_ARM_Padded_VeryRare_L4_0"
@@ -578,7 +561,7 @@ using "ARM_Padded_Body"
 data "Rarity" "VeryRare"
 data "RootTemplate" "5148ddf1-52e5-5499-bf9e-cae213920274"
 data "Boosts" "UnlockSpell(Target_Guidance);Ability(Strength,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_AID;ENR_LootPassive_HEROISM"
+data "PassivesOnEquip" "ENR_LootPassive_AID;ENR_LootPassive_LONGSTRIDER"
 
 
 new entry "ENR_Loot_ARM_Padded_Legendary_L0_0"
@@ -587,7 +570,7 @@ using "ARM_Padded_Body"
 data "Rarity" "Legendary"
 data "RootTemplate" "02756ec2-854a-5363-9595-135558c447ed"
 data "Boosts" "UnlockSpell(Shout_MageArmor_ArmorOfShadows);UnlockSpell(Target_Light);Ability(Charisma,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_SANCTUARY;ENR_LootPassive_MIRROR_IMAGE_3"
+data "PassivesOnEquip" "ENR_LootPassive_SHIELD;ENR_LootPassive_PROTECTION_FROM_ENERGY_ACID"
 
 
 new entry "ENR_Loot_ARM_Padded_Legendary_L1_0"
@@ -596,7 +579,7 @@ using "ARM_Padded_Body"
 data "Rarity" "Legendary"
 data "RootTemplate" "69fec8e6-be48-53d0-b380-cabdf7e3edfa"
 data "Boosts" "UnlockSpell(Target_ArcaneLock);UnlockSpell(Target_Entangle);Ability(Wisdom,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_THUNDER;ENR_LootPassive_UNDEAD_FORTITUDE"
+data "PassivesOnEquip" "ENR_LootPassive_REFLECTIVE_SHELL;ENR_LootPassive_VAMPIRE_REGENERATION"
 
 
 new entry "ENR_Loot_ARM_Padded_Legendary_L2_0"
@@ -605,7 +588,7 @@ using "ARM_Padded_Body"
 data "Rarity" "Legendary"
 data "RootTemplate" "212d4f88-fe24-5e6c-87d1-22b296c481f5"
 data "Boosts" "UnlockSpell(Target_HealingWord);UnlockSpell(Target_HuntersMark);Ability(Intelligence,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_BLADE_FLOURISH_MOBILE;ENR_LootPassive_RESISTANCE_RADIANT"
+data "PassivesOnEquip" "ENR_LootPassive_BLADE_FLOURISH_MOBILE;ENR_LootPassive_RESISTANCE_THUNDER"
 
 
 new entry "ENR_Loot_ARM_Padded_Legendary_L3_0"
@@ -614,7 +597,7 @@ using "ARM_Padded_Body"
 data "Rarity" "Legendary"
 data "RootTemplate" "eff7c860-8fb1-5fa9-b81b-8b14ac905555"
 data "Boosts" "UnlockSpell(Target_WardingBond);UnlockSpell(Target_CalmEmotions);Ability(Wisdom,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_DAYLIGHT;ENR_LootPassive_STONESKIN"
+data "PassivesOnEquip" "ENR_LootPassive_DAYLIGHT;ENR_LootPassive_VAMPIRIC_TOUCH"
 
 
 new entry "ENR_Loot_ARM_Padded_Legendary_L4_0"
@@ -632,7 +615,7 @@ using "ARM_Padded_Body"
 data "Rarity" "Legendary"
 data "RootTemplate" "098ca799-29e3-572b-a17d-75309aa3acb4"
 data "Boosts" "UnlockSpell(Target_MistyStep_Shadow_TEST);UnlockSpell(Target_EnsnaringStrike);Ability(Intelligence,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_BLESS;ENR_LootPassive_DARKVISION"
+data "PassivesOnEquip" "ENR_LootPassive_BLUR;ENR_LootPassive_DEATH_WARD"
 
 
 new entry "ENR_Loot_ARM_Padded_1_Uncommon_L0_0"
@@ -641,7 +624,7 @@ using "ARM_Padded_Body_1"
 data "Rarity" "Uncommon"
 data "RootTemplate" "d817ac63-fb12-5597-b654-f663a26e0011"
 data "Boosts" ""
-data "PassivesOnEquip" "ARM_SuperiorPadding_1_Passive;ENR_LootPassive_MIRROR_IMAGE_2"
+data "PassivesOnEquip" "ARM_SuperiorPadding_1_Passive;ENR_LootPassive_MIRROR_IMAGE_3"
 
 
 new entry "ENR_Loot_ARM_Padded_1_Uncommon_L1_0"
@@ -695,7 +678,7 @@ using "ARM_Padded_Body_1"
 data "Rarity" "Rare"
 data "RootTemplate" "4f8a7eb5-c3cc-5a62-8366-8b8b254f751b"
 data "Boosts" "UnlockSpell(Shout_Shield_Wizard)"
-data "PassivesOnEquip" "ARM_SuperiorPadding_1_Passive;ENR_LootPassive_BLESS"
+data "PassivesOnEquip" "ARM_SuperiorPadding_1_Passive;ENR_LootPassive_BLUR"
 
 
 new entry "ENR_Loot_ARM_Padded_1_Rare_L1_0"
@@ -713,7 +696,7 @@ using "ARM_Padded_Body_1"
 data "Rarity" "Rare"
 data "RootTemplate" "ff435c23-3940-530a-be9b-b1d580b89920"
 data "Boosts" "Ability(Strength,1,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPadding_1_Passive;ENR_LootPassive_RESISTANCE_FIRE"
+data "PassivesOnEquip" "ARM_SuperiorPadding_1_Passive;ENR_LootPassive_RESISTANCE_FORCE"
 
 
 new entry "ENR_Loot_ARM_Padded_1_Rare_L3_0"
@@ -767,7 +750,7 @@ using "ARM_Padded_Body_1"
 data "Rarity" "VeryRare"
 data "RootTemplate" "ab16325b-2cb2-5909-bd9a-d07e6579884d"
 data "Boosts" "UnlockSpell(Projectile_ChromaticOrb_Acid);Ability(Intelligence,1,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPadding_1_Passive;ENR_LootPassive_TRUE_STRIKE;ENR_LootPassive_STONESKIN"
+data "PassivesOnEquip" "ARM_SuperiorPadding_1_Passive;ENR_LootPassive_UNDEAD_FORTITUDE;ENR_LootPassive_VAMPIRIC_TOUCH"
 
 
 new entry "ENR_Loot_ARM_Padded_1_VeryRare_L3_0"
@@ -776,7 +759,7 @@ using "ARM_Padded_Body_1"
 data "Rarity" "VeryRare"
 data "RootTemplate" "e7f4cc27-f66d-522c-8e1a-62252d38228c"
 data "Boosts" "UnlockSpell(Target_ConjureWoodlandBeings);Ability(Intelligence,1,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPadding_1_Passive;ENR_LootPassive_RALLY;ENR_LootPassive_RESISTANCE_ACID"
+data "PassivesOnEquip" "ARM_SuperiorPadding_1_Passive;ENR_LootPassive_RALLY;ENR_LootPassive_RESISTANCE_COLD"
 
 
 new entry "ENR_Loot_ARM_Padded_1_VeryRare_L4_0"
@@ -785,7 +768,7 @@ using "ARM_Padded_Body_1"
 data "Rarity" "VeryRare"
 data "RootTemplate" "6487c3b4-4b39-5186-9f77-4fd018a992f0"
 data "Boosts" "UnlockSpell(Target_DestroyWater);Ability(Constitution,1,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPadding_1_Passive;ENR_LootPassive_BLUR;ENR_LootPassive_RELENTLESS_RAGE"
+data "PassivesOnEquip" "ARM_SuperiorPadding_1_Passive;ENR_LootPassive_DARKVISION;ENR_LootPassive_RELENTLESS_RAGE"
 
 
 new entry "ENR_Loot_ARM_Padded_1_VeryRare_L5_0"
@@ -794,7 +777,7 @@ using "ARM_Padded_Body_1"
 data "Rarity" "VeryRare"
 data "RootTemplate" "f823074b-26d3-5091-8098-d4f546209b8d"
 data "Boosts" "UnlockSpell(Target_Silence);Ability(Charisma,1,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPadding_1_Passive;ENR_LootPassive_BLADE_WARD;ENR_LootPassive_CATS_GRACE"
+data "PassivesOnEquip" "ARM_SuperiorPadding_1_Passive;ENR_LootPassive_BLESS;ENR_LootPassive_CATS_GRACE"
 
 
 new entry "ENR_Loot_ARM_Padded_1_Legendary_L0_0"
@@ -803,7 +786,7 @@ using "ARM_Padded_Body_1"
 data "Rarity" "Legendary"
 data "RootTemplate" "fcd6673e-99e0-5b0c-ab54-1b4d99b10da5"
 data "Boosts" "UnlockSpell(Target_MinorIllusion);UnlockSpell(Target_ViciousMockery);Ability(Wisdom,2,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPadding_1_Passive;ENR_LootPassive_OWLS_WISDOM;ENR_LootPassive_PROTECTION_FROM_ENERGY_LIGHT_d7917a"
+data "PassivesOnEquip" "ARM_SuperiorPadding_1_Passive;ENR_LootPassive_OWLS_WISDOM;ENR_LootPassive_PROTECTION_FROM_ENERGY_THUND_18d16e"
 
 
 new entry "ENR_Loot_ARM_Padded_1_Legendary_L1_0"
@@ -839,7 +822,7 @@ using "ARM_Padded_Body_1"
 data "Rarity" "Legendary"
 data "RootTemplate" "38e0abb9-faa0-5327-84c6-ddaa58b0c72d"
 data "Boosts" "UnlockSpell(Shout_BeaconOfHope);UnlockSpell(Target_Scrying);Ability(Wisdom,2,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPadding_1_Passive;ENR_LootPassive_DIVINE_FAVOR;ENR_LootPassive_BLESS"
+data "PassivesOnEquip" "ARM_SuperiorPadding_1_Passive;ENR_LootPassive_DIVINE_FAVOR;ENR_LootPassive_BLUR"
 
 
 new entry "ENR_Loot_ARM_Padded_1_Legendary_L5_0"
@@ -848,7 +831,7 @@ using "ARM_Padded_Body_1"
 data "Rarity" "Legendary"
 data "RootTemplate" "73aa3787-29b4-5f54-978e-5827f0e48b5c"
 data "Boosts" "UnlockSpell(Shout_HealingWord_Mass);UnlockSpell(Shout_ExpeditiousRetreat);Ability(Charisma,2,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPadding_1_Passive;ENR_LootPassive_ALCH_ELIXIR_ENLARGE;ENR_LootPassive_FEATHER_FALL"
+data "PassivesOnEquip" "ARM_SuperiorPadding_1_Passive;ENR_LootPassive_FEATHER_FALL;ENR_LootPassive_FLY"
 
 
 new entry "ENR_Loot_ARM_Padded_2_Uncommon_L0_0"
@@ -875,7 +858,7 @@ using "ARM_Padded_Body_2"
 data "Rarity" "Uncommon"
 data "RootTemplate" "4da5a926-978d-547d-994c-e54a138d54f3"
 data "Boosts" ""
-data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_MIRROR_IMAGE_3"
+data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_PROTECTION_FROM_ENERGY_ACID"
 
 
 new entry "ENR_Loot_ARM_Padded_2_Uncommon_L3_0"
@@ -929,7 +912,7 @@ using "ARM_Padded_Body_2"
 data "Rarity" "Rare"
 data "RootTemplate" "f6efbc17-1bea-5da7-81fb-571fdc98dcea"
 data "Boosts" "Ability(Constitution,1,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_FLY"
+data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_FREEDOM_OF_MOVEMENT"
 
 
 new entry "ENR_Loot_ARM_Padded_2_Rare_L3_0"
@@ -965,7 +948,7 @@ using "ARM_Padded_Body_2"
 data "Rarity" "VeryRare"
 data "RootTemplate" "f73b20a9-0332-50a9-bd9d-3fa2815cb100"
 data "Boosts" "UnlockSpell(Target_CureWounds);Ability(Constitution,1,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_ASPECT_OF_THE_WOLF;ENR_LootPassive_SHIELD"
+data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_ASPECT_OF_THE_WOLF;ENR_LootPassive_SHIELD_OF_FAITH"
 
 
 new entry "ENR_Loot_ARM_Padded_2_VeryRare_L1_0"
@@ -974,7 +957,7 @@ using "ARM_Padded_Body_2"
 data "Rarity" "VeryRare"
 data "RootTemplate" "a85b868b-8441-53d9-8cde-bd7af808a69a"
 data "Boosts" "UnlockSpell(Target_ProtectionFromEvilAndGood);Ability(Intelligence,1,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_RESISTANCE_ACID;ENR_LootPassive_DARKVISION"
+data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_RESISTANCE_COLD;ENR_LootPassive_DEATH_WARD"
 
 
 new entry "ENR_Loot_ARM_Padded_2_VeryRare_L2_0"
@@ -983,7 +966,7 @@ using "ARM_Padded_Body_2"
 data "Rarity" "VeryRare"
 data "RootTemplate" "bd61f80d-d27c-5705-b202-fe43b427b102"
 data "Boosts" "UnlockSpell(Target_SacredFlame);Ability(Dexterity,1,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_PROTECTION_FROM_ENERGY_FIRE;ENR_LootPassive_BARDIC_INSPIRATION"
+data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_PROTECTION_FROM_ENERGY_LIGHT_d7917a;ENR_LootPassive_BARDIC_INSPIRATION"
 
 
 new entry "ENR_Loot_ARM_Padded_2_VeryRare_L3_0"
@@ -992,7 +975,7 @@ using "ARM_Padded_Body_2"
 data "Rarity" "VeryRare"
 data "RootTemplate" "816958b2-1bd1-581a-92fb-4c2126a6133a"
 data "Boosts" "UnlockSpell(Target_AnimateDead_Skeleton_4);Ability(Intelligence,1,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_BARDIC_INSPIRATION;ENR_LootPassive_RESISTANCE_COLD"
+data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_BARDIC_INSPIRATION;ENR_LootPassive_RESISTANCE_FIRE"
 
 
 new entry "ENR_Loot_ARM_Padded_2_VeryRare_L4_0"
@@ -1001,7 +984,7 @@ using "ARM_Padded_Body_2"
 data "Rarity" "VeryRare"
 data "RootTemplate" "f7e83e60-ebaa-5ca3-b6c1-7f35a3a243cb"
 data "Boosts" "UnlockSpell(Target_AnimateDead_Ghoul);Ability(Wisdom,1,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_OWLS_WISDOM;ENR_LootPassive_STONESKIN"
+data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_OWLS_WISDOM;ENR_LootPassive_VAMPIRIC_TOUCH"
 
 
 new entry "ENR_Loot_ARM_Padded_2_VeryRare_L5_0"
@@ -1010,7 +993,7 @@ using "ARM_Padded_Body_2"
 data "Rarity" "VeryRare"
 data "RootTemplate" "e5f3bd98-3166-54e6-a5f1-7f8cb35c1c0b"
 data "Boosts" "UnlockSpell(Target_PhantasmalForce);Ability(Dexterity,1,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_REFLECTIVE_SHELL;ENR_LootPassive_PROTECTION_FROM_ENERGY_LIGHT_d7917a"
+data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_SANCTUARY;ENR_LootPassive_PROTECTION_FROM_ENERGY_THUND_18d16e"
 
 
 new entry "ENR_Loot_ARM_Padded_2_Legendary_L0_0"
@@ -1019,7 +1002,7 @@ using "ARM_Padded_Body_2"
 data "Rarity" "Legendary"
 data "RootTemplate" "f61a9633-01e9-5d16-998f-ab9d8b802bd5"
 data "Boosts" "UnlockSpell(Shout_Shield_Wizard);UnlockSpell(Shout_ExpeditiousRetreat);Ability(Constitution,2,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_SURVIVAL_INSTINCT;ENR_LootPassive_LONGSTRIDER"
+data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_TRUE_STRIKE;ENR_LootPassive_MAGE_ARMOR"
 
 
 new entry "ENR_Loot_ARM_Padded_2_Legendary_L1_0"
@@ -1028,7 +1011,7 @@ using "ARM_Padded_Body_2"
 data "Rarity" "Legendary"
 data "RootTemplate" "3b9e5cad-d8df-54f4-8172-bed86892ae84"
 data "Boosts" "UnlockSpell(Target_Darkness);UnlockSpell(Shout_MirrorImage);Ability(Strength,2,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_BLUR;ENR_LootPassive_RESISTANCE_ACID"
+data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_DARKVISION;ENR_LootPassive_RESISTANCE_COLD"
 
 
 new entry "ENR_Loot_ARM_Padded_2_Legendary_L2_0"
@@ -1046,7 +1029,7 @@ using "ARM_Padded_Body_2"
 data "Rarity" "Legendary"
 data "RootTemplate" "1168724a-1dbd-5c71-8c10-d48b864f16d8"
 data "Boosts" "UnlockSpell(Target_Guidance);UnlockSpell(Target_BanesWrath);Ability(Dexterity,2,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_BARKSKIN;ENR_LootPassive_DARK_ONES_BLESSING"
+data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_BLADE_WARD;ENR_LootPassive_DARK_ONES_BLESSING"
 
 
 new entry "ENR_Loot_ARM_Padded_2_Legendary_L4_0"
@@ -1055,7 +1038,7 @@ using "ARM_Padded_Body_2"
 data "Rarity" "Legendary"
 data "RootTemplate" "5453f9a7-6358-5964-83d3-24b4b54dbd90"
 data "Boosts" "UnlockSpell(Target_Identify);UnlockSpell(Target_DissonantWhispers);Ability(Charisma,2,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_HEROISM;ENR_LootPassive_FALSE_LIFE"
+data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_LONGSTRIDER;ENR_LootPassive_FALSE_LIFE"
 
 
 new entry "ENR_Loot_ARM_Padded_2_Legendary_L5_0"
@@ -1064,7 +1047,7 @@ using "ARM_Padded_Body_2"
 data "Rarity" "Legendary"
 data "RootTemplate" "cfd5491b-aad1-57e4-af37-786ee75827e9"
 data "Boosts" "UnlockSpell(Target_GuardianOfFaith);UnlockSpell(Shout_AuraOfVitality);Ability(Constitution,2,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_SANCTUARY;ENR_LootPassive_STONESKIN"
+data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_SHIELD;ENR_LootPassive_VAMPIRIC_TOUCH"
 
 
 new entry "ENR_Loot_ARM_Padded_2_B_Uncommon_L0_0"
@@ -1109,7 +1092,7 @@ using "ARM_Padded_Body_2"
 data "Rarity" "Uncommon"
 data "RootTemplate" "e1dc76ee-597a-5025-a92f-5a39e2f3b84e"
 data "Boosts" ""
-data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_RESISTANCE_COLD"
+data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_RESISTANCE_FIRE"
 
 
 new entry "ENR_Loot_ARM_Padded_2_B_Uncommon_L5_0"
@@ -1145,7 +1128,7 @@ using "ARM_Padded_Body_2"
 data "Rarity" "Rare"
 data "RootTemplate" "3254c22f-4342-5a4f-8320-ef968396f2c7"
 data "Boosts" "UnlockSpell(Target_AnimateDead)"
-data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_RESISTANCE_PSYCHIC"
+data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_RESISTANCE_RADIANT"
 
 
 new entry "ENR_Loot_ARM_Padded_2_B_Rare_L3_0"
@@ -1181,7 +1164,7 @@ using "ARM_Padded_Body_2"
 data "Rarity" "VeryRare"
 data "RootTemplate" "15f309df-9407-539f-8561-805c0e825634"
 data "Boosts" "UnlockSpell(Target_GLO_CursedIronFlask_CaptureCreature);Ability(Dexterity,1,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_REFLECTIVE_SHELL;ENR_LootPassive_CATS_GRACE"
+data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_SANCTUARY;ENR_LootPassive_CATS_GRACE"
 
 
 new entry "ENR_Loot_ARM_Padded_2_B_VeryRare_L1_0"
@@ -1190,7 +1173,7 @@ using "ARM_Padded_Body_2"
 data "Rarity" "VeryRare"
 data "RootTemplate" "c3cf32e9-0726-581b-beff-5b37218c2a24"
 data "Boosts" "UnlockSpell(Projectile_ScorchingRay);Ability(Strength,1,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_RESISTANCE_RADIANT;ENR_LootPassive_AURA_OF_PROTECTION_BUFF"
+data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_RESISTANCE_THUNDER;ENR_LootPassive_AURA_OF_PROTECTION_BUFF"
 
 
 new entry "ENR_Loot_ARM_Padded_2_B_VeryRare_L2_0"
@@ -1199,7 +1182,7 @@ using "ARM_Padded_Body_2"
 data "Rarity" "VeryRare"
 data "RootTemplate" "8f0f608c-cdb6-5170-8c2c-790686f3d03c"
 data "Boosts" "UnlockSpell(Target_MagicWeapon);Ability(Constitution,1,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_AURA_OF_WARDING_BUFF;ENR_LootPassive_DEATH_WARD"
+data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_AURA_OF_WARDING_BUFF;ENR_LootPassive_ALCH_ELIXIR_ENLARGE"
 
 
 new entry "ENR_Loot_ARM_Padded_2_B_VeryRare_L3_0"
@@ -1208,7 +1191,7 @@ using "ARM_Padded_Body_2"
 data "Rarity" "VeryRare"
 data "RootTemplate" "d2cd615a-2c61-56b3-9752-4841ed6c9444"
 data "Boosts" "UnlockSpell(Target_Knock);Ability(Strength,1,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_ASPECT_OF_THE_ELK;ENR_LootPassive_PROTECTION_FROM_EVIL_AND_GOO_749824"
+data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_ASPECT_OF_THE_ELK;ENR_LootPassive_PROTECTION_FROM_POISON"
 
 
 new entry "ENR_Loot_ARM_Padded_2_B_VeryRare_L4_0"
@@ -1217,7 +1200,7 @@ using "ARM_Padded_Body_2"
 data "Rarity" "VeryRare"
 data "RootTemplate" "e0337e9a-f44a-562f-a004-e65d2fee4cfd"
 data "Boosts" "UnlockSpell(Target_PlantGrowth);Ability(Wisdom,1,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_BEACON_OF_HOPE;ENR_LootPassive_RESISTANCE_POISON"
+data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_BEACON_OF_HOPE;ENR_LootPassive_RESISTANCE_PSYCHIC"
 
 
 new entry "ENR_Loot_ARM_Padded_2_B_VeryRare_L5_0"
@@ -1226,7 +1209,7 @@ using "ARM_Padded_Body_2"
 data "Rarity" "VeryRare"
 data "RootTemplate" "f2100cf9-c0f9-5a48-910b-e4967a8c4d18"
 data "Boosts" "UnlockSpell(Projectile_LightningBlade_Explosion);Ability(Strength,1,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_PROTECTION_FROM_ENERGY_FIRE;ENR_LootPassive_HEROES_FEAST"
+data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_PROTECTION_FROM_ENERGY_LIGHT_d7917a;ENR_LootPassive_HEROES_FEAST"
 
 
 new entry "ENR_Loot_ARM_Padded_2_B_Legendary_L0_0"
@@ -1235,7 +1218,7 @@ using "ARM_Padded_Body_2"
 data "Rarity" "Legendary"
 data "RootTemplate" "d7b1b014-64d5-54d7-b16a-7511dce79f91"
 data "Boosts" "UnlockSpell(Shout_DetectEvilAndGood);UnlockSpell(Target_SacredFlame);Ability(Charisma,2,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_CATS_GRACE;ENR_LootPassive_TRUE_STRIKE"
+data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_CATS_GRACE;ENR_LootPassive_UNDEAD_FORTITUDE"
 
 
 new entry "ENR_Loot_ARM_Padded_2_B_Legendary_L1_0"
@@ -1253,7 +1236,7 @@ using "ARM_Padded_Body_2"
 data "Rarity" "Legendary"
 data "RootTemplate" "e606a7f2-415b-5654-a1bd-bcc276cbb8b4"
 data "Boosts" "UnlockSpell(Shout_ArmsOfHadar);UnlockSpell(Target_VampiricTouch);Ability(Wisdom,2,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_RESISTANCE_FORCE;ENR_LootPassive_BLUR"
+data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_RESISTANCE_LIGHTNING;ENR_LootPassive_DARKVISION"
 
 
 new entry "ENR_Loot_ARM_Padded_2_B_Legendary_L3_0"
@@ -1262,7 +1245,7 @@ using "ARM_Padded_Body_2"
 data "Rarity" "Legendary"
 data "RootTemplate" "80742d68-66b1-5c21-8dbf-942c471a2e4f"
 data "Boosts" "UnlockSpell(Shout_ArmsOfHadar);UnlockSpell(Shout_ExpeditiousRetreat);Ability(Wisdom,2,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_PROTECTION_FROM_ENERGY_ACID;ENR_LootPassive_RESISTANCE_RADIANT"
+data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD;ENR_LootPassive_RESISTANCE_THUNDER"
 
 
 new entry "ENR_Loot_ARM_Padded_2_B_Legendary_L4_0"
@@ -1280,7 +1263,7 @@ using "ARM_Padded_Body_2"
 data "Rarity" "Legendary"
 data "RootTemplate" "55dd5897-64e9-5141-8edc-315d8ed80109"
 data "Boosts" "UnlockSpell(Target_UND_LoneDuergar_AnimateDead);UnlockSpell(Target_GlobeOfInvulnerability);Ability(Intelligence,2,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_SPEAK_WITH_DEAD;ENR_LootPassive_SHIELD_OF_FAITH"
+data "PassivesOnEquip" "ARM_SuperiorPadding_2_Passive;ENR_LootPassive_SPEAK_WITH_DEAD;ENR_LootPassive_STONESKIN"
 
 
 new entry "ENR_Loot_ARM_Padded_Broken_Uncommon_L0_0"
@@ -1305,7 +1288,7 @@ using "ARM_Padded_Body"
 data "Rarity" "Uncommon"
 data "RootTemplate" "68e7d48b-4775-5658-b192-f24f604900ee"
 data "Boosts" ""
-data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_POISON"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_ACID"
 
 
 new entry "ENR_Loot_ARM_Padded_Broken_Uncommon_L3_0"
@@ -1338,7 +1321,7 @@ using "ARM_Padded_Body"
 data "Rarity" "Rare"
 data "RootTemplate" "d0fa5857-93dd-5ba4-bdd7-42ae8be9a03a"
 data "Boosts" "UnlockSpell(Target_MageHand)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_POISON"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_PSYCHIC"
 
 
 new entry "ENR_Loot_ARM_Padded_Broken_Rare_L1_0"
@@ -1356,7 +1339,7 @@ using "ARM_Padded_Body"
 data "Rarity" "Rare"
 data "RootTemplate" "01def354-750a-5f7a-bcc1-fa63f06e24a3"
 data "Boosts" "UnlockSpell(Shout_ArmorOfAgathys)"
-data "PassivesOnEquip" "ENR_LootPassive_VAMPIRIC_TOUCH"
+data "PassivesOnEquip" "ENR_LootPassive_WARDING_FLARE"
 
 
 new entry "ENR_Loot_ARM_Padded_Broken_Rare_L3_0"
@@ -1399,7 +1382,7 @@ using "ARM_Padded_Body"
 data "Rarity" "VeryRare"
 data "RootTemplate" "70cb9819-7348-5b50-82bf-bbd3a2a28ded"
 data "Boosts" "UnlockSpell(Target_CureWounds);Ability(Dexterity,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_UNDEAD_FORTITUDE;ENR_LootPassive_PATIENT_DEFENCE"
+data "PassivesOnEquip" "ENR_LootPassive_VAMPIRE_REGENERATION;ENR_LootPassive_PATIENT_DEFENCE"
 
 
 new entry "ENR_Loot_ARM_Padded_Broken_VeryRare_L2_0"
@@ -1408,7 +1391,7 @@ using "ARM_Padded_Body"
 data "Rarity" "VeryRare"
 data "RootTemplate" "ac518242-fb40-550d-ae8f-51c7b90516de"
 data "Boosts" "UnlockSpell(Target_Smite_Divine);Ability(Wisdom,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_FIRE;ENR_LootPassive_CRYSTALSKIN"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_LIGHT_d7917a;ENR_LootPassive_CRYSTALSKIN"
 
 
 new entry "ENR_Loot_ARM_Padded_Broken_VeryRare_L3_0"
@@ -1417,7 +1400,7 @@ using "ARM_Padded_Body"
 data "Rarity" "VeryRare"
 data "RootTemplate" "00014f5b-7d07-5c1f-aea3-27023ea3949e"
 data "Boosts" "UnlockSpell(Zone_Fear);Ability(Wisdom,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_FREEDOM_OF_MOVEMENT;ENR_LootPassive_DRUNKEN_TECHNIQUE"
+data "PassivesOnEquip" "ENR_LootPassive_HASTE;ENR_LootPassive_DRUNKEN_TECHNIQUE"
 
 
 new entry "ENR_Loot_ARM_Padded_Broken_VeryRare_L4_0"
@@ -1444,7 +1427,7 @@ using "ARM_Padded_Body"
 data "Rarity" "Legendary"
 data "RootTemplate" "926984c8-276a-5f9b-a36d-5c14657c3084"
 data "Boosts" "UnlockSpell(Shout_ComprehendLanguages);UnlockSpell(Target_GLO_CursedIronFlask_CaptureCreature);Ability(Charisma,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_ASPECT_OF_THE_STALLION;ENR_LootPassive_RESISTANCE_FORCE"
+data "PassivesOnEquip" "ENR_LootPassive_ASPECT_OF_THE_STALLION;ENR_LootPassive_RESISTANCE_LIGHTNING"
 
 
 new entry "ENR_Loot_ARM_Padded_Broken_Legendary_L1_0"
@@ -1453,7 +1436,7 @@ using "ARM_Padded_Body"
 data "Rarity" "Legendary"
 data "RootTemplate" "1079b029-1119-5785-b257-841f5027d07b"
 data "Boosts" "UnlockSpell(Shout_FalseLife);UnlockSpell(Target_WardingBond);Ability(Strength,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_BLUR;ENR_LootPassive_RESISTANCE_RADIANT"
+data "PassivesOnEquip" "ENR_LootPassive_DARKVISION;ENR_LootPassive_RESISTANCE_THUNDER"
 
 
 new entry "ENR_Loot_ARM_Padded_Broken_Legendary_L2_0"
@@ -1462,7 +1445,7 @@ using "ARM_Padded_Body"
 data "Rarity" "Legendary"
 data "RootTemplate" "22115be6-eea0-5a2c-950c-38becbea50e3"
 data "Boosts" "UnlockSpell(Shout_Shillelagh);UnlockSpell(Target_Smite_Searing);Ability(Dexterity,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_ACID;ENR_LootPassive_STONESKIN"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD;ENR_LootPassive_VAMPIRIC_TOUCH"
 
 
 new entry "ENR_Loot_ARM_Padded_Broken_Legendary_L3_0"
@@ -1471,7 +1454,7 @@ using "ARM_Padded_Body"
 data "Rarity" "Legendary"
 data "RootTemplate" "e50dd425-cebd-52b7-b60c-50e8a2108fd3"
 data "Boosts" "UnlockSpell(Projectile_RayOfSickness);UnlockSpell(Target_CreateWater);Ability(Wisdom,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_MAGE_ARMOR;ENR_LootPassive_VAMPIRE_REGENERATION"
+data "PassivesOnEquip" "ENR_LootPassive_MIRROR_IMAGE_1;ENR_LootPassive_BARKSKIN"
 
 
 new entry "ENR_Loot_ARM_Padded_Broken_Legendary_L4_0"
@@ -1480,7 +1463,7 @@ using "ARM_Padded_Body"
 data "Rarity" "Legendary"
 data "RootTemplate" "4cdd9520-ed1e-5906-b691-d92db41bb02d"
 data "Boosts" "UnlockSpell(Projectile_MagicMissile);UnlockSpell(Target_CursedTome_WakeTheDead);Ability(Wisdom,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_BLESS;ENR_LootPassive_HEROISM"
+data "PassivesOnEquip" "ENR_LootPassive_BLUR;ENR_LootPassive_LONGSTRIDER"
 
 
 new entry "ENR_Loot_ARM_Padded_Broken_Legendary_L5_0"
@@ -1489,7 +1472,7 @@ using "ARM_Padded_Body"
 data "Rarity" "Legendary"
 data "RootTemplate" "360e51b1-f8ca-5d7b-bc80-3a2b7421ad27"
 data "Boosts" "UnlockSpell(Target_Cloudkill_Recast_6);UnlockSpell(Target_HealingWord);Ability(Constitution,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_MIRROR_IMAGE_2;ENR_LootPassive_CRYSTALSKIN"
+data "PassivesOnEquip" "ENR_LootPassive_MIRROR_IMAGE_3;ENR_LootPassive_CRYSTALSKIN"
 
 
 new entry "ENR_Loot_ARM_Padded_Destroyed_Crash_Uncommon_L0_0"
@@ -1546,7 +1529,7 @@ using "ARM_Padded_Body_Destroyed"
 data "Rarity" "Rare"
 data "RootTemplate" "fef659b0-411f-5eb4-9a3d-befc7d8ce1ed"
 data "Boosts" "UnlockSpell(Target_Sanctuary)"
-data "PassivesOnEquip" "ENR_LootPassive_BLUR"
+data "PassivesOnEquip" "ENR_LootPassive_DARKVISION"
 
 
 new entry "ENR_Loot_ARM_Padded_Destroyed_Crash_Rare_L1_0"
@@ -1555,7 +1538,7 @@ using "ARM_Padded_Body_Destroyed"
 data "Rarity" "Rare"
 data "RootTemplate" "de1e8385-3776-54f0-b4cd-3f517fae0adf"
 data "Boosts" "UnlockSpell(Target_CloudOfDaggers)"
-data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_FIRE"
 
 
 new entry "ENR_Loot_ARM_Padded_Destroyed_Crash_Rare_L2_0"
@@ -1564,7 +1547,7 @@ using "ARM_Padded_Body_Destroyed"
 data "Rarity" "Rare"
 data "RootTemplate" "f318a280-7000-5af0-a6fa-8d302fbfbe77"
 data "Boosts" "UnlockSpell(Target_SpeakWithDead)"
-data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_POISON"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_ACID"
 
 
 new entry "ENR_Loot_ARM_Padded_Destroyed_Crash_Rare_L3_0"
@@ -1591,7 +1574,7 @@ using "ARM_Padded_Body_Destroyed"
 data "Rarity" "Rare"
 data "RootTemplate" "97f56d72-7cd7-5fed-bed1-7463d2821418"
 data "Boosts" "Ability(Dexterity,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_PSYCHIC"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_RADIANT"
 
 
 new entry "ENR_Loot_ARM_Padded_Destroyed_Crash_VeryRare_L0_0"
@@ -1600,7 +1583,7 @@ using "ARM_Padded_Body_Destroyed"
 data "Rarity" "VeryRare"
 data "RootTemplate" "0f238089-c0ce-5e43-b8bc-a16c9aea0b32"
 data "Boosts" "UnlockSpell(Target_MinorIllusion);Ability(Wisdom,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_LIGHT_d7917a;ENR_LootPassive_PROTECTION_FROM_ENERGY_THUND_18d16e"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_THUND_18d16e;ENR_LootPassive_PROTECTION_FROM_EVIL_AND_GOO_749824"
 
 
 new entry "ENR_Loot_ARM_Padded_Destroyed_Crash_VeryRare_L1_0"
@@ -1609,7 +1592,7 @@ using "ARM_Padded_Body_Destroyed"
 data "Rarity" "VeryRare"
 data "RootTemplate" "7a6a4223-7485-5169-b353-e55626ab9d85"
 data "Boosts" "UnlockSpell(Target_ViciousMockery);Ability(Strength,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_VAMPIRE_REGENERATION;ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD"
+data "PassivesOnEquip" "ENR_LootPassive_BARKSKIN;ENR_LootPassive_PROTECTION_FROM_ENERGY_FIRE"
 
 
 new entry "ENR_Loot_ARM_Padded_Destroyed_Crash_VeryRare_L2_0"
@@ -1618,7 +1601,7 @@ using "ARM_Padded_Body_Destroyed"
 data "Rarity" "VeryRare"
 data "RootTemplate" "75a218d6-2af7-5802-ba9f-5afd26ba838c"
 data "Boosts" "UnlockSpell(Target_ChillTouch);Ability(Constitution,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_REFLECTIVE_SHELL;ENR_LootPassive_RESISTANCE_PSYCHIC"
+data "PassivesOnEquip" "ENR_LootPassive_SANCTUARY;ENR_LootPassive_RESISTANCE_RADIANT"
 
 
 new entry "ENR_Loot_ARM_Padded_Destroyed_Crash_VeryRare_L3_0"
@@ -1627,7 +1610,7 @@ using "ARM_Padded_Body_Destroyed"
 data "Rarity" "VeryRare"
 data "RootTemplate" "d62b2700-1d24-558c-b55c-a0a08e54ef84"
 data "Boosts" "UnlockSpell(Shout_AlterSelf);Ability(Charisma,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE;ENR_LootPassive_BARKSKIN"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE;ENR_LootPassive_BLADE_WARD"
 
 
 new entry "ENR_Loot_ARM_Padded_Destroyed_Crash_VeryRare_L4_0"
@@ -1636,7 +1619,7 @@ using "ARM_Padded_Body_Destroyed"
 data "Rarity" "VeryRare"
 data "RootTemplate" "5ef9df78-9945-5c34-8103-ba42530a238c"
 data "Boosts" "UnlockSpell(Target_StaggeringSmite);Ability(Strength,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_CALM_EMOTIONS;ENR_LootPassive_RESISTANCE_POISON"
+data "PassivesOnEquip" "ENR_LootPassive_CALM_EMOTIONS;ENR_LootPassive_RESISTANCE_PSYCHIC"
 
 
 new entry "ENR_Loot_ARM_Padded_Destroyed_Crash_VeryRare_L5_0"
@@ -1645,7 +1628,7 @@ using "ARM_Padded_Body_Destroyed"
 data "Rarity" "VeryRare"
 data "RootTemplate" "8ec66412-b5b8-59ad-b80a-1a0c8050bb93"
 data "Boosts" "UnlockSpell(Target_Fly);Ability(Dexterity,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_FEATHER_FALL;ENR_LootPassive_DETECT_EVIL_GOOD"
+data "PassivesOnEquip" "ENR_LootPassive_FLY;ENR_LootPassive_DETECT_EVIL_GOOD"
 
 
 new entry "ENR_Loot_ARM_Padded_Destroyed_Crash_Legendary_L0_0"
@@ -1654,7 +1637,7 @@ using "ARM_Padded_Body_Destroyed"
 data "Rarity" "Legendary"
 data "RootTemplate" "1b127772-370f-5d4a-ab42-702fc1225ac2"
 data "Boosts" "UnlockSpell(Projectile_EnsnaringStrike);UnlockSpell(Projectile_ChromaticOrb_Acid);Ability(Dexterity,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_MAGE_ARMOR;ENR_LootPassive_RALLY"
+data "PassivesOnEquip" "ENR_LootPassive_MIRROR_IMAGE_1;ENR_LootPassive_RALLY"
 
 
 new entry "ENR_Loot_ARM_Padded_Destroyed_Crash_Legendary_L1_0"
@@ -1672,7 +1655,7 @@ using "ARM_Padded_Body_Destroyed"
 data "Rarity" "Legendary"
 data "RootTemplate" "681e5b49-af2a-5469-96e4-06147117804b"
 data "Boosts" "UnlockSpell(Target_CrownOfMadness);UnlockSpell(Shout_ShadowBlade);Ability(Dexterity,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_FIRE;ENR_LootPassive_BLADE_FLOURISH_MOBILE"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_FORCE;ENR_LootPassive_BLADE_FLOURISH_MOBILE"
 
 
 new entry "ENR_Loot_ARM_Padded_Destroyed_Crash_Legendary_L3_0"
@@ -1690,7 +1673,7 @@ using "ARM_Padded_Body_Destroyed"
 data "Rarity" "Legendary"
 data "RootTemplate" "2d7209bf-107e-5fec-88ab-8958d81fb40f"
 data "Boosts" "UnlockSpell(Target_GreaterRestoration);UnlockSpell(Shout_Aid);Ability(Charisma,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_POISON;ENR_LootPassive_PROTECTION_FROM_ENERGY_THUND_18d16e"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_PSYCHIC;ENR_LootPassive_PROTECTION_FROM_EVIL_AND_GOO_749824"
 
 
 new entry "ENR_Loot_ARM_Padded_Destroyed_Crash_Legendary_L5_0"
@@ -1699,7 +1682,7 @@ using "ARM_Padded_Body_Destroyed"
 data "Rarity" "Legendary"
 data "RootTemplate" "87d73575-998e-5fa9-94d1-472bbd408c37"
 data "Boosts" "UnlockSpell(Target_BestowCurse);UnlockSpell(Target_CircleOfDeath);Ability(Dexterity,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_LONGSTRIDER;ENR_LootPassive_PROTECTION_FROM_ENERGY_FIRE"
+data "PassivesOnEquip" "ENR_LootPassive_MAGE_ARMOR;ENR_LootPassive_PROTECTION_FROM_ENERGY_LIGHT_d7917a"
 
 
 new entry "ENR_Loot_ARM_Plate_Uncommon_L0_0"
@@ -1809,7 +1792,7 @@ using "ARM_Plate_Body"
 data "Rarity" "VeryRare"
 data "RootTemplate" "1940d1ed-3904-553c-ac81-cd5ee0535f08"
 data "Boosts" "Disadvantage(Skill,Stealth);UnlockSpell(Projectile_ChromaticOrb_Acid);Ability(Strength,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_HASTE;ENR_LootPassive_PROTECTION_FROM_ENERGY_THUND_18d16e"
+data "PassivesOnEquip" "ENR_LootPassive_HEROISM;ENR_LootPassive_PROTECTION_FROM_EVIL_AND_GOO_749824"
 
 
 new entry "ENR_Loot_ARM_Plate_VeryRare_L1_0"
@@ -1818,7 +1801,7 @@ using "ARM_Plate_Body"
 data "Rarity" "VeryRare"
 data "RootTemplate" "1f7e768e-e0fb-5b85-9cd5-291ae9dc0e21"
 data "Boosts" "Disadvantage(Skill,Stealth);UnlockSpell(Shout_BladeWard);Ability(Constitution,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_AURA_OF_PROTECTION_BUFF;ENR_LootPassive_RESISTANCE_COLD"
+data "PassivesOnEquip" "ENR_LootPassive_AURA_OF_PROTECTION_BUFF;ENR_LootPassive_RESISTANCE_FIRE"
 
 
 new entry "ENR_Loot_ARM_Plate_VeryRare_L2_0"
@@ -1827,7 +1810,7 @@ using "ARM_Plate_Body"
 data "Rarity" "VeryRare"
 data "RootTemplate" "661ad736-7978-5520-a11a-c4b4e8371e57"
 data "Boosts" "Disadvantage(Skill,Stealth);UnlockSpell(Shout_FlameBlade);Ability(Charisma,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_UNDEAD_FORTITUDE;ENR_LootPassive_SANCTUARY"
+data "PassivesOnEquip" "ENR_LootPassive_VAMPIRE_REGENERATION;ENR_LootPassive_SHIELD"
 
 
 new entry "ENR_Loot_ARM_Plate_VeryRare_L3_0"
@@ -1845,7 +1828,7 @@ using "ARM_Plate_Body"
 data "Rarity" "VeryRare"
 data "RootTemplate" "8a413b42-db71-50ef-81e3-fee46cb0c484"
 data "Boosts" "Disadvantage(Skill,Stealth);UnlockSpell(Zone_ConeOfCold);Ability(Strength,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_BEARS_ENDURANCE;ENR_LootPassive_BLESS"
+data "PassivesOnEquip" "ENR_LootPassive_BEARS_ENDURANCE;ENR_LootPassive_BLUR"
 
 
 new entry "ENR_Loot_ARM_Plate_VeryRare_L5_0"
@@ -1854,7 +1837,7 @@ using "ARM_Plate_Body"
 data "Rarity" "VeryRare"
 data "RootTemplate" "04ac4ce1-2022-5300-af49-a2a3840a573e"
 data "Boosts" "Disadvantage(Skill,Stealth);UnlockSpell(Target_Heroism);Ability(Wisdom,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_BLESS;ENR_LootPassive_MIRROR_IMAGE_3"
+data "PassivesOnEquip" "ENR_LootPassive_BLUR;ENR_LootPassive_PROTECTION_FROM_ENERGY_ACID"
 
 
 new entry "ENR_Loot_ARM_Plate_Legendary_L0_0"
@@ -1863,7 +1846,7 @@ using "ARM_Plate_Body"
 data "Rarity" "Legendary"
 data "RootTemplate" "bee3ffc6-24b5-5b66-a1b4-aace4f061274"
 data "Boosts" "Disadvantage(Skill,Stealth);UnlockSpell(Target_Guidance);UnlockSpell(Target_InflictWounds);Ability(Intelligence,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_FIRE"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_FORCE"
 
 
 new entry "ENR_Loot_ARM_Plate_Legendary_L1_0"
@@ -1881,7 +1864,7 @@ using "ARM_Plate_Body"
 data "Rarity" "Legendary"
 data "RootTemplate" "b029bb50-b3f9-520d-9e95-01770f293ed9"
 data "Boosts" "Disadvantage(Skill,Stealth);UnlockSpell(Target_InflictWounds);UnlockSpell(Target_SpikeGrowth);Ability(Wisdom,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_FRIENDS;ENR_LootPassive_PROTECTION_FROM_ENERGY_ACID"
+data "PassivesOnEquip" "ENR_LootPassive_FRIENDS;ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD"
 
 
 new entry "ENR_Loot_ARM_Plate_Legendary_L3_0"
@@ -1890,7 +1873,7 @@ using "ARM_Plate_Body"
 data "Rarity" "Legendary"
 data "RootTemplate" "f12c5e14-34b5-53c5-8b07-f38bbca23e08"
 data "Boosts" "Disadvantage(Skill,Stealth);UnlockSpell(Target_DancingLights);UnlockSpell(Teleportation_Revivify);Ability(Strength,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_SACRED_WEAPON;ENR_LootPassive_RESISTANCE_COLD"
+data "PassivesOnEquip" "ENR_LootPassive_SACRED_WEAPON;ENR_LootPassive_RESISTANCE_FIRE"
 
 
 new entry "ENR_Loot_ARM_Plate_Legendary_L4_0"
@@ -1935,7 +1918,7 @@ using "ARM_Plate_Body_1"
 data "Rarity" "Uncommon"
 data "RootTemplate" "213ff8f8-e11b-5181-9bd4-80275d41f9cc"
 data "Boosts" ""
-data "PassivesOnEquip" "ARM_SuperiorPlate_1_Passive;ENR_LootPassive_DARKVISION"
+data "PassivesOnEquip" "ARM_SuperiorPlate_1_Passive;ENR_LootPassive_DEATH_WARD"
 
 
 new entry "ENR_Loot_ARM_Plate_1_Uncommon_L3_0"
@@ -1944,7 +1927,7 @@ using "ARM_Plate_Body_1"
 data "Rarity" "Uncommon"
 data "RootTemplate" "2cb565f1-7de8-57c9-8414-eeecd1ca9e6a"
 data "Boosts" ""
-data "PassivesOnEquip" "ARM_SuperiorPlate_1_Passive;ENR_LootPassive_SHIELD"
+data "PassivesOnEquip" "ARM_SuperiorPlate_1_Passive;ENR_LootPassive_SHIELD_OF_FAITH"
 
 
 new entry "ENR_Loot_ARM_Plate_1_Uncommon_L4_0"
@@ -1953,7 +1936,7 @@ using "ARM_Plate_Body_1"
 data "Rarity" "Uncommon"
 data "RootTemplate" "7d4b88cf-08fa-5a2c-887f-a68f87889dca"
 data "Boosts" ""
-data "PassivesOnEquip" "ARM_SuperiorPlate_1_Passive;ENR_LootPassive_RESISTANCE_FIRE"
+data "PassivesOnEquip" "ARM_SuperiorPlate_1_Passive;ENR_LootPassive_RESISTANCE_FORCE"
 
 
 new entry "ENR_Loot_ARM_Plate_1_Uncommon_L5_0"
@@ -1998,7 +1981,7 @@ using "ARM_Plate_Body_1"
 data "Rarity" "Rare"
 data "RootTemplate" "5fa8e089-744c-54df-a94d-0869bdae1ab1"
 data "Boosts" "UnlockSpell(Target_Goodberry)"
-data "PassivesOnEquip" "ARM_SuperiorPlate_1_Passive;ENR_LootPassive_PROTECTION_FROM_ENERGY_THUND_18d16e"
+data "PassivesOnEquip" "ARM_SuperiorPlate_1_Passive;ENR_LootPassive_PROTECTION_FROM_EVIL_AND_GOO_749824"
 
 
 new entry "ENR_Loot_ARM_Plate_1_Rare_L4_0"
@@ -2007,7 +1990,7 @@ using "ARM_Plate_Body_1"
 data "Rarity" "Rare"
 data "RootTemplate" "d6991db8-afef-5f1f-aa24-49d4d8bad0d3"
 data "Boosts" "Ability(Dexterity,1,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPlate_1_Passive;ENR_LootPassive_MAGE_ARMOR"
+data "PassivesOnEquip" "ARM_SuperiorPlate_1_Passive;ENR_LootPassive_MIRROR_IMAGE_1"
 
 
 new entry "ENR_Loot_ARM_Plate_1_Rare_L5_0"
@@ -2025,7 +2008,7 @@ using "ARM_Plate_Body_1"
 data "Rarity" "VeryRare"
 data "RootTemplate" "6ef9f099-c502-5d76-a9ec-6abb29dc9841"
 data "Boosts" "UnlockSpell(Target_ViciousMockery);Ability(Strength,1,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPlate_1_Passive;ENR_LootPassive_BULLS_STRENGTH;ENR_LootPassive_PROTECTION_FROM_ENERGY_ACID"
+data "PassivesOnEquip" "ARM_SuperiorPlate_1_Passive;ENR_LootPassive_BULLS_STRENGTH;ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD"
 
 
 new entry "ENR_Loot_ARM_Plate_1_VeryRare_L1_0"
@@ -2034,7 +2017,7 @@ using "ARM_Plate_Body_1"
 data "Rarity" "VeryRare"
 data "RootTemplate" "406843f8-4843-571d-8224-9bd24d82d940"
 data "Boosts" "UnlockSpell(Shout_FeatherFall);Ability(Dexterity,1,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPlate_1_Passive;ENR_LootPassive_BULLS_STRENGTH;ENR_LootPassive_PROTECTION_FROM_ENERGY_THUND_18d16e"
+data "PassivesOnEquip" "ARM_SuperiorPlate_1_Passive;ENR_LootPassive_BULLS_STRENGTH;ENR_LootPassive_PROTECTION_FROM_EVIL_AND_GOO_749824"
 
 
 new entry "ENR_Loot_ARM_Plate_1_VeryRare_L2_0"
@@ -2052,7 +2035,7 @@ using "ARM_Plate_Body_1"
 data "Rarity" "VeryRare"
 data "RootTemplate" "ba9f691e-5cc0-59b4-ae26-fea6202da5ba"
 data "Boosts" "UnlockSpell(Shout_WYR_StinkingCloudCheese);Ability(Constitution,1,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPlate_1_Passive;ENR_LootPassive_FOXS_CUNNING;ENR_LootPassive_HASTE"
+data "PassivesOnEquip" "ARM_SuperiorPlate_1_Passive;ENR_LootPassive_FOXS_CUNNING;ENR_LootPassive_HEROISM"
 
 
 new entry "ENR_Loot_ARM_Plate_1_VeryRare_L4_0"
@@ -2070,7 +2053,7 @@ using "ARM_Plate_Body_1"
 data "Rarity" "VeryRare"
 data "RootTemplate" "cc896878-2bab-57dc-a052-9970086c78ce"
 data "Boosts" "UnlockSpell(Target_DissonantWhispers);Ability(Dexterity,1,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPlate_1_Passive;ENR_LootPassive_TRUE_STRIKE;ENR_LootPassive_OWLS_WISDOM"
+data "PassivesOnEquip" "ARM_SuperiorPlate_1_Passive;ENR_LootPassive_UNDEAD_FORTITUDE;ENR_LootPassive_OWLS_WISDOM"
 
 
 new entry "ENR_Loot_ARM_Plate_1_Legendary_L0_0"
@@ -2088,7 +2071,7 @@ using "ARM_Plate_Body_1"
 data "Rarity" "Legendary"
 data "RootTemplate" "0b83d361-d807-5684-a058-0b04c0ff5630"
 data "Boosts" "UnlockSpell(Zone_ColorSpray);UnlockSpell(Target_MinorIllusion);Ability(Wisdom,2,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPlate_1_Passive;ENR_LootPassive_FALSE_LIFE;ENR_LootPassive_SURVIVAL_INSTINCT"
+data "PassivesOnEquip" "ARM_SuperiorPlate_1_Passive;ENR_LootPassive_FALSE_LIFE;ENR_LootPassive_TRUE_STRIKE"
 
 
 new entry "ENR_Loot_ARM_Plate_1_Legendary_L2_0"
@@ -2097,7 +2080,7 @@ using "ARM_Plate_Body_1"
 data "Rarity" "Legendary"
 data "RootTemplate" "f0a0403a-0c3f-55c2-80df-16aad49c2814"
 data "Boosts" "UnlockSpell(Target_ThornWhip);UnlockSpell(Target_PlantGrowth);Ability(Charisma,2,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPlate_1_Passive;ENR_LootPassive_VAMPIRIC_TOUCH;ENR_LootPassive_PROTECTION_FROM_ENERGY_LIGHT_d7917a"
+data "PassivesOnEquip" "ARM_SuperiorPlate_1_Passive;ENR_LootPassive_WARDING_FLARE;ENR_LootPassive_PROTECTION_FROM_ENERGY_THUND_18d16e"
 
 
 new entry "ENR_Loot_ARM_Plate_1_Legendary_L3_0"
@@ -2106,7 +2089,7 @@ using "ARM_Plate_Body_1"
 data "Rarity" "Legendary"
 data "RootTemplate" "b657eb19-aa17-52fe-b29c-f08e877a9229"
 data "Boosts" "UnlockSpell(Zone_BurningHands_MephistophelesTiefling);UnlockSpell(Target_ArcaneEye);Ability(Dexterity,2,20,true)"
-data "PassivesOnEquip" "ARM_SuperiorPlate_1_Passive;ENR_LootPassive_OWLS_WISDOM;ENR_LootPassive_RESISTANCE_PSYCHIC"
+data "PassivesOnEquip" "ARM_SuperiorPlate_1_Passive;ENR_LootPassive_OWLS_WISDOM;ENR_LootPassive_RESISTANCE_RADIANT"
 
 
 new entry "ENR_Loot_ARM_Plate_1_Legendary_L4_0"
@@ -2151,7 +2134,7 @@ using "ARM_Plate_Body_2"
 data "Rarity" "Uncommon"
 data "RootTemplate" "7550e3a9-0503-527b-aa7c-7e3f4ca4b9a8"
 data "Boosts" ""
-data "PassivesOnEquip" "ARM_ExceptionalPlate_2_Passive;ENR_LootPassive_DEATH_WARD"
+data "PassivesOnEquip" "ARM_ExceptionalPlate_2_Passive;ENR_LootPassive_ALCH_ELIXIR_ENLARGE"
 
 
 new entry "ENR_Loot_ARM_Plate_2_Uncommon_L3_0"
@@ -2178,7 +2161,7 @@ using "ARM_Plate_Body_2"
 data "Rarity" "Uncommon"
 data "RootTemplate" "1e3db833-bb98-53d8-a07e-6606daff499a"
 data "Boosts" ""
-data "PassivesOnEquip" "ARM_ExceptionalPlate_2_Passive;ENR_LootPassive_TRUE_STRIKE"
+data "PassivesOnEquip" "ARM_ExceptionalPlate_2_Passive;ENR_LootPassive_UNDEAD_FORTITUDE"
 
 
 new entry "ENR_Loot_ARM_Plate_2_Rare_L0_0"
@@ -2241,7 +2224,7 @@ using "ARM_Plate_Body_2"
 data "Rarity" "VeryRare"
 data "RootTemplate" "efe64118-e3fa-5f5f-86ae-97d10de5230c"
 data "Boosts" "UnlockSpell(Target_SacredFlame);Ability(Charisma,1,20,true)"
-data "PassivesOnEquip" "ARM_ExceptionalPlate_2_Passive;ENR_LootPassive_RESISTANCE_NECROTIC;ENR_LootPassive_PROTECTION_FROM_ENERGY_COLD"
+data "PassivesOnEquip" "ARM_ExceptionalPlate_2_Passive;ENR_LootPassive_RESISTANCE_POISON;ENR_LootPassive_PROTECTION_FROM_ENERGY_FIRE"
 
 
 new entry "ENR_Loot_ARM_Plate_2_VeryRare_L1_0"
@@ -2250,7 +2233,7 @@ using "ARM_Plate_Body_2"
 data "Rarity" "VeryRare"
 data "RootTemplate" "04ace43b-4f82-534d-b926-cc59b4e7e9a1"
 data "Boosts" "UnlockSpell(Target_ThornWhip);Ability(Intelligence,1,20,true)"
-data "PassivesOnEquip" "ARM_ExceptionalPlate_2_Passive;ENR_LootPassive_LONGSTRIDER;ENR_LootPassive_BULLS_STRENGTH"
+data "PassivesOnEquip" "ARM_ExceptionalPlate_2_Passive;ENR_LootPassive_MAGE_ARMOR;ENR_LootPassive_BULLS_STRENGTH"
 
 
 new entry "ENR_Loot_ARM_Plate_2_VeryRare_L2_0"
@@ -2259,7 +2242,7 @@ using "ARM_Plate_Body_2"
 data "Rarity" "VeryRare"
 data "RootTemplate" "a090c498-cf5b-57d5-904b-440464404606"
 data "Boosts" "UnlockSpell(Zone_Thunderwave);Ability(Charisma,1,20,true)"
-data "PassivesOnEquip" "ARM_ExceptionalPlate_2_Passive;ENR_LootPassive_BLADE_WARD;ENR_LootPassive_FLY"
+data "PassivesOnEquip" "ARM_ExceptionalPlate_2_Passive;ENR_LootPassive_BLESS;ENR_LootPassive_FREEDOM_OF_MOVEMENT"
 
 
 new entry "ENR_Loot_ARM_Plate_2_VeryRare_L3_0"
@@ -2277,7 +2260,7 @@ using "ARM_Plate_Body_2"
 data "Rarity" "VeryRare"
 data "RootTemplate" "9ba0ba33-7bb1-58fc-a632-1c6e9e25172b"
 data "Boosts" "UnlockSpell(Projectile_SteelWatcher_Quadruped_SelfDestructExplosion);Ability(Dexterity,1,20,true)"
-data "PassivesOnEquip" "ARM_ExceptionalPlate_2_Passive;ENR_LootPassive_RESISTANCE_LIGHTNING;ENR_LootPassive_ALCH_ELIXIR_ENLARGE"
+data "PassivesOnEquip" "ARM_ExceptionalPlate_2_Passive;ENR_LootPassive_RESISTANCE_NECROTIC;ENR_LootPassive_FEATHER_FALL"
 
 
 new entry "ENR_Loot_ARM_Plate_2_VeryRare_L5_0"
@@ -2286,7 +2269,7 @@ using "ARM_Plate_Body_2"
 data "Rarity" "VeryRare"
 data "RootTemplate" "53356c77-6c86-5c6c-8c92-b1c1d751add9"
 data "Boosts" "UnlockSpell(Target_DominateBeast);Ability(Constitution,1,20,true)"
-data "PassivesOnEquip" "ARM_ExceptionalPlate_2_Passive;ENR_LootPassive_PROTECTION_FROM_ENERGY_LIGHT_d7917a;ENR_LootPassive_AURA_OF_DEVOTION_BUFF"
+data "PassivesOnEquip" "ARM_ExceptionalPlate_2_Passive;ENR_LootPassive_PROTECTION_FROM_ENERGY_THUND_18d16e;ENR_LootPassive_AURA_OF_DEVOTION_BUFF"
 
 
 new entry "ENR_Loot_ARM_Plate_2_Legendary_L0_0"
@@ -2295,7 +2278,7 @@ using "ARM_Plate_Body_2"
 data "Rarity" "Legendary"
 data "RootTemplate" "04dfb9fa-4405-504c-8308-490118a98ac2"
 data "Boosts" "UnlockSpell(Target_MentalSlam_Githyanki);UnlockSpell(Projectile_ChromaticOrb);Ability(Strength,2,20,true)"
-data "PassivesOnEquip" "ARM_ExceptionalPlate_2_Passive;ENR_LootPassive_BEARS_ENDURANCE;ENR_LootPassive_ALCH_ELIXIR_ENLARGE"
+data "PassivesOnEquip" "ARM_ExceptionalPlate_2_Passive;ENR_LootPassive_BEARS_ENDURANCE;ENR_LootPassive_FEATHER_FALL"
 
 
 new entry "ENR_Loot_ARM_Plate_2_Legendary_L1_0"
@@ -2313,7 +2296,7 @@ using "ARM_Plate_Body_2"
 data "Rarity" "Legendary"
 data "RootTemplate" "a4455d9a-1486-5182-aca9-9771e9dab330"
 data "Boosts" "UnlockSpell(Target_HuntersMark);UnlockSpell(Target_RemoveCurse);Ability(Wisdom,2,20,true)"
-data "PassivesOnEquip" "ARM_ExceptionalPlate_2_Passive;ENR_LootPassive_EXPEDITIOUS_RETREAT;ENR_LootPassive_RESISTANCE_NECROTIC"
+data "PassivesOnEquip" "ARM_ExceptionalPlate_2_Passive;ENR_LootPassive_EXPEDITIOUS_RETREAT;ENR_LootPassive_RESISTANCE_POISON"
 
 
 new entry "ENR_Loot_ARM_Plate_2_Legendary_L3_0"
@@ -2331,7 +2314,7 @@ using "ARM_Plate_Body_2"
 data "Rarity" "Legendary"
 data "RootTemplate" "d5aaa797-b89a-52c3-b0ec-b5b4a291b561"
 data "Boosts" "UnlockSpell(Target_CharmPerson);UnlockSpell(Target_AnimateDead_Skeleton_4);Ability(Intelligence,2,20,true)"
-data "PassivesOnEquip" "ARM_ExceptionalPlate_2_Passive;ENR_LootPassive_FLY;ENR_LootPassive_STONESKIN"
+data "PassivesOnEquip" "ARM_ExceptionalPlate_2_Passive;ENR_LootPassive_FREEDOM_OF_MOVEMENT;ENR_LootPassive_VAMPIRIC_TOUCH"
 
 
 new entry "ENR_Loot_ARM_Plate_2_Legendary_L5_0"
@@ -2340,7 +2323,7 @@ using "ARM_Plate_Body_2"
 data "Rarity" "Legendary"
 data "RootTemplate" "9a0af21f-f3c1-5ce7-bf0d-c1cb7fba7dc0"
 data "Boosts" "UnlockSpell(Projectile_ChainLightning);UnlockSpell(Shout_AuraOfVitality);Ability(Dexterity,2,20,true)"
-data "PassivesOnEquip" "ARM_ExceptionalPlate_2_Passive;ENR_LootPassive_DARKVISION;ENR_LootPassive_FALSE_LIFE"
+data "PassivesOnEquip" "ARM_ExceptionalPlate_2_Passive;ENR_LootPassive_DEATH_WARD;ENR_LootPassive_FALSE_LIFE"
 
 
 new entry "ENR_Loot_ARM_RingMail_Uncommon_L0_0"
@@ -2383,7 +2366,7 @@ using "ARM_RingMail_Body"
 data "Rarity" "Uncommon"
 data "RootTemplate" "b7d8ee39-6798-5ba2-9a7c-b4654dc0c2ab"
 data "Boosts" "Disadvantage(Skill,Stealth)"
-data "PassivesOnEquip" "ENR_LootPassive_SANCTUARY"
+data "PassivesOnEquip" "ENR_LootPassive_SHIELD"
 
 
 new entry "ENR_Loot_ARM_RingMail_Uncommon_L5_0"
@@ -2392,7 +2375,7 @@ using "ARM_RingMail_Body"
 data "Rarity" "Uncommon"
 data "RootTemplate" "dc25f8c0-9313-56a7-98a2-6b6a70cf9cb7"
 data "Boosts" "Disadvantage(Skill,Stealth)"
-data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_LIGHT_d7917a"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_THUND_18d16e"
 
 
 new entry "ENR_Loot_ARM_RingMail_Rare_L0_0"
@@ -2409,7 +2392,7 @@ using "ARM_RingMail_Body"
 data "Rarity" "Rare"
 data "RootTemplate" "99be1495-360f-5849-9b0f-90ffbcdcf1f7"
 data "Boosts" "Disadvantage(Skill,Stealth);UnlockSpell(Shout_ArmsOfHadar)"
-data "PassivesOnEquip" "ENR_LootPassive_FREEDOM_OF_MOVEMENT"
+data "PassivesOnEquip" "ENR_LootPassive_HASTE"
 
 
 new entry "ENR_Loot_ARM_RingMail_Rare_L2_0"
@@ -2453,7 +2436,7 @@ using "ARM_RingMail_Body"
 data "Rarity" "VeryRare"
 data "RootTemplate" "7ff76c92-5e68-5f29-a405-a904a4a9b293"
 data "Boosts" "Disadvantage(Skill,Stealth);UnlockSpell(Target_BurstingSinew);Ability(Intelligence,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_AURA_OF_WARDING_BUFF;ENR_LootPassive_BLESS"
+data "PassivesOnEquip" "ENR_LootPassive_AURA_OF_WARDING_BUFF;ENR_LootPassive_BLUR"
 
 
 new entry "ENR_Loot_ARM_RingMail_VeryRare_L1_0"
@@ -2462,7 +2445,7 @@ using "ARM_RingMail_Body"
 data "Rarity" "VeryRare"
 data "RootTemplate" "c7cf0ebe-c089-5fb9-9515-8771f93f38fe"
 data "Boosts" "Disadvantage(Skill,Stealth);UnlockSpell(Target_Blindness);Ability(Dexterity,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_ENERGY_THUND_18d16e;ENR_LootPassive_FEATHER_FALL"
+data "PassivesOnEquip" "ENR_LootPassive_PROTECTION_FROM_EVIL_AND_GOO_749824;ENR_LootPassive_FLY"
 
 
 new entry "ENR_Loot_ARM_RingMail_VeryRare_L2_0"
@@ -2471,7 +2454,7 @@ using "ARM_RingMail_Body"
 data "Rarity" "VeryRare"
 data "RootTemplate" "a56f6c44-1e28-57e9-a046-57615dfb2122"
 data "Boosts" "Disadvantage(Skill,Stealth);UnlockSpell(Target_InflictWounds);Ability(Strength,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_FIRE;ENR_LootPassive_LONGSTRIDER"
+data "PassivesOnEquip" "ENR_LootPassive_RESISTANCE_FORCE;ENR_LootPassive_MAGE_ARMOR"
 
 
 new entry "ENR_Loot_ARM_RingMail_VeryRare_L3_0"
@@ -2480,7 +2463,7 @@ using "ARM_RingMail_Body"
 data "Rarity" "VeryRare"
 data "RootTemplate" "22130021-1f93-5b4c-bb58-3a57fb30283e"
 data "Boosts" "Disadvantage(Skill,Stealth);UnlockSpell(Target_Sleep);Ability(Charisma,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_SHIELD_OF_FAITH;ENR_LootPassive_DIVINE_SENSE"
+data "PassivesOnEquip" "ENR_LootPassive_STONESKIN;ENR_LootPassive_DIVINE_SENSE"
 
 
 new entry "ENR_Loot_ARM_RingMail_VeryRare_L4_0"
@@ -2489,7 +2472,7 @@ using "ARM_RingMail_Body"
 data "Rarity" "VeryRare"
 data "RootTemplate" "24845868-e547-5206-a493-2fb1700b0640"
 data "Boosts" "Disadvantage(Skill,Stealth);UnlockSpell(Target_FlamingSphere);Ability(Dexterity,1,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_BARKSKIN;ENR_LootPassive_FLAME_BLADE"
+data "PassivesOnEquip" "ENR_LootPassive_BLADE_WARD;ENR_LootPassive_FLAME_BLADE"
 
 
 new entry "ENR_Loot_ARM_RingMail_VeryRare_L5_0"
@@ -2525,7 +2508,7 @@ using "ARM_RingMail_Body"
 data "Rarity" "Legendary"
 data "RootTemplate" "92aa27bc-469c-5f50-b2f2-cd21e109453c"
 data "Boosts" "Disadvantage(Skill,Stealth);UnlockSpell(Shout_Aid);UnlockSpell(Shout_BladeWard);Ability(Intelligence,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_GUIDANCE;ENR_LootPassive_MIRROR_IMAGE_1"
+data "PassivesOnEquip" "ENR_LootPassive_GUIDANCE;ENR_LootPassive_MIRROR_IMAGE_2"
 
 
 new entry "ENR_Loot_ARM_RingMail_Legendary_L3_0"
@@ -2552,7 +2535,7 @@ using "ARM_RingMail_Body"
 data "Rarity" "Legendary"
 data "RootTemplate" "da6ac1c7-372e-5a1e-8ce7-0ce8dae988fd"
 data "Boosts" "Disadvantage(Skill,Stealth);UnlockSpell(Target_FogCloud);UnlockSpell(Target_ArcaneLock);Ability(Strength,2,20,true)"
-data "PassivesOnEquip" "ENR_LootPassive_RAGE;ENR_LootPassive_MAGE_ARMOR"
+data "PassivesOnEquip" "ENR_LootPassive_RAGE;ENR_LootPassive_MIRROR_IMAGE_1"
 
 
 new entry "ENR_Loot_ARM_RingMail_1_Uncommon_L0_0"
@@ -2642,7 +2625,7 @@ using "ARM_RingMail_Body_1"
 data "Rarity" "Rare"
 data "RootTemplate" "f6faf535-8293-5e8b-b7b3-c50caf1c1625"
 data "Boosts" "Ability(Intelligence,1,20,true)"
-data "PassivesOnEquip" "ARM_BodyAid_1_Passive;ENR_LootPassive_RESISTANCE_POISON"
+data "PassivesOnEquip" "ARM_BodyAid_1_Passive;ENR_LootPassive_RESISTANCE_PSYCHIC"
 
 
 new entry "ENR_Loot_ARM_RingMail_1_Rare_L4_0"
@@ -2652,4 +2635,22 @@ data "Rarity" "Rare"
 data "RootTemplate" "5aec3441-457c-5eb1-86e0-a39a8492881a"
 data "Boosts" "UnlockSpell(Target_ProtectionFromEvilAndGood);Ability(Dexterity,1,20,true)"
 data "PassivesOnEquip" "ARM_BodyAid_1_Passive"
+
+
+new entry "ENR_Loot_ARM_RingMail_1_Rare_L5_0"
+type "Armor"
+using "ARM_RingMail_Body_1"
+data "Rarity" "Rare"
+data "RootTemplate" "8ea5d0f4-4fa5-58b1-815c-c5e476b0a4af"
+data "Boosts" "Ability(Wisdom,1,20,true)"
+data "PassivesOnEquip" "ARM_BodyAid_1_Passive;ENR_LootPassive_RESISTANCE_NECROTIC"
+
+
+new entry "ENR_Loot_ARM_RingMail_1_VeryRare_L0_0"
+type "Armor"
+using "ARM_RingMail_Body_1"
+data "Rarity" "VeryRare"
+data "RootTemplate" "a0bdbabd-420f-59f9-8044-9b9f60c27e32"
+data "Boosts" "UnlockSpell(Target_Hex);Ability(Intelligence,1,20,true)"
+data "PassivesOnEquip" "ARM_BodyAid_1_Passive;ENR_LootPassive_LIGHT;ENR_LootPassive_MIRROR_IMAGE_2"
 

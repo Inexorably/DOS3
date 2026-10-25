@@ -39,6 +39,20 @@ local function hasStatus(guid, status)
     return ok and (result == 1 or result == true)
 end
 
+local function cleanupRemovedBuffs(guid)
+    if not (Osi and Osi.RemoveStatus) then return false end
+    local removed = false
+    for status in pairs(C.REMOVED_BUFF_STATUSES or {}) do
+        if hasStatus(guid, status) then
+            if pcall(Osi.RemoveStatus, guid, status) then
+                removed = true
+                log("removed retired buff %s -> %s", status, guid)
+            end
+        end
+    end
+    return removed
+end
+
 local function partySet()
     local set = {}
     local function add(value)
@@ -404,12 +418,18 @@ end
 
 local function applyOne(entity, party)
     local guid = guidOf(entity)
-    if not guid or buffed[guid] then return false end
+    if not guid then return false end
     if not inCombat(entity, guid) then return false end
     if isParty(entity, guid, party) or isSummon(entity) then
         buffed[guid] = true
         return false
     end
+
+    -- Clean up effects that were removed from the safe pool by an update.
+    -- This is intentionally done before the in-memory `buffed` shortcut so
+    -- existing saves do not retain an immortal enemy for the rest of a fight.
+    cleanupRemovedBuffs(guid)
+    if buffed[guid] then return false end
 
     local applied = false
 

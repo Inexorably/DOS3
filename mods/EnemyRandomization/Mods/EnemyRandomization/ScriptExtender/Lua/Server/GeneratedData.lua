@@ -114,7 +114,6 @@ ER.Generated = {
     "ENR_Perm_SHIELD_OF_FAITH",
     "ENR_Perm_SHILLELAGH",
     "ENR_Perm_STONESKIN",
-    "ENR_Perm_SURVIVAL_INSTINCT",
     "ENR_Perm_TRUE_STRIKE",
     "ENR_Perm_UNDEAD_FORTITUDE",
     "ENR_Perm_VAMPIRIC_TOUCH",
