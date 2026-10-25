@@ -75,6 +75,15 @@ local function isSummon(entity)
     return okEvent and created ~= nil
 end
 
+local function inCombat(entity, guid)
+    if entity and entity.IsInCombat then return true end
+    if Osi and Osi.IsInCombat then
+        local ok, result = pcall(Osi.IsInCombat, guid)
+        return ok and (result == 1 or result == true)
+    end
+    return false
+end
+
 local function hasStatus(guid, status)
     if not (Osi and Osi.HasStatus) then return false end
     local ok, result = pcall(Osi.HasStatus, guid, status)
@@ -86,6 +95,21 @@ local function applyMarker(guid)
     return pcall(Osi.ApplyStatus, guid, C.MARKER_STATUS, -1, 1)
 end
 
+local function looksScaled(entity, health)
+    local base = nil
+    local okData, statsId = pcall(function() return entity.Data.StatsId end)
+    if okData and statsId and Ext and Ext.Stats and Ext.Stats.Get then
+        local okStat, stat = pcall(Ext.Stats.Get, statsId)
+        if okStat and stat then
+            local okValue, value = pcall(function() return stat.Vitality end)
+            if okValue and tonumber(value) then base = tonumber(value) end
+        end
+    end
+    if not base or base <= 0 then return true end
+    local current = tonumber(health.MaxHp) or 0
+    return current > base * 1.05
+end
+
 local function scaleEntity(entity, party)
     if not entity then return false end
     local okHealth, health = pcall(function() return entity.Health end)
@@ -93,10 +117,25 @@ local function scaleEntity(entity, party)
 
     local guid = guidOf(entity)
     if not guid then return false end
-    if scaled[guid] or hasStatus(guid, C.MARKER_STATUS) then
+    if scaled[guid] then return false end
+
+    local marked = hasStatus(guid, C.MARKER_STATUS)
+    if marked and looksScaled(entity, health) then
         scaled[guid] = true
         return false
     end
+    if marked then
+        -- Older saves may carry the marker after the engine reset Health to
+        -- its base value. Remove the stale marker and scale this actor once.
+        if Osi and Osi.RemoveStatus then
+            pcall(Osi.RemoveStatus, guid, C.MARKER_STATUS)
+        end
+        log("removed stale health marker from %s", guid)
+    end
+
+    -- Health can be initialized/reset after the Health component is
+    -- created. Scale at combat start/join so final HP is stable.
+    if not inCombat(entity, guid) then return false end
 
     party = party or partySet()
     if isParty(entity, guid, party) then
@@ -164,6 +203,29 @@ if Ext and Ext.Events and Ext.Events.SessionLoaded then
     Ext.Events.SessionLoaded:Subscribe(function()
         for _, delay in ipairs({ 500, 1500, 3000, 6000, 12000 }) do
             Ext.Timer.WaitFor(delay, scan)
+        end
+    end)
+end
+
+-- Combat start/join and turn starts are the stable points for final enemy HP.
+if Ext and Ext.Entity and Ext.Entity.OnCreate then
+    pcall(Ext.Entity.OnCreate, "CombatStartedEvent", function()
+        if Ext.Timer and Ext.Timer.WaitFor then
+            Ext.Timer.WaitFor(250, scan)
+            Ext.Timer.WaitFor(1000, scan)
+        end
+    end)
+    pcall(Ext.Entity.OnCreate, "CombatantJoinEvent", function()
+        if Ext.Timer and Ext.Timer.WaitFor then
+            Ext.Timer.WaitFor(250, scan)
+        end
+    end)
+end
+
+if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
+    pcall(Ext.Osiris.RegisterListener, "TurnStarted", 1, "after", function()
+        if Ext.Timer and Ext.Timer.WaitFor then
+            Ext.Timer.WaitFor(100, scan)
         end
     end)
 end
