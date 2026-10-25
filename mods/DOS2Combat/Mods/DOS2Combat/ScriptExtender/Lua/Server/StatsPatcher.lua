@@ -804,6 +804,9 @@ local function patchSpell(name, stat)
             local cleared = U.SafeSet(stat, "SpellRoll", "")
             if not cleared then cleared = U.SafeSet(stat, "SpellRoll", nil) end
             if not cleared then cleared = U.SafeSet(stat, "SpellRoll", {}) end
+            if not cleared and stat.SetRawAttribute then
+                cleared = pcall(function() return stat:SetRawAttribute("SpellRoll", "") end)
+            end
             if cleared then
                 changed = true
             else
