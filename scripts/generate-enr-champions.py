@@ -83,6 +83,13 @@ def template_guid(tag):
     return str(uuid.uuid5(NS, 'EnemyRandomization/template/' + tag))
 
 
+STATUS_DISPLAY_FALLBACKS = {
+    'MUDMEPHIT_HARD': (
+        'Mud-Hardened',
+        'Mud hardens this creature\'s skin, increasing its armor and maximum hit points.',
+    ),
+}
+
 NATIVE_LEVELS = {
     'ChultAlioramus': 1,
     'Crimson': 1,
@@ -766,15 +773,36 @@ def build_stats_and_loca(guids, stats_by_tag):
         for status in champion.get('statuses', [])
     })
     status_stats = load_status_stats()
+    status_texts = []
     for source in permanent_sources:
         wrapped = permanent_status_name(source)
         native = status_stats.get(source) or {}
+        display = native.get('DisplayName')
+        description = native.get('Description')
+        if not display or display == source or not display.startswith('h'):
+            fallback_name, fallback_description = STATUS_DISPLAY_FALLBACKS.get(
+                source,
+                (source.replace('_', ' ').title(), source.replace('_', ' ').title()),
+            )
+            display = handle('ENR_Status_' + source + '_Name')
+            description = handle('ENR_Status_' + source + '_Desc')
+            status_texts.extend([
+                ('ENR_Status_' + source + '_Name', fallback_name),
+                ('ENR_Status_' + source + '_Desc', fallback_description),
+            ])
+        if not description or not description.startswith('h'):
+            fallback_name, fallback_description = STATUS_DISPLAY_FALLBACKS.get(
+                source,
+                (source.replace('_', ' ').title(), source.replace('_', ' ').title()),
+            )
+            description = handle('ENR_Status_' + source + '_Desc')
+            status_texts.append(('ENR_Status_' + source + '_Desc', fallback_description))
         lines += [
             'new entry "%s"' % wrapped,
             'type "StatusData"',
             'data "StatusType" "%s"' % native.get('StatusType', 'BOOST'),
-            'data "DisplayName" "%s"' % native.get('DisplayName', source),
-            'data "Description" "%s"' % native.get('Description', source),
+            'data "DisplayName" "%s"' % display,
+            'data "Description" "%s"' % description,
             'data "Icon" "%s"' % native.get('Icon', 'Action_Dodge'),
         ]
         if native.get('DescriptionParams'):
@@ -811,8 +839,8 @@ def build_stats_and_loca(guids, stats_by_tag):
     STATS.write_text('\n'.join(lines), encoding='utf-8')
 
     # Localization.
-    texts = []
-    seen = set()
+    texts = list(status_texts)
+    seen = set(tag for tag, _ in texts)
     for champion in ALL_CHAMPIONS:
         status = 'ENR_CHAMPION_' + champion['key']
         summons = champion.get('summons') or []

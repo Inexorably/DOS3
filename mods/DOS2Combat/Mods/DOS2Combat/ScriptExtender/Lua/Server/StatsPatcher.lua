@@ -567,6 +567,27 @@ local function patchCastingAbilityTooltips(name, stat)
     return changed
 end
 
+local function patchEldritchBlastTooltip(name, stat)
+    if name ~= "Projectile_EldritchBlast" then return false end
+    local cfg = DOS2C.Config
+    if not cfg.CASTING_ABILITY_SPELL_DAMAGE then return false end
+
+    local changed = false
+    for _, field in ipairs(TOOLTIP_CASTING_FIELDS) do
+        local value = U.SafeGet(stat, field)
+        if type(value) == "string" and value ~= ""
+            and value:find("DealDamage", 1, true)
+            and not value:find("CharismaModifier", 1, true) then
+            local separator = value:sub(-1) == ";" and "" or ";"
+            local addition = "DamageBonus(CharismaModifier,Force)"
+            if U.SafeSet(stat, field, value .. separator .. addition) then
+                changed = true
+            end
+        end
+    end
+    return changed
+end
+
 local function patchConcentration(name, stat)
     local cfg = DOS2C.Config
     if not cfg.REMOVE_CONCENTRATION then return false end
@@ -606,6 +627,7 @@ local function patchSpell(name, stat)
     local changed = patchAstralKnowledge(name, stat)
     changed = patchConcentration(name, stat) or changed
     changed = patchCastingAbilityTooltips(name, stat) or changed
+    changed = patchEldritchBlastTooltip(name, stat) or changed
 
     local costs = U.SafeGet(stat, "UseCosts")
     rememberNativeCooldown(name, stat)
