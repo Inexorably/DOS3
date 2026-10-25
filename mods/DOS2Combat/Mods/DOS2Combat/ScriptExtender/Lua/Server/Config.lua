@@ -144,8 +144,9 @@ DOS2C.Config = {
     -- dodge/defense side of the native d20 check for now.
     REMOVE_ATTACK_ROLLS = true,
     REMOVE_CONCENTRATION = true, -- DOS2 has no concentration; strip it from every skill
-    BASE_ATTACK_ROLL_BONUS = 100, -- pushes normal attacks to the 100% cap
-    ATTACK_DEBUFF_CANCELS_BASELINE = true, -- Blinded etc. offset the baseline
+    -- No hit-roll RNG: attacks are resolved without attack rolls.
+    BASE_ATTACK_ROLL_BONUS = 0,
+    ATTACK_DEBUFF_CANCELS_BASELINE = false,
 
     REMOVE_SAVING_THROWS = true, -- DOS2 has no saving throws
     CASTING_ABILITY_SPELL_DAMAGE = true, -- give Int/Wis/Cha combat value
@@ -196,20 +197,29 @@ DOS2C.Config = {
     ARMOR_HEAVY_PHYSICAL_MULT = 1.25,
     ARMOR_HEAVY_MAGIC_MULT = 0.75,
     ARMOR_SHIELD_PHYSICAL_MULT = 1.5,
+    ARMOR_SHIELD_MAGIC_MULT = 0.5,
+    CRIT_DAMAGE_MULTIPLIER = 2.0, -- final damage multiplier on a critical hit
     ENEMY_INNATE_ARMOR_ENABLED = true, -- enemies without gear use native AC
     ENEMY_ARMOR_PER_AC = 1,            -- flat P resistance per AC above 9
     ENEMY_MAGIC_PER_AC = 1,            -- flat M resistance per AC above 9
     ARMOR_RESET_ON_REST = true,
-    -- Skill/status contributions to the DOS2-style pools.
-    ARMOR_SKILL_BONUSES = {
-        MAGE_ARMOR = { magic = 10 },
-        BARKSKIN = { physical = 10 },
-        SHIELD = { physical = 5, magic = 5 },
-        SHIELD_OF_FAITH = { magic = 10 },
-        ARMOR_OF_AGATHYS = { physical = 5 },
-        ARMOR_OF_AGATHYS_2 = { physical = 10 },
-        ARMOR_OF_AGATHYS_3 = { physical = 15 },
-        BLADE_WARD = { physical = 5 },
+    -- AC is converted generically into physical/magic armor. These weights
+    -- are applied to the AC total contributed by the active effect. Default
+    -- (no matching status) is an even 1.0/1.0 split.
+    ARMOR_AC_SPLITS = {
+        MAGE_ARMOR = { physical = 0.5, magic = 1.25 },
+        SHIELD = { physical = 0.75, magic = 1.25 },
+        SHIELD_OF_FAITH = { physical = 0.75, magic = 1.25 },
+        BARKSKIN = { physical = 1.25, magic = 0.5 },
+        ARMOR_OF_AGATHYS = { physical = 1.25, magic = 0.5 },
+        ARMOR_OF_AGATHYS_2 = { physical = 1.25, magic = 0.5 },
+        ARMOR_OF_AGATHYS_3 = { physical = 1.25, magic = 0.5 },
+        BLADE_WARD = { physical = 1.0, magic = 0.75 },
+    },
+    ARMOR_AC_SPLIT_ORDER = {
+        "MAGE_ARMOR", "SHIELD", "SHIELD_OF_FAITH", "BARKSKIN",
+        "ARMOR_OF_AGATHYS", "ARMOR_OF_AGATHYS_2", "ARMOR_OF_AGATHYS_3",
+        "BLADE_WARD",
     },
     -- Experimental: block hard CC while the matching armor pool is alive.
     -- Leave false until the armor hook has been verified in-game.

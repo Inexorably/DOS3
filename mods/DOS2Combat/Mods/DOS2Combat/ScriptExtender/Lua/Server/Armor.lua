@@ -29,6 +29,52 @@ local function hasStatus(handle, status)
     return ok and (result == 1 or result == true)
 end
 
+local function removeLegacyNoDodge(handle)
+    local guid = U.GuidOf(handle)
+    if not guid or not (Osi and Osi.RemoveStatus) then return end
+    pcall(Osi.RemoveStatus, guid, "DOS2C_NoDodge")
+end
+
+local function equipmentProfile(handle)
+    local guid = U.GuidOf(handle)
+    if not guid or not (Osi and Osi.GetEquippedItem) then return false, false end
+    local heavy, shield = false, false
+    for _, slot in ipairs(ARMOR_SLOTS) do
+        local ok, item = pcall(Osi.GetEquippedItem, guid, slot)
+        if ok and item then
+            local entity = U.EntityOf(item)
+            local armor = entity and entity.Armor
+            if armor then
+                if (tonumber(armor.ArmorType) or 0) >= 6 then heavy = true end
+                if armor.Shield then shield = true end
+            end
+        end
+    end
+    return heavy, shield
+end
+
+local function armorSplit(handle)
+    local cfg = DOS2C.Config
+    local physical, magic = 1.0, 1.0
+    local heavy, shield = equipmentProfile(handle)
+    if heavy then
+        physical = physical * (cfg.ARMOR_HEAVY_PHYSICAL_MULT or 1)
+        magic = magic * (cfg.ARMOR_HEAVY_MAGIC_MULT or 1)
+    end
+    if shield then
+        physical = physical * (cfg.ARMOR_SHIELD_PHYSICAL_MULT or 1)
+        magic = magic * (cfg.ARMOR_SHIELD_MAGIC_MULT or 1)
+    end
+    for _, status in ipairs(cfg.ARMOR_AC_SPLIT_ORDER or {}) do
+        local split = cfg.ARMOR_AC_SPLITS and cfg.ARMOR_AC_SPLITS[status]
+        if split and hasStatus(handle, status) then
+            physical = tonumber(split.physical) or physical
+            magic = tonumber(split.magic) or magic
+        end
+    end
+    return physical, magic
+end
+
 -- Equipment AC remains on the item for display and resistance. A matching
 -- negative AC boost cancels its native attack-roll contribution, so equipment
 -- does not also act as hit avoidance. Native attack rolls use base AC plus
@@ -234,49 +280,40 @@ end
 
 local function computeResistance(handle)
     local cfg = DOS2C.Config
-    local gearPhysical, gearMagic, pieces = armorFromGear(handle)
-    local skillPhysical, skillMagic = armorFromSkills(handle)
-    local entity = U.EntityOf(handle)
-    local innatePhysical, innateMagic, innateAC = armorFromInnate(handle, entity, pieces)
+    removeLegacyNoDodge(handle)
 
-    local extraPhysical, extraMagic, extraAC = 0, 0, 0
-    local party = isPartyCharacter(handle, entity)
-    if not party then
-        -- Enemies with gear do not use armorFromInnate, but they may still have
-        -- AC from statuses/passives. Convert the excess over base AC + gear AC
-        -- into flat armor before suppressing native hit-chance AC.
-        if pieces > 0 and Osi and Osi.GetArmorClass then
-            local ok, totalAC = pcall(Osi.GetArmorClass, U.GuidOf(handle))
-            totalAC = ok and tonumber(totalAC) or 0
-            local gearAC = gearArmorClass(handle)
-            local guid = U.GuidOf(handle)
-            extraAC = math.max(0, totalAC - 10 - gearAC)
-            if extraAC > 0 and guid then
-                extraACs[guid] = extraAC
-            elseif guid and extraACs[guid] then
-                extraAC = extraACs[guid]
-            end
-            extraPhysical = extraAC * cfg.ENEMY_ARMOR_PER_AC
-            extraMagic = extraAC * cfg.ENEMY_MAGIC_PER_AC
-        end
-        stripEnemyAC(handle)
-    end
+    local entity = U.EntityOf(handle)
+    local ac = nativeArmorClass(handle, entity)
+    if not ac or ac <= 0 then ac = 10 end
+
+    -- Every AC source, including gear, spells, passives, and enemy natural AC,
+    -- now feeds one generic armor value. There is no Dodge/hit-chance split.
+    local gain = math.max(0, ac - 9)
+    local pMult, mMult = armorSplit(handle)
+    local physical = (cfg.ARMOR_BASE_PHYSICAL or 0)
+        + gain * (cfg.ARMOR_PHYSICAL_PER_AC or 1) * pMult
+    local magic = (cfg.ARMOR_BASE_MAGIC or 0)
+        + gain * (cfg.ARMOR_MAGIC_PER_AC or 1) * mMult
 
     return {
-        physical = cfg.ARMOR_BASE_PHYSICAL + gearPhysical + skillPhysical + innatePhysical + extraPhysical,
-        magic = cfg.ARMOR_BASE_MAGIC + gearMagic + skillMagic + innateMagic + extraMagic,
-        gearPhysical = gearPhysical,
-        gearMagic = gearMagic,
-        skillPhysical = skillPhysical,
-        skillMagic = skillMagic,
-        innatePhysical = innatePhysical,
-        innateMagic = innateMagic,
-        extraPhysical = extraPhysical,
-        extraMagic = extraMagic,
-        innateAC = innateAC,
-        extraAC = extraAC,
-        pieces = pieces,
-        enemyInnate = innateAC ~= nil,
+        physical = physical,
+        magic = magic,
+        gearPhysical = 0,
+        gearMagic = 0,
+        skillPhysical = 0,
+        skillMagic = 0,
+        innatePhysical = 0,
+        innateMagic = 0,
+        extraPhysical = 0,
+        extraMagic = 0,
+        innateAC = ac,
+        extraAC = 0,
+        pieces = 0,
+        ac = ac,
+        gain = gain,
+        pMult = pMult,
+        mMult = mMult,
+        enemyInnate = false,
     }
 end
 
@@ -378,6 +415,65 @@ local function applyFlatResistanceToStats(hit, resist)
     return resisted
 end
 
+local function isCriticalHit(hit)
+    local ok, result = pcall(function()
+        local rolls = hit and hit.Damage and hit.Damage.DamageRolls
+        if not rolls then return false end
+        for _, list in pairs(rolls) do
+            if type(list) == "table" then
+                for _, roll in ipairs(list) do
+                    local metadata = roll and roll.Metadata
+                    if metadata and metadata.IsCritical then return true end
+                    local rolled = roll and roll.Result
+                    local critical = rolled and rolled.Critical
+                    if critical ~= nil and tonumber(critical) ~= 0 then return true end
+                end
+            end
+        end
+        return false
+    end)
+    return ok and result == true
+end
+
+local function multiplyDamage(hit, multiplier)
+    if not hit or not multiplier or multiplier == 1 then return 0 end
+    local list = hit.DamageList
+    local changed = 0
+    if list and #list > 0 then
+        for i = 1, #list do
+            local pair = list[i]
+            local amount = tonumber(pair and pair.Amount) or 0
+            if amount > 0 then
+                local scaled = math.floor(amount * multiplier + 0.5)
+                local ok = pcall(function() pair.Amount = scaled end)
+                if ok then changed = changed + (scaled - amount) end
+            end
+        end
+    end
+
+    local damage = hit.Damage
+    if damage then
+        local total = tonumber(damage.FinalDamage) or 0
+        if total <= 0 then total = tonumber(damage.TotalDamage) or 0 end
+        if total > 0 then
+            local scaled = math.floor(total * multiplier + 0.5)
+            pcall(function() damage.FinalDamage = scaled end)
+            pcall(function() damage.TotalDamage = scaled end)
+            changed = changed + (scaled - total)
+        end
+    end
+    return changed
+end
+
+local function applyCriticalMultiplier(hit)
+    local cfg = DOS2C.Config
+    local multiplier = tonumber(cfg.CRIT_DAMAGE_MULTIPLIER) or 1
+    if multiplier <= 1 or not isCriticalHit(hit) then return false end
+    local added = multiplyDamage(hit, multiplier)
+    U.Log("critical hit multiplier x%.2f applied (+%d)", multiplier, added)
+    return true
+end
+
 local function resistDamage(ev)
     local cfg = DOS2C.Config
     if not cfg.ARMOR_ENABLED then return end
@@ -415,6 +511,9 @@ local function resistDamage(ev)
             tostring(hit.Damage and hit.Damage.TotalDamage),
             tostring(hit.Damage and hit.Damage.FinalDamage))
     end
+
+    -- Native critical metadata is converted into a final-damage multiplier.
+    applyCriticalMultiplier(hit)
 end
 
 function A.Get(handle)
@@ -431,13 +530,9 @@ function A.Set(handle, physical, magic)
 end
 
 function A.ForceNoDodge(handle)
-    local guid = U.GuidOf(handle)
-    if not guid then return false end
-    if Osi and Osi.RemoveStatus then
-        pcall(Osi.RemoveStatus, guid, "DOS2C_NoDodge")
-    end
-    enemyACStripped[guid] = nil
-    return stripEnemyAC(handle)
+    -- Legacy compatibility: old saves may still carry DOS2C_NoDodge.
+    removeLegacyNoDodge(handle)
+    return true
 end
 
 function A.Refresh(handle)

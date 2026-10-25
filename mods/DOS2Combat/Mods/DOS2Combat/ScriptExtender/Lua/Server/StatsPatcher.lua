@@ -740,22 +740,10 @@ local function patchArmor(name, stat)
         DOS2C.ArmorOriginalAC[name] = ac
     end
 
-    -- Keep the real AC on the item so the item tooltip and DOS2 resistance
-    -- calculation remain meaningful, but cancel its contribution to the
-    -- native attack-roll AC. This leaves base AC 10 (plus explicit Dodge/AC
-    -- boosts) as the hit-chance defense without displaying a fake AC value.
+    -- AC no longer participates in hit chance. Keep the real AC on the item
+    -- for tooltips and for the generic AC-to-armor calculation; do not add a
+    -- negative AC boost here.
     local shield = tostring(U.SafeGet(stat, "Shield") or ""):lower() == "yes"
-    local delta = shield and -ac or -math.max(0, ac - 10)
-
-    local boosts = U.SafeGet(stat, "Boosts")
-    if type(boosts) ~= "string" then boosts = "" end
-    local updatedBoosts = boosts
-    if delta ~= 0 then
-        local token = "AC(" .. tostring(delta) .. ")"
-        if not boosts:find(token, 1, true) then
-            updatedBoosts = boosts ~= "" and (boosts .. ";" .. token) or token
-        end
-    end
 
     local cfg = DOS2C.Config
     local gain = math.max(0, shield and ac or (ac - 9))
@@ -780,9 +768,6 @@ local function patchArmor(name, stat)
     end
 
     local changed = false
-    if updatedBoosts ~= boosts and U.SafeSet(stat, "Boosts", updatedBoosts) then
-        changed = true
-    end
     if updatedPassives ~= passives and U.SafeSet(stat, "PassivesOnEquip", updatedPassives) then
         changed = true
     end
