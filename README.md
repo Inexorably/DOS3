@@ -22,7 +22,7 @@ difficulty system so it stacks naturally with the other mods.
   `bin` folder) for all Lua-backed mods.
 - BG3 Mod Manager or the in-game Mods menu.
 - Python 3.12 only for the test suite and mod generators.
-- LSLib/`Divine.exe` only for local `.pak` builds.
+- LSLib/`Divine.exe` is downloaded automatically by `scripts/build.sh` if it is missing. Packaging is Windows-oriented.
 
 ## Installation
 
@@ -56,9 +56,10 @@ Install the packaged files:
 ./scripts/install.sh RespecAnywhere
 ```
 
-`EnemyRandomization` regenerates its deterministic champion and loot catalogs
-during `build.sh`. The generators require extracted BG3 data under `.analysis`;
-that directory is intentionally gitignored.
+`build.sh` downloads LSLib into `tools/lslib` automatically if `Divine.exe` is
+missing. `EnemyRandomization` regenerates its deterministic champion and loot
+catalogs during `build.sh`. The generators require extracted BG3 data under
+`.analysis`; that directory is intentionally gitignored.
 
 The generated Enemy Randomization build inputs are committed to the repository
 so GitHub Actions can package the mod without access to extracted BG3 data.

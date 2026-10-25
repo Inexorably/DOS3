@@ -2,16 +2,44 @@
 # Build a mod into dist/<mod>.pak using LSLib.
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -W)"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && { pwd -W 2>/dev/null || pwd; })"
 DIVINE="$ROOT/tools/lslib/Packed/Tools/Divine.exe"
+LSLIB_VERSION="1.20.4"
+LSLIB_URL="https://github.com/Norbyte/lslib/releases/download/v${LSLIB_VERSION}/ExportTool-v${LSLIB_VERSION}.zip"
+LSLIB_DIR="$ROOT/tools/lslib"
+LSLIB_ZIP="$LSLIB_DIR/lslib.zip"
 MOD="${1:-DOS2Combat}"
 SRC="$ROOT/mods/$MOD"
 OUT="$ROOT/dist"
 
 if [[ ! -f "$DIVINE" ]]; then
-    echo "LSLib not found at: $DIVINE" >&2
-    echo "Run: mkdir -p tools/lslib && curl -L https://github.com/Norbyte/lslib/releases/latest/download/ExportTool-v1.20.4.zip -o tools/lslib/lslib.zip && unzip -o tools/lslib/lslib.zip -d tools/lslib" >&2
-    exit 1
+    echo "LSLib not found at: $DIVINE"
+    echo "Downloading LSLib v${LSLIB_VERSION}..."
+    mkdir -p "$LSLIB_DIR"
+
+    if command -v curl >/dev/null 2>&1; then
+        curl -fL --retry 3 --retry-delay 2 "$LSLIB_URL" -o "$LSLIB_ZIP"
+    elif command -v wget >/dev/null 2>&1; then
+        wget -O "$LSLIB_ZIP" "$LSLIB_URL"
+    else
+        echo "curl or wget is required to download LSLib." >&2
+        exit 1
+    fi
+
+    if command -v unzip >/dev/null 2>&1; then
+        unzip -oq "$LSLIB_ZIP" -d "$LSLIB_DIR"
+    elif command -v python >/dev/null 2>&1; then
+        python -m zipfile -e "$LSLIB_ZIP" "$LSLIB_DIR"
+    else
+        echo "unzip or Python is required to extract LSLib." >&2
+        exit 1
+    fi
+
+    if [[ ! -f "$DIVINE" ]]; then
+        echo "LSLib extraction did not produce $DIVINE" >&2
+        exit 1
+    fi
+    echo "LSLib installed at: $LSLIB_DIR"
 fi
 
 mkdir -p "$OUT"

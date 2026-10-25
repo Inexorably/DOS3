@@ -34,7 +34,8 @@ python -m pip install -r requirements-dev.txt
 python scripts/validate-mod.py --all
 ```
 
-Build one mod locally with LSLib (Windows/Git Bash):
+Build one mod locally with LSLib (Windows/Git Bash). `build.sh` downloads LSLib
+into `tools/lslib` automatically when it is missing:
 
 ```bash
 ./scripts/build.sh DOS2Combat
