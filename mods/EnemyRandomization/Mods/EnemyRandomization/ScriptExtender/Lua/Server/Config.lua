@@ -20,9 +20,15 @@ ER.Config = {
     -- templates. Their native weapons and multiattacks still carry source
     -- damage, so apply a level-relative outgoing damage scale as well.
     SUMMON_DAMAGE_SCALE_ENABLED = true,
-    SUMMON_DAMAGE_PER_LEVEL = 0.15,
+    -- Data-derived power curve: (summonLevel / nativeLevel)^0.456. The
+    -- 0.456 exponent is the average of the native weapon-damage exponent
+    -- (0.294) and the square root of the native HP exponent (1.237 / 2).
+    SUMMON_DAMAGE_EXPONENT = 0.456,
+    -- Past these soft knees the curve continues logarithmically instead of
+    -- flattening, so level 3 and level 20 do not receive identical damage.
     SUMMON_DAMAGE_MIN_SCALE = 0.5,
     SUMMON_DAMAGE_MAX_SCALE = 1.5,
+    SUMMON_DAMAGE_SOFT_KNEE = 0.20,
 
     -- Boss tiers are matched primarily against the runtime display name. The
     -- lists intentionally use short lowercase aliases so localized titles and

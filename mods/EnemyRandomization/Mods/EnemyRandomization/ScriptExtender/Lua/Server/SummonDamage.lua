@@ -63,13 +63,21 @@ local function scaleFor(entity)
         and ER.Generated.nativeLevels[base]
     if not level or not native then return 1 end
 
-    local perLevel = tonumber(C.SUMMON_DAMAGE_PER_LEVEL) or 0.15
+    local exponent = tonumber(C.SUMMON_DAMAGE_EXPONENT) or 0.456
     local minScale = tonumber(C.SUMMON_DAMAGE_MIN_SCALE) or 0.5
     local maxScale = tonumber(C.SUMMON_DAMAGE_MAX_SCALE) or 1.5
-    local scale = 1.0 + (level - tonumber(native)) * perLevel
-    if scale < minScale then scale = minScale end
-    if scale > maxScale then scale = maxScale end
-    return scale, stats, level, tonumber(native)
+    local knee = tonumber(C.SUMMON_DAMAGE_SOFT_KNEE) or 0.20
+    local nativeLevel = tonumber(native)
+    if nativeLevel <= 0 or level <= 0 then return 1 end
+
+    local raw = (level / nativeLevel) ^ exponent
+    local scale = raw
+    if raw > maxScale then
+        scale = maxScale + knee * math.log(raw / maxScale)
+    elseif raw < minScale then
+        scale = minScale - knee * math.log(minScale / raw)
+    end
+    return scale, stats, level, nativeLevel
 end
 
 local function scaleDamageList(hit, scale)
