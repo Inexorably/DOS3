@@ -1,7 +1,0 @@
-new entry "EH_SCALED"
-type "StatusData"
-data "StatusType" "BOOST"
-data "DisplayName" "Enemy Health Scaled"
-data "Description" "This enemy has already received the configured health multiplier."
-data "StackId" "EH_SCALED"
-data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"

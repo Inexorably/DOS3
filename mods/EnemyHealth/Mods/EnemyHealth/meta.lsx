@@ -8,7 +8,7 @@
                 <node id="ModuleInfo">
                     <attribute id="Author" type="LSWString" value="Shawn"/>
                     <attribute id="CharacterCreationLevelName" type="FixedString" value=""/>
-                    <attribute id="Description" type="LSWString" value="Increases the base health of all non-party enemies by a configurable multiplier. Works independently or alongside Enemy Randomization and DOS2 Combat Overhaul."/>
+                    <attribute id="Description" type="LSWString" value="Raises the native Tactician health boost from 30% to 100%, doubling enemy base health on Tactician difficulty."/>
                     <attribute id="Folder" type="LSWString" value="EnemyHealth"/>
                     <attribute id="GMTemplate" type="FixedString" value=""/>
                     <attribute id="LobbyLevelName" type="FixedString" value=""/>

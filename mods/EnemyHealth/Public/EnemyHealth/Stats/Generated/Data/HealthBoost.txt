@@ -1,0 +1,8 @@
+-- Increase the native Tactician health boost from +30% to +100%.
+-- This is applied by the engine through DifficultyStatuses, so it does not
+-- need runtime ECS health mutation or save/reload bookkeeping.
+
+new entry "HEALTHBOOST_HARDCORE"
+type "StatusData"
+using "HEALTHBOOST_HARDCORE"
+data "Boosts" "IncreaseMaxHP(100%);RollBonus(Attack,2);SpellSaveDC(2)"
