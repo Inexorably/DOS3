@@ -61,45 +61,33 @@ def set_display_name(node: ET.Element, text_handle: str) -> None:
 
 def build_root_template() -> None:
     source = ET.parse(ROOT_SOURCE).getroot()
-    mage_hand = None
     sphere = None
     for node in source.iter("node"):
         attrs = {a.get("id"): a.get("value") for a in node.findall("./attribute")}
-        if attrs.get("Stats") == "MageHand":
-            mage_hand = node
         if attrs.get("Name") == "Unique_HellSphere":
             sphere = node
-    if mage_hand is None:
-        raise SystemExit("MageHand root template not found")
+            break
     if sphere is None:
-        raise SystemExit("Unique_HellSphere locomotion template not found")
+        raise SystemExit("Unique_HellSphere root template not found")
 
-    # Use MageHand as the behavioural template. MageHand is ignored by enemy
-    # targeting and has the intended summon/portrait/HP behavior. Replace only
-    # its visual asset and movement skills. Rush also needs real locomotion
-    # speeds, which MageHand lacks because it normally uses Projectile_Fly.
-    go = copy.deepcopy(mage_hand)
-    old_locomotion = go.find("./children/node[@id='LocomotionParams']")
-    sphere_locomotion = sphere.find("./children/node[@id='LocomotionParams']")
-    if old_locomotion is not None and sphere_locomotion is not None:
-        child_container = go.find("./children")
-        if child_container is not None:
-            child_container.remove(old_locomotion)
-            child_container.append(copy.deepcopy(sphere_locomotion))
+    # Use the sphere character root because Rush needs real locomotion. MageHand
+    # uses Projectile_Fly and its walk/run locomotion is not sufficient for the
+    # charge action. Strip the hostile Hell Sphere defaults, then add the orb's
+    # own visible invulnerability status.
+    go = copy.deepcopy(sphere)
     child_container = go.find("./children")
     if child_container is not None:
         for child in list(child_container):
-            if child.get("id") in ("SkillList", "OnDeathActions"):
+            if child.get("id") in ("StatusList", "SkillList", "OnDeathActions", "Tags"):
                 child_container.remove(child)
         status_list = ET.SubElement(child_container, "node", {"id": "StatusList"})
         statuses = ET.SubElement(status_list, "children")
-        for status_name in ("INVULNERABLE",):
-            status = ET.SubElement(statuses, "node", {"id": "Status"})
-            ET.SubElement(
-                status,
-                "attribute",
-                {"id": "Object", "type": "FixedString", "value": status_name},
-            )
+        status = ET.SubElement(statuses, "node", {"id": "Status"})
+        ET.SubElement(
+            status,
+            "attribute",
+            {"id": "Object", "type": "FixedString", "value": "INVULNERABLE"},
+        )
     set_attr(go, "MapKey", BALL_GUID)
     # Bake the final small scale into the root. Scaling via a stat boost happens
     # after spawn and causes the model to visibly shrink from its native size.
@@ -199,13 +187,23 @@ data "SpellFlags" "IsHarmful"
 
 new entry "CC_Ball"
 type "Character"
-using "MageHand"
+using "_Summons"
+data "Level" "1"
+data "Strength" "10"
+data "Dexterity" "10"
+data "Constitution" "10"
+data "Intelligence" "10"
+data "Wisdom" "10"
+data "Charisma" "10"
+data "Armor" "10"
+data "Vitality" "3"
+data "Weight" "0.1"
+data "GameSize" "Tiny"
+data "Flags" "Floating;InvulnerableAndInteractive"
+data "PersonalStatusImmunities" "SILENCED;BLEEDING;GAPING_WOUND;CHEST_TRAUMA;SHOCKED;BURNING;SG_Condition;CRIPPLED;WILD_MAGIC_BURNING"
 data "ActionResources" "ActionPoint:1;BonusActionPoint:1;Movement:9"
 data "DefaultBoosts" "BlockRegainHP(Undead;Construct;Living);UnlockSpell(CC_BallCharge);StatusImmunity(SG_Blinded);StatusImmunity(SG_Charmed);StatusImmunity(SG_Condition);StatusImmunity(SG_Cursed);StatusImmunity(SG_DifficultTerrain);StatusImmunity(SG_Disease);StatusImmunity(SG_Exhausted);StatusImmunity(SG_Fleeing);StatusImmunity(SG_Frightened);StatusImmunity(SG_Incapacitated);StatusImmunity(SG_Paralyzed);StatusImmunity(SG_Petrified);StatusImmunity(SG_Poisoned);StatusImmunity(SG_Polymorph);StatusImmunity(SG_Possessed);StatusImmunity(SG_Prone);StatusImmunity(SG_Restrained);StatusImmunity(SG_Sleeping);StatusImmunity(SG_Sleeping_Magical);StatusImmunity(SG_Stunned);StatusImmunity(SG_Surface);StatusImmunity(SG_Unconscious)"
-data "BludgeoningResistance" "None"
-data "SlashingResistance" "None"
-data "PiercingResistance" "None"
-data "PsychicResistance" "None"
+data "Passives" "DarknessRules;ShortResting"
 data "DifficultyStatuses" "STATUS_EASY:PLAYER_BONUSES_EASYMODE"
 ''',
         encoding="utf-8",
