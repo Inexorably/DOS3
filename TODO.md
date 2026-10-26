@@ -435,3 +435,8 @@ Known DOS2 visual references for the current test spells:
 - [x] Keep `!respec` as a host-side console fallback.
 - [ ] Verify the hotbar spell and `!respec` command open the native respec UI
       in-game, including multiplayer caster routing.
+
+## Custom Classes
+
+- [ ] Create an alternate orb visual asset with the red/orange portions
+      recolored blue/purple.

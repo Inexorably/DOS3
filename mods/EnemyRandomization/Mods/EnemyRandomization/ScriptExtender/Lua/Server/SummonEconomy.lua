@@ -55,6 +55,20 @@ local function applyStatus(guid, status, turns)
     return ok
 end
 
+local function ensureLethargic(guid)
+    local status = CFG.SUMMON_LETHARGIC_STATUS
+    local turns = tonumber(CFG.SUMMON_LETHARGIC_TURNS) or 1
+    if not status then return false end
+    if hasStatus(guid, status) then return true end
+    applyStatus(guid, status, turns)
+    if hasStatus(guid, status) then
+        log("summon lethargic applied: %s", tostring(guid))
+        return true
+    end
+    log("summon lethargic NOT applied: %s status=%s", tostring(guid), tostring(status))
+    return false
+end
+
 local function entryList(value)
     if value == nil then return nil end
     if type(value) == "table" then return value end
@@ -177,8 +191,22 @@ local function markSummon(entity)
         return true
     end
 
+    -- Do not set the permanent economy marker until lethargic actually lands.
+    -- Some summons (notably Steel Watch constructs) can miss the initial
+    -- SummonCreatedEvent or reject a status during creation; retry and let the
+    -- turn-start fallback repair them.
+    if not ensureLethargic(guid) then
+        if Ext and Ext.Timer and Ext.Timer.WaitFor then
+            for _, delay in ipairs({ 250, 1000, 3000 }) do
+                Ext.Timer.WaitFor(delay, function()
+                    markSummon(entity)
+                end)
+            end
+        end
+        return false
+    end
+
     applyStatus(guid, CFG.SUMMON_ECONOMY_MARKER, -1)
-    applyStatus(guid, CFG.SUMMON_LETHARGIC_STATUS, tonumber(CFG.SUMMON_LETHARGIC_TURNS) or 1)
     setAP(entity, CFG.SUMMON_AP_MAX, CFG.SUMMON_AP_MAX)
 
     -- DOS2Combat's AP passive/watchdog can run after the summon event. Re-cap
@@ -211,6 +239,13 @@ local function onTurnStarted(character)
     local entity = entityOf(character)
     local guid = entity and guidOf(entity)
     if not (entity and guid) then return end
+    if not isGeneratedSummon(entity) then return end
+
+    -- Fallback for summons that missed SummonCreatedEvent (Steel Watch has
+    -- been observed doing this). Apply lethargic before their first turn.
+    if not hasStatus(guid, CFG.SUMMON_ECONOMY_MARKER) then
+        markSummon(entity)
+    end
     if not hasStatus(guid, CFG.SUMMON_ECONOMY_MARKER) then return end
 
     -- Run after DOS2Combat's TurnStarted AP assignment.
