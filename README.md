@@ -457,9 +457,11 @@ is the **Summon Ball** cantrip:
 - Summons a tiny persistent sphere body using the Black Hole visual overlay at
   one-third of its previous size. The body supplies a portrait and stays
   visible; the native Black Hole cast effect is transient.
-- It uses `Vitality -1`, `Invulnerable()`, and `InvulnerableAndInteractive` so
-  it has no normal HP bar and behaves like a utility summon rather than a
-  combatant enemies should target.
+- It uses Mage Hand-like HP with `Invulnerable()` and
+  `InvulnerableAndInteractive` so it behaves like a utility summon rather than
+  a combatant enemies should target. A literal `Vitality -1` caused the summon
+  to despawn immediately, so the orb keeps the same 3 HP baseline as Mage
+  Hand.
 - The final small scale is baked into the root template, so it starts small
   instead of spawning large and shrinking.
 - The Charge action clears its inherited long animation and target-hit delay.
