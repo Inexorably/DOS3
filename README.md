@@ -150,6 +150,24 @@ The chart shows the AC-to-reduction mapping.
 - Damage ranges are compressed toward their average rather than fully
   flattened.
 
+### Casting ability scaling
+
+The caster's spellcasting ability adds a **flat damage bonus** equal to
+`max(0, SpellCastingAbilityModifier)` to qualifying spell damage events. The
+bonus is not scaled by spell level:
+
+```text
+Ability score:  10  12  14  16  18  20  24
+Added damage:    0  +1  +2  +3  +4  +5  +7
+```
+
+Scores of 8–11 add nothing. Because the bonus is flat, its relative impact is
+much larger on low-base-damage spells and cantrips than on high-level spells.
+Multi-hit spells can receive the bonus once per hit. The bonus is also mirrored
+into native damage tooltips as an extra `DealDamage(...)` entry.
+
+![Spell damage from casting ability](docs/spell-ability-damage.png)
+
 ### Surfaces
 
 DOS2Combat keeps BG3's native surface visuals and terrain system, and adds a
