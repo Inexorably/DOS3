@@ -183,6 +183,8 @@ local function isGeneratedSummon(entity)
     return stats ~= nil and stats:match("^ENR_") ~= nil and stats:match("_L%d+$") ~= nil
 end
 
+local lethargicRetryScheduled = {}
+
 local function markSummon(entity)
     local guid = guidOf(entity)
     if not guid or not isGeneratedSummon(entity) then return false end
@@ -196,15 +198,18 @@ local function markSummon(entity)
     -- SummonCreatedEvent or reject a status during creation; retry and let the
     -- turn-start fallback repair them.
     if not ensureLethargic(guid) then
-        if Ext and Ext.Timer and Ext.Timer.WaitFor then
+        if not lethargicRetryScheduled[guid] and Ext and Ext.Timer and Ext.Timer.WaitFor then
+            lethargicRetryScheduled[guid] = true
             for _, delay in ipairs({ 250, 1000, 3000 }) do
                 Ext.Timer.WaitFor(delay, function()
+                    lethargicRetryScheduled[guid] = nil
                     markSummon(entity)
                 end)
             end
         end
         return false
     end
+    lethargicRetryScheduled[guid] = nil
 
     applyStatus(guid, CFG.SUMMON_ECONOMY_MARKER, -1)
     setAP(entity, CFG.SUMMON_AP_MAX, CFG.SUMMON_AP_MAX)
