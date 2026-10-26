@@ -51,6 +51,11 @@
 - [x] Remove native attack rolls entirely (`REMOVE_ATTACK_ROLLS = true`) and do
       not add a baseline accuracy boost.
 - [x] Keep saving throws removed; unwrap saving-throw-only effect gates.
+- [x] Saving-throw spells such as `Target_Slow` now clear `SpellRoll` and
+      `TooltipAttackSave`; `SpellSuccess` applies unconditionally. Added a
+      source-level regression test.
+- [ ] Verify `Slow` shows no Wisdom save and applies its status reliably
+      in-game.
 - [x] Convert AC from gear, spells, passives, and enemy native AC into one
       percentage damage-reduction value.
 - [x] Convert native attack-roll advantage/disadvantage statuses and passives

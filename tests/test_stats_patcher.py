@@ -180,6 +180,62 @@ class StatsPatcherSmokeTests(unittest.TestCase):
         self.assertEqual(lua.eval("spell.UseCosts"), "ActionPoint:3")
         self.assertIn("1d20+21", lua.eval("spell.SpellProperties"))
 
+    def test_saving_throw_spell_loses_save(self):
+        lua = lua_runtime()
+        root = MODS / "DOS2Combat" / "Mods" / "DOS2Combat" / "ScriptExtender" / "Lua"
+        for relative in (
+            "Shared/ArmorFormula.lua",
+            "Server/Config.lua",
+            "Server/Util.lua",
+            "Server/StatsPatcher.lua",
+        ):
+            run_lua_file(lua, root / relative)
+
+        lua.execute(
+            """
+            local spell = {
+                Level = 3,
+                UseCosts = "ActionPoint:1;SpellSlotsGroup:1:1:3",
+                DualWieldingUseCosts = "",
+                SpellRoll = "not SavingThrow(Ability.Wisdom, SourceSpellDC())",
+                SpellProperties = "",
+                SpellSuccess = "ApplyStatus(SLOW,100,10)",
+                SpellFail = "ApplyStatus(SAVED_AGAINST_HOSTILE_SPELL,100,0)",
+                TooltipAttackSave = "Wisdom",
+                TooltipOnSave = "",
+                TooltipDamageList = "",
+                DescriptionParams = "",
+                ExtraDescriptionParams = "",
+                TooltipUpcastDescriptionParams = "",
+                Cooldown = "OncePerCombat",
+                RechargeValues = "",
+                SpellFlags = "",
+                ConcentrationSpellID = "",
+            }
+            function spell:SetRawAttribute(key, value)
+                self[key] = value
+                return true
+            end
+            function spell:Sync() end
+            Ext.Stats = {
+                GetStats = function(kind)
+                    if kind == "SpellData" then return { "Target_Slow" } end
+                    return {}
+                end,
+                Get = function(name)
+                    if name == "Target_Slow" then return spell end
+                    return nil
+                end,
+            }
+            DOS2C.Stats.PatchAll(false)
+            _G.spell = spell
+            """
+        )
+
+        self.assertEqual(lua.eval("tostring(spell.SpellRoll or '')"), "")
+        self.assertEqual(lua.eval("tostring(spell.TooltipAttackSave or '')"), "")
+        self.assertEqual(lua.eval("spell.SpellSuccess"), "ApplyStatus(SLOW,100,10)")
+
 
 if __name__ == "__main__":
     unittest.main()
