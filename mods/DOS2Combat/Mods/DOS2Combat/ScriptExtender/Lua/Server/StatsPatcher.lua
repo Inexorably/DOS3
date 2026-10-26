@@ -525,7 +525,10 @@ local function splitTooltipArgs(text)
 end
 
 local function castingScaleToken(cfg)
-    local perPoint = tonumber(cfg.CASTING_ABILITY_DAMAGE_PER_MODIFIER) or 0.05
+    local perPoint = tonumber(cfg.CASTING_ABILITY_DAMAGE_PER_MODIFIER) or (1 / 7)
+    if math.abs(perPoint - (1 / 7)) < 1e-9 then
+        return "(1+max(0,SpellCastingAbilityModifier)/7)"
+    end
     return "(1+" .. tostring(perPoint) .. "*max(0,SpellCastingAbilityModifier))"
 end
 

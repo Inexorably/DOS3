@@ -44,6 +44,11 @@ local function isSpellDamage(hit)
         or cause == 5 or cause == 8 or cause == 9 then
         return false
     end
+
+    -- Weapon and item damage already use their own Strength/Dexterity or
+    -- weapon-specific scaling; do not stack the spellcasting multiplier on it.
+    local hitWith = tonumber(hit.HitWith) or 0
+    if hitWith == 1 or hitWith == 3 then return false end
     return true
 end
 
@@ -116,7 +121,7 @@ function C.OnDamage(ev)
     local modifier = castingModifier(caster)
     if modifier <= 0 then return end
 
-    local perPoint = tonumber(cfg.CASTING_ABILITY_DAMAGE_PER_MODIFIER) or 0.05
+    local perPoint = tonumber(cfg.CASTING_ABILITY_DAMAGE_PER_MODIFIER) or (1 / 7)
     local multiplier = 1 + perPoint * modifier
     local changed = scaleDamage(ev.Hit, multiplier)
     if changed ~= 0 then

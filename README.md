@@ -156,18 +156,22 @@ The caster's spellcasting ability applies a **relative damage multiplier** to
 qualifying spell damage events:
 
 ```text
-multiplier = 1 + 0.05 × max(0, SpellCastingAbilityModifier)
+multiplier = 1 + max(0, SpellCastingAbilityModifier) / 7
 ```
 
 ```text
-Ability score:   10  12  14  16  18  20  24
-Damage increase:  0%  +5% +10% +15% +20% +25% +35%
+Ability score:   10  12  14  16  18  20  22  24
+Damage increase:  0% +14% +29% +43% +57% +71% +86% +100%
 ```
 
 Scores of 8–11 add nothing. The same percentage is applied to each qualifying
 hit, so multi-hit and single-hit spells gain the same relative amount regardless
 of their base damage. The multiplier is applied server-side and the native
 tooltip damage expressions are scaled to match.
+
+Weapon and item damage are not multiplied by the casting ability. Those hits
+already use Strength/Dexterity (or their own weapon-specific scaling), so the
+casting multiplier is skipped when the hit is a weapon or item hit.
 
 ![Spell damage from casting ability](docs/spell-ability-damage.png)
 
