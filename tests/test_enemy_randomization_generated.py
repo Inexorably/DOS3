@@ -91,6 +91,23 @@ class GeneratedEnemyRandomizationTests(unittest.TestCase):
         data = self.stats["ENR_CHAMPION_MONSTROSITIES"]
         self.assertEqual(data.get("Icon"), "Action_Monster_Bulette_Bite")
 
+    def test_champion_spell_scaling_data_is_generated(self):
+        scaling_path = (
+            MOD_DIR
+            / "Mods"
+            / "EnemyRandomization"
+            / "ScriptExtender"
+            / "Lua"
+            / "Server"
+            / "GeneratedSpellScaling.lua"
+        )
+        text = read(scaling_path)
+        self.assertIn("[1] = 1", text)
+        self.assertIn("[12] = 6", text)
+        self.assertIn("[6] = 35.000", text)
+        self.assertIn("expectedMaxByLevel", text)
+        self.assertIn("damageByLevel", text)
+
     def test_generated_buff_pool_is_larger_than_old_fallback(self):
         block = re.search(r"buffs = \{(.*?)\n  \},", self.generated, re.S)
         self.assertIsNotNone(block)

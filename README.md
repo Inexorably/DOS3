@@ -297,6 +297,12 @@ There are two champion families:
 - **Summoning champions** grant themed summon skills and use generated
   per-level characters and root templates.
 - **Non-summoning champions** grant statuses, passives, and spells directly.
+  Granting a high-level native spell does not grant its full native damage:
+  champion spell damage is scaled by spell level against the normal BG3
+  full-caster spell access for the caster's character level. The generated
+  `GeneratedSpellScaling.lua` table derives the spell-damage curve from native
+  `SpellData` damage dice; for example, a level-1 champion using a level-6
+  spell uses the level-1 access tier rather than level-6 damage.
 
 Summoning themes include Dinosaurs, Spiders, Goblins, Ogres, Hell, Steel Watch,
 Dragons, Gnolls, Mind Flayers, Bugbears, Redcaps, Constructs, Monstrosities,

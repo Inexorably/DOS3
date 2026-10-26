@@ -408,6 +408,10 @@ Known DOS2 visual references for the current test spells:
 
 ## Summon economy
 
+- [ ] Apply the same data-driven spell-level access scaling to damage dealt by
+      champions' summoned creatures. Use the summon's source spell level and
+      the summoner/champion level, then verify it in-game.
+
 - [x] Change summoned enemies to **3 AP per turn instead of 4**, and spawn
       them with the **lethargic** status so their first turn is effectively a
       setup/wait turn.

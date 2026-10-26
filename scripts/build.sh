@@ -59,6 +59,7 @@ if [[ "$MOD" == "EnemyRandomization" ]]; then
         echo "Regenerating Enemy Randomization loot and champion catalogs"
         (cd "$ROOT" && python scripts/generate-enr-loot.py)
         (cd "$ROOT" && python scripts/generate-enr-champions.py)
+        (cd "$ROOT" && python scripts/generate-enr-spell-scaling.py)
     fi
 fi
 
