@@ -37,11 +37,13 @@ class CustomClassesTests(unittest.TestCase):
         ball = chars["CC_Ball"]
 
         self.assertIn("Movement:0", ball["ActionResources"])
-        self.assertEqual(ball.get("Vitality"), "3")
-        self.assertIn("InvulnerableAndInteractive", ball.get("Flags", ""))
-        self.assertIn("Invulnerable()", ball["DefaultBoosts"])
+        self.assertNotIn("Vitality", ball)
+        self.assertNotIn("Flags", ball)
+        self.assertNotIn("Invulnerable", ball["DefaultBoosts"])
         self.assertNotIn("ScaleMultiplier", ball["DefaultBoosts"])
         self.assertIn("UnlockSpell(CC_BallCharge)", ball["DefaultBoosts"])
+        characters = read(data / "Characters.txt")
+        self.assertIn('using "MageHand"', characters)
 
     def test_generated_root_and_localization_exist(self):
         root = MODS / "CustomClasses/Public/CustomClasses/RootTemplates/_merged.lsf"

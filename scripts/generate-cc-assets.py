@@ -61,23 +61,23 @@ def set_display_name(node: ET.Element, text_handle: str) -> None:
 
 def build_root_template() -> None:
     source = ET.parse(ROOT_SOURCE).getroot()
-    sphere = None
+    mage_hand = None
     for node in source.iter("node"):
         attrs = {a.get("id"): a.get("value") for a in node.findall("./attribute")}
-        if attrs.get("Name") == "Unique_HellSphere":
-            sphere = node
+        if attrs.get("Stats") == "MageHand":
+            mage_hand = node
             break
-    if sphere is None:
-        raise SystemExit("Unique_HellSphere root template not found")
+    if mage_hand is None:
+        raise SystemExit("MageHand root template not found")
 
-    go = copy.deepcopy(sphere)
-    # The source Hell Sphere carries a default LOW_HOH_HELLSPHERE status, native
-    # AI skills, death effects, and tags. Strip those so the orb is a clean
-    # player-controlled summon rather than a hostile Hell Sphere.
+    # Use MageHand as the behavioural template. MageHand is ignored by enemy
+    # targeting and has the intended summon/portrait/HP behavior. Replace only
+    # its visual asset and strip its movement/interaction skill list.
+    go = copy.deepcopy(mage_hand)
     child_container = go.find("./children")
     if child_container is not None:
         for child in list(child_container):
-            if child.get("id") in ("StatusList", "SkillList", "OnDeathActions", "Tags"):
+            if child.get("id") in ("SkillList", "OnDeathActions"):
                 child_container.remove(child)
     set_attr(go, "MapKey", BALL_GUID)
     # Bake the final small scale into the root. Scaling via a stat boost happens
@@ -85,9 +85,8 @@ def build_root_template() -> None:
     set_attr(go, "Scale", "0.222222", "float")
     set_attr(go, "Name", "CC_Ball")
     set_attr(go, "Stats", "CC_Ball")
+    set_attr(go, "CharacterVisualResourceID", "512df42e-6b0b-5561-2381-f30794fa5ef9")
     set_attr(go, "VisualTemplate", BLACK_HOLE_VISUAL)
-    # Keep the source character visual for a persistent body and portrait; the
-    # Black Hole effect is only a transient visual template.
     set_attr(go, "Icon", "Portrait_Creature_FlamingSphere")
     set_attr(go, "GeneratePortrait", "")
     set_display_name(go, handle("CC_Ball/name"))
@@ -179,25 +178,9 @@ data "SpellFlags" "IsHarmful"
 
 new entry "CC_Ball"
 type "Character"
-using "_Summons"
-data "Level" "1"
-data "Strength" "10"
-data "Dexterity" "10"
-data "Constitution" "10"
-data "Intelligence" "10"
-data "Wisdom" "10"
-data "Charisma" "10"
-data "Armor" "10"
-data "Vitality" "3"
-data "Weight" "0.1"
-data "GameSize" "Tiny"
-data "Flags" "Floating;InvulnerableAndInteractive"
-data "PersonalStatusImmunities" "SILENCED;BLEEDING;GAPING_WOUND;CHEST_TRAUMA;SHOCKED;BURNING;SG_Condition;CRIPPLED;WILD_MAGIC_BURNING"
+using "MageHand"
 data "ActionResources" "ActionPoint:1;BonusActionPoint:1;Movement:0"
-data "DefaultBoosts" "DialogueBlock();BlockRegainHP(Undead;Construct;Living);Invulnerable();UnlockSpell(CC_BallCharge)"
-data "Passives" "DarknessRules;ShortResting"
-data "BludgeoningResistance" "Resistant"
-data "SlashingResistance" "Resistant"
+data "DefaultBoosts" "BlockRegainHP(Undead;Construct;Living);UnlockSpell(CC_BallCharge)"
 data "PiercingResistance" "Resistant"
 data "PsychicResistance" "Immune"
 data "DifficultyStatuses" "STATUS_EASY:PLAYER_BONUSES_EASYMODE"

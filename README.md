@@ -457,13 +457,12 @@ is the **Summon Ball** cantrip:
 - Summons a tiny persistent sphere body using the Black Hole visual overlay at
   one-third of its previous size. The body supplies a portrait and stays
   visible; the native Black Hole cast effect is transient.
-- It uses Mage Hand-like HP with `Invulnerable()` and
-  `InvulnerableAndInteractive` so it behaves like a utility summon rather than
-  a combatant enemies should target. A literal `Vitality -1` caused the summon
-  to despawn immediately, so the orb keeps the same 3 HP baseline as Mage
-  Hand.
-- The final small scale is baked into the root template, so it starts small
-  instead of spawning large and shrinking.
+- `CC_Ball` inherits directly from `MageHand` for the summon behavior and
+  targeting rules. The mod only removes natural movement, adds the Charge
+  action, replaces the visual with the Black Hole overlay, and bakes the small
+  scale into the root.
+- The root starts at its final small scale instead of spawning large and
+  shrinking.
 - The Charge action clears its inherited long animation and target-hit delay.
 - The Hell Sphere default status, AI skill list, death effects, and tags are
   stripped from the cloned root.
