@@ -21,8 +21,6 @@ ER.Config = {
     -- status so their first turn is a setup/wait turn.
     SUMMON_AP_MAX = 3,
     SUMMON_ECONOMY_MARKER = "ENR_SUMMON_ECONOMY",
-    SUMMON_LETHARGIC_STATUS = "HASTE_LETHARGY",
-    SUMMON_LETHARGIC_TURNS = 1,
 
     -- Summoned enemies scale HP/armor through their generated Character
     -- templates. Their native weapons and multiattacks still carry source
@@ -84,13 +82,10 @@ ER.Config = {
         MAJOR_BOSS = 3,
         BOSS = 2,
     },
-    CHAMPIONS = (ER.Generated and ER.Generated.champions) or {
-        {
-            status = "ENR_CHAMPION_DINOSAURS",
-            spells = { "ENR_Summon_ChultAlioramus", "ENR_Summon_Crimson" },
-            weight = 1,
-        },
-    },
+    -- GeneratedData.lua is the single source of truth for the champion roster.
+    -- Do not fall back to a hand-maintained dinosaur-only list: partial startup
+    -- data must not silently disable every other summoning champion.
+    CHAMPIONS = (ER.Generated and ER.Generated.champions) or {},
 
     -- A hidden persistent status marks enemies that were already randomized.
     -- This is what prevents rerolls after save/reload mid-combat and keeps

@@ -73,6 +73,18 @@ local function setRuntimeDisplayName(entity, guid, text)
     return applied
 end
 
+-- Refresh cached AC-derived reduction for every character. Equipment changes
+-- do not reliably fire an event exposed to BG3SE, so the polling loop below
+-- keeps the hover readout current after equipping/spawning gear.
+function S.RefreshAll()
+    for _, entity in ipairs(armorEntities()) do
+        if entity.Health then
+            local guid = U.GuidOf(entity)
+            if guid then pcall(A.Refresh, guid, true) end
+        end
+    end
+end
+
 function S.Snapshot(applyNames)
     local parts = {}
     local named = 0
@@ -109,6 +121,10 @@ end
 
 function S.Broadcast(force)
     if not (Ext.Net and Ext.Net.BroadcastMessage) then return end
+    -- Equipment can change outside combat/turn boundaries. Refresh the cached
+    -- AC-derived reduction before every snapshot so the hover widget follows
+    -- newly equipped gear.
+    S.RefreshAll()
     local payload = S.Snapshot(false)
     if not force and payload == lastPayload then return end
     lastPayload = payload
@@ -124,16 +140,32 @@ if Ext.Osiris and Ext.Osiris.RegisterListener then
     end)
 end
 
+local pollingStarted = false
+
+function S.StartPolling()
+    if pollingStarted or not (Ext.Timer and Ext.Timer.WaitFor) then return end
+    pollingStarted = true
+    local function poll()
+        S.RefreshAll()
+        local ok, err = pcall(S.Broadcast, false)
+        if not ok then U.Log("armor sync poll failed: %s", tostring(err)) end
+        Ext.Timer.WaitFor(2000, poll)
+    end
+    poll()
+end
+
 if Ext.Events and Ext.Events.SessionLoaded then
     Ext.Events.SessionLoaded:Subscribe(function()
         lastPayload = nil
         if Ext.Timer and Ext.Timer.WaitFor then
             for _, delay in ipairs({ 500, 1500, 3000, 6000, 12000 }) do
                 Ext.Timer.WaitFor(delay, function()
+                    S.RefreshAll()
                     local ok, err = pcall(S.Broadcast, true)
                     if not ok then U.Log("armor sync timer failed: %s", tostring(err)) end
                 end)
             end
         end
+        Ext.Timer.WaitFor(500, S.StartPolling)
     end)
 end

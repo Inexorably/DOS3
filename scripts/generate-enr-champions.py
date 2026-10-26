@@ -615,6 +615,7 @@ def load_character_stats():
                 'abilities': abilities,
                 'vitality': vitality,
                 'armor': armor,
+                'passives': data.get('Passives', ''),
             }
     return resolved
 
@@ -823,6 +824,10 @@ def build_stats_and_loca(guids, stats_by_tag):
                 ]
                 for ability, value in zip(ABILITIES, band['abilities'], strict=True):
                     lines.append('data "%s" "%d"' % (ability, value))
+                passives = base.get('passives') or ''
+                if 'ENR_SummonLethargic' not in passives:
+                    passives = (passives + ';' if passives else '') + 'ENR_SummonLethargic'
+                lines.append('data "Passives" "%s"' % passives)
                 lines.append('')
 
     # Summon spells.
@@ -852,6 +857,17 @@ def build_stats_and_loca(guids, stats_by_tag):
                 'data "PositionEffect" "4f0091aa-4560-42c8-9372-a6ce061eebd8"',
                 '',
             ]
+
+    # Every generated summon receives this passive. OnCreate applies the
+    # native lethargic status once at spawn, independent of runtime events.
+    lines += [
+        'new entry "ENR_SummonLethargic"',
+        'type "PassiveData"',
+        'data "Properties" "IsHidden"',
+        'data "StatsFunctorContext" "OnCreate"',
+        'data "StatsFunctors" "ApplyStatus(SELF,HASTE_LETHARGY,100,1)"',
+        '',
+    ]
 
     # Champion status conditions.
     for champion in ALL_CHAMPIONS:

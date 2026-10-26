@@ -74,10 +74,9 @@ local function onSummonCreated(eventEntity)
         -- values. HP and armor are the level-scaled parts of the generated
         -- Character stat. Repair only if the engine failed to apply the
         -- generated ability array, not to apply a second level offset.
-        local base = (generated.abilities and generated.abilities[statsKey])
-            or { 19, 13, 17, 2, 12, 5 }
+        local base = generated.abilities and generated.abilities[statsKey]
         local changed = false
-        if summon.Stats and summon.Stats.Abilities then
+        if base and summon.Stats and summon.Stats.Abilities then
             for i = 1, 6 do
                 local expected = base[i]
                 if abilities[i] ~= expected then
@@ -95,6 +94,8 @@ local function onSummonCreated(eventEntity)
                 log("summon ability repair: %s -> %s", table.concat(abilities, ","),
                     table.concat(repaired, ","))
             end
+        elseif not base then
+            log("summon ability repair skipped: no generated ability entry for %s", tostring(statsKey))
         end
     end
 

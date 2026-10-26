@@ -306,9 +306,10 @@ Wild, and the Sun.
 
 Summon skills currently cost **4 AP** and have a **5-turn cooldown**. Cooldowns
 are per caster and enforced by removing/re-granting the summon skill while the
-cooldown is active. Summoned enemies use a separate **3 AP per turn** economy
-and spawn with BG3's **lethargic** status, so their first turn is a setup/wait
-turn.
+cooldown is active. Summoned enemies use a separate **3 AP per turn** economy.
+Every generated summon Character block carries the `ENR_SummonLethargic`
+OnCreate passive, which applies BG3's **lethargic** status at spawn regardless
+of which summon-created event fires.
 
 ### Champion chance
 

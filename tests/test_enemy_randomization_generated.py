@@ -72,6 +72,21 @@ class GeneratedEnemyRandomizationTests(unittest.TestCase):
                 with self.subTest(spell=name):
                     self.assertEqual(data.get("UseCosts"), "ActionPoint:4")
 
+    def test_every_generated_summon_has_lethargic_passive(self):
+        passive = self.stats.get("ENR_SummonLethargic")
+        self.assertIsNotNone(passive)
+        self.assertEqual(passive.get("StatsFunctorContext"), "OnCreate")
+        self.assertIn("HASTE_LETHARGY", passive.get("StatsFunctors", ""))
+
+        missing = []
+        for tag in self.native_levels:
+            for level in range(1, 21):
+                name = f"{tag}_L{level}"
+                data = self.stats.get(name)
+                if data is None or "ENR_SummonLethargic" not in data.get("Passives", ""):
+                    missing.append(name)
+        self.assertEqual(missing, [])
+
     def test_monstrosities_champion_has_valid_icon(self):
         data = self.stats["ENR_CHAMPION_MONSTROSITIES"]
         self.assertEqual(data.get("Icon"), "Action_Monster_Bulette_Bite")

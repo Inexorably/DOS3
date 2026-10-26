@@ -112,7 +112,9 @@ Both skills:
 
 - Cost `4` AP.
 - Have a `5` turn numeric cooldown enforced by `Server/SummonCooldown.lua`.
-- Summoned actors use 3 AP per turn and spawn with `HASTE_LETHARGY`
+- Summoned actors use 3 AP per turn and spawn with `HASTE_LETHARGY`.
+  This is part of every generated Character block through the hidden
+  `ENR_SummonLethargic` `OnCreate` passive, not a runtime event retry.
   (`Server/SummonEconomy.lua`).
 - Use distinct summon stack IDs:
   - `ENR_DinoAlioramusStack`

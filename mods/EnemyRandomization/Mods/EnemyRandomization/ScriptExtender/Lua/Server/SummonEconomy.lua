@@ -1,8 +1,9 @@
 -- Summoned-enemy AP economy.
 --
--- Generated Enemy Randomization summons use a reduced 3 AP pool and spawn
--- with BG3's lethargic status. The status is applied once at spawn; the AP cap
--- is reapplied after DOS2Combat's normal turn-start AP patch.
+-- Generated Enemy Randomization summons use a reduced 3 AP pool. Lethargic
+-- is applied by the generated ENR_SummonLethargic OnCreate passive, so it works
+-- for every summon regardless of which creation event fires. This module only
+-- owns the AP cap and its marker.
 
 ER = ER or {}
 ER.SummonEconomy = ER.SummonEconomy or {}
@@ -53,20 +54,6 @@ local function applyStatus(guid, status, turns)
     local ok, err = pcall(Osi.ApplyStatus, guid, status, turns, 1)
     if not ok then log("summon status %s failed: %s", tostring(status), tostring(err)) end
     return ok
-end
-
-local function ensureLethargic(guid)
-    local status = CFG.SUMMON_LETHARGIC_STATUS
-    local turns = tonumber(CFG.SUMMON_LETHARGIC_TURNS) or 1
-    if not status then return false end
-    if hasStatus(guid, status) then return true end
-    applyStatus(guid, status, turns)
-    if hasStatus(guid, status) then
-        log("summon lethargic applied: %s", tostring(guid))
-        return true
-    end
-    log("summon lethargic NOT applied: %s status=%s", tostring(guid), tostring(status))
-    return false
 end
 
 local function entryList(value)
@@ -183,8 +170,6 @@ local function isGeneratedSummon(entity)
     return stats ~= nil and stats:match("^ENR_") ~= nil and stats:match("_L%d+$") ~= nil
 end
 
-local lethargicRetryScheduled = {}
-
 local function markSummon(entity)
     local guid = guidOf(entity)
     if not guid or not isGeneratedSummon(entity) then return false end
@@ -192,24 +177,6 @@ local function markSummon(entity)
         setAPMax(entity, CFG.SUMMON_AP_MAX)
         return true
     end
-
-    -- Do not set the permanent economy marker until lethargic actually lands.
-    -- Some summons (notably Steel Watch constructs) can miss the initial
-    -- SummonCreatedEvent or reject a status during creation; retry and let the
-    -- turn-start fallback repair them.
-    if not ensureLethargic(guid) then
-        if not lethargicRetryScheduled[guid] and Ext and Ext.Timer and Ext.Timer.WaitFor then
-            lethargicRetryScheduled[guid] = true
-            for _, delay in ipairs({ 250, 1000, 3000 }) do
-                Ext.Timer.WaitFor(delay, function()
-                    lethargicRetryScheduled[guid] = nil
-                    markSummon(entity)
-                end)
-            end
-        end
-        return false
-    end
-    lethargicRetryScheduled[guid] = nil
 
     applyStatus(guid, CFG.SUMMON_ECONOMY_MARKER, -1)
     setAP(entity, CFG.SUMMON_AP_MAX, CFG.SUMMON_AP_MAX)
@@ -223,8 +190,7 @@ local function markSummon(entity)
             end)
         end
     end
-    log("summon economy applied: %s AP=%d lethargic=%d", guid,
-        tonumber(CFG.SUMMON_AP_MAX) or 3, tonumber(CFG.SUMMON_LETHARGIC_TURNS) or 1)
+    log("summon economy applied: %s AP=%d", guid, tonumber(CFG.SUMMON_AP_MAX) or 3)
     return true
 end
 
@@ -246,8 +212,8 @@ local function onTurnStarted(character)
     if not (entity and guid) then return end
     if not isGeneratedSummon(entity) then return end
 
-    -- Fallback for summons that missed SummonCreatedEvent (Steel Watch has
-    -- been observed doing this). Apply lethargic before their first turn.
+    -- Fallback for summons that missed SummonCreatedEvent. Lethargic already
+    -- comes from the OnCreate passive; this only establishes the AP cap.
     if not hasStatus(guid, CFG.SUMMON_ECONOMY_MARKER) then
         markSummon(entity)
     end

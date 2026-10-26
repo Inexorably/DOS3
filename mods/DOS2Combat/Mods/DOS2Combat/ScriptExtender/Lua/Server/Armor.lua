@@ -29,26 +29,6 @@ local function removeLegacyNoDodge(handle)
     pcall(Osi.RemoveStatus, guid, "DOS2C_NoDodge")
 end
 
--- Native AC is only armor now. Apply the hidden AC suppression after caching
--- the original AC so Barkskin/Mage Armor/etc. cannot leak into hit chance even
--- if a spell still carries an attack-roll expression.
-local function suppressHitChanceAC(handle)
-    local cfg = DOS2C.Config
-    if not (cfg.REMOVE_ATTACK_ROLLS or cfg.REMOVE_SAVING_THROWS) then return false end
-    local guid = U.GuidOf(handle)
-    if not guid or not (Osi and Osi.ApplyStatus) then return false end
-    if hasStatus(guid, "DOS2C_NoDodge") then return true end
-    local ok = pcall(Osi.ApplyStatus, guid, "DOS2C_NoDodge", -1, 1)
-    if not ok then
-        -- Status application is the normal path. The live component setters
-        -- are a fallback only, so the two mechanisms do not fight each other.
-        if Osi.SetArmorClass then pcall(Osi.SetArmorClass, guid, 10) end
-        if Osi.SetArmorClassBoost then pcall(Osi.SetArmorClassBoost, guid, 0) end
-        U.Log("could not suppress native AC via status for %s", tostring(guid))
-    end
-    return ok
-end
-
 local function isPartyCharacter(handle, entity)
     local guid = U.GuidOf(handle)
     if not guid then return true end
@@ -112,8 +92,6 @@ local function computeResistance(handle)
         if not ac or ac <= 0 then ac = 10 end
         if guid then originalACs[guid] = ac end
     end
-    suppressHitChanceAC(handle)
-
     local formula = assert(DOS2C.ArmorFormula, "Shared/ArmorFormula.lua must load first")
     local percent = formula.Percent(ac, false, cfg)
 
@@ -449,7 +427,7 @@ function A.ForceNoDodge(handle)
     return true
 end
 
-function A.Refresh(handle)
+function A.Refresh(handle, quiet)
     local resist, key = getResistance(handle)
     if not resist then return false end
     if key then
@@ -459,8 +437,10 @@ function A.Refresh(handle)
     removeLegacyNoDodge(handle)
     local updated = computeResistance(handle)
     for k, v in pairs(updated) do resist[k] = v end
-    U.Log("armor refresh %s: %.0f%% reduction",
-        tostring(key), tonumber(resist.percent) or 0)
+    if not quiet then
+        U.Log("armor refresh %s: %.0f%% reduction",
+            tostring(key), tonumber(resist.percent) or 0)
+    end
     return true
 end
 
