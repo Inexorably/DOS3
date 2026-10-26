@@ -37,7 +37,7 @@ class CustomClassesTests(unittest.TestCase):
         chars = parse_stats(data / "Characters.txt")
         ball = chars["CC_Ball"]
 
-        self.assertIn("Movement:9", ball["ActionResources"])
+        self.assertIn("Movement:0", ball["ActionResources"])
         self.assertEqual(ball.get("Vitality"), "3")
         self.assertIn("Floating", ball.get("Flags", ""))
         self.assertNotIn("Invulnerable", ball["DefaultBoosts"])

@@ -473,9 +473,9 @@ is the **Summon Ball** cantrip:
   including ground targeting, rather than teleporting.
 - The Charge action has no weapon requirement and does not require a melee
   weapon.
-- Mage Hand's movement skill list is removed. The orb retains 9 movement
-  resource because the Rush-style charge target validation needs it, but it has
-  no autonomous movement.
+- Mage Hand's movement skill list is removed and the orb has zero movement
+  resource, so it cannot walk. Charge still works through the Rush spell, which
+  handles its own movement.
 - It has a **Charge** action that costs 1 AP, deals `2d6` bludgeoning damage,
   and has a one-turn cooldown.
 - While `GRANT_TEST_CANTRIP` is enabled in `Server/Config.lua`, the test
