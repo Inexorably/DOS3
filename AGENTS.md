@@ -32,6 +32,9 @@ python -m pip install -r requirements-dev.txt
 
 ./scripts/test.sh
 python scripts/validate-mod.py --all
+ruff check scripts tests
+mypy --config-file mypy.ini scripts tests
+python scripts/check-lua-types.py --luals /path/to/lua-language-server
 ```
 
 Build one mod locally with LSLib (Windows/Git Bash). `build.sh` downloads LSLib

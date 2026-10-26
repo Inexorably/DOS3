@@ -90,10 +90,25 @@ Validate every mod's manifests, stats, Lua syntax, and localization:
 python scripts/validate-mod.py --all
 ```
 
+Run the Python lint and static type checks:
+
+```bash
+ruff check scripts tests
+mypy --config-file mypy.ini scripts tests
+```
+
+Run Lua lint/static analysis/type diagnostics with LuaLS:
+
+```bash
+lua-language-server --check=mods --checklevel=Warning \
+  --configpath="$PWD/.luarc.json" --logpath=/tmp/luals
+python scripts/check-lua-types.py --luals "$(command -v lua-language-server)"
+```
+
 GitHub Actions runs:
 
 - **CI** on Ubuntu: a dynamic matrix with one validation job per discovered mod,
-  plus the shared full test suite.
+  the shared full test suite, Ruff + Mypy, and LuaLS diagnostics/type checking.
 - **CD** after a successful `master` CI run: a Windows packaging matrix builds
   all discovered mods with LSLib and replaces the single **latest** GitHub
   release with the new `.pak` assets.
@@ -113,7 +128,8 @@ Ubuntu runner because LSLib requires Windows.
 - Non-default spells have at least a one-turn cooldown.
 - Cooldowns use DOS2-style turn counts. Out of combat, one turn is six seconds.
 - Native attack rolls are removed, so weapon and spell attacks cannot miss.
-- Saving throws are removed from spell resolution.
+- Saving throws are removed everywhere: spell/alternate rolls, status apply and
+  tick rolls, functor conditions, and `ApplyStatus` condition arguments.
 - All AC sources are converted into **one percentage damage-reduction stat**.
   There are no separate physical and magic armor buckets. Every damage type
   uses the same reduction.

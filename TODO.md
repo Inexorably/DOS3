@@ -54,8 +54,13 @@
 - [x] Saving-throw spells such as `Target_Slow` now clear `SpellRoll` and
       `TooltipAttackSave`; `SpellSuccess` applies unconditionally. Added a
       source-level regression test.
-- [ ] Verify `Slow` shows no Wisdom save and applies its status reliably
-      in-game.
+- [x] Generalized saving-throw neutralization across `SpellRoll`,
+      `OriginSpellRoll`, spell conditions/success/fail fields, status
+      apply/tick rolls, functors, aura conditions, passives, and weapon
+      functors. `SavingThrow(...)` calls become deterministic booleans while
+      `SavingThrowBonus`/`IsSavingThrow` metadata is left alone.
+- [x] Add CI gates: Ruff, Mypy, and LuaLS diagnostics/type checking.
+- [ ] Verify `Slow` and statuses such as `Sleep` no longer roll saves in-game.
 - [x] Convert AC from gear, spells, passives, and enemy native AC into one
       percentage damage-reduction value.
 - [x] Convert native attack-roll advantage/disadvantage statuses and passives

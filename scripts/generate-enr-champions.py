@@ -821,7 +821,7 @@ def build_stats_and_loca(guids, stats_by_tag):
                     'data "Vitality" "%d"' % band['vitality'],
                     'data "Armor" "%d"' % band['armor'],
                 ]
-                for ability, value in zip(ABILITIES, band['abilities']):
+                for ability, value in zip(ABILITIES, band['abilities'], strict=True):
                     lines.append('data "%s" "%d"' % (ability, value))
                 lines.append('')
 

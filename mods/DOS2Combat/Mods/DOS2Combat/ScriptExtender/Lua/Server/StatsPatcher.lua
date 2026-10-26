@@ -311,7 +311,7 @@ end
 local CLASS_RESOURCES = {
     Rage = true, KiPoint = true, SuperiorityDie = true,
     BardicInspiration = true, ChannelDivinity = true, SorceryPoint = true,
-    WarlockSpellSlot = true, WildShape = true, SuperiorityDie = true,
+    WarlockSpellSlot = true, WildShape = true,
     ShortRestPoint = true, ArcaneRecoveryPoint = true, NaturalRecoveryPoint = true,
 }
 
@@ -676,12 +676,48 @@ local function patchConcentration(name, stat)
     return changed
 end
 
+local SPELL_SAVE_FIELDS = {
+    "SpellProperties", "SpellSuccess", "SpellFail",
+    "OriginSpellProperties", "OriginSpellSuccess", "OriginSpellFail",
+    "TargetConditions", "RequirementConditions", "Conditions",
+}
+
+local STATUS_SAVE_FIELDS = {
+    "OnApplyRoll", "OnTickRoll", "Roll",
+    "StatsFunctors", "OnApplyFunctors", "OnRemoveFunctors", "TickFunctors",
+    "Conditions", "AuraStatuses", "Boosts",
+}
+
+local PASSIVE_SAVE_FIELDS = {
+    "StatsFunctors", "Boosts",
+}
+
+local WEAPON_SAVE_FIELDS = {
+    "WeaponFunctors", "DefaultBoosts", "Boosts", "StatsFunctors",
+}
+
+local function neutralizeSavingThrowFields(stat, fields)
+    if not DOS2C.Config.REMOVE_SAVING_THROWS then return false end
+    local changed = false
+    for _, field in ipairs(fields) do
+        local value = U.SafeGet(stat, field)
+        if type(value) == "string" and value ~= "" then
+            local updated = U.NeutralizeSavingThrows(value)
+            if updated ~= value and U.SafeSet(stat, field, updated) then
+                changed = true
+            end
+        end
+    end
+    return changed
+end
+
 local function patchSpell(name, stat)
     local cfg = DOS2C.Config
     local level = levelFor(name, stat)
     local apCost = costForSpell(name, level)
     local changed = patchAstralKnowledge(name, stat)
     changed = patchConcentration(name, stat) or changed
+    changed = neutralizeSavingThrowFields(stat, SPELL_SAVE_FIELDS) or changed
     changed = patchCastingAbilityTooltips(name, stat) or changed
     changed = patchTooltipRiders(name, stat) or changed
 
@@ -782,6 +818,15 @@ local function patchSpell(name, stat)
         end
     end
 
+    -- OriginSpellRoll is a separate alternate-roll field used by a few spells.
+    if cfg.REMOVE_SAVING_THROWS then
+        local originRoll = U.SafeGet(stat, "OriginSpellRoll")
+        if type(originRoll) == "string" and originRoll ~= ""
+            and originRoll:find("SavingThrow", 1, true) then
+            if U.SafeSet(stat, "OriginSpellRoll", "") then changed = true end
+        end
+    end
+
     if cfg.REMOVE_ATTACK_ROLLS or cfg.REMOVE_SAVING_THROWS then
         for _, field in ipairs({ "SpellProperties", "SpellSuccess", "SpellFail" }) do
             local value = U.SafeGet(stat, field)
@@ -860,11 +905,11 @@ end
 
 local function patchWeapon(stat)
     local cfg = DOS2C.Config
+    local changed = neutralizeSavingThrowFields(stat, WEAPON_SAVE_FIELDS)
     if not (cfg.COMPRESS_DAMAGE_RANGES or cfg.FLATTEN_WEAPON_DICE) then
-        return false
+        return changed
     end
 
-    local changed = false
     for _, field in ipairs({ "Damage", "VersatileDamage", "WeaponFunctors", "DefaultBoosts" }) do
         if cfg.COMPRESS_DAMAGE_RANGES then
             changed = compressField(stat, field, changed, field == "Damage" or field == "VersatileDamage")
@@ -1053,7 +1098,8 @@ local function patchBlindedRange(name, stat)
 end
 
 local function patchStatusDamage(name, stat)
-    local changed = stripDeadSavingThrowBoosts(stat)
+    local changed = neutralizeSavingThrowFields(stat, STATUS_SAVE_FIELDS)
+    if stripDeadSavingThrowBoosts(stat) then changed = true end
     if stripBonusActionBoosts(stat) then changed = true end
     if recordCombatModifiers(name, stat, false) then changed = true end
     if patchBlindedRange(name, stat) then changed = true end
@@ -1070,7 +1116,8 @@ local function patchStatusDamage(name, stat)
 end
 
 local function patchPassiveDamage(name, stat)
-    local changed = stripDeadSavingThrowBoosts(stat)
+    local changed = neutralizeSavingThrowFields(stat, PASSIVE_SAVE_FIELDS)
+    if stripDeadSavingThrowBoosts(stat) then changed = true end
     if stripBonusActionBoosts(stat) then changed = true end
     if recordCombatModifiers(name, stat, true) then changed = true end
     if DOS2C.Config.COMPRESS_DAMAGE_RANGES then

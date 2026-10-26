@@ -236,6 +236,57 @@ class StatsPatcherSmokeTests(unittest.TestCase):
         self.assertEqual(lua.eval("tostring(spell.TooltipAttackSave or '')"), "")
         self.assertEqual(lua.eval("spell.SpellSuccess"), "ApplyStatus(SLOW,100,10)")
 
+    def test_status_saving_throw_fields_are_neutralized(self):
+        lua = lua_runtime()
+        root = MODS / "DOS2Combat" / "Mods" / "DOS2Combat" / "ScriptExtender" / "Lua"
+        for relative in (
+            "Shared/ArmorFormula.lua",
+            "Server/Config.lua",
+            "Server/Util.lua",
+            "Server/StatsPatcher.lua",
+        ):
+            run_lua_file(lua, root / relative)
+
+        lua.execute(
+            """
+            local status = {
+                OnApplyRoll = "not SavingThrow(Ability.Wisdom, 10)",
+                OnTickRoll = "SavingThrow(Ability.Constitution, 10)",
+                StatsFunctors = "ApplyStatus(SLEEP,100,2,,,,not SavingThrow(Ability.Constitution,10))",
+                Conditions = "not SavingThrow(Ability.Strength, 8) and not Self()",
+                Boosts = "AbilityFailedSavingThrow(Ability.Wisdom)",
+            }
+            function status:Sync() end
+            Ext.Stats = {
+                GetStats = function(kind)
+                    if kind == "StatusData" then return { "SLEEP" } end
+                    return {}
+                end,
+                Get = function(name)
+                    if name == "SLEEP" then return status end
+                    return nil
+                end,
+            }
+            DOS2C.Stats.PatchAll(false)
+            _G.status = status
+            """
+        )
+
+        self.assertEqual(lua.eval("status.OnApplyRoll"), "true")
+        self.assertEqual(lua.eval("status.OnTickRoll"), "false")
+        self.assertEqual(
+            lua.eval("status.StatsFunctors"),
+            "ApplyStatus(SLEEP,100,2,,,,true)",
+        )
+        self.assertEqual(
+            lua.eval("status.Conditions"),
+            "true and not Self()",
+        )
+        self.assertEqual(
+            lua.eval("status.Boosts"),
+            "AbilityFailedSavingThrow(Ability.Wisdom)",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

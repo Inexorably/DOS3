@@ -1,2 +1,4 @@
 lupa>=2.0
 luaparser>=4.0
+ruff>=0.17
+mypy>=1.10

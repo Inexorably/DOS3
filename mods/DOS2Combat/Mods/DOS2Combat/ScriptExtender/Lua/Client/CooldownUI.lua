@@ -67,8 +67,9 @@ local function rebuild()
 
     -- Do not create the window at all when there is nothing active.
     if #active == 0 then return end
-    if not ensureWindow() then return end
+    if not ensureWindow() or not window then return end
     for _, item in ipairs(active) do
+        ---@diagnostic disable-next-line: undefined-field
         window:AddText(string.format("%s: %d turn%s",
             prettyName(nameOf(item.entry)), item.turns,
             item.turns == 1 and "" or "s"))

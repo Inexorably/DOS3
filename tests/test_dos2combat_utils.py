@@ -62,6 +62,25 @@ class Dos2CombatUtilTests(unittest.TestCase):
             "DealDamage(1d12+1,Fire)",
         )
 
+    def test_neutralize_saving_throw_calls(self):
+        cases = {
+            "not SavingThrow(Ability.Wisdom, 10)": "true",
+            "SavingThrow(Ability.Wisdom, 10)": "false",
+            "ApplyStatus(SLEEP,100,2,,,,not SavingThrow(Ability.Constitution,10))":
+                "ApplyStatus(SLEEP,100,2,,,,true)",
+            "IF(not SavingThrow(Ability.Dexterity,15)):DealDamage(1d6,Fire)":
+                "IF(true):DealDamage(1d6,Fire)",
+            "AbilityFailedSavingThrow(Ability.Wisdom)":
+                "AbilityFailedSavingThrow(Ability.Wisdom)",
+            "IsSavingThrow(Ability.Wisdom)":
+                "IsSavingThrow(Ability.Wisdom)",
+            "HasSavingThrowWithAbility(Ability.Wisdom)":
+                "HasSavingThrowWithAbility(Ability.Wisdom)",
+        }
+        for source, expected in cases.items():
+            with self.subTest(source=source):
+                self.assertEqual(self.U.NeutralizeSavingThrows(source), expected)
+
     def test_neutralize_attack_and_save_rolls(self):
         self.assertEqual(
             self.U.NeutralizeRolls(

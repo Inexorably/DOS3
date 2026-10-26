@@ -147,12 +147,81 @@ local function findRollCall(text, name, from)
     end
 end
 
+-- Replace actual SavingThrow(...) roll calls wherever they appear in a stat
+-- expression. This covers both common shapes:
+--   IF(not SavingThrow(...)):Effect
+--   ApplyStatus(SLEEP,100,2,,,,not SavingThrow(...))
+-- The function deliberately ignores SavingThrowBonus, HasSavingThrow,
+-- IsSavingThrow, IsLastConditionRollSuccess(ConditionSavingThrow), and
+-- AbilityFailedSavingThrow, which are not d20 rolls.
+function U.NeutralizeSavingThrows(value)
+    if type(value) ~= "string" or value == "" then return value end
+
+    local ok, out = pcall(function()
+        local text = value
+        local pieces = {}
+        local last = 1
+        local search = 1
+
+        while true do
+            local start = text:find("SavingThrow", search, true)
+            if not start then break end
+
+            local previous = start > 1 and text:sub(start - 1, start - 1) or ""
+            local afterName = start + #"SavingThrow"
+            if previous:match("[%w_]") == nil and text:sub(afterName, afterName) == "(" then
+                local depth = 0
+                local pos = afterName
+                local closed = nil
+                while pos <= #text do
+                    local ch = text:sub(pos, pos)
+                    if ch == "(" then
+                        depth = depth + 1
+                    elseif ch == ")" then
+                        depth = depth - 1
+                        if depth == 0 then
+                            closed = pos
+                            break
+                        end
+                    end
+                    pos = pos + 1
+                end
+
+                if closed then
+                    local prefix = text:sub(1, start - 1)
+                    local notStart = prefix:match("()not%s*$")
+                    if notStart then
+                        local beforeNot = notStart > 1 and prefix:sub(notStart - 1, notStart - 1) or ""
+                        if beforeNot:match("[%w_]") ~= nil then notStart = nil end
+                    end
+
+                    local replaceStart = notStart or start
+                    pieces[#pieces + 1] = text:sub(last, replaceStart - 1)
+                    -- Failed save -> true (effect always lands). Successful
+                    -- save -> false (save-only effects never land).
+                    pieces[#pieces + 1] = notStart and "true" or "false"
+                    last = closed + 1
+                    search = closed + 1
+                else
+                    search = start + #"SavingThrow"
+                end
+            else
+                search = start + #"SavingThrow"
+            end
+        end
+
+        pieces[#pieces + 1] = text:sub(last)
+        return table.concat(pieces)
+    end)
+
+    if ok then return out end
+    return value
+end
+
 -- Remove the remaining d20 conditions that live inside spell effects rather
--- than in SpellRoll. The vanilla data overwhelmingly uses two shapes:
---   IF(not SavingThrow(...)):Effect   -> Effect (target always fails)
---   IF(Attack(...)):Effect            -> Effect (attack always hits)
--- Unwrapping the IF() is safer than inventing a boolean literal, because the
--- stats functor language has no True/False constants.
+-- than in SpellRoll. Attack rolls use the IF(Attack(...)):Effect shape and are
+-- unwrapped. Saving throws are replaced by NeutralizeSavingThrows so they work
+-- both inside IF() and as ApplyStatus condition arguments.
 function U.NeutralizeRolls(value, removeAttack, removeSaving)
     if type(value) ~= "string" or value == "" then return value end
     if removeAttack == nil then removeAttack = true end
@@ -206,6 +275,10 @@ function U.NeutralizeRolls(value, removeAttack, removeSaving)
 
         if removeSaving then unwrap("IF(not SavingThrow(", "SavingThrow") end
         if removeAttack then unwrap("IF(Attack(", "Attack") end
+        -- Anything not in the exact IF(not SavingThrow(...)) shape, including
+        -- ApplyStatus condition arguments and positive save gates, is replaced
+        -- by a deterministic boolean.
+        if removeSaving then text = U.NeutralizeSavingThrows(text) end
         return text
     end)
 

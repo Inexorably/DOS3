@@ -97,13 +97,15 @@ local function currentLevelBand()
     end
     if host and Osi and Osi.GetLevel then
         local ok, value = pcall(Osi.GetLevel, host)
-        if ok and tonumber(value) and tonumber(value) > 0 then level = tonumber(value) end
+        local parsed = ok and tonumber(value) or nil
+        if parsed and parsed > 0 then level = math.floor(parsed) end
     end
     if level == 1 and host and Ext and Ext.Entity and Ext.Entity.Get then
         local ok, entity = pcall(Ext.Entity.Get, host)
         if ok and entity then
             local lvlOk, value = pcall(function() return entity.EocLevel.Level end)
-            if lvlOk and tonumber(value) and tonumber(value) > 0 then level = tonumber(value) end
+            local parsed = lvlOk and tonumber(value) or nil
+            if parsed and parsed > 0 then level = math.floor(parsed) end
         end
     end
     if level >= 11 then return 5 end
@@ -696,9 +698,10 @@ local function registerCommands()
     if not (Ext and Ext.RegisterConsoleCommand) then return end
     local function handler(_, arg1, arg2)
         local rarity, boss = parseRarity(arg1)
-        local count = tonumber(arg2) or 1
-        if rarity == nil and not boss and arg1 and tonumber(arg1) then
-            count, rarity, boss = tonumber(arg1), nil, false
+        local count = math.floor(tonumber(arg2) or 1)
+        local requested = tonumber(arg1)
+        if rarity == nil and not boss and requested then
+            count, rarity, boss = math.floor(requested), nil, false
         end
         local spawned, err = L.SpawnAtPlayer(rarity, count, boss)
         if err then

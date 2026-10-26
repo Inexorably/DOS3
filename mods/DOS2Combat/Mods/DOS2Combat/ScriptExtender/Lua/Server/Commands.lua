@@ -158,6 +158,7 @@ register("dos2c_weapon", function()
         return
     end
     local statsId = nil
+    ---@diagnostic disable-next-line: undefined-field, need-check-nil
     pcall(function() statsId = tostring(entity.Data.StatsId) end)
     printLine("[DOS2C] weapon statsId=" .. tostring(statsId))
     if statsId and Ext.Stats and Ext.Stats.Get then

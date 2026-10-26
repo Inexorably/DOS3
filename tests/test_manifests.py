@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 import re
 import unittest
-from pathlib import Path
 
 from .support import MODS, load_info, meta_module_info, parse_stats, read
 

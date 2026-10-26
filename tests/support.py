@@ -44,7 +44,12 @@ def meta_module_info(mod_dir: Path, folder: str) -> dict[str, str]:
     module = tree.getroot().find(".//node[@id='ModuleInfo']")
     if module is None:
         raise AssertionError(f"{mod_dir}: missing ModuleInfo")
-    return {attr.get("id"): attr.get("value", "") for attr in module.findall("attribute")}
+    result: dict[str, str] = {}
+    for attr in module.findall("attribute"):
+        key = attr.get("id")
+        if key is not None:
+            result[key] = attr.get("value", "")
+    return result
 
 
 def lua_runtime():

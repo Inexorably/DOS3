@@ -67,6 +67,41 @@ jobs:
       - name: Run tests
         run: python -m unittest discover -s tests -t . -v
 
+  python-quality:
+    name: Python lint and static type check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - name: Install quality dependencies
+        run: python -m pip install -r requirements-dev.txt
+      - name: Ruff lint
+        run: ruff check scripts tests
+      - name: Mypy static type check
+        run: mypy --config-file mypy.ini scripts tests
+
+  lua-quality:
+    name: Lua lint, static analysis, and type diagnostics
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Download LuaLS
+        run: |
+          VERSION=3.9.3
+          curl -fsSL -o /tmp/luals.tar.gz \
+            "https://github.com/LuaLS/lua-language-server/releases/download/${VERSION}/lua-language-server-${VERSION}-linux-x64.tar.gz"
+          mkdir -p luals
+          tar -xzf /tmp/luals.tar.gz -C luals
+      - name: Run Lua diagnostics and type check
+        run: python scripts/check-lua-types.py --luals "$PWD/luals/bin/lua-language-server"
+
   # Packaging is intentionally not part of this Ubuntu workflow.
   # scripts/build.sh requires LSLib/Divine.exe plus extracted BG3 data
   # (.analysis/*), neither of which is checked into this repository.
