@@ -457,8 +457,12 @@ is the **Summon Ball** cantrip:
 - Summons a tiny persistent sphere body using the Black Hole visual overlay at
   one-third of its previous size. The body supplies a portrait and stays
   visible; the native Black Hole cast effect is transient.
-- It uses 1 HP with `InvulnerableAndInteractive` so it behaves like a utility
-  summon rather than a combatant enemies should target.
+- It uses `Vitality -1`, `Invulnerable()`, and `InvulnerableAndInteractive` so
+  it has no normal HP bar and behaves like a utility summon rather than a
+  combatant enemies should target.
+- The final small scale is baked into the root template, so it starts small
+  instead of spawning large and shrinking.
+- The Charge action clears its inherited long animation and target-hit delay.
 - The Hell Sphere default status, AI skill list, death effects, and tags are
   stripped from the cloned root.
 - The Charge action has no weapon requirement and does not require a melee

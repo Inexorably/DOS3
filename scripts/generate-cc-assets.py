@@ -80,6 +80,9 @@ def build_root_template() -> None:
             if child.get("id") in ("StatusList", "SkillList", "OnDeathActions", "Tags"):
                 child_container.remove(child)
     set_attr(go, "MapKey", BALL_GUID)
+    # Bake the final small scale into the root. Scaling via a stat boost happens
+    # after spawn and causes the model to visibly shrink from its native size.
+    set_attr(go, "Scale", "0.222222", "float")
     set_attr(go, "Name", "CC_Ball")
     set_attr(go, "Stats", "CC_Ball")
     set_attr(go, "VisualTemplate", BLACK_HOLE_VISUAL)
@@ -153,6 +156,8 @@ data "TargetRadius" "9"
 data "HitRadius" "2"
 data "SpellRoll" ""
 data "WeaponTypes" ""
+data "SpellAnimation" ""
+data "CastTargetHitDelay" "0"
 data "SpellSuccess" "DealDamage(2d6,Bludgeoning)"
 data "SpellFail" ""
 data "TargetConditions" "not Self() and not Ally()"
@@ -183,13 +188,13 @@ data "Intelligence" "10"
 data "Wisdom" "10"
 data "Charisma" "10"
 data "Armor" "10"
-data "Vitality" "1"
+data "Vitality" "-1"
 data "Weight" "0.1"
 data "GameSize" "Tiny"
 data "Flags" "Floating;InvulnerableAndInteractive"
 data "PersonalStatusImmunities" "SILENCED;BLEEDING;GAPING_WOUND;CHEST_TRAUMA;SHOCKED;BURNING;SG_Condition;CRIPPLED;WILD_MAGIC_BURNING"
 data "ActionResources" "ActionPoint:1;BonusActionPoint:1;Movement:0"
-data "DefaultBoosts" "DialogueBlock();BlockRegainHP(Undead;Construct;Living);ScaleMultiplier(0.111111);UnlockSpell(CC_BallCharge)"
+data "DefaultBoosts" "DialogueBlock();BlockRegainHP(Undead;Construct;Living);Invulnerable();UnlockSpell(CC_BallCharge)"
 data "Passives" "DarknessRules;ShortResting"
 data "BludgeoningResistance" "Resistant"
 data "SlashingResistance" "Resistant"
