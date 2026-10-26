@@ -79,6 +79,14 @@ def build_root_template() -> None:
         for child in list(child_container):
             if child.get("id") in ("SkillList", "OnDeathActions"):
                 child_container.remove(child)
+        status_list = ET.SubElement(child_container, "node", {"id": "StatusList"})
+        statuses = ET.SubElement(status_list, "children")
+        status = ET.SubElement(statuses, "node", {"id": "Status"})
+        ET.SubElement(
+            status,
+            "attribute",
+            {"id": "Object", "type": "FixedString", "value": "INVULNERABLE_NOT_SHOWN"},
+        )
     set_attr(go, "MapKey", BALL_GUID)
     # Bake the final small scale into the root. Scaling via a stat boost happens
     # after spawn and causes the model to visibly shrink from its native size.

@@ -458,9 +458,10 @@ is the **Summon Ball** cantrip:
   one-third of its previous size. The body supplies a portrait and stays
   visible; the native Black Hole cast effect is transient.
 - `CC_Ball` inherits directly from `MageHand` for the summon behavior and
-  targeting rules. The mod only removes natural movement, adds the Charge
-  action, replaces the visual with the Black Hole overlay, and bakes the small
-  scale into the root.
+  targeting rules. Its root adds the hidden `INVULNERABLE_NOT_SHOWN` status, so
+  the orb cannot be damaged. The mod only removes natural movement, adds the
+  Charge action, replaces the visual with the Black Hole overlay, and bakes the
+  small scale into the root.
 - The root starts at its final small scale instead of spawning large and
   shrinking.
 - The Charge action clears its inherited long animation and target-hit delay.
