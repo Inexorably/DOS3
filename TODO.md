@@ -405,6 +405,21 @@ Known DOS2 visual references for the current test spells:
 - [ ] Verify summon economy AP regeneration, lethargic first-turn behavior,
       cooldown ticks, and multiplayer replication in-game.
 
+## Bedroll
+
+- [ ] Add a hotbar **Bedroll** skill to `DOS2Combat` that fully heals its user.
+      Follow the Respec Anywhere hotbar-spell pattern rather than a client-only
+      button or console command.
+      - Self-target only.
+      - Restore the caster's current HP to its maximum; do not grant temporary HP
+        or heal allies.
+      - Decide and document the AP cost, cooldown, and whether it can be used
+        while downed or only while conscious.
+      - Keep healing server-authoritative and verify multiplayer replication,
+        save/reload behavior, and interaction with the 6 AP cap.
+      - Add a source-level test for the spell definition and a verification item
+        for the in-game heal/cost/downed behavior.
+
 ## Respec Anywhere
 
 - [x] Move the respec shortcut out of DOS2Combat into a separate

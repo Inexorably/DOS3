@@ -125,6 +125,14 @@ Ubuntu runner because LSLib requires Windows.
 The chart shows normal/heavy AC-to-armor conversion and the effective damage
 reduction for flat physical and magic armor at different incoming hit sizes.
 
+- Damage is classified per damage pair. Physical damage is
+  **Slashing, Piercing, and Bludgeoning**. Every other BG3 damage type,
+  including **Acid, Thunder, Necrotic, Fire, Lightning, Cold, Psychic, Poison,
+  Radiant, and Force**, is treated as magic. `None`/unknown damage currently
+  falls through to magic as well.
+- A mixed-damage hit can be reduced by both pools: each damage pair uses its
+  own physical or magic resistance, and the amounts are summed.
+
 - Concentration is removed from spells.
 - Damage ranges are compressed toward their average rather than fully
   flattened.
