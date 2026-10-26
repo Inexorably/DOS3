@@ -81,12 +81,13 @@ def build_root_template() -> None:
                 child_container.remove(child)
         status_list = ET.SubElement(child_container, "node", {"id": "StatusList"})
         statuses = ET.SubElement(status_list, "children")
-        status = ET.SubElement(statuses, "node", {"id": "Status"})
-        ET.SubElement(
-            status,
-            "attribute",
-            {"id": "Object", "type": "FixedString", "value": "INVULNERABLE"},
-        )
+        for status_name in ("INVULNERABLE", "FREEDOM_OF_MOVEMENT"):
+            status = ET.SubElement(statuses, "node", {"id": "Status"})
+            ET.SubElement(
+                status,
+                "attribute",
+                {"id": "Object", "type": "FixedString", "value": status_name},
+            )
     set_attr(go, "MapKey", BALL_GUID)
     # Bake the final small scale into the root. Scaling via a stat boost happens
     # after spawn and causes the model to visibly shrink from its native size.
@@ -187,10 +188,12 @@ data "SpellFlags" "IsHarmful"
 new entry "CC_Ball"
 type "Character"
 using "MageHand"
-data "ActionResources" "ActionPoint:1;BonusActionPoint:1;Movement:0"
-data "DefaultBoosts" "BlockRegainHP(Undead;Construct;Living);UnlockSpell(CC_BallCharge)"
-data "PiercingResistance" "Resistant"
-data "PsychicResistance" "Immune"
+data "ActionResources" "ActionPoint:1;BonusActionPoint:1;Movement:9"
+data "DefaultBoosts" "BlockRegainHP(Undead;Construct;Living);UnlockSpell(CC_BallCharge);StatusImmunity(SG_Blinded);StatusImmunity(SG_Charmed);StatusImmunity(SG_Condition);StatusImmunity(SG_Cursed);StatusImmunity(SG_DifficultTerrain);StatusImmunity(SG_Disease);StatusImmunity(SG_Exhausted);StatusImmunity(SG_Fleeing);StatusImmunity(SG_Frightened);StatusImmunity(SG_Incapacitated);StatusImmunity(SG_Paralyzed);StatusImmunity(SG_Petrified);StatusImmunity(SG_Poisoned);StatusImmunity(SG_Polymorph);StatusImmunity(SG_Possessed);StatusImmunity(SG_Prone);StatusImmunity(SG_Restrained);StatusImmunity(SG_Sleeping);StatusImmunity(SG_Sleeping_Magical);StatusImmunity(SG_Stunned);StatusImmunity(SG_Surface);StatusImmunity(SG_Unconscious)"
+data "BludgeoningResistance" "None"
+data "SlashingResistance" "None"
+data "PiercingResistance" "None"
+data "PsychicResistance" "None"
 data "DifficultyStatuses" "STATUS_EASY:PLAYER_BONUSES_EASYMODE"
 ''',
         encoding="utf-8",

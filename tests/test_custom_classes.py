@@ -36,11 +36,14 @@ class CustomClassesTests(unittest.TestCase):
         chars = parse_stats(data / "Characters.txt")
         ball = chars["CC_Ball"]
 
-        self.assertIn("Movement:0", ball["ActionResources"])
+        self.assertIn("Movement:9", ball["ActionResources"])
         self.assertNotIn("Vitality", ball)
         self.assertNotIn("Flags", ball)
         self.assertNotIn("Invulnerable", ball["DefaultBoosts"])
         self.assertNotIn("ScaleMultiplier", ball["DefaultBoosts"])
+        self.assertIn("StatusImmunity(SG_Charmed)", ball["DefaultBoosts"])
+        self.assertIn("StatusImmunity(SG_Stunned)", ball["DefaultBoosts"])
+        self.assertEqual(ball.get("BludgeoningResistance"), "None")
         self.assertIn("UnlockSpell(CC_BallCharge)", ball["DefaultBoosts"])
         characters = read(data / "Characters.txt")
         self.assertIn('using "MageHand"', characters)

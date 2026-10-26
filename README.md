@@ -458,18 +458,21 @@ is the **Summon Ball** cantrip:
   one-third of its previous size. The body supplies a portrait and stays
   visible; the native Black Hole cast effect is transient.
 - `CC_Ball` inherits directly from `MageHand` for the summon behavior and
-  targeting rules. Its root adds the visible `INVULNERABLE` status, so the orb
-  cannot be damaged and the condition is obvious in the UI. The mod only
-  removes natural movement, adds the Charge action, replaces the visual with
-  the Black Hole overlay, and bakes the small scale into the root.
+  targeting rules. Its root adds the visible `INVULNERABLE` and
+  `FREEDOM_OF_MOVEMENT` statuses, so the orb cannot be damaged, ignores
+  movement-impairing effects, and shows its invulnerability in the UI.
+- `CC_Ball` also applies broad `StatusImmunity` groups for charm, fear,
+  incapacitation, paralysis, petrification, prone, restraint, stun, sleep,
+  polymorph, and related conditions, clearing Mage Hand's inherited damage
+  resistances.
 - The root starts at its final small scale instead of spawning large and
   shrinking.
 - The Charge action clears its inherited long animation and target-hit delay.
-- The Hell Sphere default status, AI skill list, death effects, and tags are
-  stripped from the cloned root.
 - The Charge action has no weapon requirement and does not require a melee
   weapon.
-- The orb has no natural movement resource.
+- Mage Hand's movement skill list is removed. The orb retains 9 movement
+  resource because the Rush-style charge target validation needs it, but it has
+  no autonomous movement.
 - It has a **Charge** action that costs 1 AP, deals `2d6` bludgeoning damage,
   and has a one-turn cooldown.
 - While `GRANT_TEST_CANTRIP` is enabled in `Server/Config.lua`, the test
