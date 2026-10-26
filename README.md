@@ -7,7 +7,7 @@ champions, higher enemy health, and convenient respec access.
 
 | Mod | Folder | Script Extender | Purpose |
 | --- | --- | --- | --- |
-| DOS2 Combat Overhaul | `mods/DOS2Combat` | Required | DOS2-style AP, armor resistance, deterministic damage, turn cooldowns, and combat stat rewrites |
+| DOS2 Combat Overhaul | `mods/DOS2Combat` | Required | DOS2-style AP, damage reduction, surfaces, deterministic damage, turn cooldowns, and combat stat rewrites |
 | Enemy Randomization | `mods/EnemyRandomization` | Required | Random enemy buffs, themed champions, summoning variants, and generated champion loot |
 | Enemy Health Multiplier | `mods/EnemyHealth` | Not required | Doubles base enemy health on Tactician by overriding the native difficulty boost |
 | Respec Anywhere | `mods/RespecAnywhere` | Required | Opens Withers' native respec UI from a client panel or console command |
@@ -149,10 +149,55 @@ reduction for several reduction values.
 - Damage ranges are compressed toward their average rather than fully
   flattened.
 
+### Surfaces
+
+DOS2Combat keeps BG3's native surface visuals and terrain system, and adds a
+DOS2-style rules layer on top. When a character's turn starts while standing on
+a recognized surface, the surface can apply a status and a damage tick.
+
+- Base tick damage is **5% of max HP**, capped at **40** per tick.
+- Statuses applied by this layer last **2 turns**.
+- Surface tick damage goes through the normal damage pipeline, so armor damage
+  reduction and other damage modifiers still apply.
+- Surfaces are evaluated at **turn start**, not on every step or action.
+
+| Surface | Status/effect | Tick damage |
+| --- | --- | --- |
+| Fire, Holy Fire, Trial Fire | `BURNING` | Fire, 1.0x |
+| Hellfire | `BURNING` | Fire, 1.5x |
+| Lava | `BURNING` | Fire, 2.0x |
+| Poison, Cloudkill, Malice Cloud | `POISONED` | Poison, 0.75x |
+| Wyvern/Purple Worm/Serpent Venom | `POISONED` | Poison, 0.9x |
+| Stinking Cloud | `POISONED` | Poison, 0.5x |
+| Acid | `ACID` | Acid, 0.75x |
+| Water, Deep Water | `WET` | none |
+| Electrified Water/Blood | `SHOCKED` | Lightning, 0.8x |
+| Frozen Water/Blood, Ice Cloud | `CHILLED` | Cold, 0.6x |
+| Oil, Grease, Alien Oil | `OILED` | none |
+| Web, Vines | `RESTRAINED` | none |
+| Spike Growth | `RESTRAINED` | Piercing, 0.5x |
+| Blackpowder | none | Fire, 0.75x |
+
+Surface combinations:
+
+- Water and frozen/electrified water **douse `BURNING`**.
+- Fire on an **`OILED`** character adds **+100%** tick damage and consumes the
+  oil.
+- Fire on a **`POISONED`** character adds **+50%** tick damage and consumes the
+  poison.
+
+These are configurable in `Server/Config.lua` under `SURFACES_*`. The test-only
+surface-setter spells (`DOS2C_Rain`, `DOS2C_FossilStrike`, etc.) remain locked by
+default via `UNLOCK_TEST_SURFACE_SPELLS = false`; they are for testing the
+surface layer, not part of the normal spell list.
+
+DOS2Combat does not port DOS2's terrain VFX, surface transmutation rules, or
+per-step surface interactions. Those remain BG3-native.
+
 ### Useful commands
 
 ```text
-!dos2c_status                 # print AP, cooldown, armor, and patch state
+!dos2c_status                 # print AP, cooldown, damage reduction, and patch state
 !dos2c_ap                     # dump the host's ActionResources (current/max AP)
 !dos2c_armor [guid]           # show percentage damage reduction for a character
 !dos2c_setarmor <percent>      # override the host's damage reduction (0-100)
