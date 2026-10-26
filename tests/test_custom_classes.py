@@ -16,7 +16,9 @@ class CustomClassesTests(unittest.TestCase):
 
         self.assertEqual(summon["Level"], "0")
         self.assertEqual(summon["UseCosts"], "ActionPoint:1")
-        self.assertIn(BALL_ROOT, summon["SpellProperties"])
+        self.assertIn("UntilLongRest", summon["SpellProperties"])
+        self.assertEqual(summon.get("RequirementConditions"), "")
+        self.assertEqual(summon.get("Requirements"), "")
         self.assertIn("CC_BallStack", summon["SpellProperties"])
         self.assertIn(BALL_ROOT, summon["TargetConditions"])
 
@@ -24,6 +26,9 @@ class CustomClassesTests(unittest.TestCase):
         self.assertEqual(charge["UseCosts"], "ActionPoint:1")
         self.assertIn("DealDamage(2d6,Bludgeoning)", charge["SpellSuccess"])
         self.assertEqual(charge["SpellRoll"], "")
+        self.assertEqual(charge.get("RequirementConditions"), "")
+        self.assertEqual(charge.get("Requirements"), "")
+        self.assertEqual(charge.get("RechargeValues"), "")
 
     def test_ball_has_no_movement_and_is_scaled_to_one_third(self):
         data = MODS / "CustomClasses/Public/CustomClasses/Stats/Generated/Data"
