@@ -62,18 +62,30 @@ def set_display_name(node: ET.Element, text_handle: str) -> None:
 def build_root_template() -> None:
     source = ET.parse(ROOT_SOURCE).getroot()
     mage_hand = None
+    sphere = None
     for node in source.iter("node"):
         attrs = {a.get("id"): a.get("value") for a in node.findall("./attribute")}
         if attrs.get("Stats") == "MageHand":
             mage_hand = node
-            break
+        if attrs.get("Name") == "Unique_HellSphere":
+            sphere = node
     if mage_hand is None:
         raise SystemExit("MageHand root template not found")
+    if sphere is None:
+        raise SystemExit("Unique_HellSphere locomotion template not found")
 
     # Use MageHand as the behavioural template. MageHand is ignored by enemy
     # targeting and has the intended summon/portrait/HP behavior. Replace only
-    # its visual asset and strip its movement/interaction skill list.
+    # its visual asset and movement skills. Rush also needs real locomotion
+    # speeds, which MageHand lacks because it normally uses Projectile_Fly.
     go = copy.deepcopy(mage_hand)
+    old_locomotion = go.find("./children/node[@id='LocomotionParams']")
+    sphere_locomotion = sphere.find("./children/node[@id='LocomotionParams']")
+    if old_locomotion is not None and sphere_locomotion is not None:
+        child_container = go.find("./children")
+        if child_container is not None:
+            child_container.remove(old_locomotion)
+            child_container.append(copy.deepcopy(sphere_locomotion))
     child_container = go.find("./children")
     if child_container is not None:
         for child in list(child_container):
