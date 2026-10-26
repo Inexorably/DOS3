@@ -175,6 +175,36 @@ casting multiplier is skipped when the hit is a weapon or item hit.
 
 ![Spell damage from casting ability](docs/spell-ability-damage.png)
 
+### Weapon ability scaling
+
+Weapon damage is not converted to a percentage multiplier. It uses the native
+BG3/5e additive formula:
+
+```text
+ability modifier = floor((ability score - 10) / 2)
+weapon hit      = weapon dice + ability modifier + enchantment + riders
+```
+
+The weapon's attack ability is chosen by the weapon:
+
+- Most melee weapons: Strength
+- Finesse weapons: the better of Strength and Dexterity
+- Ranged weapons: Dexterity
+- Thrown weapons: Strength
+- Pact of the Blade weapons: can use the spellcaster's casting ability through
+  their weapon override
+
+Off-hand attacks do not add the ability modifier unless the character has the
+Two-Weapon Fighting style. Because the modifier is additive rather than
+percentage-based, a +1 modifier is worth more relative damage on a dagger than
+on a greatsword.
+
+Weapon-damage spells use the weapon's native ability scaling for their weapon
+component. Their separate non-weapon damage events can still receive the
+casting-ability multiplier described above.
+
+![Weapon damage from Strength/Dexterity](docs/weapon-ability-damage.png)
+
 ### Surfaces
 
 DOS2Combat keeps BG3's native surface visuals and terrain system, and adds a
