@@ -48,6 +48,10 @@ if [[ ! -d "$SRC" ]]; then
     echo "Usage: $0 [ModFolder]" >&2
     exit 1
 fi
+if [[ "$MOD" == "CustomClasses" ]]; then
+    echo "Regenerating CustomClasses root template and localization"
+    (cd "$ROOT" && python scripts/generate-cc-assets.py)
+fi
 if [[ "$MOD" == "EnemyRandomization" ]]; then
     if [[ "${ENR_SKIP_GENERATION:-0}" == "1" ]]; then
         echo "Using committed Enemy Randomization generated assets"

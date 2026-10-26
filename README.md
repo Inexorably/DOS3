@@ -11,6 +11,7 @@ champions, higher enemy health, and convenient respec access.
 | Enemy Randomization | `mods/EnemyRandomization` | Required | Random enemy buffs, themed champions, summoning variants, and generated champion loot |
 | Enemy Health Multiplier | `mods/EnemyHealth` | Not required | Doubles base enemy health on Tactician by overriding the native difficulty boost |
 | Respec Anywhere | `mods/RespecAnywhere` | Required | Grants a hotbar Respec spell that opens Withers' native respec UI, plus a console command |
+| Custom Classes | `mods/CustomClasses` | Required for test grant | Foundational custom-class content, starting with the Summon Ball cantrip and its Charge action |
 
 The mods can be used independently. Enemy Randomization is designed to work
 alongside DOS2 Combat Overhaul, and Enemy Health uses the native Tactician
@@ -447,6 +448,25 @@ caster. There is no DOS2 Tools panel or button.
 ```
 
 The main menu cannot respec because no character is loaded there.
+
+## Custom Classes
+
+**Custom Classes** is the foundation for custom class content. The first spell
+is the **Summon Ball** cantrip:
+
+- Summons a tiny arcane orb using the Black Hole visual at one-third scale.
+- The orb has no natural movement resource.
+- It has a **Charge** action that costs 1 AP, deals `2d6` bludgeoning damage,
+  and has a one-turn cooldown.
+- While `GRANT_TEST_CANTRIP` is enabled in `Server/Config.lua`, the test
+  bootstrap grants the cantrip to every party member. This is a testing aid;
+  disable it once the spell is granted through a real class progression.
+
+```text
+CC_SummonBall   Summon Ball cantrip
+CC_BallCharge   orb Charge action
+CC_Ball         summoned orb character
+```
 
 ## Troubleshooting
 
