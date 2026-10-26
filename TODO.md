@@ -231,8 +231,9 @@ Known DOS2 visual references for the current test spells:
 
 - [x] Armor no longer depletes; all AC sources feed one percentage
       damage-reduction stat.
-- [x] Formula: `(AC - 9) x 5%`, capped at 80%. AC 10 = 5%, AC 14 = 25%,
-      AC 20 = 55%.
+- [x] Formula: 5% per AC above 9 through AC 20, then 2.5% per AC, capped
+      at 70% from AC 26 onward. AC 10 = 5%, AC 14 = 25%, AC 20 = 55%,
+      AC 26 = 70%.
 - [x] Shields use their AC bonus directly.
 - [x] Party reduction is derived from equipped armor and applicable statuses,
       not character level.

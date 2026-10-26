@@ -108,7 +108,10 @@ class ArmorFormulaTests(unittest.TestCase):
     def test_ac_to_percentage_reduction(self):
         self.assertEqual(self.formula.Percent(10, False), 5)
         self.assertEqual(self.formula.Percent(14, False), 25)
+        self.assertEqual(self.formula.Percent(20, False), 55)
+        self.assertEqual(self.formula.Percent(21, False), 58)
+        self.assertEqual(self.formula.Percent(26, False), 70)
         self.assertEqual(self.formula.Percent(2, True), 10)
         self.assertAlmostEqual(self.formula.Fraction(14, False), 0.25)
         self.assertEqual(self.formula.PassiveName(13.2), "DOS2C_ArmorInfo_R13")
-        self.assertEqual(self.formula.Percent(99, False), 80)
+        self.assertEqual(self.formula.Percent(99, False), 70)

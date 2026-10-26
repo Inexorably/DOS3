@@ -80,7 +80,7 @@ class ManifestTests(unittest.TestCase):
             / "ArmorPassives.txt"
         )
         stats = parse_stats(path)
-        for percent in (0, 5, 10, 25, 80):
+        for percent in (0, 5, 10, 25, 70):
             with self.subTest(percent=percent):
                 self.assertIn(f"DOS2C_ArmorInfo_R{percent}", stats)
 

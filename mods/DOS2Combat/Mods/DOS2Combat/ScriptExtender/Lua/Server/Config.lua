@@ -211,12 +211,15 @@ DOS2C.Config = {
 
     -- Armor ----------------------------------------------------------------
     -- One percentage damage-reduction stat derived from all AC sources.
-    -- AC above 9 contributes 5 percentage points per point, capped at 80%.
+    -- AC above 9 gives 5 percentage points through AC 20, then 2.5 points per
+    -- AC, capping at 70% from AC 26 onward.
     -- A shield's item ArmorClass is a bonus, so it uses that value directly.
     ARMOR_ENABLED = true,
     ARMOR_REDUCTION_BASE = 0,
     ARMOR_REDUCTION_PER_AC = 5,
-    ARMOR_REDUCTION_MAX = 80,
+    ARMOR_REDUCTION_KNEE_AC = 20,
+    ARMOR_REDUCTION_KNEE_PER_AC = 2.5,
+    ARMOR_REDUCTION_MAX = 70,
     CRIT_DAMAGE_MULTIPLIER = 2.0, -- final damage multiplier on a critical hit
     CRIT_BASE_CHANCE = 0.05,       -- server-side critical chance independent of hit chance
     CRIT_CHANCE_BONUSES = {},      -- status name -> additive chance

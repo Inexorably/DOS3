@@ -20,7 +20,7 @@ LOCA = ROOT / "mods/DOS2Combat/Localization/English/DOS2Combat.loca"
 NS = uuid.UUID("6ba7b810-9dad-11d1-80b4-00c04fd430c8")
 
 # Matches Config.ARMOR_REDUCTION_MAX.
-MAX_PERCENT = 80
+MAX_PERCENT = 70
 
 
 def handle(tag: str) -> str:
