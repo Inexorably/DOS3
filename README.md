@@ -119,6 +119,12 @@ Ubuntu runner because LSLib requires Windows.
 - Enemy AC is converted into armor resistance instead of remaining as hit
   avoidance. A hidden no-dodge status also cancels AC from statuses, spells,
   and passives, including `ACOverrideFormula` effects.
+
+![Physical and magic armor curves](docs/armor-resistance.png)
+
+The chart shows normal/heavy AC-to-armor conversion and the effective damage
+reduction for flat physical and magic armor at different incoming hit sizes.
+
 - Concentration is removed from spells.
 - Damage ranges are compressed toward their average rather than fully
   flattened.
