@@ -73,27 +73,6 @@ local function setRuntimeDisplayName(entity, guid, text)
     return applied
 end
 
-local function dodgeOf(entity, guid)
-    if Osi and Osi.GetArmorClass then
-        local ok, ac = pcall(Osi.GetArmorClass, guid)
-        if ok and tonumber(ac) then return math.max(0, tonumber(ac) - 10) end
-    end
-    local ok, boost = pcall(function() return entity.ArmorClassBoost.AC end)
-    if ok and tonumber(boost) then return math.max(0, tonumber(boost)) end
-    return 0
-end
-
-local function hitChanceFor(guid)
-    if not (Osi and Osi.GetHitChance and Osi.GetHostCharacter) then return nil end
-    local hostOk, host = pcall(Osi.GetHostCharacter)
-    if not hostOk or not host or tostring(host) == tostring(guid) then return nil end
-    local ok, chance = pcall(Osi.GetHitChance, host, guid)
-    if ok and tonumber(chance) then
-        return math.max(0, math.min(100, math.floor(tonumber(chance) + 0.5)))
-    end
-    return nil
-end
-
 function S.Snapshot(applyNames)
     local parts = {}
     local named = 0
@@ -104,21 +83,11 @@ function S.Snapshot(applyNames)
             if guid then
                 local resist = A.Get(guid)
                 if resist then
-                    local physical = math.floor(resist.physical + 0.5)
-                    local magic = math.floor(resist.magic + 0.5)
-                    local dodge = dodgeOf(entity, guid)
-                    local hit = hitChanceFor(guid)
-                    parts[#parts + 1] = string.format("%s|%d|%d|%s|%s", guid, physical, magic,
-                        dodge ~= nil and tostring(dodge) or "",
-                        hit ~= nil and tostring(hit) or "")
+                    local percent = math.floor((tonumber(resist.percent) or 0) + 0.5)
+                    parts[#parts + 1] = string.format("%s|%d", guid, percent)
                     if applyNames then
                         local base = originalDisplayName(entity, guid)
-                        local text
-                        if dodge ~= nil then
-                            text = string.format("%s  [P%d M%d D%d]", base, physical, magic, dodge)
-                        else
-                            text = string.format("%s  [P%d M%d]", base, physical, magic)
-                        end
+                        local text = string.format("%s  [DR %d%%]", base, percent)
                         if setRuntimeDisplayName(entity, guid, text) then
                             named = named + 1
                         end

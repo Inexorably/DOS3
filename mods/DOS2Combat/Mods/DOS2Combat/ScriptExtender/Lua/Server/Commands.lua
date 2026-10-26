@@ -1,8 +1,8 @@
 -- DOS2 Combat Overhaul - debug console commands.
 -- In the Script Extender console:
---   !dos2c_armor [guid]        print flat physical/magic resistance
---   !dos2c_setarmor 40 25      override host resistance
---   !dos2c_resetarmor          clear and recompute resistance caches
+--   !dos2c_armor [guid]        print percentage damage reduction
+--   !dos2c_setarmor 40         override host damage reduction (%)
+--   !dos2c_resetarmor          clear and recompute reduction caches
 --   !dos2c_patch               re-apply the stat patch pass
 --   !dos2c_rolls on|off        restore/clear BG3 attack and save rolls
 --   !dos2c_debug on|off        toggle logging
@@ -68,19 +68,18 @@ register("dos2c_armor", function(_, target)
     printLine("[DOS2C] " .. DOS2C.Armor.Dump(guid))
 end)
 
-register("dos2c_setarmor", function(_, physical, magic)
+register("dos2c_setarmor", function(_, percent)
     local guid = hostCharacter()
     if not guid then
         printLine("[DOS2C] no host character")
         return
     end
-    local p = tonumber(physical)
-    local m = tonumber(magic)
-    if not p or not m then
-        printLine("[DOS2C] usage: !dos2c_setarmor <physical> <magic>")
+    local value = tonumber(percent)
+    if not value then
+        printLine("[DOS2C] usage: !dos2c_setarmor <percent>  (0-100)")
         return
     end
-    DOS2C.Armor.Set(guid, p, m)
+    DOS2C.Armor.Set(guid, value)
     printLine("[DOS2C] " .. DOS2C.Armor.Dump(guid))
 end)
 

@@ -825,8 +825,8 @@ local function patchSpell(name, stat)
     return changed
 end
 
--- Equipment AC is captured for the DOS2 flat-resistance calculation. The
--- shared formula keeps server stats and the client hover tooltip aligned.
+-- Equipment AC is captured for the percentage damage-reduction calculation.
+-- The shared formula keeps server stats and the client hover tooltip aligned.
 local function patchArmor(name, stat)
     local ac = tonumber(U.SafeGet(stat, "ArmorClass"))
     if not ac or ac <= 0 then return false end
@@ -835,18 +835,20 @@ local function patchArmor(name, stat)
     end
 
     -- AC no longer participates in hit chance. Keep the real AC on the item
-    -- for tooltips and for the generic AC-to-armor calculation; do not add a
-    -- negative AC boost here.
+    -- for tooltips and for the generic AC-to-reduction calculation; do not add
+    -- a negative AC boost here.
     local shield = tostring(U.SafeGet(stat, "Shield") or ""):lower() == "yes"
     local formula = assert(DOS2C.ArmorFormula, "Shared/ArmorFormula.lua must load first")
-    local passivePhysical, passiveMagic = formula.Pair(
-        ac, shield, formula.IsHeavyStat(stat), DOS2C.Config)
-    local passive = formula.PassiveName(passivePhysical, passiveMagic)
+    local percent = formula.Percent(ac, shield, DOS2C.Config)
+    local passive = formula.PassiveName(percent)
     local passives = U.SafeGet(stat, "PassivesOnEquip")
     if type(passives) ~= "string" then passives = "" end
-    local updatedPassives = passives
-    if not passives:find(passive, 1, true) then
-        updatedPassives = passives ~= "" and (passives .. ";" .. passive) or passive
+    -- Migrate items that were generated with the retired physical/magic
+    -- tooltip passives. The runtime now uses one percentage passive.
+    local updatedPassives = passives:gsub("%s*;?%s*DOS2C_ArmorInfo_P%d+_M%d+%s*", "")
+    updatedPassives = updatedPassives:gsub("^%s*;%s*", ""):gsub("%s*;%s*$", "")
+    if not updatedPassives:find(passive, 1, true) then
+        updatedPassives = updatedPassives ~= "" and (updatedPassives .. ";" .. passive) or passive
     end
 
     local changed = false

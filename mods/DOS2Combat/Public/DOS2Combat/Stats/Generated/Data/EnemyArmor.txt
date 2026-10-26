@@ -1,5 +1,5 @@
 -- Runtime fallback used when the engine exposes no AC setter.
--- Enemy AC is converted into flat armor resistance; this status removes the
+-- Enemy AC is converted into percentage damage reduction; this status removes
 -- remaining native AC contribution from attack rolls.
 new entry "DOS2C_NoDodge"
 type "StatusData"

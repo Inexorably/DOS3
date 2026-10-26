@@ -80,9 +80,9 @@ class ManifestTests(unittest.TestCase):
             / "ArmorPassives.txt"
         )
         stats = parse_stats(path)
-        for physical, magic in ((0, 0), (1, 1), (3, 0), (13, 8), (40, 25)):
-            with self.subTest(physical=physical, magic=magic):
-                self.assertIn(f"DOS2C_ArmorInfo_P{physical}_M{magic}", stats)
+        for percent in (0, 5, 10, 25, 80):
+            with self.subTest(percent=percent):
+                self.assertIn(f"DOS2C_ArmorInfo_R{percent}", stats)
 
     def test_summon_economy_marker_is_defined(self):
         path = (

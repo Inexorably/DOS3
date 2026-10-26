@@ -114,24 +114,19 @@ Ubuntu runner because LSLib requires Windows.
 - Cooldowns use DOS2-style turn counts. Out of combat, one turn is six seconds.
 - Native attack rolls are removed, so weapon and spell attacks cannot miss.
 - Saving throws are removed from spell resolution.
-- Physical and magic armor are flat per-hit resistance sourced from equipment
-  and effects. Armor does not deplete.
-- Enemy AC is converted into armor resistance instead of remaining as hit
+- All AC sources are converted into **one percentage damage-reduction stat**.
+  There are no separate physical and magic armor buckets. Every damage type
+  uses the same reduction.
+- The formula is `(AC - 9) x 5%`, capped at 80%: AC 10 = 5%, AC 14 = 25%,
+  AC 20 = 55%. Shield items use their ArmorClass bonus directly.
+- Enemy AC is converted into damage reduction instead of remaining as hit
   avoidance. A hidden no-dodge status also cancels AC from statuses, spells,
   and passives, including `ACOverrideFormula` effects.
 
-![Physical and magic armor curves](docs/armor-resistance.png)
+![AC to damage reduction and damage after reduction](docs/armor-resistance.png)
 
-The chart shows normal/heavy AC-to-armor conversion and the effective damage
-reduction for flat physical and magic armor at different incoming hit sizes.
-
-- Damage is classified per damage pair. Physical damage is
-  **Slashing, Piercing, and Bludgeoning**. Every other BG3 damage type,
-  including **Acid, Thunder, Necrotic, Fire, Lightning, Cold, Psychic, Poison,
-  Radiant, and Force**, is treated as magic. `None`/unknown damage currently
-  falls through to magic as well.
-- A mixed-damage hit can be reduced by both pools: each damage pair uses its
-  own physical or magic resistance, and the amounts are summed.
+The chart shows the AC-to-reduction mapping and the damage remaining after
+reduction for several reduction values.
 
 - Concentration is removed from spells.
 - Damage ranges are compressed toward their average rather than fully
@@ -142,13 +137,13 @@ reduction for flat physical and magic armor at different incoming hit sizes.
 ```text
 !dos2c_status                 # print AP, cooldown, armor, and patch state
 !dos2c_ap                     # dump the host's ActionResources (current/max AP)
-!dos2c_armor [guid]           # show physical/magic armor for the host or a GUID
-!dos2c_setarmor <phys> <mag>   # override the host's flat armor values
-!dos2c_resetarmor             # clear and recompute cached armor from AC/statuses
+!dos2c_armor [guid]           # show percentage damage reduction for a character
+!dos2c_setarmor <percent>      # override the host's damage reduction (0-100)
+!dos2c_resetarmor             # clear and recompute reduction from AC/statuses
 !dos2c_patch                  # reapply the stat patches and repair runtime AP
 !dos2c_fixap                  # reapply the AP pool to existing-save characters
 !dos2c_rolls on|off           # debug: restore native rolls / reapply no-roll rules
-!dos2c_armorui on|off         # toggle the client armor/accuracy overlay
+!dos2c_armorui on|off         # toggle the client damage-reduction overlay
 !dos2c_debug on|off           # toggle verbose DOS2Combat logging
 !dos2c_weapon                 # print equipped weapon stats and dice-roll data
 ```

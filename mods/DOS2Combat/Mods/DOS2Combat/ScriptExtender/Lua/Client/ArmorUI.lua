@@ -1,7 +1,7 @@
 -- DOS2 Combat Overhaul - overhead armor readout.
 --
 -- BG3's overhead label follows CustomName. We keep the character's original
--- name and append the physical/magic flat resistance sent by the server.
+-- name and append the percentage damage reduction sent by the server.
 -- This is intentionally a text POC: it works for party members and enemies
 -- without needing engine world-to-screen projection.
 
@@ -56,10 +56,7 @@ local function parse(payload)
         local guid = fields[1]
         if guid and guid ~= "" then
             values[guid] = {
-                physical = tonumber(fields[2]) or 0,
-                magic = tonumber(fields[3]) or 0,
-                dodge = tonumber(fields[4]),
-                hit = tonumber(fields[5]),
+                percent = tonumber(fields[2]) or 0,
             }
         end
     end
@@ -130,11 +127,9 @@ local function itemArmorText(entity)
     if not armor then return "" end
     local formula = DOS2C.ArmorFormula
     if not formula then return "" end
-    local physical, magic = formula.Pair(
-        armor.ArmorClass, armor.Shield, formula.IsHeavyStat(armor), DOS2C.Config)
-    if physical <= 0 and magic <= 0 then return "" end
-    return string.format("Physical Armor: %d    Magic Armor: %d",
-        math.floor(physical + 0.5), math.floor(magic + 0.5))
+    local percent = formula.Percent(armor.ArmorClass, armor.Shield, DOS2C.Config)
+    if percent <= 0 then return "" end
+    return string.format("Damage Reduction: %d%%", math.floor(percent + 0.5))
 end
 
 local function hoveredGuid()
@@ -270,9 +265,7 @@ local function updateHoveredArmor()
         if item then
             text = itemArmorText(item)
         elseif value then
-            local accuracy = value.hit and string.format("    Accuracy: %d%%", value.hit) or ""
-            text = string.format("Physical Armor: %d    Magic Armor: %d%s",
-                math.floor(value.physical + 0.5), math.floor(value.magic + 0.5), accuracy)
+            text = string.format("Damage Reduction: %d%%", math.floor((value.percent or 0) + 0.5))
         end
         if guid ~= lastTargetGuid then
             lastTargetGuid = guid

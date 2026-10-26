@@ -105,11 +105,10 @@ class ArmorFormulaTests(unittest.TestCase):
         )
         cls.formula = cls.lua.globals().DOS2C.ArmorFormula
 
-    def test_base_and_gear_pairs(self):
-        physical, magic = self.formula.Pair(10, False, False)
-        self.assertEqual((physical, magic), (1, 1))
-        physical, magic = self.formula.Pair(14, False, False)
-        self.assertEqual((physical, magic), (5, 5))
-        physical, magic = self.formula.Pair(2, True, False)
-        self.assertEqual((physical, magic), (3, 0))
-        self.assertEqual(self.formula.PassiveName(13.2, 7.6), "DOS2C_ArmorInfo_P13_M8")
+    def test_ac_to_percentage_reduction(self):
+        self.assertEqual(self.formula.Percent(10, False), 5)
+        self.assertEqual(self.formula.Percent(14, False), 25)
+        self.assertEqual(self.formula.Percent(2, True), 10)
+        self.assertAlmostEqual(self.formula.Fraction(14, False), 0.25)
+        self.assertEqual(self.formula.PassiveName(13.2), "DOS2C_ArmorInfo_R13")
+        self.assertEqual(self.formula.Percent(99, False), 80)

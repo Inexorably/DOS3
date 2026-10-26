@@ -52,7 +52,7 @@
       not add a baseline accuracy boost.
 - [x] Keep saving throws removed; unwrap saving-throw-only effect gates.
 - [x] Convert AC from gear, spells, passives, and enemy native AC into one
-      generic physical/magic armor value.
+      percentage damage-reduction value.
 - [x] Convert native attack-roll advantage/disadvantage statuses and passives
       into deterministic outgoing-damage modifiers; advantage and disadvantage
       cancel if both are present.
@@ -229,37 +229,35 @@ Known DOS2 visual references for the current test spells:
 
 ## Armor
 
-- [x] Armor no longer depletes; it is flat per-hit physical/magic resistance.
-- [x] Party resistance is derived from equipped armor and applicable statuses,
+- [x] Armor no longer depletes; all AC sources feed one percentage
+      damage-reduction stat.
+- [x] Formula: `(AC - 9) x 5%`, capped at 80%. AC 10 = 5%, AC 14 = 25%,
+      AC 20 = 55%.
+- [x] Shields use their AC bonus directly.
+- [x] Party reduction is derived from equipped armor and applicable statuses,
       not character level.
-- [x] Non-party enemies without equipment derive P/M armor from native AC.
-- [x] Enemy native AC is converted to armor and removed from attack rolls.
-- [x] Shields use their AC bonus rather than the base-AC-minus-10 formula.
-- [ ] Verify enemy innate armor and enemy AC removal in-game.
+- [x] Enemy native AC is converted to reduction and removed from attack rolls.
+- [ ] Verify enemy AC removal and percentage conversion in-game.
 - [x] A StatsDamage fallback handles damage paths where Hit.DamageList is
       empty.
 - [x] CC gating is intentionally skipped for now.
-- [x] Short/long-rest hooks reset cooldown state and armor caches.
-- [ ] Verify gear-to-resistance values and the StatsDamage fallback in-game.
-- [x] Keep the real item AC for display/resistance and cancel its native
-      attack-roll contribution with a matching negative AC boost.
-- [ ] Verify the negative AC boost cancels gear AC from hit chance without
-      changing the displayed item AC.
+- [x] Short/long-rest hooks reset cooldown state and reduction caches.
+- [ ] Verify gear-to-reduction values and the StatsDamage fallback in-game.
+- [x] Keep the real item AC for display/reduction and suppress its native
+      hit-chance contribution.
+- [ ] Verify gear AC no longer changes hit chance and item tooltips show `%`
+      reduction.
 
 ## Armor UI
 
-- [x] Client armor overlay shows `Physical Armor` and `Magic Armor` for the
-      hovered character.
-- [x] The same overlay calculates and shows P/M resistance for a hovered armor
-      item.
-- [x] Server -> client armor snapshot broadcast.
+- [x] Client overlay shows `Damage Reduction: N%` for the hovered character.
+- [x] The same overlay calculates and shows percentage reduction for a hovered
+      armor item.
+- [x] Server -> client reduction snapshot broadcast.
 - [ ] Verify character and item hover overlays in-game; item hover depends on
       the picking helper exposing the item entity as `entry.Tooltip`.
-- [x] Native `Armour Class`/`AC` labels are renamed to Dodge; item P/M values
-      remain visible through the generated armor passives and hover overlay.
-- [x] Remove Dodge from the armor widget; show only Physical and Magic armor.
-- [x] Show engine-derived Accuracy in the character armor overlay.
-- [x] Remove the static 95% accuracy label; broadcast actual `Osi.GetHitChance` when available.
+- [x] Item tooltip passives show `Damage Reduction: N%` with generated
+      localization.
 - [x] Armor overlay is dynamically sized and centered from LastSize once the
       layout exists; the last nonzero width is cached for re-shown labels.
 - [ ] Verify dynamic sizing no longer clips the bottom or becomes too wide.
@@ -267,8 +265,8 @@ Known DOS2 visual references for the current test spells:
 
 ## DOS2 Combat compatibility gaps
 
-- [x] Use no hit-roll RNG. Every AC source now becomes generic physical/magic
-      armor; native AC and Dodge no longer affect hit chance.
+- [x] Use no hit-roll RNG. Every AC source now becomes one percentage
+      damage-reduction stat; native AC and Dodge no longer affect hit chance.
 - [x] Apply a final-damage multiplier when native critical-hit metadata is
       present.
 - [x] Added a server-authoritative 5% custom critical chance, configurable
@@ -321,12 +319,12 @@ Known DOS2 visual references for the current test spells:
       `Disadvantage(AttackRoll)` statuses can produce misses again.
 - [ ] `[DOS2C][VERIFY]` appears once after session load and reports host AP,
       Firebolt fields, cooldowns, and equipped-armor AC/boosts/passives.
-- [ ] Equipping armor changes P/M resistance but does not change hit chance.
-- [ ] Character armor overlay and armor-item hover overlay show correct P/M.
-- [ ] Armor label is not truncated at any physical/magic value.
+- [ ] Equipping armor changes percentage reduction but does not change hit chance.
+- [ ] Character armor overlay and armor-item hover overlay show correct `%` damage reduction.
+- [ ] Armor label is not truncated at any percentage value.
 - [ ] Item tooltip shows the real AC, not a normalized 10/0.
-- [ ] Item tooltip shows a `Physical Armor` / `Magic Armor` passive line with
-      the generated localization.
+- [ ] Item tooltip shows a `Damage Reduction: N%` passive line with the
+      generated localization.
 - [ ] Cooldown enum mapping:
       `OncePerTurnNoRealtime=2`, `UntilShortRest=3`,
       `OncePerShortRestPerItem=4`, `UntilRest=5`,
@@ -364,7 +362,7 @@ Known DOS2 visual references for the current test spells:
 - [ ] Verify champion statuses remain permanent for the whole fight and do not
       rotate through auras or native status remove events.
 - [ ] Verify enemy AC/ACOverrideFormula grants no hit chance and is converted
-      into flat armor resistance.
+      into percentage damage reduction.
 - [ ] Verify each non-summoning champion applies its listed statuses/passives
       and that all granted spell/status/passive names resolve in-game.
 - [ ] Verify each summoning champion grants its full 2-4 summon skill list and

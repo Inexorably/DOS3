@@ -163,7 +163,7 @@ DOS2C.Config = {
 
     -- Determinism ----------------------------------------------------------
     -- No hit-roll RNG: native attack rolls are removed. AC is converted into
-    -- flat armor; attack-roll advantage/disadvantage statuses are converted
+    -- percentage damage reduction; attack-roll advantage/disadvantage statuses are converted
     -- into deterministic outgoing damage modifiers by StatsPatcher/Armor.
     REMOVE_ATTACK_ROLLS = true,
     REMOVE_CONCENTRATION = true, -- DOS2 has no concentration; strip it from every skill
@@ -210,17 +210,13 @@ DOS2C.Config = {
     MOVEMENT_UNITS_PER_AP = 5,   -- DOS2: 1 AP per 5 units of distance
 
     -- Armor ----------------------------------------------------------------
-    -- DOS2 armor comes from equipment and skills, not character level.
+    -- One percentage damage-reduction stat derived from all AC sources.
+    -- AC above 9 contributes 5 percentage points per point, capped at 80%.
+    -- A shield's item ArmorClass is a bonus, so it uses that value directly.
     ARMOR_ENABLED = true,
-    ARMOR_BASE_PHYSICAL = 0,
-    ARMOR_BASE_MAGIC = 0,
-    ARMOR_PER_LEVEL = 0,
-    ARMOR_PHYSICAL_PER_AC = 1,    -- flat physical resistance per AC above 9
-    ARMOR_MAGIC_PER_AC = 1,       -- flat magic resistance per AC above 9
-    ARMOR_HEAVY_PHYSICAL_MULT = 1.25,
-    ARMOR_HEAVY_MAGIC_MULT = 0.75,
-    ARMOR_SHIELD_PHYSICAL_MULT = 1.5,
-    ARMOR_SHIELD_MAGIC_MULT = 0,
+    ARMOR_REDUCTION_BASE = 0,
+    ARMOR_REDUCTION_PER_AC = 5,
+    ARMOR_REDUCTION_MAX = 80,
     CRIT_DAMAGE_MULTIPLIER = 2.0, -- final damage multiplier on a critical hit
     CRIT_BASE_CHANCE = 0.05,       -- server-side critical chance independent of hit chance
     CRIT_CHANCE_BONUSES = {},      -- status name -> additive chance
@@ -240,24 +236,6 @@ DOS2C.Config = {
     BLINDED_RANGE_CAP_ENABLED = true,
     BLINDED_RANGE_CAP = 1.5,
     ARMOR_RESET_ON_REST = true,
-    -- AC is converted generically into physical/magic armor. These weights
-    -- are applied to the AC total contributed by the active effect. Default
-    -- (no matching status) is an even 1.0/1.0 split.
-    ARMOR_AC_SPLITS = {
-        MAGE_ARMOR = { physical = 0.5, magic = 1.25 },
-        SHIELD = { physical = 0.75, magic = 1.25 },
-        SHIELD_OF_FAITH = { physical = 0.75, magic = 1.25 },
-        BARKSKIN = { physical = 1.25, magic = 0.5 },
-        ARMOR_OF_AGATHYS = { physical = 1.25, magic = 0.5 },
-        ARMOR_OF_AGATHYS_2 = { physical = 1.25, magic = 0.5 },
-        ARMOR_OF_AGATHYS_3 = { physical = 1.25, magic = 0.5 },
-        BLADE_WARD = { physical = 1.0, magic = 0.75 },
-    },
-    ARMOR_AC_SPLIT_ORDER = {
-        "MAGE_ARMOR", "SHIELD", "SHIELD_OF_FAITH", "BARKSKIN",
-        "ARMOR_OF_AGATHYS", "ARMOR_OF_AGATHYS_2", "ARMOR_OF_AGATHYS_3",
-        "BLADE_WARD",
-    },
     -- Experimental: block hard CC while the matching armor pool is alive.
     -- Leave false until the armor hook has been verified in-game.
     ARMOR_CC_GATING = false,

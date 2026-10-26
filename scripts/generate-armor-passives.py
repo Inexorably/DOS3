@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
-"""Generate armor tooltip passives and their localization.
+"""Generate percentage armor tooltip passives and their localization.
 
 The passives carry no gameplay boosts. They exist so an item tooltip can show
-the physical/magic resistance that the shared ArmorFormula computes.
+the percentage damage reduction that the shared ArmorFormula computes.
 
-The generator intentionally covers the full practical range instead of only
-the combinations present in the current equipment table. This prevents shields
-and high-AC heavy armor from referencing a missing `_M0`/high-AC passive.
+The generator covers the full configured cap so any item AC maps to an
+existing ``DOS2C_ArmorInfo_R<N>`` passive.
 """
 
 from __future__ import annotations
@@ -20,10 +19,8 @@ OUT = ROOT / "mods/DOS2Combat/Public/DOS2Combat/Stats/Generated/Data/ArmorPassiv
 LOCA = ROOT / "mods/DOS2Combat/Localization/English/DOS2Combat.loca"
 NS = uuid.UUID("6ba7b810-9dad-11d1-80b4-00c04fd430c8")
 
-# Comfortably larger than any current vanilla or generated item's AC-derived
-# resistance. Armor.lua/StatsPatcher use the same integer naming convention.
-MAX_PHYSICAL = 40
-MAX_MAGIC = 25
+# Matches Config.ARMOR_REDUCTION_MAX.
+MAX_PERCENT = 80
 
 
 def handle(tag: str) -> str:
@@ -56,7 +53,6 @@ def write_loca(path: Path, entries: list[tuple[str, str]]) -> None:
     out = bytearray(b"LOCA") + struct.pack("<II", len(entries), texts_offset)
     for key, _ in entries:
         out += key.encode("utf-8")[:64].ljust(64, b"\0")
-        # Text lengths and offsets are filled from the text table below.
         out += struct.pack("<HI", 1, 0)
     text_table = bytearray()
     for index, (_, value) in enumerate(entries):
@@ -70,35 +66,42 @@ def write_loca(path: Path, entries: list[tuple[str, str]]) -> None:
 def main() -> None:
     lines = [
         "-- Generated armor tooltip passives. These carry no gameplay boosts;",
-        "-- they exist so the item tooltip can show the DOS2 resistance values.",
+        "-- they exist so the item tooltip can show damage reduction percentage.",
         "",
     ]
     loca_entries: list[tuple[str, str]] = []
-    for physical in range(MAX_PHYSICAL + 1):
-        for magic in range(MAX_MAGIC + 1):
-            name = f"DOS2C_ArmorInfo_P{physical}_M{magic}"
-            name_handle = handle(name + "/name")
-            desc_handle = handle(name + "/desc")
-            lines.extend([
-                f'new entry "{name}"',
-                'type "PassiveData"',
-                f'data "DisplayName" "{name_handle}"',
-                f'data "Description" "{desc_handle}"',
-                'data "Properties" "Highlighted"',
-                '',
-            ])
-            loca_entries.append((name_handle, f"Physical Armor: {physical}    Magic Armor: {magic}"))
-            loca_entries.append((desc_handle, f"Gear grants {physical} physical armor and {magic} magic armor."))
+    for percent in range(MAX_PERCENT + 1):
+        name = f"DOS2C_ArmorInfo_R{percent}"
+        name_handle = handle(name + "/name")
+        desc_handle = handle(name + "/desc")
+        lines.extend([
+            f'new entry "{name}"',
+            'type "PassiveData"',
+            f'data "DisplayName" "{name_handle}"',
+            f'data "Description" "{desc_handle}"',
+            'data "Properties" "Highlighted"',
+            '',
+        ])
+        loca_entries.append((name_handle, f"Damage Reduction: {percent}%"))
+        loca_entries.append((desc_handle, f"Gear grants {percent}% damage reduction."))
 
     OUT.write_text("\n".join(lines), encoding="utf-8")
 
     existing = read_loca(LOCA)
+    # Drop localization entries from the retired physical/magic passives.
+    existing = [
+        (key, text) for key, text in existing
+        if not (
+            text.startswith("Physical Armor:")
+            or (text.startswith("Gear grants ") and "physical armor" in text)
+        )
+    ]
     known = {key for key, _ in existing}
     for key, text in loca_entries:
         if key not in known:
             existing.append((key, text))
     write_loca(LOCA, existing)
-    print(f"armor passives: {(MAX_PHYSICAL + 1) * (MAX_MAGIC + 1)}; loca entries: {len(existing)}")
+    print(f"armor passives: {MAX_PERCENT + 1}; loca entries: {len(existing)}")
 
 
 if __name__ == "__main__":

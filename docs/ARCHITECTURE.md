@@ -81,7 +81,7 @@ Server/Loot
 4. `Cooldowns` tracks numeric turn cooldowns per caster and writes temporary
    `SpellBookCooldowns` entries for native UI/state.
 5. `Armor` caches original AC, suppresses its hit-chance contribution, derives
-   flat physical/magic resistance, and applies resistance in the damage event.
+   one percentage damage-reduction value, and applies it in the damage event.
 
 Important: some stat fields are expression objects rather than strings. In
 particular, `SpellRoll` may be a table; use the raw attribute path when clearing
@@ -95,7 +95,7 @@ The damage path is score-authoritative on the server:
 Ext.Events.DealDamage
   -> identify attacker/target
   -> detect critical metadata or roll custom critical
-  -> apply flat armor resistance
+  -> apply percentage damage reduction
   -> apply critical multiplier after armor
   -> write adjusted damage pairs
 ```
@@ -120,9 +120,9 @@ the same pair twice.
   Barkskin, Mage Armor, gear, and passives, contribute to armor.
 - `DOS2C_NoDodge` plus `Osi.SetArmorClass`/`SetArmorClassBoost` fallbacks
   prevent later AC sources from reintroducing hit chance.
-- Armor is flat resistance; it does not deplete.
-- `ArmorSync` sends a compact snapshot to the client; client code must not
-  reimplement the formula with independent constants.
+- Armor is a single percentage damage-reduction stat; it does not deplete.
+- `ArmorSync` sends a compact `guid|reduction%` snapshot to the client;
+  client code must not reimplement the formula with independent constants.
 
 ## Enemy Randomization Data Flow
 

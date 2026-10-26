@@ -8,10 +8,9 @@ fields in `Public/*/Stats/Generated/Data/*.txt`.
 | Term | Meaning |
 | --- | --- |
 | **AP** | Action Points. DOS2-style turn resource. This project starts at 4, caps at 6, and regenerates 4 per turn. |
-| **Armor** | Flat per-hit physical or magic resistance. It is not an AC/dodge value and does not deplete. |
-| **Physical armor** | Resistance applied to bludgeoning, piercing, and slashing damage. |
-| **Magic armor** | Resistance applied to non-physical damage types. |
-| **AC** | Armor Class. In vanilla BG3 it affects hit chance; here equipment/status AC is converted into flat armor and native AC is prevented from affecting attacks. |
+| **Armor** | Single percentage damage-reduction stat derived from all AC sources. It is not an AC/dodge value and does not deplete. |
+| **Damage reduction** | The percentage of each incoming damage instance removed by armor. All damage types use the same value. |
+| **AC** | Armor Class. In vanilla BG3 it affects hit chance; here equipment/status AC is converted into percentage damage reduction and native AC is prevented from affecting attacks. |
 | **Dodge** | The remaining native AC concept used only where the engine still evaluates an attack roll. Most DOS2Combat attacks are configured not to miss. |
 | **Attack roll** | BG3 d20 attack check. DOS2Combat removes it for normal combat resolution. |
 | **Saving throw** | BG3 d20 defense check. DOS2Combat removes saving throws; saving-throw-only effects are intentionally inert. |
