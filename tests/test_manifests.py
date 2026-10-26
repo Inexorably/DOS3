@@ -113,10 +113,8 @@ class ManifestTests(unittest.TestCase):
         self.assertEqual(bedroll.get("TargetConditions"), "Self()")
         self.assertEqual(bedroll.get("Requirements"), "!Combat")
         self.assertEqual(bedroll.get("UseCosts"), "")
-        self.assertEqual(bedroll.get("Icon"), "Action_ContactMizora")
+        self.assertEqual(bedroll.get("Icon"), "Action_Paladin_LayOnHands_BigHeal")
         self.assertTrue(bedroll.get("DisplayName", "").startswith("h"))
-        icon_xml = read(MODS / "DOS2Combat" / "Public" / "Shared" / "GUI" / "Icons_Skills.lsx")
-        self.assertIn('value="Action_ContactMizora"', icon_xml)
         bootstrap = read(
             MODS
             / "DOS2Combat"
