@@ -24,12 +24,9 @@ class CustomClassesTests(unittest.TestCase):
 
         self.assertEqual(charge["Cooldown"], "OncePerTurn")
         self.assertEqual(charge["UseCosts"], "ActionPoint:1")
-        self.assertIn("TeleportSource()", charge["SpellProperties"])
-        self.assertIn("CreateExplosion(CC_BallCharge_Explosion)", charge["SpellProperties"])
-        self.assertIn("CannotTargetCharacter", charge["SpellFlags"])
+        self.assertIn("DealDamage(2d6,Bludgeoning)", charge["SpellSuccess"])
+        self.assertNotIn("CC_BallCharge_Explosion", spells)
         self.assertEqual(charge["SpellRoll"], "")
-        explosion = spells["CC_BallCharge_Explosion"]
-        self.assertIn("AOE:DealDamage(2d6,Bludgeoning)", explosion["SpellProperties"])
         self.assertEqual(charge.get("RequirementConditions"), "")
         self.assertEqual(charge.get("Requirements"), "")
         self.assertEqual(charge.get("RechargeValues"), "")
