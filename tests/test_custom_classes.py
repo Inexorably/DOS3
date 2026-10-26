@@ -37,7 +37,9 @@ class CustomClassesTests(unittest.TestCase):
         ball = chars["CC_Ball"]
 
         self.assertIn("Movement:0", ball["ActionResources"])
-        self.assertIn("ScaleMultiplier(0.333333)", ball["DefaultBoosts"])
+        self.assertEqual(ball.get("Vitality"), "1")
+        self.assertIn("InvulnerableAndInteractive", ball.get("Flags", ""))
+        self.assertIn("ScaleMultiplier(0.111111)", ball["DefaultBoosts"])
         self.assertIn("UnlockSpell(CC_BallCharge)", ball["DefaultBoosts"])
 
     def test_generated_root_and_localization_exist(self):

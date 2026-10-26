@@ -71,6 +71,14 @@ def build_root_template() -> None:
         raise SystemExit("Unique_HellSphere root template not found")
 
     go = copy.deepcopy(sphere)
+    # The source Hell Sphere carries a default LOW_HOH_HELLSPHERE status, native
+    # AI skills, death effects, and tags. Strip those so the orb is a clean
+    # player-controlled summon rather than a hostile Hell Sphere.
+    child_container = go.find("./children")
+    if child_container is not None:
+        for child in list(child_container):
+            if child.get("id") in ("StatusList", "SkillList", "OnDeathActions", "Tags"):
+                child_container.remove(child)
     set_attr(go, "MapKey", BALL_GUID)
     set_attr(go, "Name", "CC_Ball")
     set_attr(go, "Stats", "CC_Ball")
@@ -175,13 +183,13 @@ data "Intelligence" "10"
 data "Wisdom" "10"
 data "Charisma" "10"
 data "Armor" "10"
-data "Vitality" "5"
+data "Vitality" "1"
 data "Weight" "0.1"
 data "GameSize" "Tiny"
-data "Flags" "Floating"
+data "Flags" "Floating;InvulnerableAndInteractive"
 data "PersonalStatusImmunities" "SILENCED;BLEEDING;GAPING_WOUND;CHEST_TRAUMA;SHOCKED;BURNING;SG_Condition;CRIPPLED;WILD_MAGIC_BURNING"
 data "ActionResources" "ActionPoint:1;BonusActionPoint:1;Movement:0"
-data "DefaultBoosts" "DialogueBlock();BlockRegainHP(Undead;Construct;Living);ScaleMultiplier(0.333333);UnlockSpell(CC_BallCharge)"
+data "DefaultBoosts" "DialogueBlock();BlockRegainHP(Undead;Construct;Living);ScaleMultiplier(0.111111);UnlockSpell(CC_BallCharge)"
 data "Passives" "DarknessRules;ShortResting"
 data "BludgeoningResistance" "Resistant"
 data "SlashingResistance" "Resistant"

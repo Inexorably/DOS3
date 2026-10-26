@@ -455,8 +455,12 @@ The main menu cannot respec because no character is loaded there.
 is the **Summon Ball** cantrip:
 
 - Summons a tiny persistent sphere body using the Black Hole visual overlay at
-  one-third scale. The body supplies a portrait and stays visible; the native
-  Black Hole cast effect is transient.
+  one-third of its previous size. The body supplies a portrait and stays
+  visible; the native Black Hole cast effect is transient.
+- It uses 1 HP with `InvulnerableAndInteractive` so it behaves like a utility
+  summon rather than a combatant enemies should target.
+- The Hell Sphere default status, AI skill list, death effects, and tags are
+  stripped from the cloned root.
 - The Charge action has no weapon requirement and does not require a melee
   weapon.
 - The orb has no natural movement resource.
