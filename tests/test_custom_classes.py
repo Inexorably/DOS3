@@ -23,8 +23,8 @@ class CustomClassesTests(unittest.TestCase):
         self.assertIn(BALL_ROOT, summon["TargetConditions"])
 
         self.assertEqual(charge["Cooldown"], "OncePerTurn")
-        self.assertEqual(charge["UseCosts"], "ActionPoint:1")
-        self.assertIn("DealDamage(2d6,Bludgeoning)", charge["SpellSuccess"])
+        self.assertEqual(charge["UseCosts"], "ActionPoint:2")
+        self.assertIn("DealDamage(3,Bludgeoning)", charge["SpellSuccess"])
         self.assertNotIn("CC_BallCharge_Explosion", spells)
         self.assertIn("0319ca29-4024-4649-9278-3c1f20c5f023", charge["SpellAnimation"])
         self.assertEqual(charge["SpellRoll"], "")
@@ -39,6 +39,7 @@ class CustomClassesTests(unittest.TestCase):
         ball = chars["CC_Ball"]
 
         self.assertIn("Movement:0", ball["ActionResources"])
+        self.assertIn("ActionPoint:2", ball["ActionResources"])
         self.assertEqual(ball.get("Vitality"), "3")
         self.assertIn("Floating", ball.get("Flags", ""))
         self.assertNotIn("Invulnerable", ball["DefaultBoosts"])

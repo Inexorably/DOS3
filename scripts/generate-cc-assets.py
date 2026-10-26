@@ -169,15 +169,15 @@ data "SpellAnimationIntentType" "Aggressive"
 data "PrepareEffect" "5822e00d-08d9-4ac0-8889-7ae3cb56d2d7"
 data "CastEffect" "6e871034-4d0c-4851-91ce-9d8f28343e85"
 data "TargetEffect" "18169d09-2a36-4c15-b647-ba6f97ba7712"
-data "SpellSuccess" "DealDamage(2d6,Bludgeoning)"
+data "SpellSuccess" "DealDamage(3,Bludgeoning)"
 data "SpellFail" ""
 data "TargetConditions" "not Self() and not Ally()"
 data "DisplayName" "{handle('CC_BallCharge/name')}"
 data "Description" "{handle('CC_BallCharge/desc')}"
-data "TooltipDamageList" "DealDamage(2d6,Bludgeoning)"
+data "TooltipDamageList" "DealDamage(3,Bludgeoning)"
 data "TooltipAttackSave" ""
 data "Icon" "Action_Boar_Charge"
-data "UseCosts" "ActionPoint:1"
+data "UseCosts" "ActionPoint:2"
 data "DamageType" "Bludgeoning"
 data "SpellFlags" "IsHarmful"
 ''',
@@ -204,7 +204,7 @@ data "Weight" "0.1"
 data "GameSize" "Tiny"
 data "Flags" "Floating;InvulnerableAndInteractive"
 data "PersonalStatusImmunities" "SILENCED;BLEEDING;GAPING_WOUND;CHEST_TRAUMA;SHOCKED;BURNING;SG_Condition;CRIPPLED;WILD_MAGIC_BURNING"
-data "ActionResources" "ActionPoint:1;BonusActionPoint:1;Movement:0"
+data "ActionResources" "ActionPoint:2;BonusActionPoint:1;Movement:0"
 data "DefaultBoosts" "BlockRegainHP(Undead;Construct;Living);UnlockSpell(CC_BallCharge);StatusImmunity(SG_Blinded);StatusImmunity(SG_Charmed);StatusImmunity(SG_Condition);StatusImmunity(SG_Cursed);StatusImmunity(SG_DifficultTerrain);StatusImmunity(SG_Disease);StatusImmunity(SG_Exhausted);StatusImmunity(SG_Fleeing);StatusImmunity(SG_Frightened);StatusImmunity(SG_Incapacitated);StatusImmunity(SG_Paralyzed);StatusImmunity(SG_Petrified);StatusImmunity(SG_Poisoned);StatusImmunity(SG_Polymorph);StatusImmunity(SG_Possessed);StatusImmunity(SG_Prone);StatusImmunity(SG_Restrained);StatusImmunity(SG_Sleeping);StatusImmunity(SG_Sleeping_Magical);StatusImmunity(SG_Stunned);StatusImmunity(SG_Surface);StatusImmunity(SG_Unconscious)"
 data "Passives" "DarknessRules;ShortResting"
 data "DifficultyStatuses" "STATUS_EASY:PLAYER_BONUSES_EASYMODE"
@@ -223,7 +223,7 @@ def write_loca() -> None:
         (handle("CC_BallCharge/name"), "Charge"),
         (
             handle("CC_BallCharge/desc"),
-            "Charge toward an enemy, dealing 2d6 bludgeoning damage. Once per turn.",
+            "Charge toward an enemy, dealing 3 bludgeoning damage for 2 AP. Once per turn.",
         ),
         (handle("CC_Ball/name"), "Arcane Orb"),
     ]

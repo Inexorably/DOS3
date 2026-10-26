@@ -486,8 +486,8 @@ is the **Summon Ball** cantrip:
 - Mage Hand's movement skill list is removed and the orb has zero movement
   resource, so it cannot walk. Charge still works through the Rush spell, which
   handles its own movement.
-- It has a **Charge** action that costs 1 AP, deals `2d6` bludgeoning damage,
-  and has a one-turn cooldown.
+- It has a **Charge** action that costs **2 AP**, deals **3 fixed**
+  bludgeoning damage, and has a one-turn cooldown.
 - While `GRANT_TEST_CANTRIP` is enabled in `Server/Config.lua`, the test
   bootstrap grants the cantrip to every party member. This is a testing aid;
   disable it once the spell is granted through a real class progression.
