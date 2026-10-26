@@ -458,13 +458,14 @@ is the **Summon Ball** cantrip:
   one-third of its previous size. The body supplies a portrait and stays
   visible; the native Black Hole cast effect is transient.
 - `CC_Ball` inherits directly from `MageHand` for the summon behavior and
-  targeting rules. Its root adds the visible `INVULNERABLE` and
-  `FREEDOM_OF_MOVEMENT` statuses, so the orb cannot be damaged, ignores
-  movement-impairing effects, and shows its invulnerability in the UI.
-- `CC_Ball` also applies broad `StatusImmunity` groups for charm, fear,
+  targeting rules. Its root adds the visible `INVULNERABLE` status, so the orb
+  cannot be damaged and the condition is obvious in the UI.
+- `CC_Ball` applies broad `StatusImmunity` groups for charm, fear,
   incapacitation, paralysis, petrification, prone, restraint, stun, sleep,
-  polymorph, and related conditions, clearing Mage Hand's inherited damage
-  resistances.
+  polymorph, and related conditions. These include Freedom of Movement's
+  paralysis/restraint/difficult-terrain immunity, so the separate
+  `FREEDOM_OF_MOVEMENT` status is redundant and is not applied. Mage Hand's
+  inherited damage resistances are cleared.
 - The root starts at its final small scale instead of spawning large and
   shrinking.
 - The Charge action clears its inherited long animation and target-hit delay.

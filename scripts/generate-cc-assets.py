@@ -81,7 +81,7 @@ def build_root_template() -> None:
                 child_container.remove(child)
         status_list = ET.SubElement(child_container, "node", {"id": "StatusList"})
         statuses = ET.SubElement(status_list, "children")
-        for status_name in ("INVULNERABLE", "FREEDOM_OF_MOVEMENT"):
+        for status_name in ("INVULNERABLE",):
             status = ET.SubElement(statuses, "node", {"id": "Status"})
             ET.SubElement(
                 status,
