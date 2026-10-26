@@ -113,7 +113,10 @@ class ManifestTests(unittest.TestCase):
         self.assertEqual(bedroll.get("TargetConditions"), "Self()")
         self.assertEqual(bedroll.get("Requirements"), "!Combat")
         self.assertEqual(bedroll.get("UseCosts"), "")
+        self.assertEqual(bedroll.get("Icon"), "DOS2C_Bedroll_DOS2Icon")
         self.assertTrue(bedroll.get("DisplayName", "").startswith("h"))
+        icon_xml = read(MODS / "DOS2Combat" / "Public" / "Shared" / "GUI" / "Icons_Skills.lsx")
+        self.assertIn('value="DOS2C_Bedroll_DOS2Icon"', icon_xml)
         bootstrap = read(
             MODS
             / "DOS2Combat"

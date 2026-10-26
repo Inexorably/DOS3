@@ -92,6 +92,16 @@ if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
     pcall(Ext.Osiris.RegisterListener, "CharacterJoinedParty", 1, "after", function(character)
         grant(character)
     end)
+    pcall(Ext.Osiris.RegisterListener, "UsingSpell", 5, "after", function(caster, spell)
+        if spell == SPELL then
+            log("bedroll used by %s", tostring(caster))
+        end
+    end)
+    pcall(Ext.Osiris.RegisterListener, "CastSpellFailed", 5, "after", function(caster, spell)
+        if spell == SPELL then
+            log("bedroll cast failed for %s", tostring(caster))
+        end
+    end)
 end
 
 if Ext and Ext.Events and Ext.Events.SessionLoaded then
