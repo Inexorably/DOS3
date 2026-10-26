@@ -26,6 +26,7 @@ class CustomClassesTests(unittest.TestCase):
         self.assertEqual(charge["UseCosts"], "ActionPoint:1")
         self.assertIn("DealDamage(2d6,Bludgeoning)", charge["SpellSuccess"])
         self.assertNotIn("CC_BallCharge_Explosion", spells)
+        self.assertIn("0319ca29-4024-4649-9278-3c1f20c5f023", charge["SpellAnimation"])
         self.assertEqual(charge["SpellRoll"], "")
         self.assertEqual(charge.get("RequirementConditions"), "")
         self.assertEqual(charge.get("Requirements"), "")

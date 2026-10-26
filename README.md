@@ -469,8 +469,9 @@ is the **Summon Ball** cantrip:
   `FREEDOM_OF_MOVEMENT` status is redundant and is not applied.
 - The root starts at its final small scale instead of spawning large and
   shrinking.
-- The Charge action keeps the native Rush animation and target handling,
-  including ground targeting, rather than teleporting.
+- The Charge action uses the sphere's Ram animation and effects instead of the
+  humanoid Rush animation, avoiding the long animation wait while keeping Rush
+  ground targeting.
 - The Charge action has no weapon requirement and does not require a melee
   weapon.
 - Mage Hand's movement skill list is removed and the orb has zero movement

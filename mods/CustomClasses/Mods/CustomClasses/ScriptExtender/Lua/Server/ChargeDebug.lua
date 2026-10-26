@@ -2,9 +2,12 @@ CC = CC or {}
 CC.ChargeDebug = CC.ChargeDebug or {}
 
 local D = CC.ChargeDebug
+local tick = 0
 
 local function log(fmt, ...)
-    CC.Utils.Log(fmt, ...)
+    local ok, msg = pcall(string.format, fmt, ...)
+    if not ok then msg = tostring(fmt) end
+    CC.Utils.Log("%s [tick=%d]", msg, tick)
 end
 
 local function field(stat, name)
@@ -20,18 +23,21 @@ local function dumpSpell(name)
         log("debug stat %s: NOT FOUND", name)
         return
     end
-    log("debug stat %s: Type=%s TargetRadius=%s TargetConditions=%s SpellProperties=%s SpellFlags=%s UseCosts=%s",
+    log("debug stat %s: Type=%s TargetRadius=%s TargetConditions=%s SpellProperties=%s SpellFlags=%s UseCosts=%s Animation=%s Intent=%s HitDelay=%s",
         name,
         field(stat, "SpellType"),
         field(stat, "TargetRadius"),
         field(stat, "TargetConditions"),
         field(stat, "SpellProperties"),
         field(stat, "SpellFlags"),
-        field(stat, "UseCosts"))
+        field(stat, "UseCosts"),
+        field(stat, "SpellAnimation"),
+        field(stat, "SpellAnimationIntentType"),
+        field(stat, "CastTargetHitDelay"))
 end
 
 local function dumpAll()
-    for _, name in ipairs({ "CC_SummonBall", "CC_BallCharge", "CC_BallCharge_Explosion", "CC_Ball" }) do
+    for _, name in ipairs({ "CC_SummonBall", "CC_BallCharge", "CC_Ball" }) do
         dumpSpell(name)
     end
 end
@@ -49,6 +55,12 @@ local function isBallSpell(value)
     return text:find("CC_Ball", 1, true) ~= nil
 end
 
+local function onStartedPreviewing(caster, spell, a, b)
+    if not isBallSpell(spell) then return end
+    log("debug StartedPreviewing caster=%s spell=%s a=%s b=%s",
+        tostring(caster), tostring(spell), tostring(a), tostring(b))
+end
+
 local function onCastFailed(caster, spell, reason, a, b)
     if not isBallSpell(spell) then return end
     log("debug CastSpellFailed caster=%s spell=%s reason=%s a=%s b=%s",
@@ -61,10 +73,29 @@ local function onUsingSpell(caster, spell, a, b, c)
         tostring(caster), tostring(spell), tostring(a), tostring(b), tostring(c))
 end
 
+local function onUsingSpellAtPosition(caster, x, y, z, spell, a, b, c)
+    if not isBallSpell(spell) then return end
+    log("debug UsingSpellAtPosition caster=%s pos=(%s,%s,%s) spell=%s a=%s b=%s c=%s",
+        tostring(caster), tostring(x), tostring(y), tostring(z),
+        tostring(spell), tostring(a), tostring(b), tostring(c))
+end
+
 local function onUsingSpellOnTarget(caster, target, spell, a, b)
     if not isBallSpell(spell) then return end
     log("debug UsingSpellOnTarget caster=%s target=%s spell=%s a=%s b=%s",
         tostring(caster), tostring(target), tostring(spell), tostring(a), tostring(b))
+end
+
+local function onCastSpell(caster, spell, a, b, c)
+    if not isBallSpell(spell) then return end
+    log("debug CastSpell caster=%s spell=%s a=%s b=%s c=%s",
+        tostring(caster), tostring(spell), tostring(a), tostring(b), tostring(c))
+end
+
+local function onCastedSpell(caster, spell, a, b, c)
+    if not isBallSpell(spell) then return end
+    log("debug CastedSpell caster=%s spell=%s a=%s b=%s c=%s",
+        tostring(caster), tostring(spell), tostring(a), tostring(b), tostring(c))
 end
 
 local function onSpellCastEntity(entity)
@@ -85,9 +116,19 @@ local function onSpellFinishedEntity(entity)
 end
 
 function D.Init()
+    if Ext and Ext.Events and Ext.Events.Tick then
+        Ext.Events.Tick:Subscribe(function()
+            tick = tick + 1
+        end)
+    end
+
+    register("StartedPreviewingSpell", 4, onStartedPreviewing)
     register("CastSpellFailed", 5, onCastFailed)
     register("UsingSpell", 5, onUsingSpell)
+    register("UsingSpellAtPosition", 8, onUsingSpellAtPosition)
     register("UsingSpellOnTarget", 5, onUsingSpellOnTarget)
+    register("CastSpell", 5, onCastSpell)
+    register("CastedSpell", 5, onCastedSpell)
 
     if Ext and Ext.Entity and Ext.Entity.OnCreate then
         local ok = pcall(Ext.Entity.OnCreate, "SpellCastEvent", onSpellCastEntity)
