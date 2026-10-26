@@ -29,6 +29,7 @@ class CustomClassesTests(unittest.TestCase):
         self.assertEqual(charge.get("RequirementConditions"), "")
         self.assertEqual(charge.get("Requirements"), "")
         self.assertEqual(charge.get("RechargeValues"), "")
+        self.assertEqual(charge.get("WeaponTypes"), "")
 
     def test_ball_has_no_movement_and_is_scaled_to_one_third(self):
         data = MODS / "CustomClasses/Public/CustomClasses/Stats/Generated/Data"

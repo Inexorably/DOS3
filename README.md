@@ -454,7 +454,11 @@ The main menu cannot respec because no character is loaded there.
 **Custom Classes** is the foundation for custom class content. The first spell
 is the **Summon Ball** cantrip:
 
-- Summons a tiny arcane orb using the Black Hole visual at one-third scale.
+- Summons a tiny persistent sphere body using the Black Hole visual overlay at
+  one-third scale. The body supplies a portrait and stays visible; the native
+  Black Hole cast effect is transient.
+- The Charge action has no weapon requirement and does not require a melee
+  weapon.
 - The orb has no natural movement resource.
 - It has a **Charge** action that costs 1 AP, deals `2d6` bludgeoning damage,
   and has a one-turn cooldown.

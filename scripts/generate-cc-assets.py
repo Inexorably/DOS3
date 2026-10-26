@@ -61,23 +61,24 @@ def set_display_name(node: ET.Element, text_handle: str) -> None:
 
 def build_root_template() -> None:
     source = ET.parse(ROOT_SOURCE).getroot()
-    mage_hand = None
+    sphere = None
     for node in source.iter("node"):
         attrs = {a.get("id"): a.get("value") for a in node.findall("./attribute")}
-        if attrs.get("Stats") == "MageHand":
-            mage_hand = node
+        if attrs.get("Name") == "Unique_HellSphere":
+            sphere = node
             break
-    if mage_hand is None:
-        raise SystemExit("MageHand root template not found")
+    if sphere is None:
+        raise SystemExit("Unique_HellSphere root template not found")
 
-    go = copy.deepcopy(mage_hand)
+    go = copy.deepcopy(sphere)
     set_attr(go, "MapKey", BALL_GUID)
     set_attr(go, "Name", "CC_Ball")
     set_attr(go, "Stats", "CC_Ball")
     set_attr(go, "VisualTemplate", BLACK_HOLE_VISUAL)
-    set_attr(go, "CharacterVisualResourceID", "00000000-0000-0000-0000-000000000000")
-    set_attr(go, "Icon", "TadpoleSuperPower_BlackHole")
-    set_attr(go, "GeneratePortrait", "TadpoleSuperPower_BlackHole")
+    # Keep the source character visual for a persistent body and portrait; the
+    # Black Hole effect is only a transient visual template.
+    set_attr(go, "Icon", "Portrait_Creature_FlamingSphere")
+    set_attr(go, "GeneratePortrait", "")
     set_display_name(go, handle("CC_Ball/name"))
 
     out = ET.Element("save")
@@ -143,6 +144,7 @@ data "AIFlags" ""
 data "TargetRadius" "9"
 data "HitRadius" "2"
 data "SpellRoll" ""
+data "WeaponTypes" ""
 data "SpellSuccess" "DealDamage(2d6,Bludgeoning)"
 data "SpellFail" ""
 data "TargetConditions" "not Self() and not Ally()"
