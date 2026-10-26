@@ -152,19 +152,22 @@ The chart shows the AC-to-reduction mapping.
 
 ### Casting ability scaling
 
-The caster's spellcasting ability adds a **flat damage bonus** equal to
-`max(0, SpellCastingAbilityModifier)` to qualifying spell damage events. The
-bonus is not scaled by spell level:
+The caster's spellcasting ability applies a **relative damage multiplier** to
+qualifying spell damage events:
 
 ```text
-Ability score:  10  12  14  16  18  20  24
-Added damage:    0  +1  +2  +3  +4  +5  +7
+multiplier = 1 + 0.05 × max(0, SpellCastingAbilityModifier)
 ```
 
-Scores of 8–11 add nothing. Because the bonus is flat, its relative impact is
-much larger on low-base-damage spells and cantrips than on high-level spells.
-Multi-hit spells can receive the bonus once per hit. The bonus is also mirrored
-into native damage tooltips as an extra `DealDamage(...)` entry.
+```text
+Ability score:   10  12  14  16  18  20  24
+Damage increase:  0%  +5% +10% +15% +20% +25% +35%
+```
+
+Scores of 8–11 add nothing. The same percentage is applied to each qualifying
+hit, so multi-hit and single-hit spells gain the same relative amount regardless
+of their base damage. The multiplier is applied server-side and the native
+tooltip damage expressions are scaled to match.
 
 ![Spell damage from casting ability](docs/spell-ability-damage.png)
 

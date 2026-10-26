@@ -190,26 +190,18 @@ local function ensureAPPassive(entity)
     return pcall(Osi.AddPassive, guid, "DOS2C_APBoost")
 end
 
-local CASTING_DAMAGE_TOKEN =
-    "IF(IsSpell() and HasDamageEffectFlag(DamageFlags.Hit)):" ..
-    "DamageBonus(max(0,SpellCastingAbilityModifier))"
-
-local function addCastingAbilityDamage(stat)
-    local cfg = DOS2C.Config
-    if not cfg.CASTING_ABILITY_SPELL_DAMAGE then return false end
-
+-- Older builds applied a flat DamageBonus per spell hit. Remove that token from
+-- existing characters so the relative runtime multiplier is not double-applied.
+local function removeCastingAbilityDamage(stat)
     local current = U.SafeGet(stat, "DefaultBoosts")
-    if type(current) ~= "string" then current = "" end
-    if current:find(CASTING_DAMAGE_TOKEN, 1, true) then return false end
+    if type(current) ~= "string" or current == "" then return false end
 
-    -- Remove an older copy before appending so repeated patch passes stay
-    -- idempotent.
-    current = current:gsub("%s*;?%s*IF%(%s*IsSpell%(%)%s*and%s*" ..
+    local updated = current:gsub("%s*;?%s*IF%(%s*IsSpell%(%)%s*and%s*" ..
         "HasDamageEffectFlag%(%s*DamageFlags%.Hit%s*%)%s*%)%s*:%s*" ..
         "DamageBonus%(%s*max%(%s*0%s*,%s*SpellCastingAbilityModifier%s*%)%s*%)", "")
-    current = current:gsub("^%s*;%s*", ""):gsub("%s*;%s*$", "")
-    if current ~= "" then current = current .. ";" end
-    return U.SafeSet(stat, "DefaultBoosts", current .. CASTING_DAMAGE_TOKEN)
+    updated = updated:gsub("^%s*;%s*", ""):gsub("%s*;%s*$", "")
+    if updated == current then return false end
+    return U.SafeSet(stat, "DefaultBoosts", updated)
 end
 
 local stripBonusActionBoosts
@@ -251,7 +243,7 @@ local function patchCharacter(stat)
     -- saves receive it too; remove any old DefaultBoosts AP boost.
     if removeAPBoost(stat) then applied = true end
     if addBaseAttackBonus(stat, cfg) then applied = true end
-    if addCastingAbilityDamage(stat) then applied = true end
+    if removeCastingAbilityDamage(stat) then applied = true end
     if cleanTestSpellUnlocks(stat) then applied = true end
     return applied
 end
@@ -487,34 +479,108 @@ local TOOLTIP_CASTING_FIELDS = {
     "TooltipUpcastDescriptionParams",
 }
 
-local function firstTooltipDamageType(value)
-    for damageType in value:gmatch("DealDamage%([^,]+%s*,%s*([%a_][%w_]*)") do
-        return damageType
+local CASTING_TARGET_ARGS = {
+    SELF = true,
+    TARGET = true,
+    GROUND = true,
+    OWNER = true,
+    ALLY = true,
+    ENEMY = true,
+    ITEM = true,
+}
+
+local function balancedTooltipCall(text, start)
+    local open = text:find("(", start, true)
+    if not open then return nil end
+    local depth = 0
+    for i = open, #text do
+        local ch = text:sub(i, i)
+        if ch == "(" then
+            depth = depth + 1
+        elseif ch == ")" then
+            depth = depth - 1
+            if depth == 0 then return text:sub(start, i) end
+        end
     end
     return nil
 end
 
--- The casting-ability bonus is applied as a hidden DefaultBoosts
--- DamageBonus. Mirror it in the native damage tooltip fields with a separate
--- DealDamage expression so the displayed range includes the bonus.
+local function splitTooltipArgs(text)
+    local args = {}
+    local depth = 0
+    local start = 1
+    for i = 1, #text do
+        local ch = text:sub(i, i)
+        if ch == "(" then
+            depth = depth + 1
+        elseif ch == ")" then
+            depth = depth - 1
+        elseif ch == "," and depth == 0 then
+            args[#args + 1] = text:sub(start, i - 1)
+            start = i + 1
+        end
+    end
+    args[#args + 1] = text:sub(start)
+    return args
+end
+
+local function castingScaleToken(cfg)
+    local perPoint = tonumber(cfg.CASTING_ABILITY_DAMAGE_PER_MODIFIER) or 0.05
+    return "(1+" .. tostring(perPoint) .. "*max(0,SpellCastingAbilityModifier))"
+end
+
+-- Scale each DealDamage base expression in a tooltip field. Actual damage is
+-- scaled at runtime by CastingPower.lua; this keeps the displayed range in
+-- sync with that relative multiplier.
+local function scaleCastingDamageCalls(value, token)
+    if type(value) ~= "string" or value == "" then return value end
+    -- Remove flat additions written by older builds.
+    value = value:gsub(";?%s*DealDamage%(%s*max%(%s*0%s*,%s*SpellCastingAbilityModifier%s*%)%s*,%s*[%a_][%w_]*%s*%)", "")
+    if not value:find("DealDamage", 1, true) then return value end
+
+    local out = {}
+    local pos = 1
+    while true do
+        local start = value:find("DealDamage", pos, true)
+        if not start then
+            out[#out + 1] = value:sub(pos)
+            break
+        end
+        local call = balancedTooltipCall(value, start)
+        if not call then
+            out[#out + 1] = value:sub(pos)
+            break
+        end
+
+        local open = start + #"DealDamage"
+        local inner = call:sub(open + 1, #call - 1)
+        local args = splitTooltipArgs(inner)
+        local index = 1
+        local first = (args[1] or ""):match("^%s*(.-)%s*$")
+        if CASTING_TARGET_ARGS[first] then index = 2 end
+        if args[index] and not args[index]:find("SpellCastingAbilityModifier", 1, true) then
+            args[index] = "(" .. args[index] .. ")*" .. token
+        end
+        out[#out + 1] = value:sub(pos, start - 1)
+            .. "DealDamage(" .. table.concat(args, ",") .. ")"
+        pos = start + #call
+    end
+    return table.concat(out)
+end
+
 local function patchCastingAbilityTooltips(name, stat)
     local cfg = DOS2C.Config
     if not cfg.CASTING_ABILITY_SPELL_DAMAGE then return false end
     if isWeaponAttack(name) or isExtraAttack(name) then return false end
 
+    local token = castingScaleToken(cfg)
     local changed = false
     for _, field in ipairs(TOOLTIP_CASTING_FIELDS) do
         local value = U.SafeGet(stat, field)
-        if type(value) == "string" and value ~= ""
-            and value:find("DealDamage", 1, true)
-            and not value:find("SpellCastingAbilityModifier", 1, true) then
-            local damageType = firstTooltipDamageType(value)
-            if damageType and not damageType:lower():find("weapon", 1, true) then
-                local addition = "DealDamage(max(0,SpellCastingAbilityModifier)," .. damageType .. ")"
-                local separator = value:sub(-1) == ";" and "" or ";"
-                if U.SafeSet(stat, field, value .. separator .. addition) then
-                    changed = true
-                end
+        if type(value) == "string" and value ~= "" then
+            local updated = scaleCastingDamageCalls(value, token)
+            if updated ~= value and U.SafeSet(stat, field, updated) then
+                changed = true
             end
         end
     end
@@ -718,7 +784,6 @@ local function patchSpell(name, stat)
     local changed = patchAstralKnowledge(name, stat)
     changed = patchConcentration(name, stat) or changed
     changed = neutralizeSavingThrowFields(stat, SPELL_SAVE_FIELDS) or changed
-    changed = patchCastingAbilityTooltips(name, stat) or changed
     changed = patchTooltipRiders(name, stat) or changed
 
     local costs = U.SafeGet(stat, "UseCosts")
@@ -867,6 +932,9 @@ local function patchSpell(name, stat)
         end
     end
 
+    -- Scale tooltips after damage compression/flattening so the displayed base
+    -- range and the relative casting multiplier stay aligned.
+    changed = patchCastingAbilityTooltips(name, stat) or changed
     return changed
 end
 
