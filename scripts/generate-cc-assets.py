@@ -85,7 +85,7 @@ def build_root_template() -> None:
         ET.SubElement(
             status,
             "attribute",
-            {"id": "Object", "type": "FixedString", "value": "INVULNERABLE_NOT_SHOWN"},
+            {"id": "Object", "type": "FixedString", "value": "INVULNERABLE"},
         )
     set_attr(go, "MapKey", BALL_GUID)
     # Bake the final small scale into the root. Scaling via a stat boost happens
