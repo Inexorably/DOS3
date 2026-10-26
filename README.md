@@ -10,7 +10,7 @@ champions, higher enemy health, and convenient respec access.
 | DOS2 Combat Overhaul | `mods/DOS2Combat` | Required | DOS2-style AP, damage reduction, surfaces, deterministic damage, turn cooldowns, and combat stat rewrites |
 | Enemy Randomization | `mods/EnemyRandomization` | Required | Random enemy buffs, themed champions, summoning variants, and generated champion loot |
 | Enemy Health Multiplier | `mods/EnemyHealth` | Not required | Doubles base enemy health on Tactician by overriding the native difficulty boost |
-| Respec Anywhere | `mods/RespecAnywhere` | Required | Opens Withers' native respec UI from a client panel or console command |
+| Respec Anywhere | `mods/RespecAnywhere` | Required | Grants a hotbar Respec spell that opens Withers' native respec UI, plus a console command |
 
 The mods can be used independently. Enemy Randomization is designed to work
 alongside DOS2 Combat Overhaul, and Enemy Health uses the native Tactician
@@ -194,6 +194,14 @@ surface layer, not part of the normal spell list.
 DOS2Combat does not port DOS2's terrain VFX, surface transmutation rules, or
 per-step surface interactions. Those remain BG3-native.
 
+### Bedroll
+
+DOS2Combat grants a self-only **Bedroll** hotbar skill to each party member. It
+is available **outside combat only**, costs no AP, and restores the caster's HP
+to maximum with `RegainHitPoints(MaxHP)`. It cannot revive a downed character,
+does not affect allies or enemies, and is subject to the normal minimum
+one-turn cooldown (six seconds out of combat).
+
 ### Useful commands
 
 ```text
@@ -365,19 +373,22 @@ or clean that save if health appears higher than expected.
 
 ## Respec Anywhere
 
-**Respec Anywhere** is a separate mod. It adds a small **DOS2 Tools** panel with
-a **Respec character** button and a console command:
+**Respec Anywhere** is a separate mod. It grants a **Respec** hotbar spell to
+each party member. Casting the spell opens Withers' native respec UI for the
+caster. There is no DOS2 Tools panel or button.
+
+- The spell is usable outside combat, costs no AP, and can be used anywhere a
+  character is loaded.
+- In multiplayer, each player casts the spell on their own character; the
+  server handles the caster from the `UsingSpell` event rather than routing all
+  requests to the host.
+- The console command remains available as a host-side fallback:
 
 ```text
 !respec    # open Withers' respec UI for the host character
 ```
 
-The command opens Withers' native respec UI for the host character from
-anywhere in-game. The main menu cannot respec because no character is loaded
-there.
-
-The mod routes multiplayer requests from the requesting player to their own
-character rather than the host or all players.
+The main menu cannot respec because no character is loaded there.
 
 ## Troubleshooting
 
@@ -427,7 +438,7 @@ mods/
   DOS2Combat/           DOS2 combat rules and client UI
   EnemyHealth/          Tactician HEALTHBOOST_HARDCORE override
   EnemyRandomization/   champions, summons, loot, random buffs
-  RespecAnywhere/       respec panel and command
+  RespecAnywhere/       respec hotbar spell and command
 scripts/
   build.sh              package a mod with LSLib
   install.sh            copy a package to the BG3 Mods folder

@@ -3,7 +3,7 @@
     {
       "Name": "Respec Anywhere",
       "Author": "Shawn",
-      "Description": "Adds a DOS2 Tools panel and console command that opens Withers' respec UI anywhere in-game.",
+      "Description": "Grants a hotbar Respec spell and console command that opens Withers' respec UI anywhere out of combat.",
       "Version": "0.1.0",
       "UUID": "1b2ce04e-8fb9-4774-93b0-0ace154d7f27",
       "Folder": "RespecAnywhere",

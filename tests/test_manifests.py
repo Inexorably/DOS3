@@ -97,6 +97,34 @@ class ManifestTests(unittest.TestCase):
         stats = parse_stats(path)
         self.assertIn("ENR_SUMMON_ECONOMY", stats)
 
+    def test_bedroll_is_self_only_out_of_combat_full_heal(self):
+        stats = parse_stats(
+            MODS
+            / "DOS2Combat"
+            / "Public"
+            / "DOS2Combat"
+            / "Stats"
+            / "Generated"
+            / "Data"
+            / "Bedroll.txt"
+        )
+        bedroll = stats["DOS2C_Bedroll"]
+        self.assertEqual(bedroll.get("SpellProperties"), "RegainHitPoints(MaxHP)")
+        self.assertEqual(bedroll.get("TargetConditions"), "Self()")
+        self.assertEqual(bedroll.get("Requirements"), "!Combat")
+        self.assertEqual(bedroll.get("UseCosts"), "")
+        self.assertTrue(bedroll.get("DisplayName", "").startswith("h"))
+        bootstrap = read(
+            MODS
+            / "DOS2Combat"
+            / "Mods"
+            / "DOS2Combat"
+            / "ScriptExtender"
+            / "Lua"
+            / "BootstrapServer.lua"
+        )
+        self.assertIn('Ext.Require("Server/Bedroll.lua")', bootstrap)
+
     def test_stats_files_have_no_obvious_broken_data_lines(self):
         for path in sorted(MODS.glob("*/Public/*/Stats/Generated/Data/*.txt")):
             with self.subTest(path=str(path.relative_to(MODS))):

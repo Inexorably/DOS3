@@ -416,25 +416,22 @@ Known DOS2 visual references for the current test spells:
 
 ## Bedroll
 
-- [ ] Add a hotbar **Bedroll** skill to `DOS2Combat` that fully heals its user.
-      Follow the Respec Anywhere hotbar-spell pattern rather than a client-only
-      button or console command.
-      - Self-target only.
-      - Restore the caster's current HP to its maximum; do not grant temporary HP
-        or heal allies.
-      - Decide and document the AP cost, cooldown, and whether it can be used
-        while downed or only while conscious.
-      - Keep healing server-authoritative and verify multiplayer replication,
-        save/reload behavior, and interaction with the 6 AP cap.
-      - Add a source-level test for the spell definition and a verification item
-        for the in-game heal/cost/downed behavior.
+- [x] Add a self-only **Bedroll** hotbar spell to `DOS2Combat`.
+- [x] Grant it only to party members through `Server/Bedroll.lua`; enemies do
+      not receive it.
+- [x] Full-heal the caster with `RegainHitPoints(MaxHP)`.
+- [x] Restrict it to out-of-combat use, make it cost no AP, and document the
+      normal one-turn cooldown.
+- [x] Add Bedroll spell localization and a source-level manifest test.
+- [ ] Verify the hotbar grant, full heal, out-of-combat restriction, cooldown,
+      multiplayer replication, and behavior after save/reload in-game.
 
 ## Respec Anywhere
 
 - [x] Move the respec shortcut out of DOS2Combat into a separate
       `RespecAnywhere` mod.
-- [x] Add a client **DOS2 Tools** panel and `!respec` command.
-- [x] Route the button request through `PostMessageToServer` and have the
-      server reply to the host client with `PostMessageToClient`.
-- [ ] Verify the button and `!respec` command open the native respec UI
-      in-game.
+- [x] Grant a hotbar **Respec** spell to party members; casting it calls
+      `StartRespec(caster)` from the `UsingSpell` event.
+- [x] Keep `!respec` as a host-side console fallback.
+- [ ] Verify the hotbar spell and `!respec` command open the native respec UI
+      in-game, including multiplayer caster routing.
