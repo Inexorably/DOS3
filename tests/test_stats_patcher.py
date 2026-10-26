@@ -368,6 +368,7 @@ class StatsPatcherSmokeTests(unittest.TestCase):
         flourish_tooltip = lua.eval("flourish.TooltipDamageList")
         self.assertIn("DealDamage(MainMeleeWeapon", piercing_tooltip)
         self.assertIn("MainMeleeWeapon", flourish_tooltip)
+        self.assertNotIn("LevelMapValue", flourish_tooltip)
         self.assertNotIn("SpellCastingAbilityModifier", piercing_tooltip)
         self.assertNotIn("SpellCastingAbilityModifier", flourish_tooltip)
 

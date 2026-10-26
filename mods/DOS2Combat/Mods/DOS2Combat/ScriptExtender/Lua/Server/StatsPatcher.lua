@@ -644,6 +644,32 @@ local function ensureTooltipDamage(stat)
     return U.SafeSet(stat, "TooltipDamageList", table.concat(calls, ";"))
 end
 
+local function simplifyWeaponTooltip(stat)
+    local tooltip = U.SafeGet(stat, "TooltipDamageList")
+    if type(tooltip) ~= "string" or tooltip == "" then return false end
+    if not (tooltip:find("LevelMapValue", 1, true) or tooltip:find("max%(")
+        or tooltip:find("%+")) then
+        return false
+    end
+
+    local simple = {}
+    for _, field in ipairs({ "SpellProperties", "SpellSuccess" }) do
+        for _, call in ipairs(damageCallsIn(U.SafeGet(stat, field))) do
+            local weapon = call:find("MainMeleeWeapon", 1, true)
+                or call:find("MainRangedWeapon", 1, true)
+            local complex = call:find("LevelMapValue", 1, true)
+                or call:find("max%(") or call:find("%+")
+            if weapon and not complex then
+                simple[#simple + 1] = call
+            end
+        end
+    end
+    if #simple == 0 then return false end
+    local updated = table.concat(simple, ";")
+    if updated == tooltip then return false end
+    return U.SafeSet(stat, "TooltipDamageList", updated)
+end
+
 local function patchCastingAbilityTooltips(name, stat)
     local cfg = DOS2C.Config
     if not cfg.CASTING_ABILITY_SPELL_DAMAGE then return false end
@@ -864,6 +890,7 @@ local function patchSpell(name, stat)
     changed = neutralizeSavingThrowFields(stat, SPELL_SAVE_FIELDS) or changed
     changed = patchTooltipRiders(name, stat) or changed
     changed = ensureTooltipDamage(stat) or changed
+    changed = simplifyWeaponTooltip(stat) or changed
 
     local costs = U.SafeGet(stat, "UseCosts")
     rememberNativeCooldown(name, stat)
