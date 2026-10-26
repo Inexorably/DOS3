@@ -289,6 +289,88 @@ class StatsPatcherSmokeTests(unittest.TestCase):
             "AbilityFailedSavingThrow(Ability.Wisdom)",
         )
 
+    def test_weapon_action_tooltips_get_damage_and_skip_casting_wrap(self):
+        lua = lua_runtime()
+        root = MODS / "DOS2Combat" / "Mods" / "DOS2Combat" / "ScriptExtender" / "Lua"
+        for relative in (
+            "Shared/ArmorFormula.lua",
+            "Server/Config.lua",
+            "Server/Util.lua",
+            "Server/StatsPatcher.lua",
+        ):
+            run_lua_file(lua, root / relative)
+
+        lua.execute(
+            """
+            local piercing = {
+                Level = 3,
+                UseCosts = "ActionPoint:1",
+                DualWieldingUseCosts = "",
+                SpellRoll = "not SavingThrow(Ability.Constitution, 12)",
+                SpellProperties = "",
+                SpellSuccess = "IF(not SavingThrow(Ability.Constitution, 12)):ApplyStatus(GAPING_WOUND,100,2);DealDamage(MainMeleeWeapon, MainMeleeWeaponDamageType); ExecuteWeaponFunctors(MainHand)",
+                SpellFail = "",
+                TooltipDamageList = "",
+                TooltipAttackSave = "MeleeWeaponAttack;Constitution",
+                DescriptionParams = "",
+                ExtraDescriptionParams = "",
+                TooltipUpcastDescriptionParams = "",
+                Cooldown = "OncePerShortRest",
+                RechargeValues = "",
+                SpellFlags = "",
+                ConcentrationSpellID = "",
+            }
+            local flourish = {
+                Level = 3,
+                UseCosts = "ActionPoint:1",
+                DualWieldingUseCosts = "",
+                SpellRoll = "Attack(AttackType.MeleeWeaponAttack)",
+                SpellProperties = "GROUND:DealDamage(MainMeleeWeapon, MainMeleeWeaponDamageType);GROUND:ExecuteWeaponFunctors(MainHand)",
+                SpellSuccess = "DealDamage(max(1,MainMeleeWeapon + LevelMapValue(BardicInspiration)), MainMeleeWeaponDamageType); ExecuteWeaponFunctors(MainHand)",
+                SpellFail = "",
+                TooltipDamageList = "DealDamage(MainMeleeWeapon + LevelMapValue(BardicInspiration), MainMeleeWeaponDamageType)",
+                DescriptionParams = "4",
+                ExtraDescriptionParams = "",
+                TooltipUpcastDescriptionParams = "",
+                Cooldown = "OncePerShortRest",
+                RechargeValues = "",
+                SpellFlags = "",
+                ConcentrationSpellID = "",
+            }
+            function piercing:SetRawAttribute(key, value)
+                self[key] = value
+                return true
+            end
+            function piercing:Sync() end
+            function flourish:SetRawAttribute(key, value)
+                self[key] = value
+                return true
+            end
+            function flourish:Sync() end
+            Ext.Stats = {
+                GetStats = function(kind)
+                    if kind == "SpellData" then return { "Target_PiercingThrust", "Target_BladeFlourish_Defensive" } end
+                    return {}
+                end,
+                Get = function(name)
+                    if name == "Target_PiercingThrust" then return piercing end
+                    if name == "Target_BladeFlourish_Defensive" then return flourish end
+                    return nil
+                end,
+            }
+            DOS2C.Stats.PatchAll(false)
+            _G.piercing = piercing
+            _G.flourish = flourish
+            """
+        )
+
+        piercing_tooltip = lua.eval("piercing.TooltipDamageList")
+        flourish_tooltip = lua.eval("flourish.TooltipDamageList")
+        self.assertIn("DealDamage(MainMeleeWeapon", piercing_tooltip)
+        self.assertIn("MainMeleeWeapon", flourish_tooltip)
+        self.assertNotIn("SpellCastingAbilityModifier", piercing_tooltip)
+        self.assertNotIn("SpellCastingAbilityModifier", flourish_tooltip)
+
 
 if __name__ == "__main__":
     unittest.main()

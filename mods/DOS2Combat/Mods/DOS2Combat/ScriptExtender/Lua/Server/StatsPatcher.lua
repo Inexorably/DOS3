@@ -78,6 +78,40 @@ local function isExtraAttack(name)
     return name ~= nil and name:find("ExtraAttack", 1, true) ~= nil
 end
 
+-- Weapon actions such as Piercing Strike and Flourish are not named
+-- MainHandAttack, but their damage is still weapon damage. Treat those stats
+-- as weapon attacks so casting-ability scaling is not injected into their
+-- tooltip expressions.
+local WEAPON_DAMAGE_TOKENS = {
+    "MainMeleeWeapon",
+    "MainRangedWeapon",
+    "MainHandWeapon",
+    "OffhandWeapon",
+    "WeaponDamage",
+    "CharacterWeaponDamage",
+    "CharacterUnarmedDamage",
+}
+
+local WEAPON_DAMAGE_FIELDS = {
+    "SpellProperties",
+    "SpellSuccess",
+    "TooltipDamageList",
+    "DescriptionParams",
+    "ExtraDescriptionParams",
+}
+
+local function usesWeaponDamage(stat)
+    for _, field in ipairs(WEAPON_DAMAGE_FIELDS) do
+        local value = U.SafeGet(stat, field)
+        if type(value) == "string" and value ~= "" then
+            for _, token in ipairs(WEAPON_DAMAGE_TOKENS) do
+                if value:find(token, 1, true) then return true end
+            end
+        end
+    end
+    return false
+end
+
 -- True default attacks are the only abilities that may have no cooldown.
 -- Everything else, including cantrips, reactions, class-resource abilities and
 -- NPC at-will spells, gets at least one turn.
@@ -571,10 +605,51 @@ local function scaleCastingDamageCalls(value, token)
     return table.concat(out)
 end
 
+local function damageCallsIn(value)
+    local calls = {}
+    if type(value) ~= "string" or value == "" then return calls end
+    local pos = 1
+    while true do
+        local start = value:find("DealDamage", pos, true)
+        if not start then break end
+        local call = balancedTooltipCall(value, start)
+        if call then
+            calls[#calls + 1] = call
+            pos = start + #call
+        else
+            pos = start + #"DealDamage"
+        end
+    end
+    return calls
+end
+
+-- Some native weapon actions provide SpellSuccess damage but no
+-- TooltipDamageList. Without a damage line their tooltips show no range.
+-- Derive the missing display field from the actual damage functors.
+local function ensureTooltipDamage(stat)
+    local tooltip = U.SafeGet(stat, "TooltipDamageList")
+    if type(tooltip) == "string" and tooltip ~= "" then return false end
+
+    local calls = {}
+    for _, field in ipairs({ "SpellSuccess", "SpellProperties", "DescriptionParams" }) do
+        for _, call in ipairs(damageCallsIn(U.SafeGet(stat, field))) do
+            local exists = false
+            for _, existing in ipairs(calls) do
+                if existing == call then exists = true; break end
+            end
+            if not exists then calls[#calls + 1] = call end
+        end
+    end
+    if #calls == 0 then return false end
+    return U.SafeSet(stat, "TooltipDamageList", table.concat(calls, ";"))
+end
+
 local function patchCastingAbilityTooltips(name, stat)
     local cfg = DOS2C.Config
     if not cfg.CASTING_ABILITY_SPELL_DAMAGE then return false end
-    if isWeaponAttack(name) or isExtraAttack(name) then return false end
+    if isWeaponAttack(name) or isExtraAttack(name) or usesWeaponDamage(stat) then
+        return false
+    end
 
     local token = castingScaleToken(cfg)
     local changed = false
@@ -788,6 +863,7 @@ local function patchSpell(name, stat)
     changed = patchConcentration(name, stat) or changed
     changed = neutralizeSavingThrowFields(stat, SPELL_SAVE_FIELDS) or changed
     changed = patchTooltipRiders(name, stat) or changed
+    changed = ensureTooltipDamage(stat) or changed
 
     local costs = U.SafeGet(stat, "UseCosts")
     rememberNativeCooldown(name, stat)
