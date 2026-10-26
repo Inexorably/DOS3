@@ -80,6 +80,46 @@ local function scaleFor(entity)
     return scale, stats, level, nativeLevel
 end
 
+local spellLevels = {}
+
+local function spellLevelOf(spell)
+    if spellLevels[spell] ~= nil then return spellLevels[spell] end
+    local level = nil
+    if Ext and Ext.Stats and Ext.Stats.Get then
+        local ok, stat = pcall(Ext.Stats.Get, spell, "SpellData")
+        if ok and stat then
+            local levelOk, value = pcall(function() return stat.Level end)
+            if levelOk and tonumber(value) then level = tonumber(value) end
+        end
+    end
+    if level then spellLevels[spell] = level end
+    return level
+end
+
+local function spellScaleFor(entity, hit)
+    local spell = tostring(hit and hit.SpellId or "")
+    if spell == "" or spell:find("MainHandAttack", 1, true)
+        or spell:find("OffhandAttack", 1, true)
+        or spell:find("UnarmedAttack", 1, true) then
+        return nil
+    end
+    local data = ER.SpellScaling or {}
+    local curve = data.damageByLevel or {}
+    local expectedTable = data.expectedMaxByLevel or {}
+    local spellLevel = spellLevelOf(spell)
+    local casterLevel = levelOf(entity, statsIdOf(entity))
+    if not spellLevel or not casterLevel then return nil end
+    local expected = tonumber(expectedTable[casterLevel]) or data.maxSpellLevel or 6
+    if expected >= spellLevel then return 1 end
+    local expectedDamage = tonumber(curve[expected]) or 0
+    local spellDamage = tonumber(curve[spellLevel]) or 0
+    if expectedDamage <= 0 or spellDamage <= 0 then return nil end
+    local factor = expectedDamage / spellDamage
+    if factor > 1 then factor = 1 end
+    if factor < 0.05 then factor = 0.05 end
+    return factor, spellLevel, expected
+end
+
 local function scaleDamageList(hit, scale)
     local changed = 0
     local list = hit.DamageList
@@ -116,7 +156,17 @@ local function onDealDamage(ev)
     local entity = entityOf(attacker)
     if not entity then return end
 
+    local spellScale, spellLevel, expected = spellScaleFor(entity, hit)
     local scale, stats, level, native = scaleFor(entity)
+    if spellScale ~= nil then
+        -- A summoned creature is limited to the spell levels available at its
+        -- effective summon level. Do not apply the native-level weapon curve
+        -- on top of that spell-level factor.
+        scale = spellScale
+        stats = statsIdOf(entity)
+        level = levelOf(entity, stats)
+        native = spellLevel
+    end
     if not scale or scale == 1 then return end
 
     local changed = scaleDamageList(hit, scale)
@@ -124,8 +174,9 @@ local function onDealDamage(ev)
         local key = tostring(stats)
         if not scaledLogged[key] then
             scaledLogged[key] = true
-            log("summon damage scale: %s level=%s native=%s x%.2f",
-                tostring(stats), tostring(level), tostring(native), scale)
+            log("summon damage scale: %s level=%s native=%s x%.2f spellLevel=%s expected=%s",
+                tostring(stats), tostring(level), tostring(native), scale,
+                tostring(spellLevel), tostring(expected))
         end
     end
 end

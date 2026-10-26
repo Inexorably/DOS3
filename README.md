@@ -315,7 +315,9 @@ are per caster and enforced by removing/re-granting the summon skill while the
 cooldown is active. Summoned enemies use a separate **3 AP per turn** economy.
 Every generated summon Character block carries the `ENR_SummonLethargic`
 OnCreate passive, which applies BG3's **lethargic** status at spawn regardless
-of which summon-created event fires.
+of which summon-created event fires. Damage spells cast by generated summons
+also use the same spell-level access table as champion-granted spells; weapon
+damage retains the native-level summon curve.
 
 ### Champion chance
 
