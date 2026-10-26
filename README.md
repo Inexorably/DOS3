@@ -133,17 +133,18 @@ Ubuntu runner because LSLib requires Windows.
 - All AC sources are converted into **one percentage damage-reduction stat**.
   There are no separate physical and magic armor buckets. Every damage type
   uses the same reduction.
-- The formula gives 5% per AC above 9 through AC 20, then 2.5% per AC,
-  capped at 70% from AC 26 onward: AC 10 = 5%, AC 14 = 25%, AC 20 = 55%,
-  AC 26 = 70%. Shield items use their ArmorClass bonus directly.
+- The formula gives 5% per AC above 9 through AC 20, then 2.5% per AC through
+  AC 26. Above AC 26 it tapers logarithmically instead of clamping:
+  AC 10 = 5%, AC 14 = 25%, AC 20 = 55%, AC 26 = 70%, AC 30 = 80%,
+  AC 40 ≈ 87%. A 100% hard safety cap remains. Shield items use their
+  ArmorClass bonus directly.
 - Enemy AC is converted into damage reduction instead of remaining as hit
   avoidance. A hidden no-dodge status also cancels AC from statuses, spells,
   and passives, including `ACOverrideFormula` effects.
 
-![AC to damage reduction and damage after reduction](docs/armor-resistance.png)
+![AC to damage reduction](docs/armor-resistance.png)
 
-The chart shows the AC-to-reduction mapping and the damage remaining after
-reduction for several reduction values.
+The chart shows the AC-to-reduction mapping.
 
 - Concentration is removed from spells.
 - Damage ranges are compressed toward their average rather than fully
