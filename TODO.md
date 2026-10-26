@@ -241,9 +241,9 @@ Known DOS2 visual references for the current test spells:
 
 - [x] Armor no longer depletes; all AC sources feed one percentage
       damage-reduction stat.
-- [x] Formula: 5% per AC above 9 through AC 20, then 2.5% per AC through
-      AC 26, then logarithmic taper above AC 26. AC 30 = 80% and AC 40 ~ 87%,
-      with a 100% hard safety cap.
+- [x] Formula: 5% per AC above 9 through AC 20. Above AC 20 one smooth
+      logarithmic taper spans 55% to 80% through AC 30, avoiding the old slope
+      jump at AC 26. AC 30 = 80%, AC 40 ~ 91%, with a 100% hard safety cap.
 - [x] Shields use their AC bonus directly.
 - [x] Party reduction is derived from equipped armor and applicable statuses,
       not character level.
