@@ -200,7 +200,8 @@ DOS2Combat grants a self-only **Bedroll** hotbar skill to each party member. It
 is available **outside combat only**, costs no AP, and restores the caster's HP
 to maximum with `RegainHitPoints(MaxHP)`. It cannot revive a downed character,
 does not affect allies or enemies, and is subject to the normal minimum
-one-turn cooldown (six seconds out of combat).
+one-turn cooldown (six seconds out of combat). It uses the DOS2
+`Item_FUR_Bedroll_A` icon.
 
 ### Useful commands
 

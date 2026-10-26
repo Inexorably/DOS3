@@ -104,6 +104,28 @@ if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
     end)
 end
 
+-- Log the engine's exact failure reason for the Bedroll cast. This is more
+-- useful than the Osiris CastSpellFailed event, which has no reason field.
+local bedrollCastPending = false
+if Ext and Ext.Entity and Ext.Entity.OnCreate then
+    local eventOk = pcall(Ext.Entity.OnCreate, "SpellCastEvent", function(entity)
+        local comp = entity and entity.SpellCastEvent
+        local hit = comp and comp.Hit
+        local spell = hit and hit.SpellId
+        if spell and tostring(spell):find("Bedroll", 1, true) then
+            bedrollCastPending = true
+            log("bedroll cast started: %s", tostring(spell))
+        end
+    end)
+    local finishOk = pcall(Ext.Entity.OnCreate, "SpellCastFinishedEvent", function(entity)
+        if not bedrollCastPending then return end
+        bedrollCastPending = false
+        local ev = entity and entity.SpellCastFinishedEvent
+        log("bedroll cast finished: result=%s", tostring(ev and ev.Result))
+    end)
+    log("bedroll cast diagnostics: start=%s finish=%s", tostring(eventOk), tostring(finishOk))
+end
+
 if Ext and Ext.Events and Ext.Events.SessionLoaded then
     Ext.Events.SessionLoaded:Subscribe(function()
         if Ext.Timer and Ext.Timer.WaitFor then
