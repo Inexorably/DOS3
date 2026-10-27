@@ -1,16 +1,15 @@
--- CustomClasses - spread the three summoned orbs around the summon point.
+-- CustomClasses - place summoned orbs and grant their Charge action.
 --
--- Summon() does not accept a per-summon offset, so a single cast with three
--- Summon functors would place every orb at the exact same ground target. We
--- reposition each newly created orb after SummonCreatedEvent fires.
+-- Summon() has no per-summon offset, and the one-frame SummonCreatedEvent is
+-- not delivered reliably by this BG3SE build. Hook the ground-target cast
+-- instead, then scan for the newly spawned CC_Ball entities near the cast point.
 
 CC = CC or {}
 CC.OrbPolish = CC.OrbPolish or {}
 
-local COUNTS = {}
-local SEEN = {}
-local RESET_MS = 750
+local PENDING = {}
 local SPACING = 1.5
+local SCAN_DELAY_MS = 800
 
 local function log(fmt, ...)
     if not (CC.Config and CC.Config.DEBUG) then return end
@@ -18,14 +17,6 @@ local function log(fmt, ...)
     if Ext and Ext.Utils and Ext.Utils.Print then
         pcall(Ext.Utils.Print, "[CC] " .. text)
     end
-end
-
-local function statsOf(guid)
-    local ok, entity = pcall(Ext.Entity.Get, guid)
-    if not ok or not entity then return nil end
-    local data = entity.Data
-    if data and data.StatsId then return tostring(data.StatsId) end
-    return nil
 end
 
 local function positionOf(guid)
@@ -53,78 +44,82 @@ local function move(guid, x, y, z)
     return false
 end
 
-local function onSummonCreated(summoner, summon)
-    if not summon then return end
-    local summonKey = tostring(summon)
-    if SEEN[summonKey] then return end
-    local stats = statsOf(summon)
-    if stats ~= "CC_Ball" then
-        log("summon spacing ignored: summon=%s summoner=%s stats=%s",
-            summonKey, tostring(summoner), tostring(stats))
-        return
+local function grantCharge(guid)
+    if not (Osi and Osi.AddSpell) then return false end
+    local has = false
+    if Osi.HasSpell then
+        local ok, result = pcall(Osi.HasSpell, guid, "CC_BallCharge")
+        has = ok and (result == 1 or result == true)
     end
-    SEEN[summonKey] = true
+    if has then return true end
+    local ok = pcall(Osi.AddSpell, guid, "CC_BallCharge", 0, 1)
+    if not ok then ok = pcall(Osi.AddSpell, guid, "CC_BallCharge", 0) end
+    return ok
+end
 
-    local key = tostring(summoner or "unknown")
-    local index = COUNTS[key] or 0
-    COUNTS[key] = index + 1
-
-    -- The third event closes the cast batch. A timeout also clears the batch
-    -- if only one or two orbs were valid at the selected location.
-    if index >= 2 then
-        COUNTS[key] = 0
-    else
-        Ext.Timer.WaitFor(RESET_MS, function()
-            if COUNTS[key] == index + 1 then COUNTS[key] = 0 end
-        end)
-    end
-
-    local x, y, z = positionOf(summon)
-    local sx, sy = positionOf(summoner)
-    if not x then
-        log("orb spacing skipped: no summon position for %s", tostring(summon))
+local function placeOrbs(x, y, z)
+    if not (Ext.Entity and Ext.Entity.GetAllEntitiesWithComponent) then return end
+    local ok, entities = pcall(Ext.Entity.GetAllEntitiesWithComponent, "Data")
+    if not ok or type(entities) ~= "table" then
+        log("orb placement: Data component scan failed")
         return
     end
 
-    -- Spread perpendicular to the summoner -> summon direction. If the
-    -- summoner is at the same point, use the world X axis.
-    local dx, dy = 1, 0
-    if sx and sy then
-        local vx, vy = x - sx, y - sy
-        local length = math.sqrt(vx * vx + vy * vy)
-        if length > 0.01 then
-            dx, dy = -vy / length, vx / length
+    local orbs = {}
+    for _, entity in ipairs(entities) do
+        local data = entity.Data
+        local stats = data and data.StatsId
+        if stats and tostring(stats) == "CC_Ball" then
+            local uuid = entity.Uuid
+            local guid = uuid and uuid.EntityUuid
+            if guid then
+                local ox, oy, oz = positionOf(guid)
+                if ox and oy then
+                    local dx, dy = ox - x, oy - y
+                    -- Only move orbs belonging to this cast area, not orbs
+                    -- left behind somewhere else on the map.
+                    if dx * dx + dy * dy <= 64 then
+                        orbs[#orbs + 1] = { guid = tostring(guid), x = ox, y = oy, z = oz }
+                    end
+                end
+                local granted = grantCharge(tostring(guid))
+                log("orb placement: %s chargeGranted=%s", tostring(guid), tostring(granted))
+            end
         end
     end
 
-    local offset = 0
-    if index == 1 then offset = SPACING end
-    if index == 2 then offset = -SPACING end
-    local nx, ny = x + dx * offset, y + dy * offset
-
-    Ext.Timer.WaitFor(100, function()
-        local moved = move(summon, nx, ny, z)
+    table.sort(orbs, function(a, b) return a.guid < b.guid end)
+    local offsets = { 0, SPACING, -SPACING }
+    for i = 1, math.min(#orbs, #offsets) do
+        local orb = orbs[i]
+        local nx = x + offsets[i]
+        local moved = move(orb.guid, nx, orb.y, orb.z)
         log("orb spacing %s index=%d moved=%s from=(%.2f,%.2f) to=(%.2f,%.2f)",
-            tostring(summon), index, tostring(moved), x, y, nx, ny)
-    end)
+            orb.guid, i, tostring(moved), orb.x, orb.y, nx, orb.y)
+    end
+    log("orb placement: %d orbs found near (%.2f,%.2f)", #orbs, x, y)
+end
+
+local function onUsingSpellAtPosition(caster, x, y, z, spell)
+    spell = tostring(spell or "")
+    if spell ~= "CC_SummonBall" and spell ~= "CC_SummonBall_Azure" then return end
+    x, y, z = tonumber(x), tonumber(y), tonumber(z)
+    if not x or not y then return end
+    local key = tostring(caster)
+    PENDING[key] = true
+    log("orb summon cast: caster=%s spell=%s pos=(%.2f,%.2f,%.2f)", key, spell, x, y, z)
+    if Ext.Timer and Ext.Timer.WaitFor then
+        Ext.Timer.WaitFor(SCAN_DELAY_MS, function()
+            PENDING[key] = nil
+            placeOrbs(x, y, z)
+        end)
+    else
+        placeOrbs(x, y, z)
+    end
 end
 
 if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
-    local ok = pcall(Ext.Osiris.RegisterListener, "SummonCreatedEvent", 2, "after", onSummonCreated)
-    log("summon spacing Osiris listener registered: %s", tostring(ok))
-end
-
-if Ext and Ext.Entity and Ext.Entity.OnCreate then
-    local ok = pcall(Ext.Entity.OnCreate, "SummonCreatedEvent", function(eventEntity)
-        local ev = eventEntity and eventEntity.SummonCreatedEvent
-        if not ev then return end
-        local summon = ev.Entity or ev.Summon
-        local summoner = ev.Summoner or ev.Owner
-        if not summoner and summon and Osi and Osi.GetSummoner then
-            local got, owner = pcall(Osi.GetSummoner, summon)
-            if got then summoner = owner end
-        end
-        onSummonCreated(summoner, summon)
-    end)
-    log("summon spacing ECS listener registered: %s", tostring(ok))
+    -- The exact arity is 8 in the current build; ChargeDebug already uses it.
+    local ok = pcall(Ext.Osiris.RegisterListener, "UsingSpellAtPosition", 8, "after", onUsingSpellAtPosition)
+    log("orb placement listener registered: %s", tostring(ok))
 end
