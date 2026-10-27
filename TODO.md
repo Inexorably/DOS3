@@ -261,12 +261,13 @@ Known DOS2 visual references for the current test spells:
 
 ## Armor AC debugging
 
-- [ ] Investigate the reported 21 AC case: 16 armor + 1 Dexterity + 2 shield +
-      2 Shield of Faith still shows 5% reduction. Add source-by-source AC
-      diagnostics (Osi total, Armor component, equipped items, Dexterity, and
-      Shield of Faith) and verify the 21 AC result is 59%.
-- [ ] Verify the item tooltip and character hover use the same effective AC
-      source after equipment changes.
+- [x] Add source-by-source AC diagnostics (Osi total, Armor component,
+      equipped gear, Dexterity, SHIELD, and SHIELD_OF_FAITH).
+- [x] Add a manual AC fallback when both Osi and the Armor component report
+      only base 10.
+- [ ] Verify the reported 21 AC case (16 armor + 1 Dexterity + 2 shield +
+      2 Shield of Faith) reports 59%, and that item hover and character hover
+      stay aligned after equipment changes.
 
 ## Armor UI
 

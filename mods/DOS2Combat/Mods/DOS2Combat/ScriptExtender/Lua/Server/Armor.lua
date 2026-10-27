@@ -68,6 +68,38 @@ end
 
 local armorClassLogged = {}
 
+local ARMOR_SLOTS = {
+    "Helmet", "Breast", "Cloak", "Gloves", "Boots",
+    "Amulet", "Ring", "Ring2", "MainHand", "OffHand",
+    "MeleeMainHand", "MeleeOffHand", "RangedMainHand", "RangedOffHand",
+}
+
+local function manualArmorClass(handle, entity)
+    local guid = U.GuidOf(handle)
+    local gear, dex, statuses = 0, 0, 0
+    if not guid then return 0, 0, 0, 0 end
+
+    if Osi and Osi.GetEquippedItem then
+        for _, slot in ipairs(ARMOR_SLOTS) do
+            local ok, item = pcall(Osi.GetEquippedItem, guid, slot)
+            local itemEntity = ok and item and U.EntityOf(item) or nil
+            local armor = itemEntity and itemEntity.Armor
+            local ac = armor and tonumber(armor.ArmorClass) or 0
+            if ac and ac > 0 then gear = gear + ac end
+        end
+    end
+
+    local stats = entity and entity.Stats
+    if stats then
+        local ok, value = pcall(function() return stats.AbilityModifiers[2] end)
+        if ok then dex = math.max(0, tonumber(value) or 0) end
+    end
+
+    if hasStatus(handle, "SHIELD_OF_FAITH") then statuses = statuses + 2 end
+    if hasStatus(handle, "SHIELD") then statuses = statuses + 5 end
+    return gear + dex + statuses, gear, dex, statuses
+end
+
 local function nativeArmorClass(handle, entity)
     local guid = U.GuidOf(handle)
     local componentAc = 0
@@ -75,25 +107,27 @@ local function nativeArmorClass(handle, entity)
         componentAc = tonumber(entity.Armor.ArmorClass) or 0
     end
 
-    -- Osi.GetArmorClass is the authoritative total (base + equipment +
-    -- passives + statuses). entity.Armor.ArmorClass is often only the base
-    -- character value (10), and using it first made every character look like
-    -- 10 AC, which is exactly 5% on the reduction curve.
+    -- Osi.GetArmorClass should be the total, but some BG3SE builds return only
+    -- the base score. entity.Armor.ArmorClass has the same problem. Build a
+    -- source-by-source fallback from equipment, Dexterity, and common AC
+    -- statuses when both server values collapse to the base 10.
+    local total = 0
     if Osi and Osi.GetArmorClass and guid then
         local ok, ac = pcall(Osi.GetArmorClass, guid)
-        local total = ok and tonumber(ac) or 0
-        if total and total > 0 then
-            local best = math.max(total, componentAc)
-            if not armorClassLogged[guid] and componentAc > 0 and best ~= componentAc then
-                armorClassLogged[guid] = true
-                U.Log("armor class source %s: total=%d component=%d used=%d",
-                    guid, total, componentAc, best)
-            end
-            return best, entity and entity.Armor or nil
-        end
+        total = ok and tonumber(ac) or 0
+    end
+    local best = math.max(total or 0, componentAc)
+    local manual, gear, dex, statuses = manualArmorClass(handle, entity)
+    if manual > best then best = manual end
+
+    if not armorClassLogged[guid] then
+        armorClassLogged[guid] = true
+        U.Log("armor class breakdown %s: osi=%s component=%s gear=%s dex=%s status=%s total=%s",
+            tostring(guid), tostring(total), tostring(componentAc),
+            tostring(gear), tostring(dex), tostring(statuses), tostring(best))
     end
 
-    if componentAc > 0 then return componentAc, entity and entity.Armor or nil end
+    if best > 0 then return best, entity and entity.Armor or nil end
     return nil, nil
 end
 
