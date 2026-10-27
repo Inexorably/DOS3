@@ -56,6 +56,7 @@ if [[ "$MOD" == "CustomClasses" ]]; then
         "$DIVINE" -a extract-package -g bg3             -s "D:/SteamLibrary/steamapps/common/Baldurs Gate 3/Data/Textures.pak"             -d "$ROOT/.analysis/ccsphere" -x "**/SPHERE_Flame*"
     fi
     (cd "$ROOT" && python scripts/recolor-cc-orb-textures.py)
+    (cd "$ROOT" && python scripts/build-cc-azure-visual.py)
     (cd "$ROOT" && python scripts/generate-cc-assets.py)
 fi
 if [[ "$MOD" == "EnemyRandomization" ]]; then

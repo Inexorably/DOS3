@@ -58,7 +58,12 @@ class CustomClassesTests(unittest.TestCase):
 
     def test_generated_root_and_localization_exist(self):
         root = MODS / "CustomClasses/Public/CustomClasses/RootTemplates/_merged.lsf"
+        visual = (
+            MODS
+            / "CustomClasses/Public/CustomClasses/Content/Assets/Characters/Creatures/Sphere_Flame/_merged.lsf"
+        )
         loca = MODS / "CustomClasses/Localization/English/CustomClasses.loca"
         self.assertGreater(root.stat().st_size, 0)
+        self.assertGreater(visual.stat().st_size, 0)
         self.assertIn("Summon Ball", read(loca).replace("\x00", "\n"))
         self.assertIn("Charge", read(loca).replace("\x00", "\n"))

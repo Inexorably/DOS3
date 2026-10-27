@@ -32,6 +32,7 @@ DIVINE = ROOT / "tools/lslib/Packed/Tools/Divine.exe"
 NS = uuid.UUID("6ba7b810-9dad-11d1-80b4-00c04fd430c8")
 BALL_GUID = str(uuid.uuid5(NS, "CustomClasses/root/CC_Ball"))
 AZURE_BALL_GUID = str(uuid.uuid5(NS, "CustomClasses/root/CC_Ball_Azure"))
+AZURE_CHARACTER_VISUAL_ID = str(uuid.uuid5(NS, "CustomClasses/azure/visual/character"))
 BLACK_HOLE_VISUAL = "fd5aa94f-66ec-14ec-fa97-b88fae69796b"
 BLACK_HOLE_AURA = "203bf8b8-8dee-1724-e5e3-8479f16024f8"
 
@@ -109,9 +110,9 @@ def build_root_template() -> None:
     azure = copy.deepcopy(go)
     set_attr(azure, "MapKey", AZURE_BALL_GUID)
     set_attr(azure, "Name", "CC_Ball_Azure")
-    set_attr(azure, "CharacterVisualResourceID", "512df42e-6b0b-5561-2381-f30794fa5ef9")
+    set_attr(azure, "CharacterVisualResourceID", AZURE_CHARACTER_VISUAL_ID)
     set_attr(azure, "VisualTemplate", BLACK_HOLE_VISUAL)
-    set_attr(azure, "Icon", "Portrait_Creature_FlamingSphere")
+    set_attr(azure, "Icon", "Portrait_Creature_ArcaneTurret")
     set_display_name(azure, handle("CC_Ball_Azure/name"))
 
     out = ET.Element("save")

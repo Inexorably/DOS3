@@ -26,7 +26,7 @@ SRC = (
 )
 OUT = (
     ROOT
-    / "mods/CustomClasses/Public/Shared/Assets/Characters/_Models/"
+    / "mods/CustomClasses/Public/CustomClasses/Assets/Characters/_Models/"
     "_Creatures/Sphere_Flame/Resources"
 )
 MAPS = ("BM", "GM", "PM")

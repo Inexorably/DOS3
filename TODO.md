@@ -441,9 +441,9 @@ Known DOS2 visual references for the current test spells:
 
 - [x] Add the alternate azure orb root, `CC_SummonBall_Azure` test cantrip,
       visible sphere body, and working portrait.
-- [x] Recolor the flame-sphere base, glow, and parameter textures to
-      blue/purple and package them as shared body overrides. The body texture
-      is shared, so both orb variants use the recolored sphere.
+- [x] Build a dedicated azure MaterialBank, VisualBank, and CharacterVisual
+      resource using a blue/purple glow map and glow colour, so the original
+      orb remains orange.
 
 ## Deferred
 
