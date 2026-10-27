@@ -44,6 +44,10 @@ Areas verified:
 - binary `.loca` header/entry integrity
 - generator output for the armor passives, bedroll loca, CustomClasses assets, EnemyRandomization loot/champion/spell-scaling catalogs, and the BG3 stats audit helper
 - RespecAnywhere console command, net message, and Osiris listener flows against the fake runtime
+- DOS2Combat server behavior: numeric cooldowns (apply/tick/expire/out-of-combat), armor AC sources and damage interception (reduction, criticals, advantage), stats patching (character/weapon/armor/spell/status passes, AP runtime), armor sync snapshots, and the diagnostics/verify dumps
+- DOS2Combat client overlays: armor snapshot parsing, hover text, fallback window, and the cooldown list
+- EnemyRandomization: randomizer buff/champion rolls and boss tiers, loot queue/spawn/corpse/container flows, and summon economy/cooldown/polish
+- CustomClasses orb placement/spacing and charge grants
 
 Optional developer dependencies:
 

@@ -14,8 +14,10 @@ H.event_handlers = H.event_handlers or {}
 H.entities = H.entities or {}
 H.components = H.components or {}
 H.stats = H.stats or {}
+H.stats_by_type = H.stats_by_type or {}
 H.net_messages = H.net_messages or {}
 H.locas = H.locas or {}
+H.imgui_windows = H.imgui_windows or {}
 
 local function record(list, value)
     list[#list + 1] = value
@@ -90,13 +92,25 @@ Ext = {
     Entity = {
         OnCreate = entity_signal(),
         OnDestroy = entity_signal(),
-        Get = function(guid) return H.entities[guid] end,
+        Get = function(handle)
+            -- Native Ext.Entity.Get accepts both GUIDs and entity handles.
+            if type(handle) == "table" then return handle end
+            return H.entities[handle]
+        end,
         GetAllEntitiesWithComponent = function(name) return H.components[name] or {} end,
         CreateComponent = function() return nil end,
         IsAlive = function() return true end,
     },
     Stats = {
-        Get = function(name) return H.stats[name] end,
+        Get = function(name)
+            local stat = H.stats[name]
+            if stat and not stat.Sync then
+                -- Native stats expose :Sync() for explicit re-derivation.
+                stat.Sync = function() stat.synced = true end
+            end
+            return stat
+        end,
+        GetStats = function(stat_type) return H.stats_by_type[stat_type] or {} end,
         Create = function(name) return H.stats[name] end,
         AddAttribute = function() return true end,
         Update = function() return true end,
@@ -128,7 +142,19 @@ Ext = {
         CreateHandle = function(_, text) return "h" .. tostring(text) end,
         GetAllEntries = function() return H.locas end,
     },
-    IMGUI = { NewWindow = function() return {} end },
+    IMGUI = {
+        NewWindow = function(title)
+            local window = { title = title, LastSize = { 420, 40 } }
+            function window:AddText(value)
+                self.text = (self.text and (self.text .. "|") or "") .. tostring(value)
+            end
+            function window:SetPos(pos) self.pos = pos end
+            function window:Destroy() self.destroyed = true end
+            H.imgui_windows[#H.imgui_windows + 1] = window
+            return window
+        end,
+        GetViewportSize = function() return { 1920, 1080 } end,
+    },
     UI = {
         Defer = function(fn)
             if fn then fn() end
@@ -137,11 +163,57 @@ Ext = {
     },
 }
 
+H.statuses = H.statuses or {}
+H.spells = H.spells or {}
+
+local function pair_key(guid, name)
+    return tostring(guid) .. "|" .. tostring(name)
+end
+
+-- Osi calls that mutate engine state. When a test has not explicitly
+-- configured a result for these names, the stub tracks them so that a status or
+-- spell added by the module is visible to later HasStatus/HasSpell checks.
+OSI_STATEFUL = {
+    HasStatus = function(guid, status) return H.statuses[pair_key(guid, status)] and 1 or 0 end,
+    ApplyStatus = function(guid, status)
+        H.statuses[pair_key(guid, status)] = true
+        return 1
+    end,
+    RemoveStatus = function(guid, status)
+        H.statuses[pair_key(guid, status)] = nil
+        return 1
+    end,
+    HasSpell = function(guid, spell) return H.spells[pair_key(guid, spell)] and 1 or 0 end,
+    AddSpell = function(guid, spell)
+        H.spells[pair_key(guid, spell)] = true
+        return 1
+    end,
+    RemoveSpell = function(guid, spell)
+        H.spells[pair_key(guid, spell)] = nil
+        return 1
+    end,
+    IsInCombat = function(guid)
+        local entity = H.entities[guid]
+        return (entity and entity.IsInCombat) and 1 or 0
+    end,
+    IsPlayer = function(guid)
+        local entity = H.entities[guid]
+        return (entity and (entity.Player or entity.UserAvatar)) and 1 or 0
+    end,
+}
+
 Osi = setmetatable({}, {
     __index = function(_, name)
         return function(...)
             record(H.osi_calls, { name = name, args = { ... } })
-            return H.osi_results[name]
+            local configured = H.osi_results[name]
+            if configured ~= nil then
+                if type(configured) == "function" then return configured(...) end
+                return configured
+            end
+            local stateful = OSI_STATEFUL[name]
+            if stateful then return stateful(...) end
+            return nil
         end
     end,
 })

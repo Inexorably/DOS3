@@ -122,23 +122,20 @@ class LuaModHarness:
             return table
         return value
 
-    def set_stat(self, name: str, values: dict[str, Any]) -> None:
-        table = self.lua.table()
-        for key, value in values.items():
-            table[key] = value
+    def set_stat(
+        self, name: str, values: dict[str, Any], stat_type: str | None = None
+    ) -> None:
+        table = self.to_lua(values)
         self.lua.globals().H["stats"][name] = table
+        if stat_type:
+            names = self.lua.globals().H["stats_by_type"][stat_type]
+            if names is None:
+                names = self.lua.table()
+                self.lua.globals().H["stats_by_type"][stat_type] = names
+            names[len(names) + 1] = name
 
     def add_entity(self, guid: str, values: dict[str, Any]) -> None:
-        table = self.lua.table()
-        for key, value in values.items():
-            if isinstance(value, dict):
-                nested = self.lua.table()
-                for inner_key, inner_value in value.items():
-                    nested[inner_key] = inner_value
-                table[key] = nested
-            else:
-                table[key] = value
-        self.lua.globals().H["entities"][guid] = table
+        self.lua.globals().H["entities"][guid] = self.to_lua(values)
 
     def set_component(self, name: str, guids: list[str]) -> None:
         entities = self.lua.table()
@@ -149,22 +146,21 @@ class LuaModHarness:
     def run_console(self, name: str, *args: Any) -> None:
         table = self.lua.table()
         for index, value in enumerate(args, start=1):
-            table[index] = value
-        self._run_console(name, table)
+            table[index] = self.to_lua(value)
+        self._run_console(name, table, len(args))
 
-    def _run_console(self, name: str, args) -> None:
+    def _run_console(self, name: str, args, count: int) -> None:
         runner = self.lua.eval(
-            "function(name, args) local fn = H.console[name]; "
+            "function(name, args, count) local fn = H.console[name]; "
             "assert(fn, 'no console command ' .. tostring(name)); "
-            "return fn(table.unpack(args, 1, args.n or #args)) end"
+            "return fn(table.unpack(args, 1, count)) end"
         )
-        args["n"] = len(args)
-        runner(name, args)
+        runner(name, args, count)
 
     def fire_listener(self, event: str, *args: Any) -> int:
         table = self.lua.table()
         for index, value in enumerate(args, start=1):
-            table[index] = value
+            table[index] = self.to_lua(value)
         runner = self.lua.eval(
             "function(event, args) local calls = 0; "
             "for _, listener in ipairs(H.listeners) do "
@@ -176,14 +172,20 @@ class LuaModHarness:
         return int(runner(event, table))
 
     def fire_event(self, name: str, payload: dict[str, Any] | None = None) -> int:
-        table = self.lua.table()
-        for key, value in (payload or {}).items():
-            table[key] = value
+        table = self.to_lua(payload or {})
         runner = self.lua.eval(
             "function(name, payload) local handler = H.event_handlers[name] or {}; "
             "for _, fn in ipairs(handler) do fn(payload) end; return #handler end"
         )
         return int(runner(name, table))
+
+    def fire_event_value(self, name: str, payload: Any) -> int:
+        """Fire an event with a Lua table built by the caller (keeps a reference)."""
+        runner = self.lua.eval(
+            "function(name, payload) local handler = H.event_handlers[name] or {}; "
+            "for _, fn in ipairs(handler) do fn(payload) end; return #handler end"
+        )
+        return int(runner(name, payload))
 
     def fire_entity_oncreate(self, entity: Any) -> int:
         runner = self.lua.eval(
@@ -205,6 +207,10 @@ class LuaModHarness:
     def run(self, code: str) -> Any:
         return to_python(self.lua.execute(code))
 
+    def raw(self, code: str) -> Any:
+        """Execute Lua and return the raw value (no Python conversion)."""
+        return self.lua.execute(code)
+
 
 def to_python(value: Any) -> Any:
     """Convert a lupa value into plain Python data."""
@@ -217,7 +223,10 @@ def to_python(value: Any) -> Any:
             length = 0
         if length:
             return [to_python(value[index]) for index in range(1, length + 1)]
-        return {str(key): to_python(item) for key, item in value.items()}
+        items = list(value.items())
+        if items:
+            return {str(key): to_python(item) for key, item in items}
+        return []
     if hasattr(value, "values"):
         return [to_python(item) for item in value.values()]
     return value
