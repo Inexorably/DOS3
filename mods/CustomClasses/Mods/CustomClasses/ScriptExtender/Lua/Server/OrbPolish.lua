@@ -123,40 +123,49 @@ local function placeOrbs(x, y, z)
         local ok, result = pcall(Osi.CanStand, guid, nx, ny, nz)
         return ok and (result == 1 or result == true)
     end
-    local function choose(guid, index)
+    local function candidates(index)
+        local list = {}
         for step = 0, 5 do
             local ox, oy = rotate(triangle[index], math.pi * step / 3)
-            local nx, ny = x + ox, y + oy
-            if canStand(guid, nx, ny, z) then
-                return nx, ny
+            list[#list + 1] = { x + ox, y + oy }
+        end
+        -- Fallback ring at both the normal and a slightly wider radius.
+        for _, radius in ipairs({ SPACING, SPACING * 1.35 }) do
+            for step = 0, 7 do
+                local angle = math.pi * 2 * step / 8
+                list[#list + 1] = {
+                    x + math.cos(angle) * radius,
+                    y + math.sin(angle) * radius,
+                }
             end
         end
-        -- Fallback: a small ring search if all rotations are blocked.
-        for step = 0, 7 do
-            local angle = math.pi * 2 * step / 8
-            local nx = x + math.cos(angle) * SPACING
-            local ny = y + math.sin(angle) * SPACING
-            if canStand(guid, nx, ny, z) then return nx, ny end
-        end
-        return nil
+        return list
     end
-    local function place(orb, index, attempt)
-        local nx, ny = choose(orb.guid, index)
-        if not nx then
-            log("orb spacing %s index=%d no standable triangle position", orb.guid, index)
-            return
+
+    local function place(orb, index)
+        local list = candidates(index)
+        for attempt, candidate in ipairs(list) do
+            local nx, ny = candidate[1], candidate[2]
+            local standable = canStand(orb.guid, nx, ny, z)
+            -- CanStand is advisory and can disagree with summon teleport
+            -- placement. Try the move anyway; the post-move position check is
+            -- the authoritative success test.
+            local moved = move(orb.guid, nx, ny, z)
+            log("orb spacing %s index=%d candidate=%d standable=%s moved=%s from=(%.2f,%.2f) to=(%.2f,%.2f)",
+                orb.guid, index, attempt, tostring(standable), tostring(moved),
+                orb.x, orb.y, nx, ny)
+            if moved then return true end
         end
-        local moved = move(orb.guid, nx, ny, z)
-        log("orb spacing %s index=%d attempt=%d moved=%s from=(%.2f,%.2f) to=(%.2f,%.2f)",
-            orb.guid, index, attempt, tostring(moved), orb.x, orb.y, nx, ny)
-        if not moved and attempt < 3 and Ext.Timer and Ext.Timer.WaitFor then
-            Ext.Timer.WaitFor(350 * attempt, function()
-                place(orb, index, attempt + 1)
-            end)
-        end
+        return false
     end
+
     for i = 1, math.min(#orbs, #triangle) do
-        place(orbs[i], i, 1)
+        local delay = (i - 1) * 250
+        if Ext.Timer and Ext.Timer.WaitFor then
+            Ext.Timer.WaitFor(delay, function() place(orbs[i], i) end)
+        else
+            place(orbs[i], i)
+        end
     end
     log("orb placement: %d orbs found near (%.2f,%.2f)", #orbs, x, y)
 end
