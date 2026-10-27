@@ -259,6 +259,15 @@ Known DOS2 visual references for the current test spells:
 - [ ] Verify gear AC no longer changes hit chance and item tooltips show `%`
       reduction.
 
+## Armor AC debugging
+
+- [ ] Investigate the reported 21 AC case: 16 armor + 1 Dexterity + 2 shield +
+      2 Shield of Faith still shows 5% reduction. Add source-by-source AC
+      diagnostics (Osi total, Armor component, equipped items, Dexterity, and
+      Shield of Faith) and verify the 21 AC result is 59%.
+- [ ] Verify the item tooltip and character hover use the same effective AC
+      source after equipment changes.
+
 ## Armor UI
 
 - [x] Client overlay shows `Damage Reduction: N%` for the hovered character.
