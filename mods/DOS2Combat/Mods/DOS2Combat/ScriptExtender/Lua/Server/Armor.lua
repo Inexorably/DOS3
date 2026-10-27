@@ -145,11 +145,11 @@ local function manualArmorClass(handle, entity)
     local gear, dex, statuses = 0, 0, 0
     if not guid then return 0, 0, 0, 0 end
 
-    local shieldFound = false
     local function itemAc(itemEntity)
-        local armor = itemEntity and itemEntity.Armor
+        local armor = itemEntity and component(itemEntity, "Armor")
+        local data = itemEntity and component(itemEntity, "Data")
         local ac = armor and tonumber(armor.ArmorClass) or 0
-        local statsId = itemEntity and itemEntity.Data and itemEntity.Data.StatsId
+        local statsId = data and data.StatsId
         if statsId and Ext.Stats and Ext.Stats.Get then
             local got, stat = pcall(Ext.Stats.Get, statsId, "Armor")
             if got and stat then
@@ -163,44 +163,41 @@ local function manualArmorClass(handle, entity)
         return ac, armor, statsId
     end
 
-    if Osi and Osi.GetEquippedItem then
+    -- Prefer the actual Equipment component. Scanning the backpack for a
+    -- shield would count unequipped items and is not safe.
+    local equipFound = false
+    local member = component(entity, "InventoryMember")
+    local equipmentHandle = member and component(member, "Equipment")
+    local equipmentEntity = equipmentHandle and Ext.Entity.Get(equipmentHandle)
+    local equipment = equipmentEntity and component(equipmentEntity, "Equipment")
+    local slots = equipment and component(equipment, "Slots")
+    if slots then
+        for slot, item in pairs(slots) do
+            local itemEntity = item and Ext.Entity.Get(item) or nil
+            if itemEntity then
+                local ac, armor, statsId = itemAc(itemEntity)
+                if ac > 0 then
+                    equipFound = true
+                    gear = gear + ac
+                    if not armorClassLogged[guid] then
+                        U.Log("armor equipped %s slot=%s stats=%s ac=%s",
+                            guid, tostring(slot), tostring(statsId), tostring(ac))
+                    end
+                end
+            end
+        end
+    end
+
+    if not equipFound and Osi and Osi.GetEquippedItem then
         for _, slot in ipairs(ARMOR_SLOTS) do
             local ok, item = pcall(Osi.GetEquippedItem, guid, slot)
             local itemEntity = ok and item and U.EntityOf(item) or nil
             local ac, armor, statsId = itemAc(itemEntity)
             if ac > 0 then
                 gear = gear + ac
-                if armor and armor.Shield then shieldFound = true end
                 if not armorClassLogged[guid] then
-                    U.Log("armor gear %s slot=%s stats=%s ac=%s", guid, slot,
-                        tostring(statsId), tostring(ac))
-                end
-            end
-        end
-    end
-
-    -- Some BG3 builds do not return shields through GetEquippedItem. Fall
-    -- back to the owned inventory and accept a shield component once.
-    if not shieldFound and Ext.Entity and Ext.Entity.GetAllEntitiesWithComponent then
-        local ok, items = pcall(Ext.Entity.GetAllEntitiesWithComponent, "InventoryMember")
-        if ok and type(items) == "table" then
-            for _, itemEntity in ipairs(items) do
-                local armor = itemEntity and itemEntity.Armor
-                if armor and armor.Shield then
-                    local member = itemEntity.InventoryMember
-                    local inventory = member and member.Inventory
-                    local owned = inventory and inventory.InventoryIsOwned
-                    local owner = owned and owned.Owner
-                    if owner and U.GuidOf(owner) == guid then
-                        local ac, _, statsId = itemAc(itemEntity)
-                        if ac > 0 then
-                            gear = gear + ac
-                            shieldFound = true
-                            U.Log("armor shield fallback %s stats=%s ac=%s",
-                                guid, tostring(statsId), tostring(ac))
-                            break
-                        end
-                    end
+                    U.Log("armor equipped fallback %s slot=%s stats=%s ac=%s",
+                        guid, slot, tostring(statsId), tostring(ac))
                 end
             end
         end
