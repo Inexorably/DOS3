@@ -114,30 +114,48 @@ local function applyToNearestOrb(source)
     return applyIgnite(orb, source)
 end
 
+local RECENT_TARGET = {}
+
+local function onIgniteTarget(caster, target, spell)
+    if tostring(spell or "") ~= "CC_IgniteOrb" then return end
+    log("ignite UsingSpellOnTarget: caster=%s target=%s", tostring(caster), tostring(target))
+    if applyIgnite(target, caster) then
+        RECENT_TARGET[tostring(caster or "")] = true
+        if Ext.Timer and Ext.Timer.WaitFor then
+            Ext.Timer.WaitFor(1500, function()
+                RECENT_TARGET[tostring(caster or "")] = nil
+            end)
+        end
+    end
+end
+
 local function onIgniteEntity(entity)
     local event = entity and entity.SpellCastEvent
     local hit = event and event.Hit
     local spell = hit and hit.SpellId
     if tostring(spell or "") ~= "CC_IgniteOrb" then return end
 
+    -- Prefer the actual event target. The CastedSpell fallback below handles
+    -- builds where SpellCastEvent does not expose a target.
     local target = hit.Target
     if not target and hit.Targets then
         local ok, first = pcall(function() return hit.Targets[1] end)
         if ok then target = first end
     end
-    log("ignite SpellCastEvent: target=%s source=%s",
-        tostring(target), tostring(hit.Source or hit.Inflicter))
-    if not applyIgnite(target, hit.Source or hit.Inflicter) then
-        applyToNearestOrb(hit.Source or hit.Inflicter)
+    if target then
+        log("ignite SpellCastEvent: target=%s source=%s",
+            tostring(target), tostring(hit.Source or hit.Inflicter))
+        applyIgnite(target, hit.Source or hit.Inflicter)
     end
 end
 
 local function onCastedSpell(caster, spell)
     if tostring(spell or "") ~= "CC_IgniteOrb" then return end
+    if RECENT_TARGET[tostring(caster or "")] then
+        log("ignite CastedSpell skipped: exact target already handled caster=%s", tostring(caster))
+        return
+    end
     log("ignite CastedSpell fallback: caster=%s", tostring(caster))
-    -- The target event is not available in every build. The orb is the
-    -- nearest CC_Ball to the caster; apply the marker through Lua as a
-    -- guaranteed fallback so SurfaceChange can do its job.
     applyToNearestOrb(caster)
 end
 
@@ -176,6 +194,10 @@ if Ext and Ext.Entity and Ext.Entity.OnCreate then
 end
 
 if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
-    local ok = pcall(Ext.Osiris.RegisterListener, "CastedSpell", 5, "after", onCastedSpell)
-    log("fire CastedSpell fallback listener: %s", tostring(ok))
+    -- UsingSpellOnTarget has six arguments in this build; arity 5 fails with
+    -- "Symbol not found in story."
+    local okTarget = pcall(Ext.Osiris.RegisterListener, "UsingSpellOnTarget", 6, "after", onIgniteTarget)
+    local okFallback = pcall(Ext.Osiris.RegisterListener, "CastedSpell", 5, "after", onCastedSpell)
+    log("fire target listener: %s, casted fallback: %s",
+        tostring(okTarget), tostring(okFallback))
 end

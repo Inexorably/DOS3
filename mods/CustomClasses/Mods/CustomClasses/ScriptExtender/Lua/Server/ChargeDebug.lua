@@ -80,10 +80,10 @@ local function onUsingSpellAtPosition(caster, x, y, z, spell, a, b, c)
         tostring(spell), tostring(a), tostring(b), tostring(c))
 end
 
-local function onUsingSpellOnTarget(caster, target, spell, a, b)
+local function onUsingSpellOnTarget(caster, target, spell, a, b, c)
     if not isBallSpell(spell) then return end
-    log("debug UsingSpellOnTarget caster=%s target=%s spell=%s a=%s b=%s",
-        tostring(caster), tostring(target), tostring(spell), tostring(a), tostring(b))
+    log("debug UsingSpellOnTarget caster=%s target=%s spell=%s a=%s b=%s c=%s",
+        tostring(caster), tostring(target), tostring(spell), tostring(a), tostring(b), tostring(c))
 end
 
 local function onCastSpell(caster, spell, a, b, c)
@@ -126,7 +126,7 @@ function D.Init()
     register("CastSpellFailed", 5, onCastFailed)
     register("UsingSpell", 5, onUsingSpell)
     register("UsingSpellAtPosition", 8, onUsingSpellAtPosition)
-    register("UsingSpellOnTarget", 5, onUsingSpellOnTarget)
+    register("UsingSpellOnTarget", 6, onUsingSpellOnTarget)
     register("CastSpell", 5, onCastSpell)
     register("CastedSpell", 5, onCastedSpell)
 
