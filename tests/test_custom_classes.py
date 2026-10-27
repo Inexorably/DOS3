@@ -22,6 +22,7 @@ class CustomClassesTests(unittest.TestCase):
         self.assertIn("CC_BallStack", summon["SpellProperties"])
         self.assertIn(BALL_ROOT, summon["TargetConditions"])
 
+        self.assertEqual(charge["Level"], "2")
         self.assertEqual(charge["Cooldown"], "OncePerTurn")
         self.assertEqual(charge["UseCosts"], "ActionPoint:2")
         self.assertIn("DealDamage(3,Bludgeoning)", charge["SpellSuccess"])

@@ -28,6 +28,16 @@ class ManifestTests(unittest.TestCase):
                 self.assertEqual(meta.get("UUID"), entry["UUID"])
                 self.assertEqual(meta.get("Name"), entry["Name"])
 
+    def test_custom_classes_requires_dos2combat(self):
+        info = load_info(MODS / "CustomClasses")
+        self.assertIn(
+            "def5f99a-c4e3-45f7-bf08-c2ddac3283c9",
+            info["Mods"][0]["Dependencies"],
+        )
+        meta = read(MODS / "CustomClasses/Mods/CustomClasses/meta.lsx")
+        self.assertIn("DOS2Combat", meta)
+        self.assertIn("def5f99a-c4e3-45f7-bf08-c2ddac3283c9", meta)
+
     def test_script_extender_config_matches_folder(self):
         for mod_dir in sorted(path for path in MODS.iterdir() if path.is_dir()):
             config_path = mod_dir / "Mods" / mod_dir.name / "ScriptExtender" / "Config.json"

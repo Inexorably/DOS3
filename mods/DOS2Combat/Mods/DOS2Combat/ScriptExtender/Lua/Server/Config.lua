@@ -137,7 +137,6 @@ DOS2C.Config = {
     -- 4 AP when both mods are loaded; DOS2Combat's default spell-level mapping
     -- would otherwise reduce these custom spells to 1 AP.
     DOS2_AP_COSTS = {
-        CC_BallCharge = 2,
         ENR_Summon_ChultAlioramus = 4,
         ENR_Summon_Crimson = 4,
     },
