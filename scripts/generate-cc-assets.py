@@ -109,9 +109,9 @@ def build_root_template() -> None:
     azure = copy.deepcopy(go)
     set_attr(azure, "MapKey", AZURE_BALL_GUID)
     set_attr(azure, "Name", "CC_Ball_Azure")
-    set_attr(azure, "CharacterVisualResourceID", "")
-    set_attr(azure, "VisualTemplate", BLACK_HOLE_AURA)
-    set_attr(azure, "Icon", "TadpoleSuperPower_BlackHole")
+    set_attr(azure, "CharacterVisualResourceID", "512df42e-6b0b-5561-2381-f30794fa5ef9")
+    set_attr(azure, "VisualTemplate", BLACK_HOLE_VISUAL)
+    set_attr(azure, "Icon", "Portrait_Creature_FlamingSphere")
     set_display_name(azure, handle("CC_Ball_Azure/name"))
 
     out = ET.Element("save")
