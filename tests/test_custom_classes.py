@@ -60,7 +60,7 @@ class CustomClassesTests(unittest.TestCase):
         root = MODS / "CustomClasses/Public/CustomClasses/RootTemplates/_merged.lsf"
         visual = (
             MODS
-            / "CustomClasses/Public/CustomClasses/Content/Assets/Characters/Creatures/Sphere_Flame/[PAK]_Body/_merged.lsf"
+            / "CustomClasses/Public/CustomClasses/Content/[PAK]_CharacterVisuals/_merged.lsf"
         )
         loca = MODS / "CustomClasses/Localization/English/CustomClasses.loca"
         self.assertGreater(root.stat().st_size, 0)
