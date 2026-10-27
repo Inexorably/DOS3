@@ -54,6 +54,22 @@ class OrbFireTests(unittest.TestCase):
         self.assertEqual(str(applies[0]["args"][1]), "CC_ORB_ABLAZE")
         self.assertTrue(self.harness.osi_called("CreateSurface"))
 
+    def test_casted_spell_fallback_ignites_nearest_orb(self) -> None:
+        self.harness.run(
+            """
+            H.entities["orb"] = {
+                Uuid = { EntityUuid = "orb" },
+                Data = { StatsId = "CC_Ball" },
+            }
+            """
+        )
+        self.harness.set_component("Data", ["orb"])
+        self.harness.fire_listener("CastedSpell", "caster", "CC_IgniteOrb", "", 0, 0)
+        applies = self.harness.osi_calls("ApplyStatus")
+        self.assertTrue(applies)
+        self.assertEqual(str(applies[0]["args"][0]), "orb")
+        self.assertEqual(str(applies[0]["args"][1]), "CC_ORB_ABLAZE")
+
     def test_charge_leaves_fire_at_old_and_target_positions(self) -> None:
         self.harness.fire_listener(
             "UsingSpellAtPosition", "orb", 14, 20, 0, "CC_BallCharge"

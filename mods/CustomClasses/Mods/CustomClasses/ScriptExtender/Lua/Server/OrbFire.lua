@@ -78,6 +78,42 @@ local function applyIgnite(target, source)
     return ok
 end
 
+local function nearestOrb(source)
+    local sx, sy, sz = positionOf(source)
+    if not (Ext.Entity and Ext.Entity.GetAllEntitiesWithComponent) then return nil end
+    local ok, entities = pcall(Ext.Entity.GetAllEntitiesWithComponent, "Data")
+    if not ok or type(entities) ~= "table" then return nil end
+
+    local best, bestDistance
+    for _, entity in ipairs(entities) do
+        local data = entity.Data
+        if data and tostring(data.StatsId or "") == "CC_Ball" then
+            local uuid = entity.Uuid
+            local guid = uuid and uuid.EntityUuid
+            if guid then
+                local x, y, z = positionOf(guid)
+                if x and y then
+                    local distance = 0
+                    if sx and sy then
+                        local dx, dy = x - sx, y - sy
+                        distance = dx * dx + dy * dy
+                    end
+                    if not best or distance < bestDistance then
+                        best, bestDistance = tostring(guid), distance
+                    end
+                end
+            end
+        end
+    end
+    return best
+end
+
+local function applyToNearestOrb(source)
+    local orb = nearestOrb(source)
+    log("ignite nearest orb: source=%s orb=%s", tostring(source), tostring(orb))
+    return applyIgnite(orb, source)
+end
+
 local function onIgniteEntity(entity)
     local event = entity and entity.SpellCastEvent
     local hit = event and event.Hit
@@ -91,7 +127,18 @@ local function onIgniteEntity(entity)
     end
     log("ignite SpellCastEvent: target=%s source=%s",
         tostring(target), tostring(hit.Source or hit.Inflicter))
-    applyIgnite(target, hit.Source or hit.Inflicter)
+    if not applyIgnite(target, hit.Source or hit.Inflicter) then
+        applyToNearestOrb(hit.Source or hit.Inflicter)
+    end
+end
+
+local function onCastedSpell(caster, spell)
+    if tostring(spell or "") ~= "CC_IgniteOrb" then return end
+    log("ignite CastedSpell fallback: caster=%s", tostring(caster))
+    -- The target event is not available in every build. The orb is the
+    -- nearest CC_Ball to the caster; apply the marker through Lua as a
+    -- guaranteed fallback so SurfaceChange can do its job.
+    applyToNearestOrb(caster)
 end
 
 local function onTurnStarted(character)
@@ -126,4 +173,9 @@ end
 if Ext and Ext.Entity and Ext.Entity.OnCreate then
     local okIgnite = pcall(Ext.Entity.OnCreate, "SpellCastEvent", onIgniteEntity)
     log("fire SpellCastEvent listener: %s", tostring(okIgnite))
+end
+
+if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
+    local ok = pcall(Ext.Osiris.RegisterListener, "CastedSpell", 5, "after", onCastedSpell)
+    log("fire CastedSpell fallback listener: %s", tostring(ok))
 end
