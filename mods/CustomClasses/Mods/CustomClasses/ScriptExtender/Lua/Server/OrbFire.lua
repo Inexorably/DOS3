@@ -79,6 +79,22 @@ local function swapCharge(target)
     return ok
 end
 
+local function swapAllAblazeOrbs()
+    if not (Ext.Entity and Ext.Entity.GetAllEntitiesWithComponent) then return end
+    local ok, entities = pcall(Ext.Entity.GetAllEntitiesWithComponent, "Data")
+    if not ok or type(entities) ~= "table" then return end
+    for _, entity in ipairs(entities) do
+        local data = entity.Data
+        if data and tostring(data.StatsId or "") == "CC_Ball" then
+            local uuid = entity.Uuid
+            local guid = uuid and uuid.EntityUuid
+            if guid and hasStatus(guid, ABLAZE) then
+                swapCharge(guid)
+            end
+        end
+    end
+end
+
 local function applyIgnite(target, source)
     if not target then
         log("ignite target missing: source=%s", tostring(source))
@@ -88,7 +104,7 @@ local function applyIgnite(target, source)
     log("ignite apply: target=%s source=%s ok=%s err=%s",
         tostring(target), tostring(source), tostring(ok), tostring(err))
     if ok then
-        swapCharge(target)
+        swapAllAblazeOrbs()
         fireAtCurrent(target)
     end
     return ok

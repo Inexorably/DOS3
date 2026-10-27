@@ -38,6 +38,15 @@ class OrbFireTests(unittest.TestCase):
         self.assertAlmostEqual(calls[0]["args"][4], 1.0)
 
     def test_ignite_target_applies_ablaze_and_fire(self) -> None:
+        self.harness.run(
+            """
+            H.entities["orb"] = {
+                Uuid = { EntityUuid = "orb" },
+                Data = { StatsId = "CC_Ball" },
+            }
+            """
+        )
+        self.harness.set_component("Data", ["orb"])
         entity = self.harness.to_lua({
             "SpellCastEvent": {
                 "Hit": {
