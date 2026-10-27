@@ -64,6 +64,7 @@ jobs:
         shell: bash
         env:
           ENR_SKIP_GENERATION: "1"
+          CC_SKIP_GENERATION: "1"
         run: ./scripts/build.sh "${{ matrix.mod }}"
 
       - uses: actions/upload-artifact@v4

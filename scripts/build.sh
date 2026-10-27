@@ -49,15 +49,31 @@ if [[ ! -d "$SRC" ]]; then
     exit 1
 fi
 if [[ "$MOD" == "CustomClasses" ]]; then
-    echo "Regenerating CustomClasses root template, textures, and localization"
+    CC_ROOT_SOURCE="$ROOT/.analysis/rootsshared/Public/Shared/RootTemplates/_merged.lsx"
+    CC_VISUAL_SOURCE="$ROOT/.analysis/conjurations.lsx"
     SPHERE_TEX="$ROOT/.analysis/ccsphere/Generated/Public/Shared/Assets/Characters/_Models/_Creatures/Sphere_Flame/Resources/SPHERE_Flame_A_Boulder_A_BM.DDS"
-    if [[ ! -f "$SPHERE_TEX" ]]; then
-        mkdir -p "$ROOT/.analysis/ccsphere"
-        "$DIVINE" -a extract-package -g bg3             -s "D:/SteamLibrary/steamapps/common/Baldurs Gate 3/Data/Textures.pak"             -d "$ROOT/.analysis/ccsphere" -x "**/SPHERE_Flame*"
+
+    if [[ "${CC_SKIP_GENERATION:-0}" == "1" || ! -f "$CC_ROOT_SOURCE" ]]; then
+        echo "Using committed CustomClasses generated assets"
+    else
+        echo "Regenerating CustomClasses root template, textures, and localization"
+        if [[ ! -f "$SPHERE_TEX" ]]; then
+            BG3_DATA="${BG3_DATA:-D:/SteamLibrary/steamapps/common/Baldurs Gate 3/Data}"
+            if [[ -f "$BG3_DATA/Textures.pak" ]]; then
+                mkdir -p "$ROOT/.analysis/ccsphere"
+                "$DIVINE" -a extract-package -g bg3                     -s "$BG3_DATA/Textures.pak"                     -d "$ROOT/.analysis/ccsphere" -x "**/SPHERE_Flame*"
+            else
+                echo "BG3 Textures.pak not found at $BG3_DATA; using committed orb textures"
+            fi
+        fi
+        if [[ -f "$SPHERE_TEX" && -f "$CC_VISUAL_SOURCE" ]]; then
+            (cd "$ROOT" && python scripts/recolor-cc-orb-textures.py)
+            (cd "$ROOT" && python scripts/build-cc-azure-visual.py)
+        else
+            echo "Custom orb source assets unavailable; using committed visual resources"
+        fi
+        (cd "$ROOT" && python scripts/generate-cc-assets.py)
     fi
-    (cd "$ROOT" && python scripts/recolor-cc-orb-textures.py)
-    (cd "$ROOT" && python scripts/build-cc-azure-visual.py)
-    (cd "$ROOT" && python scripts/generate-cc-assets.py)
 fi
 if [[ "$MOD" == "EnemyRandomization" ]]; then
     if [[ "${ENR_SKIP_GENERATION:-0}" == "1" ]]; then
