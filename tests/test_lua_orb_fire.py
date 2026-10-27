@@ -38,7 +38,16 @@ class OrbFireTests(unittest.TestCase):
         self.assertAlmostEqual(calls[0]["args"][4], 1.0)
 
     def test_ignite_target_applies_ablaze_and_fire(self) -> None:
-        self.harness.fire_listener("UsingSpellOnTarget", "caster", "orb", "CC_IgniteOrb", "target")
+        entity = self.harness.to_lua({
+            "SpellCastEvent": {
+                "Hit": {
+                    "SpellId": "CC_IgniteOrb",
+                    "Target": "orb",
+                    "Source": "caster",
+                }
+            }
+        })
+        self.harness.fire_entity_oncreate(entity)
         applies = self.harness.osi_calls("ApplyStatus")
         self.assertTrue(applies)
         self.assertEqual(str(applies[0]["args"][0]), "orb")

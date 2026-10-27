@@ -66,15 +66,32 @@ local function fireAtCurrent(guid)
     return createFire(guid, x, y, z)
 end
 
-local function onIgniteTarget(caster, target, spell)
-    if tostring(spell or "") ~= "CC_IgniteOrb" then return end
+local function applyIgnite(target, source)
     if not target then
-        log("ignite target missing: caster=%s", tostring(caster))
-        return
+        log("ignite target missing: source=%s", tostring(source))
+        return false
     end
     local ok, err = pcall(Osi.ApplyStatus, target, ABLAZE, -1, 1)
-    log("ignite apply: target=%s ok=%s err=%s", tostring(target), tostring(ok), tostring(err))
+    log("ignite apply: target=%s source=%s ok=%s err=%s",
+        tostring(target), tostring(source), tostring(ok), tostring(err))
     if ok then fireAtCurrent(target) end
+    return ok
+end
+
+local function onIgniteEntity(entity)
+    local event = entity and entity.SpellCastEvent
+    local hit = event and event.Hit
+    local spell = hit and hit.SpellId
+    if tostring(spell or "") ~= "CC_IgniteOrb" then return end
+
+    local target = hit.Target
+    if not target and hit.Targets then
+        local ok, first = pcall(function() return hit.Targets[1] end)
+        if ok then target = first end
+    end
+    log("ignite SpellCastEvent: target=%s source=%s",
+        tostring(target), tostring(hit.Source or hit.Inflicter))
+    applyIgnite(target, hit.Source or hit.Inflicter)
 end
 
 local function onTurnStarted(character)
@@ -103,7 +120,10 @@ end
 if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
     local okTurn = pcall(Ext.Osiris.RegisterListener, "TurnStarted", 1, "after", onTurnStarted)
     local okCharge = pcall(Ext.Osiris.RegisterListener, "UsingSpellAtPosition", 8, "after", onChargePosition)
-    local okIgnite = pcall(Ext.Osiris.RegisterListener, "UsingSpellOnTarget", 5, "after", onIgniteTarget)
-    log("fire listeners: turn=%s charge=%s ignite=%s",
-        tostring(okTurn), tostring(okCharge), tostring(okIgnite))
+    log("fire listeners: turn=%s charge=%s", tostring(okTurn), tostring(okCharge))
+end
+
+if Ext and Ext.Entity and Ext.Entity.OnCreate then
+    local okIgnite = pcall(Ext.Entity.OnCreate, "SpellCastEvent", onIgniteEntity)
+    log("fire SpellCastEvent listener: %s", tostring(okIgnite))
 end

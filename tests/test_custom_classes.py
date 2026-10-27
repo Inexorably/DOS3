@@ -49,7 +49,7 @@ class CustomClassesTests(unittest.TestCase):
         self.assertEqual(ignite["Level"], "0")
         self.assertEqual(ignite["UseCosts"], "ActionPoint:1")
         self.assertIn("CC_ORB", ignite["TargetConditions"])
-        self.assertIn("ApplyStatus(CC_ORB_ABLAZE", ignite["SpellSuccess"])
+        self.assertIn("TARGET:ApplyStatus(CC_ORB_ABLAZE", ignite["SpellProperties"])
         self.assertNotIn("CannotTargetCharacter", ignite["SpellFlags"])
         self.assertNotIn("CannotTargetItems", ignite["SpellFlags"])
         self.assertEqual(ablaze["StatusType"], "BOOST")
