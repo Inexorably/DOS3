@@ -491,8 +491,9 @@ is the **Summon Ball** cantrip:
 - An alternate **Azure Orb** variant reuses `CC_Ball` stats and Charge. It
   keeps the sphere body so the summon has a visible mesh and portrait, and
   uses the native black-hole visual overlay. The body texture is still the
-  shared flame-sphere material; a separate blue/purple texture atlas requires
-  a dedicated material override. It is summoned by `CC_SummonBall_Azure`.
+  shared flame-sphere material; a separate blue/purple texture/material
+  override is still needed for the exact recolor. It is summoned by
+  `CC_SummonBall_Azure`.
 - While `GRANT_TEST_CANTRIP` is enabled in `Server/Config.lua`, the test
   bootstrap grants both orb cantrips to every party member. This is a testing
   aid; disable it once the spells are granted through a real class progression.

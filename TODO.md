@@ -439,9 +439,10 @@ Known DOS2 visual references for the current test spells:
 
 ## Custom Classes
 
-- [x] Add the alternate azure orb root and `CC_SummonBall_Azure` test cantrip.
-      It reuses the looping native black-hole aura, removes the orange
-      flame-sphere body, and uses the black-hole portrait icon.
+- [x] Add the alternate azure orb root, `CC_SummonBall_Azure` test cantrip,
+      visible sphere body, and working portrait.
+- [ ] Add a dedicated blue/purple texture/material override for the azure orb.
+      The current alternate shares the flame-sphere body texture.
 
 ## Deferred
 
