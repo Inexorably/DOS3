@@ -172,7 +172,7 @@ local function placeOrbs(x, y, z)
 
     for i = 1, math.min(#orbs, #triangle) do
         local delay = (i - 1) * 250
-        if Ext.Timer and Ext.Timer.WaitFor then
+        if delay > 0 and Ext.Timer and Ext.Timer.WaitFor then
             Ext.Timer.WaitFor(delay, function() place(orbs[i], i) end)
         else
             place(orbs[i], i)
