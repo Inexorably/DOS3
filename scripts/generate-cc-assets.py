@@ -278,6 +278,47 @@ data "StackId" "CC_ORB_CHARGE_IGNITE"
 data "Boosts" "UnlockSpell(CC_BallCharge_Ignite)"
 data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"
 
+new entry "CC_OrbFireWall"
+type "SpellData"
+using "Wall_WallOfFire"
+data "Level" "0"
+data "UseCosts" ""
+data "Cooldown" ""
+data "SpellFlags" "HasVerbalComponent;HasSomaticComponent;IsSpell"
+data "TooltipDamageList" "DealDamage(5,Fire)"
+data "TooltipStatusApply" "ApplyStatus(CC_ORB_FIRE_LINE,100,10)"
+data "DescriptionParams" "DealDamage(5,Fire)"
+data "ItemWallStatus" "CC_ORB_FIRE_LINE"
+data "SurfaceRadius" "1"
+data "Lifetime" "3"
+
+new entry "CC_ORB_FIRE_LINE"
+type "StatusData"
+using "WALLOFFIRE"
+data "DisplayName" "{handle('CC_ORB_FIRE_LINE/name')}"
+data "Description" "{handle('CC_ORB_FIRE_LINE/desc')}"
+data "DescriptionParams" "Distance(3);DealDamage(5,Fire)"
+data "StackId" "CC_ORB_FIRE_LINE"
+data "AuraRadius" "1"
+data "AuraStatuses" "ApplyStatus(CC_ORB_FIRE_LINE_AURA,100,1)"
+data "TooltipDamage" "DealDamage(5,Fire)"
+
+new entry "CC_ORB_FIRE_LINE_AURA"
+type "StatusData"
+using "WALLOFFIRE_AURA"
+data "DisplayName" "{handle('CC_ORB_FIRE_LINE_AURA/name')}"
+data "Description" "{handle('CC_ORB_FIRE_LINE_AURA/desc')}"
+data "DescriptionParams" "DealDamage(5,Fire)"
+data "StackId" "CC_ORB_FIRE_LINE"
+data "TooltipDamage" "DealDamage(5,Fire)"
+data "OnApplyRoll" ""
+data "OnApplySuccess" "DealDamage(5,Fire)"
+data "OnApplyFail" "DealDamage(5,Fire)"
+data "OnTickRoll" ""
+data "OnTickSuccess" "DealDamage(5,Fire)"
+data "OnTickFail" "DealDamage(5,Fire)"
+data "StatusGroups" "SG_Condition;SG_DropForNonMutingDialog"
+
 new entry "CC_ORB"
 type "StatusData"
 data "StatusType" "BOOST"
@@ -366,6 +407,10 @@ def write_loca() -> None:
         (handle("CC_ORB_CHARGE/desc"), "Grants the orb Charge."),
         (handle("CC_ORB_CHARGE_IGNITE/name"), "Ignite Charge Grant"),
         (handle("CC_ORB_CHARGE_IGNITE/desc"), "Grants the orb Ignite Charge."),
+        (handle("CC_ORB_FIRE_LINE/name"), "Orb Fire Wall"),
+        (handle("CC_ORB_FIRE_LINE/desc"), "A wall of fire left by an Ignite Charge. It deals 5 Fire damage."),
+        (handle("CC_ORB_FIRE_LINE_AURA/name"), "Orb Fire"),
+        (handle("CC_ORB_FIRE_LINE_AURA/desc"), "Standing in the orb's fire deals 5 Fire damage."),
         (handle("CC_ORB/desc"), "Marks a summoned arcane orb."),
         (handle("CC_ORB_ABLAZE/name"), "Ablaze"),
         (
