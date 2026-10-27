@@ -66,15 +66,32 @@ local function isPartyCharacter(handle, entity)
     return false
 end
 
+local armorClassLogged = {}
+
 local function nativeArmorClass(handle, entity)
+    local guid = U.GuidOf(handle)
+    local componentAc = 0
     if entity and entity.Armor then
-        local ac = tonumber(entity.Armor.ArmorClass) or 0
-        if ac > 0 then return ac, entity.Armor end
+        componentAc = tonumber(entity.Armor.ArmorClass) or 0
     end
-    if Osi and Osi.GetArmorClass then
-        local ok, ac = pcall(Osi.GetArmorClass, U.GuidOf(handle))
-        if ok and tonumber(ac) and tonumber(ac) > 0 then return tonumber(ac), nil end
+
+    -- Osi.GetArmorClass is the authoritative total (base + equipment +
+    -- passives + statuses). entity.Armor.ArmorClass is often only the base
+    -- character value (10), and using it first made every character look like
+    -- 10 AC, which is exactly 5% on the reduction curve.
+    if Osi and Osi.GetArmorClass and guid then
+        local ok, ac = pcall(Osi.GetArmorClass, guid)
+        local total = ok and tonumber(ac) or 0
+        if total and total > 0 then
+            if not armorClassLogged[guid] and componentAc > 0 and total ~= componentAc then
+                armorClassLogged[guid] = true
+                U.Log("armor class source %s: total=%d component=%d", guid, total, componentAc)
+            end
+            return total, entity and entity.Armor or nil
+        end
     end
+
+    if componentAc > 0 then return componentAc, entity and entity.Armor or nil end
     return nil, nil
 end
 
@@ -428,14 +445,19 @@ function A.ForceNoDodge(handle)
 end
 
 function A.Refresh(handle, quiet)
-    local resist, key = getResistance(handle)
-    if not resist then return false end
-    if key then
-        originalACs[key] = nil
-        resistances[key] = nil
+    local key = U.GuidOf(handle)
+    if not key then return false end
+    local resist = resistances[key]
+    if not resist then
+        resist = computeResistance(handle)
+        resistances[key] = resist
     end
+    originalACs[key] = nil
+    resistances[key] = nil
     removeLegacyNoDodge(handle)
     local updated = computeResistance(handle)
+    resistances[key] = updated
+    resist = updated
     for k, v in pairs(updated) do resist[k] = v end
     if not quiet then
         U.Log("armor refresh %s: %.0f%% reduction",
