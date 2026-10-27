@@ -39,18 +39,22 @@ local function createFire(guid, x, y, z)
     x, y, z = tonumber(x), tonumber(y), tonumber(z)
     if not x or not y then return false end
     if Osi and Osi.CreateSurface then
-        local ok = pcall(Osi.CreateSurface, SURFACE, x, y, z, RADIUS, tostring(guid or ""))
+        local ok, err = pcall(Osi.CreateSurface, SURFACE, x, y, z, RADIUS, tostring(guid or ""))
         if ok then
             log("fire trail at %s (%.2f,%.2f,%.2f)", tostring(guid), x, y, z)
             return true
         end
+        log("CreateSurface failed: %s", tostring(err))
+    else
+        log("CreateSurface unavailable")
     end
     if Osi and Osi.CreateSurfaceAtPosition then
-        local ok = pcall(Osi.CreateSurfaceAtPosition, SURFACE, x, y, z, RADIUS, tostring(guid or ""))
+        local ok, err = pcall(Osi.CreateSurfaceAtPosition, SURFACE, x, y, z, RADIUS, tostring(guid or ""))
         if ok then
             log("fire trail at %s (%.2f,%.2f,%.2f) fallback", tostring(guid), x, y, z)
             return true
         end
+        log("CreateSurfaceAtPosition failed: %s", tostring(err))
     end
     return false
 end
@@ -63,14 +67,18 @@ local function fireAtCurrent(guid)
 end
 
 local function onTurnStarted(character)
-    if character and hasStatus(character, ABLAZE) then
-        fireAtCurrent(character)
-    end
+    if not character then return end
+    local ablaze = hasStatus(character, ABLAZE)
+    log("turn start fire check: %s ablaze=%s", tostring(character), tostring(ablaze))
+    if ablaze then fireAtCurrent(character) end
 end
 
 local function onChargePosition(caster, x, y, z, spell)
     if tostring(spell or "") ~= "CC_BallCharge" then return end
-    if not hasStatus(caster, ABLAZE) then return end
+    local ablaze = hasStatus(caster, ABLAZE)
+    log("charge fire check: caster=%s ablaze=%s target=(%.2f,%.2f)",
+        tostring(caster), tostring(ablaze), tonumber(x) or 0, tonumber(y) or 0)
+    if not ablaze then return end
     local oldX, oldY, oldZ = positionOf(caster)
     if oldX then createFire(caster, oldX, oldY, oldZ) end
     local targetX, targetY, targetZ = tonumber(x), tonumber(y), tonumber(z)
@@ -82,6 +90,7 @@ local function onChargePosition(caster, x, y, z, spell)
 end
 
 if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
-    pcall(Ext.Osiris.RegisterListener, "TurnStarted", 1, "after", onTurnStarted)
-    pcall(Ext.Osiris.RegisterListener, "UsingSpellAtPosition", 8, "after", onChargePosition)
+    local okTurn = pcall(Ext.Osiris.RegisterListener, "TurnStarted", 1, "after", onTurnStarted)
+    local okCharge = pcall(Ext.Osiris.RegisterListener, "UsingSpellAtPosition", 8, "after", onChargePosition)
+    log("fire listeners: turn=%s charge=%s", tostring(okTurn), tostring(okCharge))
 end

@@ -249,13 +249,15 @@ data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndi
 
 new entry "CC_ORB_ABLAZE"
 type "StatusData"
-data "StatusType" "EFFECT"
+data "StatusType" "BOOST"
 data "DisplayName" "{handle('CC_ORB_ABLAZE/name')}"
 data "Description" "{handle('CC_ORB_ABLAZE/desc')}"
 data "Icon" "Status_Burning"
 data "StackId" "CC_ORB_ABLAZE"
--- Visual-only: no TickFunctors, AuraStatuses, or damage functors. The orb
--- leaves Fire surfaces through OrbFire.lua; it does not carry a damaging aura.
+-- Visual-only: no TickFunctors, AuraStatuses, or damage functors. SurfaceChange
+-- leaves the native fire trail as the orb moves or Charges; it does not carry
+-- a 1.5m damaging aura.
+data "SurfaceChange" "Ignite"
 data "StatusEffect" "2156dd48-f83b-4060-9a4e-cab994da8857"
 data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"
 ''',
