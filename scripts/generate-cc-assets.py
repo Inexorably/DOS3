@@ -234,6 +234,9 @@ data "DisplayName" "{handle('CC_IgniteOrb/name')}"
 data "Description" "{handle('CC_IgniteOrb/desc')}"
 data "Icon" "Status_Burning"
 data "UseCosts" "ActionPoint:1"
+-- Target_MageHand inherits CannotTargetCharacter/CannotTargetItems. Remove
+-- those flags so the orb character itself can be selected.
+data "SpellFlags" "IsSpell;HasVerbalComponent;HasSomaticComponent;HasHighGroundRangeExtension"
 data "AIFlags" "CanNotUse"
 
 new entry "CC_ORB"
