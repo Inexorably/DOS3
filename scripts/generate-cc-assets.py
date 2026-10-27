@@ -214,6 +214,19 @@ data "UseCosts" "ActionPoint:2"
 data "DamageType" "Bludgeoning"
 data "SpellFlags" "IsHarmful"
 
+new entry "CC_BallCharge_Ignite"
+type "SpellData"
+using "CC_BallCharge"
+data "Level" "2"
+data "Cooldown" "OncePerTurn"
+data "UseCosts" "ActionPoint:2"
+data "DisplayName" "{handle('CC_BallCharge_Ignite/name')}"
+data "Description" "{handle('CC_BallCharge_Ignite/desc')}"
+data "SpellProperties" "GROUND:CreateSurface(1.5,1,Fire)"
+data "SpellSuccess" "DealDamage(1,Bludgeoning)"
+data "TooltipDamageList" "DealDamage(1,Bludgeoning)"
+data "Icon" "Action_Boar_Charge"
+
 new entry "CC_IgniteOrb"
 type "SpellData"
 using "Target_MageHand"
@@ -312,6 +325,11 @@ def write_loca() -> None:
             "Conjure up to three tiny azure orbs. They cannot move on their own, but each can Charge at an enemy once per turn.",
         ),
         (handle("CC_Ball_Azure/name"), "Azure Orb"),
+        (handle("CC_BallCharge_Ignite/name"), "Ignite Charge"),
+        (
+            handle("CC_BallCharge_Ignite/desc"),
+            "Charge toward an enemy, dealing 1 bludgeoning damage and leaving a Fire surface at the destination. Costs 2 AP. Once per turn.",
+        ),
         (handle("CC_IgniteOrb/name"), "Ignite Orb"),
         (
             handle("CC_IgniteOrb/desc"),

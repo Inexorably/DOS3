@@ -53,6 +53,8 @@ class OrbFireTests(unittest.TestCase):
         self.assertEqual(str(applies[0]["args"][0]), "orb")
         self.assertEqual(str(applies[0]["args"][1]), "CC_ORB_ABLAZE")
         self.assertTrue(self.harness.osi_called("CreateSurface"))
+        self.assertTrue(self.harness.osi_called("RemoveSpell"))
+        self.assertTrue(self.harness.osi_called("AddSpell"))
 
     def test_casted_spell_fallback_ignites_nearest_orb(self) -> None:
         self.harness.run(

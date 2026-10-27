@@ -66,6 +66,19 @@ local function fireAtCurrent(guid)
     return createFire(guid, x, y, z)
 end
 
+local function swapCharge(target)
+    if not target then return false end
+    local guid = tostring(target)
+    if Osi and Osi.RemoveSpell then
+        pcall(Osi.RemoveSpell, guid, "CC_BallCharge")
+    end
+    if not (Osi and Osi.AddSpell) then return false end
+    local ok, err = pcall(Osi.AddSpell, guid, "CC_BallCharge_Ignite", 0, 1)
+    if not ok then ok, err = pcall(Osi.AddSpell, guid, "CC_BallCharge_Ignite", 0) end
+    log("ignite charge swap: target=%s ok=%s err=%s", guid, tostring(ok), tostring(err))
+    return ok
+end
+
 local function applyIgnite(target, source)
     if not target then
         log("ignite target missing: source=%s", tostring(source))
@@ -74,7 +87,10 @@ local function applyIgnite(target, source)
     local ok, err = pcall(Osi.ApplyStatus, target, ABLAZE, -1, 1)
     log("ignite apply: target=%s source=%s ok=%s err=%s",
         tostring(target), tostring(source), tostring(ok), tostring(err))
-    if ok then fireAtCurrent(target) end
+    if ok then
+        swapCharge(target)
+        fireAtCurrent(target)
+    end
     return ok
 end
 
@@ -167,7 +183,8 @@ local function onTurnStarted(character)
 end
 
 local function onChargePosition(caster, x, y, z, spell)
-    if tostring(spell or "") ~= "CC_BallCharge" then return end
+    spell = tostring(spell or "")
+    if spell ~= "CC_BallCharge" and spell ~= "CC_BallCharge_Ignite" then return end
     local ablaze = hasStatus(caster, ABLAZE)
     log("charge fire check: caster=%s ablaze=%s target=(%.2f,%.2f)",
         tostring(caster), tostring(ablaze), tonumber(x) or 0, tonumber(y) or 0)

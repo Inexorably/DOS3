@@ -59,6 +59,15 @@ class CustomClassesTests(unittest.TestCase):
         self.assertNotIn("DealDamage", ablaze.get("Boosts", ""))
         self.assertIn("2156dd48-f83b-4060-9a4e-cab994da8857", ablaze["StatusEffect"])
 
+    def test_ignite_charge_variant_creates_fire(self):
+        data = MODS / "CustomClasses/Public/CustomClasses/Stats/Generated/Data"
+        spells = parse_stats(data / "Spells.txt")
+        charge = spells["CC_BallCharge_Ignite"]
+        self.assertEqual(charge["Level"], "2")
+        self.assertEqual(charge["UseCosts"], "ActionPoint:2")
+        self.assertIn("CreateSurface(1.5,1,Fire)", charge["SpellProperties"])
+        self.assertIn("DealDamage(1,Bludgeoning)", charge["SpellSuccess"])
+
     def test_ball_has_no_movement_and_is_scaled_to_one_third(self):
         data = MODS / "CustomClasses/Public/CustomClasses/Stats/Generated/Data"
         chars = parse_stats(data / "Characters.txt")
