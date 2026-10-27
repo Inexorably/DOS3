@@ -102,13 +102,18 @@ def native_spell_access() -> dict[int, int]:
                 char_levels.setdefault(match.group(1), int(level_match.group(1)))
 
     observed: dict[int, list[int]] = {}
-    root_paths = glob.glob(str(ROOT / ".analysis" / "rootsshared" / "Public" / "Shared" / "RootTemplates" / "_merged.lsx"))
-    root_paths += glob.glob(str(ROOT / ".analysis" / "roots" / "Public" / "SharedDev" / "RootTemplates" / "_merged.lsx"))
-    for path in root_paths:
-        root = ET.parse(path).getroot()
+    root_paths: list[str] = glob.glob(
+        str(ROOT / ".analysis" / "rootsshared" / "Public" / "Shared" / "RootTemplates" / "_merged.lsx")
+    )
+    root_paths += glob.glob(
+        str(ROOT / ".analysis" / "roots" / "Public" / "SharedDev" / "RootTemplates" / "_merged.lsx")
+    )
+    for root_path in root_paths:
+        root = ET.parse(root_path).getroot()
         for game_object in root.findall('.//node[@id="GameObjects"]'):
             attrs = {attr.get("id"): attr.get("value") for attr in game_object.findall("attribute")}
-            level = attrs.get("LevelOverride") or char_levels.get(attrs.get("Stats"))
+            stats_id = attrs.get("Stats") or ""
+            level = attrs.get("LevelOverride") or char_levels.get(stats_id)
             if not level or not str(level).strip().isdigit():
                 continue
             level = int(float(level))

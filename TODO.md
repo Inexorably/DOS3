@@ -454,6 +454,9 @@ Known DOS2 visual references for the current test spells:
 - [x] Build a dedicated azure MaterialBank, VisualBank, and CharacterVisual
       resource using a blue/purple glow map and glow colour, so the original
       orb remains orange.
+- [x] Allow up to three orbs at once using three distinct summon stack IDs.
+- [x] Reduce Charge base damage from 3 to 1.
+- [ ] Verify three orbs can coexist and each Charge uses the one-turn cooldown.
 
 ## Deferred
 

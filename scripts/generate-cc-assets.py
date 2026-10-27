@@ -153,7 +153,7 @@ type "SpellData"
 using "Target_MageHand"
 data "Level" "0"
 data "Cooldown" ""
-data "SpellProperties" "GROUND:Summon({BALL_GUID},UntilLongRest,,,'CC_BallStack',UNSUMMON_ABLE)"
+data "SpellProperties" "GROUND:Summon({BALL_GUID},UntilLongRest,,,'CC_BallStack1',UNSUMMON_ABLE);GROUND:Summon({BALL_GUID},UntilLongRest,,,'CC_BallStack2',UNSUMMON_ABLE);GROUND:Summon({BALL_GUID},UntilLongRest,,,'CC_BallStack3',UNSUMMON_ABLE)"
 data "TargetConditions" "CanStand('{BALL_GUID}') and not Character() and not Self()"
 data "RequirementConditions" ""
 data "RequirementEvents" ""
@@ -169,7 +169,7 @@ data "AIFlags" "CanNotUse"
 new entry "CC_SummonBall_Azure"
 type "SpellData"
 using "CC_SummonBall"
-data "SpellProperties" "GROUND:Summon({AZURE_BALL_GUID},UntilLongRest,,,'CC_BallStack',UNSUMMON_ABLE)"
+data "SpellProperties" "GROUND:Summon({AZURE_BALL_GUID},UntilLongRest,,,'CC_BallStack1',UNSUMMON_ABLE);GROUND:Summon({AZURE_BALL_GUID},UntilLongRest,,,'CC_BallStack2',UNSUMMON_ABLE);GROUND:Summon({AZURE_BALL_GUID},UntilLongRest,,,'CC_BallStack3',UNSUMMON_ABLE)"
 data "TargetConditions" "CanStand('{AZURE_BALL_GUID}') and not Character() and not Self()"
 data "DisplayName" "{handle('CC_SummonBall_Azure/name')}"
 data "Description" "{handle('CC_SummonBall_Azure/desc')}"
@@ -194,12 +194,12 @@ data "SpellAnimationIntentType" "Aggressive"
 data "PrepareEffect" "5822e00d-08d9-4ac0-8889-7ae3cb56d2d7"
 data "CastEffect" "6e871034-4d0c-4851-91ce-9d8f28343e85"
 data "TargetEffect" "18169d09-2a36-4c15-b647-ba6f97ba7712"
-data "SpellSuccess" "DealDamage(3,Bludgeoning)"
+data "SpellSuccess" "DealDamage(1,Bludgeoning)"
 data "SpellFail" ""
 data "TargetConditions" "not Self() and not Ally()"
 data "DisplayName" "{handle('CC_BallCharge/name')}"
 data "Description" "{handle('CC_BallCharge/desc')}"
-data "TooltipDamageList" "DealDamage(3,Bludgeoning)"
+data "TooltipDamageList" "DealDamage(1,Bludgeoning)"
 data "TooltipAttackSave" ""
 data "Icon" "Action_Boar_Charge"
 data "UseCosts" "ActionPoint:2"
@@ -243,7 +243,7 @@ def write_loca() -> None:
         (handle("CC_SummonBall/name"), "Summon Ball"),
         (
             handle("CC_SummonBall/desc"),
-            "Conjure a tiny arcane orb. It cannot move on its own, but can Charge at an enemy once per turn.",
+            "Conjure up to three tiny arcane orbs. They cannot move on their own, but each can Charge at an enemy once per turn.",
         ),
         (handle("CC_BallCharge/name"), "Charge"),
         (

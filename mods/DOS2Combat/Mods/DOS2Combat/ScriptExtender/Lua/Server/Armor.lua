@@ -71,7 +71,17 @@ local armorClassLogged = {}
 local ARMOR_SLOTS = {
     "Helmet", "Breast", "Cloak", "Gloves", "Boots",
     "Amulet", "Ring", "Ring2", "MainHand", "OffHand",
+    "Shield", "Offhand", "Secondary",
     "MeleeMainHand", "MeleeOffHand", "RangedMainHand", "RangedOffHand",
+}
+
+local AC_STATUS_BONUSES = {
+    SHIELD_OF_FAITH = 2,
+    ENR_LootStatus_SHIELD_OF_FAITH = 2,
+    ENR_Perm_SHIELD_OF_FAITH = 2,
+    SHIELD = 5,
+    ENR_LootStatus_SHIELD = 5,
+    ENR_Perm_SHIELD = 5,
 }
 
 local function manualArmorClass(handle, entity)
@@ -79,13 +89,63 @@ local function manualArmorClass(handle, entity)
     local gear, dex, statuses = 0, 0, 0
     if not guid then return 0, 0, 0, 0 end
 
+    local shieldFound = false
+    local function itemAc(itemEntity)
+        local armor = itemEntity and itemEntity.Armor
+        local ac = armor and tonumber(armor.ArmorClass) or 0
+        local statsId = itemEntity and itemEntity.Data and itemEntity.Data.StatsId
+        if statsId and Ext.Stats and Ext.Stats.Get then
+            local got, stat = pcall(Ext.Stats.Get, statsId, "Armor")
+            if got and stat then
+                local formula = DOS2C.ArmorFormula
+                if formula then
+                    ac = formula.ArmorClassWithBoosts(ac, U.SafeGet(stat, "Boosts"))
+                end
+            end
+        end
+        return ac or 0, armor, statsId
+    end
+
     if Osi and Osi.GetEquippedItem then
         for _, slot in ipairs(ARMOR_SLOTS) do
             local ok, item = pcall(Osi.GetEquippedItem, guid, slot)
             local itemEntity = ok and item and U.EntityOf(item) or nil
-            local armor = itemEntity and itemEntity.Armor
-            local ac = armor and tonumber(armor.ArmorClass) or 0
-            if ac and ac > 0 then gear = gear + ac end
+            local ac, armor, statsId = itemAc(itemEntity)
+            if ac > 0 then
+                gear = gear + ac
+                if armor and armor.Shield then shieldFound = true end
+                if not armorClassLogged[guid] then
+                    U.Log("armor gear %s slot=%s stats=%s ac=%s", guid, slot,
+                        tostring(statsId), tostring(ac))
+                end
+            end
+        end
+    end
+
+    -- Some BG3 builds do not return shields through GetEquippedItem. Fall
+    -- back to the owned inventory and accept a shield component once.
+    if not shieldFound and Ext.Entity and Ext.Entity.GetAllEntitiesWithComponent then
+        local ok, items = pcall(Ext.Entity.GetAllEntitiesWithComponent, "InventoryMember")
+        if ok and type(items) == "table" then
+            for _, itemEntity in ipairs(items) do
+                local armor = itemEntity and itemEntity.Armor
+                if armor and armor.Shield then
+                    local member = itemEntity.InventoryMember
+                    local inventory = member and member.Inventory
+                    local owned = inventory and inventory.InventoryIsOwned
+                    local owner = owned and owned.Owner
+                    if owner and U.GuidOf(owner) == guid then
+                        local ac, _, statsId = itemAc(itemEntity)
+                        if ac > 0 then
+                            gear = gear + ac
+                            shieldFound = true
+                            U.Log("armor shield fallback %s stats=%s ac=%s",
+                                guid, tostring(statsId), tostring(ac))
+                            break
+                        end
+                    end
+                end
+            end
         end
     end
 
@@ -95,8 +155,9 @@ local function manualArmorClass(handle, entity)
         if ok then dex = math.max(0, tonumber(value) or 0) end
     end
 
-    if hasStatus(handle, "SHIELD_OF_FAITH") then statuses = statuses + 2 end
-    if hasStatus(handle, "SHIELD") then statuses = statuses + 5 end
+    for name, bonus in pairs(AC_STATUS_BONUSES) do
+        if hasStatus(handle, name) then statuses = statuses + bonus end
+    end
     return gear + dex + statuses, gear, dex, statuses
 end
 
