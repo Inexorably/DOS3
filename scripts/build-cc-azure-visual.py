@@ -25,8 +25,10 @@ SOURCE_CONJ = ROOT / ".analysis/conjurations.lsx"
 SOURCE_BODY = ROOT / ".analysis/sphere_body.lsx"
 SOURCE_CV = ROOT / ".analysis/cv_dump.lsx"
 OUT_XML = ROOT / ".analysis/cc_azure_visual.lsx"
-OUT_LSF = PUBLIC / "Content/Assets/Characters/Creatures/Sphere_Flame/_merged.lsf"
-TEX_ROOT = "Public/CustomClasses/Assets/Characters/_Models/_Creatures/Sphere_Flame/Resources"
+OUT_MAT = PUBLIC / "Content/Assets/Characters/Creatures/[PAK]_Conjurations/_merged.lsf"
+OUT_BODY = PUBLIC / "Content/Assets/Characters/Creatures/Sphere_Flame/[PAK]_Body/_merged.lsf"
+OUT_CV = PUBLIC / "Content/[PAK]_CharacterVisuals/_merged.lsf"
+TEX_ROOT = "Generated/Public/CustomClasses/Assets/Characters/_Models/_Creatures/Sphere_Flame/Resources"
 
 NS = uuid.UUID("6ba7b810-9dad-11d1-80b4-00c04fd430c8")
 
@@ -117,24 +119,41 @@ def main() -> None:
     root.append(make_bank("VisualBank", "VisualBank", [body]))
     root.append(make_bank("CharacterVisualBank", "CharacterVisualBank", [visual]))
 
-    OUT_XML.parent.mkdir(parents=True, exist_ok=True)
-    ET.ElementTree(root).write(OUT_XML, encoding="utf-8", xml_declaration=True)
-    OUT_LSF.parent.mkdir(parents=True, exist_ok=True)
-    subprocess.run(
+    def write_bank(path: Path, regions: list[ET.Element]) -> None:
+        bank_root = ET.Element("save")
+        ET.SubElement(bank_root, "version", {"major": "4", "minor": "0", "revision": "9", "build": "0"})
+        for region in regions:
+            bank_root.append(region)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.unlink(missing_ok=True)
+        ET.ElementTree(bank_root).write(path.with_suffix(".lsx"), encoding="utf-8", xml_declaration=True)
+        subprocess.run(
+            [
+                str(ROOT / "tools/lslib/Packed/Tools/Divine.exe"),
+                "-a",
+                "convert-resource",
+                "-g",
+                "bg3",
+                "-s",
+                str(path.with_suffix(".lsx").resolve()),
+                "-d",
+                str(path.resolve()),
+            ],
+            check=True,
+        )
+        path.with_suffix(".lsx").unlink(missing_ok=True)
+
+    # Keep the three bank types in the same conventional paths as the shipped
+    # resources. BG3 loads module content banks by these paths.
+    write_bank(
+        OUT_MAT,
         [
-            str(ROOT / "tools/lslib/Packed/Tools/Divine.exe"),
-            "-a",
-            "convert-resource",
-            "-g",
-            "bg3",
-            "-s",
-            str(OUT_XML.resolve()),
-            "-d",
-            str(OUT_LSF.resolve()),
+            make_bank("TextureBank", "TextureBank", [texture]),
+            make_bank("MaterialBank", "MaterialBank", [material]),
         ],
-        check=True,
     )
-    OUT_XML.unlink(missing_ok=True)
+    write_bank(OUT_BODY, [make_bank("VisualBank", "VisualBank", [body])])
+    write_bank(OUT_CV, [make_bank("CharacterVisualBank", "CharacterVisualBank", [visual])])
     print("azure material:", MATERIAL_ID)
     print("azure character visual:", CHARACTER_VISUAL_ID)
 
