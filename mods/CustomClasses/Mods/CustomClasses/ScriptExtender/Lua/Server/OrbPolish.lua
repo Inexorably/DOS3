@@ -7,8 +7,8 @@
 CC = CC or {}
 CC.OrbPolish = CC.OrbPolish or {}
 
-local P = CC.OrbPolish
 local COUNTS = {}
+local SEEN = {}
 local RESET_MS = 750
 local SPACING = 1.5
 
@@ -38,12 +38,12 @@ local function positionOf(guid)
 end
 
 local function move(guid, x, y, z)
-    if Osi and Osi.TeleportToPosition then
-        local ok = pcall(Osi.TeleportToPosition, guid, x, y, z, 0, 0)
-        if ok then return true end
-    end
     if Osi and Osi.SetPosition then
         local ok = pcall(Osi.SetPosition, guid, x, y, z)
+        if ok then return true end
+    end
+    if Osi and Osi.TeleportToPosition then
+        local ok = pcall(Osi.TeleportToPosition, guid, x, y, z, 0, 0)
         if ok then return true end
     end
     if Osi and Osi.Teleport then
@@ -54,11 +54,18 @@ local function move(guid, x, y, z)
 end
 
 local function onSummonCreated(summoner, summon)
-    if not summoner or not summon then return end
+    if not summon then return end
+    local summonKey = tostring(summon)
+    if SEEN[summonKey] then return end
     local stats = statsOf(summon)
-    if stats ~= "CC_Ball" then return end
+    if stats ~= "CC_Ball" then
+        log("summon spacing ignored: summon=%s summoner=%s stats=%s",
+            summonKey, tostring(summoner), tostring(stats))
+        return
+    end
+    SEEN[summonKey] = true
 
-    local key = tostring(summoner)
+    local key = tostring(summoner or "unknown")
     local index = COUNTS[key] or 0
     COUNTS[key] = index + 1
 
@@ -90,7 +97,7 @@ local function onSummonCreated(summoner, summon)
         end
     end
 
-    local offset = (index - 1) * SPACING
+    local offset = 0
     if index == 1 then offset = SPACING end
     if index == 2 then offset = -SPACING end
     local nx, ny = x + dx * offset, y + dy * offset
@@ -104,5 +111,20 @@ end
 
 if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
     local ok = pcall(Ext.Osiris.RegisterListener, "SummonCreatedEvent", 2, "after", onSummonCreated)
-    log("summon spacing listener registered: %s", tostring(ok))
+    log("summon spacing Osiris listener registered: %s", tostring(ok))
+end
+
+if Ext and Ext.Entity and Ext.Entity.OnCreate then
+    local ok = pcall(Ext.Entity.OnCreate, "SummonCreatedEvent", function(eventEntity)
+        local ev = eventEntity and eventEntity.SummonCreatedEvent
+        if not ev then return end
+        local summon = ev.Entity or ev.Summon
+        local summoner = ev.Summoner or ev.Owner
+        if not summoner and summon and Osi and Osi.GetSummoner then
+            local got, owner = pcall(Osi.GetSummoner, summon)
+            if got then summoner = owner end
+        end
+        onSummonCreated(summoner, summon)
+    end)
+    log("summon spacing ECS listener registered: %s", tostring(ok))
 end

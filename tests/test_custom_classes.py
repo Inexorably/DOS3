@@ -47,7 +47,7 @@ class CustomClassesTests(unittest.TestCase):
 
         self.assertIn("Movement:0", ball["ActionResources"])
         self.assertIn("ActionPoint:2", ball["ActionResources"])
-        self.assertEqual(ball.get("Vitality"), "3")
+        self.assertEqual(ball.get("Vitality"), "1")
         self.assertIn("Floating", ball.get("Flags", ""))
         self.assertNotIn("Invulnerable", ball["DefaultBoosts"])
         self.assertNotIn("ScaleMultiplier", ball["DefaultBoosts"])

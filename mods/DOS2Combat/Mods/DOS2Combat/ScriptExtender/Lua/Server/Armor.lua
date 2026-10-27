@@ -91,13 +91,20 @@ local function statBoosts(name, statType)
     return U.SafeGet(stat, "Boosts") or ""
 end
 
+local function component(entity, name)
+    if not entity then return nil end
+    local ok, value = pcall(function() return entity[name] end)
+    if ok then return value end
+    return nil
+end
+
 local function activeStatusArmor(entity)
     local total = 0
-    local container = entity and entity.StatusContainer
-    local statuses = container and container.Statuses
+    local container = component(entity, "StatusContainer")
+    local statuses = container and component(container, "Statuses")
     if not statuses then return total end
     for _, status in ipairs(statuses) do
-        local id = status and status.StatusId
+        local id = status and component(status, "StatusId")
         if id then
             total = total + acFromBoosts(statBoosts(id, "StatusData"))
         end
@@ -107,9 +114,9 @@ end
 
 local function activePassiveArmor(entity)
     local total = 0
-    local container = entity and entity.Passives
+    local container = component(entity, "Passives") or component(entity, "PassiveContainer")
     if not container then return total end
-    local list = container.Passives
+    local list = component(container, "Passives")
     if not list then return total end
     for key, value in pairs(list) do
         local name = type(key) == "number" and value or key

@@ -224,7 +224,7 @@ data "Intelligence" "10"
 data "Wisdom" "10"
 data "Charisma" "10"
 data "Armor" "10"
-data "Vitality" "3"
+data "Vitality" "1"
 data "Weight" "0.1"
 data "GameSize" "Tiny"
 data "Flags" "Floating;InvulnerableAndInteractive"
@@ -248,13 +248,13 @@ def write_loca() -> None:
         (handle("CC_BallCharge/name"), "Charge"),
         (
             handle("CC_BallCharge/desc"),
-            "Charge toward an enemy, dealing 3 bludgeoning damage for 2 AP. Once per turn.",
+            "Charge toward an enemy, dealing 1 bludgeoning damage for 2 AP. Once per turn.",
         ),
         (handle("CC_Ball/name"), "Arcane Orb"),
         (handle("CC_SummonBall_Azure/name"), "Summon Azure Orb"),
         (
             handle("CC_SummonBall_Azure/desc"),
-            "Conjure a tiny azure orb. It cannot move on its own, but can Charge at an enemy once per turn.",
+            "Conjure up to three tiny azure orbs. They cannot move on their own, but each can Charge at an enemy once per turn.",
         ),
         (handle("CC_Ball_Azure/name"), "Azure Orb"),
     ]

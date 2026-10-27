@@ -271,6 +271,11 @@ Known DOS2 visual references for the current test spells:
 - [ ] Verify the reported 21 AC case (16 armor + 1 Dexterity + 2 shield +
       2 Shield of Faith) reports 59%, and that item hover and character hover
       stay aligned after equipment changes.
+- [ ] `Osi.GetArmorClass` and `entity.Armor.ArmorClass` both returned 0/10 in
+      this BG3SE build; continue looking for an authoritative total-AC
+      accessor or ECS component.
+- [ ] Handle `ACOverrideFormula` sources such as Mage Armor, Barkskin, and
+      Unarmored Defense instead of treating all AC as additive.
 
 ## Armor UI
 
@@ -460,6 +465,8 @@ Known DOS2 visual references for the current test spells:
 - [x] Allow up to three orbs at once using three distinct summon stack IDs.
 - [x] Reduce Charge base damage from 3 to 1.
 - [x] Reposition the three orbs 1.5 m apart around the summon point.
+- [ ] Orb spacing still did not visibly work in the last test; debug the
+      SummonCreatedEvent delivery, StatsId match, and TeleportToPosition result.
 - [ ] Verify three orbs can coexist, are spaced out, and each Charge uses the
       one-turn cooldown.
 
