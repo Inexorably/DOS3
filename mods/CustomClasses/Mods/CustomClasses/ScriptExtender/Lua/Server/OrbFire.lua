@@ -103,10 +103,12 @@ local function applyIgnite(target, source)
     local ok, err = pcall(Osi.ApplyStatus, target, ABLAZE, -1, 1)
     log("ignite apply: target=%s source=%s ok=%s err=%s",
         tostring(target), tostring(source), tostring(ok), tostring(err))
-    if ok then
-        swapAllAblazeOrbs()
-        fireAtCurrent(target)
-    end
+    -- Do not make the skill swap depend on HasStatus. The target event is
+    -- authoritative; some builds return ok from ApplyStatus while the query
+    -- still reports false immediately afterward.
+    swapCharge(target)
+    swapAllAblazeOrbs()
+    fireAtCurrent(target)
     return ok
 end
 
@@ -204,7 +206,9 @@ local function onChargePosition(caster, x, y, z, spell)
     local ablaze = hasStatus(caster, ABLAZE)
     log("charge fire check: caster=%s ablaze=%s target=(%.2f,%.2f)",
         tostring(caster), tostring(ablaze), tonumber(x) or 0, tonumber(y) or 0)
-    if not ablaze then return end
+    -- The Ignite Charge variant is itself proof that this orb is ablaze;
+    -- do not gate its Lua trail on a status query that may lag.
+    if not ablaze and spell ~= "CC_BallCharge_Ignite" then return end
     local oldX, oldY, oldZ = positionOf(caster)
     if oldX then createFire(caster, oldX, oldY, oldZ) end
     local targetX, targetY, targetZ = tonumber(x), tonumber(y), tonumber(z)

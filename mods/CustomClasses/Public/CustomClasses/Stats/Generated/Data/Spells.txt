@@ -115,5 +115,6 @@ data "StackId" "CC_ORB_ABLAZE"
 -- leaves the native fire trail as the orb moves or Charges; it does not carry
 -- a 1.5m damaging aura.
 data "SurfaceChange" "Ignite"
+data "Boosts" "UnlockSpell(CC_BallCharge_Ignite)"
 data "StatusEffect" "2156dd48-f83b-4060-9a4e-cab994da8857"
 data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"
