@@ -39,19 +39,25 @@ local function move(guid, x, y, z)
         { "Teleport", guid, x, y, z },
         { "SetPosition", guid, x, y, z },
     }
+    local errors = {}
+    local lastX, lastY, lastZ
     for _, args in ipairs(attempts) do
         local name = table.remove(args, 1)
-        if Osi and Osi[name] then
-            local ok = pcall(Osi[name], table.unpack(args))
-            if ok then
-                local nx, ny = positionOf(guid)
-                if nx and ny and math.abs(nx - x) <= 0.75 and math.abs(ny - y) <= 0.75 then
-                    return true
-                end
+        if not (Osi and Osi[name]) then
+            errors[#errors + 1] = name .. ":unavailable"
+        else
+            local ok, err = pcall(Osi[name], table.unpack(args))
+            local ax, ay, az = positionOf(guid)
+            lastX, lastY, lastZ = ax or lastX, ay or lastY, az or lastZ
+            local close = ax and ay and math.abs(ax - x) <= 0.75 and math.abs(ay - y) <= 0.75
+            if ok and close then
+                return true, name, ax, ay, az
             end
+            errors[#errors + 1] = string.format("%s ok=%s err=%s post=(%s,%s,%s)",
+                name, tostring(ok), tostring(err), tostring(ax), tostring(ay), tostring(az))
         end
     end
-    return false
+    return false, table.concat(errors, " | "), lastX, lastY, lastZ
 end
 
 local function grantCharge(guid)
@@ -150,10 +156,10 @@ local function placeOrbs(x, y, z)
             -- CanStand is advisory and can disagree with summon teleport
             -- placement. Try the move anyway; the post-move position check is
             -- the authoritative success test.
-            local moved = move(orb.guid, nx, ny, z)
-            log("orb spacing %s index=%d candidate=%d standable=%s moved=%s from=(%.2f,%.2f) to=(%.2f,%.2f)",
+            local moved, detail, ax, ay, az = move(orb.guid, nx, ny, z)
+            log("orb spacing %s index=%d candidate=%d standable=%s moved=%s from=(%.2f,%.2f) to=(%.2f,%.2f) post=(%s,%s,%s) detail=%s",
                 orb.guid, index, attempt, tostring(standable), tostring(moved),
-                orb.x, orb.y, nx, ny)
+                orb.x, orb.y, nx, ny, tostring(ax), tostring(ay), tostring(az), tostring(detail))
             if moved then return true end
         end
         return false
@@ -196,9 +202,13 @@ if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
     -- Osi.AddSpell on a summoned orb does not always create a normal
     -- SpellBook entry. Set the runtime cooldown directly as a second layer.
     pcall(Ext.Osiris.RegisterListener, "CastedSpell", 5, "after", function(caster, spell)
-        if tostring(spell or "") == "CC_BallCharge" and Osi and Osi.SetSpellCooldown then
-            local set = pcall(Osi.SetSpellCooldown, caster, "CC_BallCharge", 1)
-            log("orb charge cooldown set: caster=%s ok=%s", tostring(caster), tostring(set))
+        if tostring(spell or "") == "CC_BallCharge" then
+            if Osi and Osi.SetSpellCooldown then
+                local set = pcall(Osi.SetSpellCooldown, caster, "CC_BallCharge", 1)
+                log("orb charge cooldown set: caster=%s ok=%s", tostring(caster), tostring(set))
+            else
+                log("orb charge cooldown unavailable: SetSpellCooldown missing")
+            end
         end
     end)
 end
