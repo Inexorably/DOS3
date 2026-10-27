@@ -37,6 +37,14 @@ class OrbFireTests(unittest.TestCase):
         self.assertEqual(calls[0]["args"][0], "SurfaceFire")
         self.assertAlmostEqual(calls[0]["args"][4], 1.0)
 
+    def test_ignite_target_applies_ablaze_and_fire(self) -> None:
+        self.harness.fire_listener("UsingSpellOnTarget", "caster", "orb", "CC_IgniteOrb", "target")
+        applies = self.harness.osi_calls("ApplyStatus")
+        self.assertTrue(applies)
+        self.assertEqual(str(applies[0]["args"][0]), "orb")
+        self.assertEqual(str(applies[0]["args"][1]), "CC_ORB_ABLAZE")
+        self.assertTrue(self.harness.osi_called("CreateSurface"))
+
     def test_charge_leaves_fire_at_old_and_target_positions(self) -> None:
         self.harness.fire_listener(
             "UsingSpellAtPosition", "orb", 14, 20, 0, "CC_BallCharge"

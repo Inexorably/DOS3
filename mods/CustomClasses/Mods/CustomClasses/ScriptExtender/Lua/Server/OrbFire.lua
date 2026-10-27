@@ -66,6 +66,17 @@ local function fireAtCurrent(guid)
     return createFire(guid, x, y, z)
 end
 
+local function onIgniteTarget(caster, target, spell)
+    if tostring(spell or "") ~= "CC_IgniteOrb" then return end
+    if not target then
+        log("ignite target missing: caster=%s", tostring(caster))
+        return
+    end
+    local ok, err = pcall(Osi.ApplyStatus, target, ABLAZE, -1, 1)
+    log("ignite apply: target=%s ok=%s err=%s", tostring(target), tostring(ok), tostring(err))
+    if ok then fireAtCurrent(target) end
+end
+
 local function onTurnStarted(character)
     if not character then return end
     local ablaze = hasStatus(character, ABLAZE)
@@ -92,5 +103,7 @@ end
 if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
     local okTurn = pcall(Ext.Osiris.RegisterListener, "TurnStarted", 1, "after", onTurnStarted)
     local okCharge = pcall(Ext.Osiris.RegisterListener, "UsingSpellAtPosition", 8, "after", onChargePosition)
-    log("fire listeners: turn=%s charge=%s", tostring(okTurn), tostring(okCharge))
+    local okIgnite = pcall(Ext.Osiris.RegisterListener, "UsingSpellOnTarget", 5, "after", onIgniteTarget)
+    log("fire listeners: turn=%s charge=%s ignite=%s",
+        tostring(okTurn), tostring(okCharge), tostring(okIgnite))
 end
