@@ -53,7 +53,9 @@ if [[ "$MOD" == "CustomClasses" ]]; then
     CC_VISUAL_SOURCE="$ROOT/.analysis/conjurations.lsx"
     SPHERE_TEX="$ROOT/.analysis/ccsphere/Generated/Public/Shared/Assets/Characters/_Models/_Creatures/Sphere_Flame/Resources/SPHERE_Flame_A_Boulder_A_BM.DDS"
 
-    if [[ "${CC_SKIP_GENERATION:-0}" == "1" || ! -f "$CC_ROOT_SOURCE" ]]; then
+    # Official builds consume the checked-in generated assets so local and
+    # cloud packages are built from the same inputs. Regeneration is explicit.
+    if [[ "${CC_SKIP_GENERATION:-0}" == "1" || "${CC_FORCE_GENERATION:-0}" != "1" || ! -f "$CC_ROOT_SOURCE" ]]; then
         echo "Using committed CustomClasses generated assets"
     else
         echo "Regenerating CustomClasses root template, textures, and localization"
@@ -76,7 +78,7 @@ if [[ "$MOD" == "CustomClasses" ]]; then
     fi
 fi
 if [[ "$MOD" == "EnemyRandomization" ]]; then
-    if [[ "${ENR_SKIP_GENERATION:-0}" == "1" ]]; then
+    if [[ "${ENR_SKIP_GENERATION:-0}" == "1" || "${ENR_FORCE_GENERATION:-0}" != "1" ]]; then
         echo "Using committed Enemy Randomization generated assets"
     else
         echo "Regenerating Enemy Randomization loot and champion catalogs"
