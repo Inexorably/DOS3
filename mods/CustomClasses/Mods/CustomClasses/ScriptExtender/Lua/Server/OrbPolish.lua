@@ -98,14 +98,35 @@ local function placeOrbs(x, y, z)
         end
     end
 
-    table.sort(orbs, function(a, b) return a.guid < b.guid end)
-    local offsets = { 0, SPACING, -SPACING }
+    -- Prefer the three orbs closest to the cast point, then arrange them in
+    -- an equilateral-ish triangle around that point. This avoids leaving a
+    -- newly spawned orb stacked under an older one.
+    table.sort(orbs, function(a, b)
+        local ad = (a.x - x) * (a.x - x) + (a.y - y) * (a.y - y)
+        local bd = (b.x - x) * (b.x - x) + (b.y - y) * (b.y - y)
+        if math.abs(ad - bd) > 0.001 then return ad < bd end
+        return a.guid < b.guid
+    end)
+    local offsets = {
+        { 0.0, SPACING },
+        { -SPACING * 0.866, -SPACING * 0.5 },
+        { SPACING * 0.866, -SPACING * 0.5 },
+    }
+    local function place(orb, index, attempt)
+        local offset = offsets[index]
+        if not offset then return end
+        local nx, ny = x + offset[1], y + offset[2]
+        local moved = move(orb.guid, nx, ny, orb.z)
+        log("orb spacing %s index=%d attempt=%d moved=%s from=(%.2f,%.2f) to=(%.2f,%.2f)",
+            orb.guid, index, attempt, tostring(moved), orb.x, orb.y, nx, ny)
+        if not moved and attempt < 3 and Ext.Timer and Ext.Timer.WaitFor then
+            Ext.Timer.WaitFor(350 * attempt, function()
+                place(orb, index, attempt + 1)
+            end)
+        end
+    end
     for i = 1, math.min(#orbs, #offsets) do
-        local orb = orbs[i]
-        local nx = x + offsets[i]
-        local moved = move(orb.guid, nx, orb.y, orb.z)
-        log("orb spacing %s index=%d moved=%s from=(%.2f,%.2f) to=(%.2f,%.2f)",
-            orb.guid, i, tostring(moved), orb.x, orb.y, nx, orb.y)
+        place(orbs[i], i, 1)
     end
     log("orb placement: %d orbs found near (%.2f,%.2f)", #orbs, x, y)
 end
@@ -132,4 +153,13 @@ if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
     -- The exact arity is 8 in the current build; ChargeDebug already uses it.
     local ok = pcall(Ext.Osiris.RegisterListener, "UsingSpellAtPosition", 8, "after", onUsingSpellAtPosition)
     log("orb placement listener registered: %s", tostring(ok))
+
+    -- Osi.AddSpell on a summoned orb does not always create a normal
+    -- SpellBook entry. Set the runtime cooldown directly as a second layer.
+    pcall(Ext.Osiris.RegisterListener, "CastedSpell", 5, "after", function(caster, spell)
+        if tostring(spell or "") == "CC_BallCharge" and Osi and Osi.SetSpellCooldown then
+            local set = pcall(Osi.SetSpellCooldown, caster, "CC_BallCharge", 1)
+            log("orb charge cooldown set: caster=%s ok=%s", tostring(caster), tostring(set))
+        end
+    end)
 end
