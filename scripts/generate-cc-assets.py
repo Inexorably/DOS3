@@ -91,6 +91,14 @@ def build_root_template() -> None:
             "attribute",
             {"id": "Object", "type": "FixedString", "value": "INVULNERABLE"},
         )
+        # Marker used by the ignite cantrip's TargetConditions so it can only
+        # target an arcane orb, not arbitrary summons or characters.
+        orb_marker = ET.SubElement(statuses, "node", {"id": "Status"})
+        ET.SubElement(
+            orb_marker,
+            "attribute",
+            {"id": "Object", "type": "FixedString", "value": "CC_ORB"},
+        )
     set_attr(go, "MapKey", BALL_GUID)
     # Bake the final small scale into the root. Scaling via a stat boost happens
     # after spawn and causes the model to visibly shrink from its native size.
@@ -205,6 +213,48 @@ data "Icon" "Action_Boar_Charge"
 data "UseCosts" "ActionPoint:2"
 data "DamageType" "Bludgeoning"
 data "SpellFlags" "IsHarmful"
+
+new entry "CC_IgniteOrb"
+type "SpellData"
+using "Target_MageHand"
+data "SpellType" "Target"
+data "Level" "0"
+data "Cooldown" ""
+data "RechargeValues" ""
+data "AICooldown" ""
+data "SpellProperties" ""
+data "SpellSuccess" "ApplyStatus(CC_ORB_ABLAZE,100,-1)"
+data "SpellFail" ""
+data "TargetConditions" "HasStatus('CC_ORB') and not Self()"
+data "RequirementConditions" ""
+data "RequirementEvents" ""
+data "Requirements" ""
+data "TargetRadius" "18"
+data "DisplayName" "{handle('CC_IgniteOrb/name')}"
+data "Description" "{handle('CC_IgniteOrb/desc')}"
+data "Icon" "Status_Burning"
+data "UseCosts" "ActionPoint:1"
+data "AIFlags" "CanNotUse"
+
+new entry "CC_ORB"
+type "StatusData"
+data "StatusType" "BOOST"
+data "DisplayName" "{handle('CC_ORB/name')}"
+data "Description" "{handle('CC_ORB/desc')}"
+data "StackId" "CC_ORB"
+data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"
+
+new entry "CC_ORB_ABLAZE"
+type "StatusData"
+data "StatusType" "EFFECT"
+data "DisplayName" "{handle('CC_ORB_ABLAZE/name')}"
+data "Description" "{handle('CC_ORB_ABLAZE/desc')}"
+data "Icon" "Status_Burning"
+data "StackId" "CC_ORB_ABLAZE"
+-- Visual-only: no TickFunctors, AuraStatuses, or damage functors. The orb
+-- leaves Fire surfaces through OrbFire.lua; it does not carry a damaging aura.
+data "StatusEffect" "2156dd48-f83b-4060-9a4e-cab994da8857"
+data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"
 ''',
         encoding="utf-8",
     )
@@ -257,6 +307,18 @@ def write_loca() -> None:
             "Conjure up to three tiny azure orbs. They cannot move on their own, but each can Charge at an enemy once per turn.",
         ),
         (handle("CC_Ball_Azure/name"), "Azure Orb"),
+        (handle("CC_IgniteOrb/name"), "Ignite Orb"),
+        (
+            handle("CC_IgniteOrb/desc"),
+            "Set an arcane orb ablaze. The orb leaves a trail of Fire behind it as it moves or Charges.",
+        ),
+        (handle("CC_ORB/name"), "Arcane Orb"),
+        (handle("CC_ORB/desc"), "Marks a summoned arcane orb."),
+        (handle("CC_ORB_ABLAZE/name"), "Ablaze"),
+        (
+            handle("CC_ORB_ABLAZE/desc"),
+            "This orb is ablaze and leaves Fire surfaces behind it. It does not emit a damaging aura.",
+        ),
     ]
 
     header_size = 12

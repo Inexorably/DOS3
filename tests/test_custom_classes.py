@@ -40,6 +40,22 @@ class CustomClassesTests(unittest.TestCase):
         self.assertEqual(charge.get("RechargeValues"), "")
         self.assertEqual(charge.get("WeaponTypes"), "")
 
+    def test_ignite_orb_and_visual_only_ablaze_status_are_defined(self):
+        data = MODS / "CustomClasses/Public/CustomClasses/Stats/Generated/Data"
+        spells = parse_stats(data / "Spells.txt")
+        ignite = spells["CC_IgniteOrb"]
+        ablaze = spells["CC_ORB_ABLAZE"]
+
+        self.assertEqual(ignite["Level"], "0")
+        self.assertEqual(ignite["UseCosts"], "ActionPoint:1")
+        self.assertIn("CC_ORB", ignite["TargetConditions"])
+        self.assertIn("ApplyStatus(CC_ORB_ABLAZE", ignite["SpellSuccess"])
+        self.assertEqual(ablaze["StatusType"], "EFFECT")
+        self.assertNotIn("TickFunctors", ablaze)
+        self.assertNotIn("AuraStatuses", ablaze)
+        self.assertNotIn("DealDamage", ablaze.get("Boosts", ""))
+        self.assertIn("2156dd48-f83b-4060-9a4e-cab994da8857", ablaze["StatusEffect"])
+
     def test_ball_has_no_movement_and_is_scaled_to_one_third(self):
         data = MODS / "CustomClasses/Public/CustomClasses/Stats/Generated/Data"
         chars = parse_stats(data / "Characters.txt")

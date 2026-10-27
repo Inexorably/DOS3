@@ -495,15 +495,22 @@ is the **Summon Ball** cantrip:
   recolored glow map and glow colour instead of changing the original orb's
   shared material. It is summoned by `CC_SummonBall_Azure` and uses the
   arcane-turret portrait.
+- **Ignite Orb** targets a `CC_ORB`-tagged orb and applies the visual-only
+  `CC_ORB_ABLAZE` condition. It leaves Fire surfaces at the orb's position on
+  each turn and at the old and destination positions when the orb Charges.
+  It deliberately does **not** use native `BURNING` or an Ablaze aura, so the
+  orb does not carry a 1.5 m damaging aura.
 - While `GRANT_TEST_CANTRIP` is enabled in `Server/Config.lua`, the test
-  bootstrap grants both orb cantrips to every party member. This is a testing
-  aid; disable it once the spells are granted through a real class progression.
+  bootstrap grants the orb and Ignite cantrips to every party member. This is a
+  testing aid; disable it once the spells are granted through a real class
+  progression.
 
 ```text
 CC_SummonBall         Summon Ball cantrip
 CC_SummonBall_Azure   Summon Azure Orb cantrip
-CC_BallCharge   orb Charge action
-CC_Ball         summoned orb character
+CC_IgniteOrb          set an orb ablaze and leave a fire trail
+CC_BallCharge         orb Charge action
+CC_Ball               summoned orb character
 ```
 
 ## Troubleshooting

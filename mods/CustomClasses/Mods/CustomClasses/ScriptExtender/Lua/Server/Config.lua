@@ -9,5 +9,5 @@ CC.Config = {
     LOG_PREFIX = "[CC]",
     GRANT_TEST_CANTRIP = true,
     TEST_CANTRIP = "CC_SummonBall",
-    TEST_CANTRIPS = { "CC_SummonBall", "CC_SummonBall_Azure" },
+    TEST_CANTRIPS = { "CC_SummonBall", "CC_SummonBall_Azure", "CC_IgniteOrb" },
 }
