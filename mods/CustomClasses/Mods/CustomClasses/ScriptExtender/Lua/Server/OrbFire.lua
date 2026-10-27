@@ -38,17 +38,67 @@ end
 local function createFire(guid, x, y, z)
     x, y, z = tonumber(x), tonumber(y), tonumber(z)
     if not x or not y then return false end
-    -- BG3SE exposes CreateSurface as (surface, x, y, z, radius). The old
-    -- six-argument call is rejected by the engine.
-    if Osi and Osi.CreateSurface then
-        local ok, err = pcall(Osi.CreateSurface, SURFACE, x, y, z, RADIUS)
+
+    -- Current BG3SE surface API. The positional signature is
+    -- (position, surfaceType, intensity, radius, source, duration).
+    if Ext and Ext.Surface and Ext.Surface.CreateSurface then
+        local pos = { x = x, y = y, z = z or 0 }
+        local attempts = {
+            { pos, SURFACE, 1, RADIUS, guid, 10 },
+            { pos, SURFACE, 1, RADIUS },
+            { SURFACE, pos, RADIUS, 10 },
+        }
+        for i, args in ipairs(attempts) do
+            local ok, result = pcall(Ext.Surface.CreateSurface, table.unpack(args))
+            if ok and result ~= nil then
+                log("fire trail via Ext.Surface (attempt %d) at (%.2f,%.2f,%.2f)", i, x, y, z)
+                return true
+            end
+            log("Ext.Surface attempt %d failed: %s", i, tostring(result))
+        end
+    end
+
+    -- Structured fallback for builds that expose surface actions directly.
+    if Ext and Ext.Level and Ext.Level.CreateSurfaceAction then
+        local pos = { x = x, y = y, z = z or 0 }
+        local ok, action = pcall(Ext.Level.CreateSurfaceAction, SURFACE, pos, RADIUS, 10)
+        if ok and action then
+            local executed, err = pcall(Ext.Level.ExecuteSurfaceAction, action)
+            log("fire trail via Ext.Level at (%.2f,%.2f,%.2f) executed=%s err=%s",
+                x, y, z, tostring(executed), tostring(err))
+            if executed then return true end
+        else
+            log("Ext.Level CreateSurfaceAction failed: %s", tostring(action))
+        end
+    end
+
+    -- Fallback: BG3SE's world-position call, with the signature documented
+    -- for this build: x, y, z, surface, radius, owner, duration, flags.
+    if Osi and Osi.CreateSurfaceAtPosition then
+        local ok, err = pcall(Osi.CreateSurfaceAtPosition, x, y, z or 0, SURFACE, RADIUS, 0, 10, 0)
         if ok then
-            log("fire trail at %s (%.2f,%.2f,%.2f)", tostring(guid), x, y, z)
+            log("fire trail via CreateSurfaceAtPosition at (%.2f,%.2f,%.2f)", x, y, z)
             return true
         end
-        log("CreateSurface failed: %s", tostring(err))
-    else
-        log("CreateSurface unavailable")
+        log("CreateSurfaceAtPosition failed: %s", tostring(err))
+    end
+
+    -- Last-resort Osiris form. Keep both known orderings because this call
+    -- differs across BG3SE releases.
+    if Osi and Osi.CreateSurface then
+        local attempts = {
+            { SURFACE, RADIUS, x, y, z or 0 },
+            { SURFACE, x, y, z or 0, RADIUS },
+            { SURFACE, RADIUS, "", 1.0, 10, 0, 0, 1.0, 0, 0 },
+        }
+        for i, args in ipairs(attempts) do
+            local ok, err = pcall(Osi.CreateSurface, table.unpack(args))
+            if ok then
+                log("fire trail via CreateSurface (attempt %d) at (%.2f,%.2f,%.2f)", i, x, y, z)
+                return true
+            end
+            log("CreateSurface attempt %d failed: %s", i, tostring(err))
+        end
     end
     return false
 end
