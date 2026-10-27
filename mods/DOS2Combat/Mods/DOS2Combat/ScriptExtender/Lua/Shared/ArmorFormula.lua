@@ -66,6 +66,16 @@ function F.Percent(ac, shield, config)
     return math.floor(percent + 0.5)
 end
 
+function F.ArmorClassWithBoosts(base, boosts)
+    local total = tonumber(base) or 0
+    if type(boosts) == "string" then
+        for value in boosts:gmatch("AC%(%s*(-?%d+)%s*%)") do
+            total = total + (tonumber(value) or 0)
+        end
+    end
+    return total
+end
+
 function F.Fraction(ac, shield, config)
     return F.Percent(ac, shield, config) / 100
 end

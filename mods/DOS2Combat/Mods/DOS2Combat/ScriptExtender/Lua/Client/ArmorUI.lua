@@ -127,7 +127,16 @@ local function itemArmorText(entity)
     if not armor then return "" end
     local formula = DOS2C.ArmorFormula
     if not formula then return "" end
-    local percent = formula.Percent(armor.ArmorClass, armor.Shield, DOS2C.Config)
+    local ac = tonumber(armor.ArmorClass) or 0
+    local statsId = entity.Data and entity.Data.StatsId
+    if statsId and Ext.Stats and Ext.Stats.Get then
+        local ok, stat = pcall(Ext.Stats.Get, statsId, "Armor")
+        if ok and stat then
+            ac = tonumber(stat.ArmorClass) or ac
+            ac = formula.ArmorClassWithBoosts(ac, stat.Boosts)
+        end
+    end
+    local percent = formula.Percent(ac, armor.Shield, DOS2C.Config)
     if percent <= 0 then return "" end
     return string.format("Damage Reduction: %d%%", math.floor(percent + 0.5))
 end

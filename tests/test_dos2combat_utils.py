@@ -139,3 +139,5 @@ class ArmorFormulaTests(unittest.TestCase):
         self.assertEqual(self.formula.PassiveName(13.2), "DOS2C_ArmorInfo_R13")
         self.assertEqual(self.formula.Percent(99, False), 100)
         self.assertEqual(self.formula.Percent(500, False), 100)
+        self.assertEqual(self.formula.ArmorClassWithBoosts(10, "AC(11)"), 21)
+        self.assertEqual(self.formula.ArmorClassWithBoosts(10, "AC(1);AC(2)"), 13)

@@ -1047,8 +1047,10 @@ end
 -- Equipment AC is captured for the percentage damage-reduction calculation.
 -- The shared formula keeps server stats and the client hover tooltip aligned.
 local function patchArmor(name, stat)
-    local ac = tonumber(U.SafeGet(stat, "ArmorClass"))
-    if not ac or ac <= 0 then return false end
+    local formula = assert(DOS2C.ArmorFormula, "Shared/ArmorFormula.lua must load first")
+    local baseAc = tonumber(U.SafeGet(stat, "ArmorClass"))
+    if not baseAc or baseAc <= 0 then return false end
+    local ac = formula.ArmorClassWithBoosts(baseAc, U.SafeGet(stat, "Boosts"))
     if not DOS2C.ArmorOriginalAC[name] then
         DOS2C.ArmorOriginalAC[name] = ac
     end
@@ -1065,6 +1067,7 @@ local function patchArmor(name, stat)
     -- Migrate items that were generated with the retired physical/magic
     -- tooltip passives. The runtime now uses one percentage passive.
     local updatedPassives = passives:gsub("%s*;?%s*DOS2C_ArmorInfo_P%d+_M%d+%s*", "")
+    updatedPassives = updatedPassives:gsub("%s*;?%s*DOS2C_ArmorInfo_R%d+%s*", "")
     updatedPassives = updatedPassives:gsub("^%s*;%s*", ""):gsub("%s*;%s*$", "")
     if not updatedPassives:find(passive, 1, true) then
         updatedPassives = updatedPassives ~= "" and (updatedPassives .. ";" .. passive) or passive
