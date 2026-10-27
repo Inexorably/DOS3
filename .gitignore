@@ -21,3 +21,6 @@ __pycache__/
 
 # Coverage data (Python coverage.py and Lua LuaCov)
 .coverage*
+
+# Local GitHub credential
+GH_PAT.txt

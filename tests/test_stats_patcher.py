@@ -180,7 +180,8 @@ class StatsPatcherSmokeTests(unittest.TestCase):
         self.assertEqual(lua.eval("spell.UseCosts"), "ActionPoint:3")
         self.assertIn("1d20+21", lua.eval("spell.SpellProperties"))
         self.assertNotIn("SpellCastingAbilityModifier", lua.eval("spell.SpellProperties"))
-        self.assertIn("SpellCastingAbilityModifier", lua.eval("spell.TooltipDamageList"))
+        self.assertNotIn("SpellCastingAbilityModifier", lua.eval("spell.TooltipDamageList"))
+        self.assertIn("DealDamage", lua.eval("spell.TooltipDamageList"))
 
     def test_saving_throw_spell_loses_save(self):
         lua = lua_runtime()

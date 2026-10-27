@@ -671,24 +671,12 @@ local function simplifyWeaponTooltip(stat)
 end
 
 local function patchCastingAbilityTooltips(name, stat)
-    local cfg = DOS2C.Config
-    if not cfg.CASTING_ABILITY_SPELL_DAMAGE then return false end
-    if isWeaponAttack(name) or isExtraAttack(name) or usesWeaponDamage(stat) then
-        return false
-    end
-
-    local token = castingScaleToken(cfg)
-    local changed = false
-    for _, field in ipairs(TOOLTIP_CASTING_FIELDS) do
-        local value = U.SafeGet(stat, field)
-        if type(value) == "string" and value ~= "" then
-            local updated = scaleCastingDamageCalls(value, token)
-            if updated ~= value and U.SafeSet(stat, field, updated) then
-                changed = true
-            end
-        end
-    end
-    return changed
+    -- BG3's tooltip renderer does not reliably parse arithmetic inside
+    -- DealDamage arguments (for example (1d10)*SpellCastingAbilityModifier).
+    -- Writing that into TooltipDamageList makes Eldritch Blast, Arms of Hadar,
+    -- and similar spells show no damage at all. Runtime damage is still scaled
+    -- by CastingPower.lua; leave the native tooltip expression intact.
+    return false
 end
 
 local TOOLTIP_RIDERS = {}
@@ -791,27 +779,10 @@ local function collectTooltipRiders()
 end
 
 local function patchTooltipRiders(name, stat)
-    local riders = TOOLTIP_RIDERS[name]
-    if not riders or #riders == 0 then return false end
-
-    local changed = false
-    for _, field in ipairs(TOOLTIP_CASTING_FIELDS) do
-        local value = U.SafeGet(stat, field)
-        if type(value) == "string" and value ~= ""
-            and value:find("DealDamage", 1, true) then
-            for _, rider in ipairs(riders) do
-                if not value:find(rider, 1, true) then
-                    local separator = value:sub(-1) == ";" and "" or ";"
-                    local updated = value .. separator .. rider
-                    if U.SafeSet(stat, field, updated) then
-                        value = updated
-                        changed = true
-                    end
-                end
-            end
-        end
-    end
-    return changed
+    -- Rider expressions such as DamageBonus(CharismaModifier,Force) are not
+    -- universally accepted by the native tooltip parser. Showing the base
+    -- native range is preferable to a blank damage line.
+    return false
 end
 
 local function patchConcentration(name, stat)
