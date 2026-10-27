@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Build the azure orb's character-visual material instance.
+"""Build a dedicated azure orb visual/material instance.
 
-The original sphere body and its material stay untouched. The azure variant is
-a copied CharacterVisual resource that keeps the original BodySetVisual but
-overrides the glow map and glow colour. This avoids shipping a second shader
-material bank while still keeping the two orbs independent.
+The stock flame sphere uses one shared MaterialBank resource. To keep the
+original orb orange, this script copies that material, points its glow map at
+the recolored azure DDS, and creates a new VisualBank and CharacterVisualBank
+resource that reference the copy. The alternate root template uses the new
+CharacterVisual ID.
 
 Run after scripts/recolor-cc-orb-textures.py and before generate-cc-assets.py.
 """
@@ -18,11 +19,15 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PUBLIC = ROOT / "mods/CustomClasses/Public/CustomClasses"
+MOD = ROOT / "mods/CustomClasses"
+PUBLIC = MOD / "Public/CustomClasses"
 SOURCE_CONJ = ROOT / ".analysis/conjurations.lsx"
+SOURCE_BODY = ROOT / ".analysis/sphere_body.lsx"
 SOURCE_CV = ROOT / ".analysis/cv_dump.lsx"
-OUT_TEX_BANK = PUBLIC / "Content/Assets/Characters/Creatures/[PAK]_Conjurations/_merged.lsf"
-OUT_CV_BANK = PUBLIC / "Content/[PAK]_CharacterVisuals/_merged.lsf"
+OUT_XML = ROOT / ".analysis/cc_azure_visual.lsx"
+OUT_MAT = PUBLIC / "Content/Assets/Characters/Creatures/[PAK]_Conjurations/_merged.lsf"
+OUT_BODY = PUBLIC / "Content/Assets/Characters/Creatures/Sphere_Flame/[PAK]_Body/_merged.lsf"
+OUT_CV = PUBLIC / "Content/[PAK]_CharacterVisuals/_merged.lsf"
 TEX_ROOT = "Generated/Public/CustomClasses/Assets/Characters/_Models/_Creatures/Sphere_Flame/Resources"
 
 NS = uuid.UUID("6ba7b810-9dad-11d1-80b4-00c04fd430c8")
@@ -32,28 +37,25 @@ def uid(tag: str) -> str:
     return str(uuid.uuid5(NS, "CustomClasses/azure/" + tag))
 
 
-CHARACTER_VISUAL_ID = uid("visual/character")
+MATERIAL_ID = uid("material")
 GM_TEXTURE_ID = uid("texture/gm")
+BODY_VISUAL_ID = uid("visual/body")
+CHARACTER_VISUAL_ID = uid("visual/character")
+SOURCE_MATERIAL_ID = "8e6086e2-acbb-615f-3777-f4caf1c729a2"
 SOURCE_GM_TEXTURE_ID = "39c9519b-1df5-7998-8644-53b2a67c056a"
-SOURCE_CHARACTER_VISUAL_ID = "512df42e-6b0b-5561-2381-f30794fa5ef9"
 SOURCE_BODY_VISUAL_ID = "56459e45-45d4-4c72-0b71-26f8b64c7a9a"
+SOURCE_CHARACTER_VISUAL_ID = "512df42e-6b0b-5561-2381-f30794fa5ef9"
 
 
 def attrs(node: ET.Element) -> dict[str, ET.Element]:
     return {item.get("id", ""): item for item in node.findall("attribute")}
 
 
-def set_attr(node: ET.Element, name: str, value: str, kind: str | None = None) -> None:
+def set_attr(node: ET.Element, name: str, value: str) -> None:
     attr = attrs(node).get(name)
     if attr is None:
-        attr = ET.SubElement(node, "attribute", {"id": name, "type": kind or "FixedString"})
+        attr = ET.SubElement(node, "attribute", {"id": name, "type": "FixedString"})
     attr.set("value", value)
-    if kind:
-        attr.set("type", kind)
-
-
-def add_attr(node: ET.Element, name: str, value: str, kind: str) -> None:
-    ET.SubElement(node, "attribute", {"id": name, "type": kind, "value": value})
 
 
 def find_resource(path: Path, region_id: str, resource_id: str) -> ET.Element:
@@ -67,67 +69,13 @@ def find_resource(path: Path, region_id: str, resource_id: str) -> ET.Element:
     raise SystemExit("missing resource %s in %s" % (resource_id, path))
 
 
-def make_bank(region_id: str, resources: list[ET.Element]) -> ET.Element:
+def make_bank(region_id: str, bank_id: str, resources: list[ET.Element]) -> ET.Element:
     region = ET.Element("region", {"id": region_id})
-    bank = ET.SubElement(region, "node", {"id": region_id})
+    bank = ET.SubElement(region, "node", {"id": bank_id})
     children = ET.SubElement(bank, "children")
     for resource in resources:
         children.append(resource)
     return region
-
-
-def add_material_overrides(visual: ET.Element) -> None:
-    children = visual.find("./children")
-    if children is None:
-        children = ET.SubElement(visual, "children")
-    overrides = children.find("./node[@id='MaterialOverrides']")
-    if overrides is None:
-        overrides = ET.SubElement(children, "node", {"id": "MaterialOverrides"})
-        add_attr(overrides, "MaterialResource", "", "FixedString")
-    override_children = overrides.find("./children")
-    if override_children is None:
-        override_children = ET.SubElement(overrides, "children")
-
-    texture = ET.SubElement(override_children, "node", {"id": "Texture2DParameters"})
-    add_attr(texture, "Enabled", "True", "bool")
-    add_attr(texture, "ExportAsPreset", "False", "bool")
-    add_attr(texture, "GroupName", "Texture Map", "FixedString")
-    add_attr(texture, "ID", GM_TEXTURE_ID, "FixedString")
-    add_attr(texture, "Parameter", "Glowmap", "FixedString")
-
-    color = ET.SubElement(override_children, "node", {"id": "Vector3Parameters"})
-    add_attr(color, "Color", "True", "bool")
-    add_attr(color, "Custom", "True", "bool")
-    add_attr(color, "Enabled", "True", "bool")
-    add_attr(color, "Parameter", "GlowColour", "FixedString")
-    add_attr(color, "Value", "0.32 0.08 0.95", "fvec3")
-
-
-def write_bank(path: Path, regions: list[ET.Element]) -> None:
-    root = ET.Element("save")
-    ET.SubElement(root, "version", {"major": "4", "minor": "0", "revision": "9", "build": "0"})
-    for region in regions:
-        root.append(region)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    xml = path.with_suffix(".lsx")
-    xml.unlink(missing_ok=True)
-    path.unlink(missing_ok=True)
-    ET.ElementTree(root).write(xml, encoding="utf-8", xml_declaration=True)
-    subprocess.run(
-        [
-            str(ROOT / "tools/lslib/Packed/Tools/Divine.exe"),
-            "-a",
-            "convert-resource",
-            "-g",
-            "bg3",
-            "-s",
-            str(xml.resolve()),
-            "-d",
-            str(path.resolve()),
-        ],
-        check=True,
-    )
-    xml.unlink(missing_ok=True)
 
 
 def main() -> None:
@@ -137,17 +85,77 @@ def main() -> None:
     set_attr(texture, "Template", "SPHERE_Flame_Azure_GM")
     set_attr(texture, "SourceFile", TEX_ROOT + "/SPHERE_Flame_A_Boulder_A_GM.DDS")
 
+    material = find_resource(SOURCE_CONJ, "MaterialBank", SOURCE_MATERIAL_ID)
+    set_attr(material, "ID", MATERIAL_ID)
+    set_attr(material, "Name", "SPHERE_Flame_Azure")
+    for node in material.iter("node"):
+        node_attrs = attrs(node)
+        if node.get("id") == "Texture2DParameters":
+            if node_attrs.get("ParameterName") is not None and node_attrs["ParameterName"].get("value") == "Glowmap":
+                set_attr(node, "ID", GM_TEXTURE_ID)
+        if node.get("id") == "Vector3Parameters":
+            if node_attrs.get("ParameterName") is not None and node_attrs["ParameterName"].get("value") == "GlowColour":
+                set_attr(node, "Value", "0.32 0.08 0.95")
+                set_attr(node, "BaseValue", "0.32 0.08 0.95")
+
+    body = find_resource(SOURCE_BODY, "VisualBank", SOURCE_BODY_VISUAL_ID)
+    set_attr(body, "ID", BODY_VISUAL_ID)
+    set_attr(body, "Name", "SPHERE_Flame_Azure")
+    for node in body.iter("node"):
+        if node.get("id") == "Objects":
+            node_attrs = attrs(node)
+            if node_attrs.get("MaterialID") is not None:
+                set_attr(node, "MaterialID", MATERIAL_ID)
+
     visual = find_resource(SOURCE_CV, "CharacterVisualBank", SOURCE_CHARACTER_VISUAL_ID)
     set_attr(visual, "ID", CHARACTER_VISUAL_ID)
     set_attr(visual, "Name", "CC_Ball_Azure")
-    # Keep the original body set; the material override below is the instance.
-    set_attr(visual, "BodySetVisual", SOURCE_BODY_VISUAL_ID)
-    add_material_overrides(visual)
+    set_attr(visual, "BodySetVisual", BODY_VISUAL_ID)
 
-    write_bank(OUT_TEX_BANK, [make_bank("TextureBank", [texture])])
-    write_bank(OUT_CV_BANK, [make_bank("CharacterVisualBank", [visual])])
+    root = ET.Element("save")
+    ET.SubElement(root, "version", {"major": "4", "minor": "0", "revision": "9", "build": "0"})
+    root.append(make_bank("TextureBank", "TextureBank", [texture]))
+    root.append(make_bank("MaterialBank", "MaterialBank", [material]))
+    root.append(make_bank("VisualBank", "VisualBank", [body]))
+    root.append(make_bank("CharacterVisualBank", "CharacterVisualBank", [visual]))
+
+    def write_bank(path: Path, regions: list[ET.Element]) -> None:
+        bank_root = ET.Element("save")
+        ET.SubElement(bank_root, "version", {"major": "4", "minor": "0", "revision": "9", "build": "0"})
+        for region in regions:
+            bank_root.append(region)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.unlink(missing_ok=True)
+        ET.ElementTree(bank_root).write(path.with_suffix(".lsx"), encoding="utf-8", xml_declaration=True)
+        subprocess.run(
+            [
+                str(ROOT / "tools/lslib/Packed/Tools/Divine.exe"),
+                "-a",
+                "convert-resource",
+                "-g",
+                "bg3",
+                "-s",
+                str(path.with_suffix(".lsx").resolve()),
+                "-d",
+                str(path.resolve()),
+            ],
+            check=True,
+        )
+        path.with_suffix(".lsx").unlink(missing_ok=True)
+
+    # Keep the three bank types in the same conventional paths as the shipped
+    # resources. BG3 loads module content banks by these paths.
+    write_bank(
+        OUT_MAT,
+        [
+            make_bank("TextureBank", "TextureBank", [texture]),
+            make_bank("MaterialBank", "MaterialBank", [material]),
+        ],
+    )
+    write_bank(OUT_BODY, [make_bank("VisualBank", "VisualBank", [body])])
+    write_bank(OUT_CV, [make_bank("CharacterVisualBank", "CharacterVisualBank", [visual])])
+    print("azure material:", MATERIAL_ID)
     print("azure character visual:", CHARACTER_VISUAL_ID)
-    print("azure glow texture:", GM_TEXTURE_ID)
 
 
 if __name__ == "__main__":
