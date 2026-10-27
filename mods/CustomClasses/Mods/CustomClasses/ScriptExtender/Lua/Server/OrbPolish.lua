@@ -99,24 +99,54 @@ local function placeOrbs(x, y, z)
     end
 
     -- Prefer the three orbs closest to the cast point, then arrange them in
-    -- an equilateral-ish triangle around that point. This avoids leaving a
-    -- newly spawned orb stacked under an older one.
+    -- a triangle. A fixed triangle can land inside a wall or occupied tile,
+    -- so test the six rotations and use the first standable destination.
     table.sort(orbs, function(a, b)
         local ad = (a.x - x) * (a.x - x) + (a.y - y) * (a.y - y)
         local bd = (b.x - x) * (b.x - x) + (b.y - y) * (b.y - y)
         if math.abs(ad - bd) > 0.001 then return ad < bd end
         return a.guid < b.guid
     end)
-    local offsets = {
+
+    local triangle = {
         { 0.0, SPACING },
         { -SPACING * 0.866, -SPACING * 0.5 },
         { SPACING * 0.866, -SPACING * 0.5 },
     }
+    local function rotate(offset, angle)
+        local c, s = math.cos(angle), math.sin(angle)
+        return offset[1] * c - offset[2] * s,
+            offset[1] * s + offset[2] * c
+    end
+    local function canStand(guid, nx, ny, nz)
+        if not (Osi and Osi.CanStand) then return true end
+        local ok, result = pcall(Osi.CanStand, guid, nx, ny, nz)
+        return ok and (result == 1 or result == true)
+    end
+    local function choose(guid, index)
+        for step = 0, 5 do
+            local ox, oy = rotate(triangle[index], math.pi * step / 3)
+            local nx, ny = x + ox, y + oy
+            if canStand(guid, nx, ny, z) then
+                return nx, ny
+            end
+        end
+        -- Fallback: a small ring search if all rotations are blocked.
+        for step = 0, 7 do
+            local angle = math.pi * 2 * step / 8
+            local nx = x + math.cos(angle) * SPACING
+            local ny = y + math.sin(angle) * SPACING
+            if canStand(guid, nx, ny, z) then return nx, ny end
+        end
+        return nil
+    end
     local function place(orb, index, attempt)
-        local offset = offsets[index]
-        if not offset then return end
-        local nx, ny = x + offset[1], y + offset[2]
-        local moved = move(orb.guid, nx, ny, orb.z)
+        local nx, ny = choose(orb.guid, index)
+        if not nx then
+            log("orb spacing %s index=%d no standable triangle position", orb.guid, index)
+            return
+        end
+        local moved = move(orb.guid, nx, ny, z)
         log("orb spacing %s index=%d attempt=%d moved=%s from=(%.2f,%.2f) to=(%.2f,%.2f)",
             orb.guid, index, attempt, tostring(moved), orb.x, orb.y, nx, ny)
         if not moved and attempt < 3 and Ext.Timer and Ext.Timer.WaitFor then
@@ -125,7 +155,7 @@ local function placeOrbs(x, y, z)
             end)
         end
     end
-    for i = 1, math.min(#orbs, #offsets) do
+    for i = 1, math.min(#orbs, #triangle) do
         place(orbs[i], i, 1)
     end
     log("orb placement: %d orbs found near (%.2f,%.2f)", #orbs, x, y)
