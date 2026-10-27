@@ -29,17 +29,27 @@ local function positionOf(guid)
 end
 
 local function move(guid, x, y, z)
-    if Osi and Osi.SetPosition then
-        local ok = pcall(Osi.SetPosition, guid, x, y, z)
-        if ok then return true end
-    end
-    if Osi and Osi.TeleportToPosition then
-        local ok = pcall(Osi.TeleportToPosition, guid, x, y, z, 0, 0)
-        if ok then return true end
-    end
-    if Osi and Osi.Teleport then
-        local ok = pcall(Osi.Teleport, guid, x, y, z)
-        if ok then return true end
+    -- The Osiris action is TeleportToPosition(object, x, y, z, event,
+    -- teleportLinkedCharacters, teleportPartyFollowers, teleportSummons,
+    -- leaveCombat, snapToGround). Passing only six arguments fails in this
+    -- build, which was why every orb reported moved=false.
+    local attempts = {
+        { "TeleportToPosition", guid, x, y, z, "", 0, 0, 0, 0, 1 },
+        { "TeleportToPosition", guid, x, y, z, "", 0, 0, 0, 1, 1 },
+        { "Teleport", guid, x, y, z },
+        { "SetPosition", guid, x, y, z },
+    }
+    for _, args in ipairs(attempts) do
+        local name = table.remove(args, 1)
+        if Osi and Osi[name] then
+            local ok = pcall(Osi[name], table.unpack(args))
+            if ok then
+                local nx, ny = positionOf(guid)
+                if nx and ny and math.abs(nx - x) <= 0.75 and math.abs(ny - y) <= 0.75 then
+                    return true
+                end
+            end
+        end
     end
     return false
 end
