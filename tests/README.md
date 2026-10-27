@@ -18,8 +18,10 @@ python scripts/check-coverage.py --min-python 90 --min-lua 70   # looser local r
 `scripts/check-coverage.py` runs the suite once and enforces two floors
 (`MIN_PYTHON_COVERAGE` / `MIN_LUA_COVERAGE` in that script):
 
-- **Python**: statement coverage of `scripts/` and `tests/` via coverage.py,
-  configured in `.coveragerc`. Test the tooling scripts by loading them with
+- **Python**: statement coverage of `scripts/` and `tests/` via coverage.py.
+  Sources, omissions, and exclusions live in `scripts/check-coverage.py`
+  (`PYTHON_SOURCES`, `PYTHON_OMIT`, `PYTHON_EXCLUDE`) so a clean checkout needs
+  no extra config file. Test the tooling scripts by loading them with
   `tests.support.load_script("validate-mod")` and pointing their module-level
   paths at a temporary directory.
 - **Lua**: line coverage of `mods/**/*.lua` executed through `lupa`, collected by

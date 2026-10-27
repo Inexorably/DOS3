@@ -4,7 +4,7 @@
 Two metrics are enforced:
 
 * Python: statement coverage of ``scripts/`` and ``tests/`` (measured by
-  coverage.py using ``.coveragerc``).
+  coverage.py; the source/omit lists live below).
 * Lua: line coverage of the mod Lua the suite executes through lupa, measured by
   the vendored LuaCov in ``tests/vendor/luacov``. Machine-generated data tables
   (``Generated*.lua``) are excluded because they are validated by content
@@ -34,6 +34,17 @@ GENERATED_LUA = re.compile(r"(?:^|/)Generated[A-Za-z0-9]*\.lua$")
 LUA_STATS = ROOT / ".coverage-lua"
 LUA_REPORT = ROOT / ".coverage-lua.report"
 
+# Python measurement targets. Kept here rather than in a .coveragerc file: the
+# ignore rule for coverage artifacts would also match ".coveragerc", which is
+# how a clean CI checkout ended up without a config file.
+PYTHON_SOURCES = ["scripts", "tests"]
+PYTHON_OMIT = ["scripts/check-coverage.py"]
+PYTHON_EXCLUDE = (
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+)
+
 
 def lua_targets() -> list[Path]:
     """Mod Lua files that the Lua gate measures."""
@@ -47,7 +58,13 @@ def lua_targets() -> list[Path]:
 def run_python_suite() -> float:
     import coverage
 
-    cov = coverage.Coverage(config_file=str(ROOT / ".coveragerc"))
+    cov = coverage.Coverage(
+        config_file=False,
+        source=PYTHON_SOURCES,
+        omit=PYTHON_OMIT,
+    )
+    for pattern in PYTHON_EXCLUDE:
+        cov.exclude(pattern)
     cov.erase()
     cov.start()
     try:
@@ -63,7 +80,7 @@ def run_python_suite() -> float:
         raise SystemExit("test suite failed; coverage is not meaningful")
 
     print("\nPython statement coverage (scripts + tests):", file=sys.stderr)
-    return cov.report(show_missing=True, file=sys.stderr)
+    return cov.report(show_missing=True, precision=1, file=sys.stderr)
 
 
 def lua_report(min_coverage: float) -> tuple[float, dict[str, tuple[int, int]]]:

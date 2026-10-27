@@ -19,8 +19,12 @@ Thumbs.db
 __pycache__/
 *.pyc
 
-# Coverage data (Python coverage.py and Lua LuaCov)
-.coverage*
+# Coverage data (Python coverage.py and Lua LuaCov). Listed explicitly so a
+# future .coveragerc config file is not silently ignored.
+.coverage
+.coverage.*
+.coverage-lua
+.coverage-lua.report
 
 # Local GitHub credential
 GH_PAT.txt
