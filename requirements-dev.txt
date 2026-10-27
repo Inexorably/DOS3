@@ -1,4 +1,6 @@
 lupa>=2.0
 luaparser>=4.0
+coverage>=7.4
+pillow>=10
 ruff>=0.17
 mypy>=1.10

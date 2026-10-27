@@ -63,7 +63,7 @@ def main() -> None:
     for key, value in ENTRIES.items():
         by_key[key] = value
     # Keep existing ordering and append new handles deterministically.
-    ordered = [(key, text) for key, text in entries if key in by_key]
+    ordered = [(key, by_key[key]) for key, _ in entries if key in by_key]
     seen = {key for key, _ in ordered}
     for key, value in ENTRIES.items():
         if key not in seen:

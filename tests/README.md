@@ -8,7 +8,32 @@ Run:
 
 The suite uses Python `unittest` and requires no game process.
 
-Coverage:
+## Coverage gates
+
+```bash
+python scripts/check-coverage.py
+python scripts/check-coverage.py --min-python 90 --min-lua 70   # looser local run
+```
+
+`scripts/check-coverage.py` runs the suite once and enforces two floors
+(`MIN_PYTHON_COVERAGE` / `MIN_LUA_COVERAGE` in that script):
+
+- **Python**: statement coverage of `scripts/` and `tests/` via coverage.py,
+  configured in `.coveragerc`. Test the tooling scripts by loading them with
+  `tests.support.load_script("validate-mod")` and pointing their module-level
+  paths at a temporary directory.
+- **Lua**: line coverage of `mods/**/*.lua` executed through `lupa`, collected by
+  the vendored LuaCov in `tests/vendor/luacov` (see `VENDOR.md` there).
+  Machine-generated data tables (`Generated*.lua`) are excluded because
+  `test_enemy_randomization_generated.py` validates their contents instead.
+  `tests/lua_harness.py` provides a fake Script Extender runtime
+  (`tests/lua_stub.lua`) that records console commands, Osiris listeners,
+  timers, and Osi calls so a test can drive module callbacks.
+
+Coverage artifacts (`.coverage`, `.coverage-lua*`) are gitignored; the Lua
+report is written to `.coverage-lua.report` and uploaded by CI.
+
+Areas verified:
 
 - mod `info.json` / `meta.lsx` / Script Extender manifest consistency
 - Lua syntax for all mod Lua files
@@ -17,6 +42,8 @@ Coverage:
 - EnemyRandomization generated level 1-20 bands, HP sanity/monotonicity, buff-pool size, and generated loot manifest
 - EnemyHealth stats-only Tactician override (`HEALTHBOOST_HARDCORE`)
 - binary `.loca` header/entry integrity
+- generator output for the armor passives, bedroll loca, CustomClasses assets, EnemyRandomization loot/champion/spell-scaling catalogs, and the BG3 stats audit helper
+- RespecAnywhere console command, net message, and Osiris listener flows against the fake runtime
 
 Optional developer dependencies:
 

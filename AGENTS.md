@@ -31,6 +31,7 @@ discovered from `mods/*/info.json` by CI and the CD matrix.
 python -m pip install -r requirements-dev.txt
 
 ./scripts/test.sh
+python scripts/check-coverage.py   # enforces the Python and Lua coverage floors
 python scripts/validate-mod.py --all
 ruff check scripts tests
 mypy --config-file mypy.ini scripts tests
