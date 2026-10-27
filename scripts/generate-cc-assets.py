@@ -31,7 +31,9 @@ DIVINE = ROOT / "tools/lslib/Packed/Tools/Divine.exe"
 
 NS = uuid.UUID("6ba7b810-9dad-11d1-80b4-00c04fd430c8")
 BALL_GUID = str(uuid.uuid5(NS, "CustomClasses/root/CC_Ball"))
+AZURE_BALL_GUID = str(uuid.uuid5(NS, "CustomClasses/root/CC_Ball_Azure"))
 BLACK_HOLE_VISUAL = "fd5aa94f-66ec-14ec-fa97-b88fae69796b"
+BLACK_HOLE_AURA = "203bf8b8-8dee-1724-e5e3-8479f16024f8"
 
 
 def handle(tag: str) -> str:
@@ -100,12 +102,25 @@ def build_root_template() -> None:
     set_attr(go, "GeneratePortrait", "")
     set_display_name(go, handle("CC_Ball/name"))
 
+    # Azure orb: keep the same stats and body-less character so Charge works,
+    # but replace the orange flame-sphere body with the native looping black-hole
+    # aura. This removes the red/orange material without shipping a modified
+    # texture shader graph.
+    azure = copy.deepcopy(go)
+    set_attr(azure, "MapKey", AZURE_BALL_GUID)
+    set_attr(azure, "Name", "CC_Ball_Azure")
+    set_attr(azure, "CharacterVisualResourceID", "")
+    set_attr(azure, "VisualTemplate", BLACK_HOLE_AURA)
+    set_attr(azure, "Icon", "TadpoleSuperPower_BlackHole")
+    set_display_name(azure, handle("CC_Ball_Azure/name"))
+
     out = ET.Element("save")
     ET.SubElement(out, "version", {"major": "4", "minor": "0", "revision": "9", "build": "328"})
     region = ET.SubElement(out, "region", {"id": "Templates"})
     templates = ET.SubElement(region, "node", {"id": "Templates"})
     children = ET.SubElement(templates, "children")
     children.append(go)
+    children.append(azure)
 
     ROOT_XML.parent.mkdir(parents=True, exist_ok=True)
     ET.ElementTree(out).write(ROOT_XML, encoding="utf-8", xml_declaration=True)
@@ -149,6 +164,15 @@ data "Description" "{handle('CC_SummonBall/desc')}"
 data "Icon" "Spell_Conjuration_MageHand"
 data "UseCosts" "ActionPoint:1"
 data "AIFlags" "CanNotUse"
+
+new entry "CC_SummonBall_Azure"
+type "SpellData"
+using "CC_SummonBall"
+data "SpellProperties" "GROUND:Summon({AZURE_BALL_GUID},UntilLongRest,,,'CC_BallStack',UNSUMMON_ABLE)"
+data "TargetConditions" "CanStand('{AZURE_BALL_GUID}') and not Character() and not Self()"
+data "DisplayName" "{handle('CC_SummonBall_Azure/name')}"
+data "Description" "{handle('CC_SummonBall_Azure/desc')}"
+data "Icon" "TadpoleSuperPower_BlackHole"
 
 new entry "CC_BallCharge"
 type "SpellData"
@@ -226,6 +250,12 @@ def write_loca() -> None:
             "Charge toward an enemy, dealing 3 bludgeoning damage for 2 AP. Once per turn.",
         ),
         (handle("CC_Ball/name"), "Arcane Orb"),
+        (handle("CC_SummonBall_Azure/name"), "Summon Azure Orb"),
+        (
+            handle("CC_SummonBall_Azure/desc"),
+            "Conjure a tiny azure orb. It cannot move on its own, but can Charge at an enemy once per turn.",
+        ),
+        (handle("CC_Ball_Azure/name"), "Azure Orb"),
     ]
 
     header_size = 12

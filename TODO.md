@@ -400,10 +400,6 @@ Known DOS2 visual references for the current test spells:
 - [x] Stopped scaling summoned-enemy ability scores by level; generated
       templates preserve the source Ability values and scale HP/armor only.
 - [ ] Verify summon skills cost 4 AP and still enforce the five-turn cooldown.
-- [ ] Evaluate polymorph/wildshape statuses as a separate opt-in loot category.
-      Use at most one form per item, likely Legendary-only, and verify model,
-      equipment, spellcasting, removal, and save/reload behavior before
-      adding them to the normal random condition pool.
 
 
 ## Summon economy
@@ -443,5 +439,13 @@ Known DOS2 visual references for the current test spells:
 
 ## Custom Classes
 
-- [ ] Create an alternate orb visual asset with the red/orange portions
-      recolored blue/purple.
+- [x] Add the alternate azure orb root and `CC_SummonBall_Azure` test cantrip.
+      It reuses the looping native black-hole aura, removes the orange
+      flame-sphere body, and uses the black-hole portrait icon.
+
+## Deferred
+
+- [ ] Evaluate polymorph/wildshape statuses as a separate opt-in loot category.
+      Use at most one form per item, likely Legendary-only, and verify model,
+      equipment, spellcasting, removal, and save/reload behavior before
+      adding them to the normal random condition pool.

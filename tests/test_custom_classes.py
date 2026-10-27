@@ -13,6 +13,7 @@ class CustomClassesTests(unittest.TestCase):
         spells = parse_stats(data / "Spells.txt")
         summon = spells["CC_SummonBall"]
         charge = spells["CC_BallCharge"]
+        azure = spells["CC_SummonBall_Azure"]
 
         self.assertEqual(summon["Level"], "0")
         self.assertEqual(summon["UseCosts"], "ActionPoint:1")
@@ -21,6 +22,9 @@ class CustomClassesTests(unittest.TestCase):
         self.assertEqual(summon.get("Requirements"), "")
         self.assertIn("CC_BallStack", summon["SpellProperties"])
         self.assertIn(BALL_ROOT, summon["TargetConditions"])
+        self.assertIn("CC_SummonBall_Azure", read(data / "Spells.txt"))
+        self.assertIn("bb583d89-d0b2-517d-9999-ef2ec7da45a4", azure["SpellProperties"])
+        self.assertEqual(azure["Icon"], "TadpoleSuperPower_BlackHole")
 
         self.assertEqual(charge["Level"], "2")
         self.assertEqual(charge["Cooldown"], "OncePerTurn")

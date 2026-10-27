@@ -14,22 +14,29 @@ local function log(fmt, ...)
     CC.Utils.Log(fmt, ...)
 end
 
-local function hasSpell(guid)
+local function hasSpell(guid, spell)
     if not (Osi and Osi.HasSpell) then return false end
-    local ok, result = pcall(Osi.HasSpell, guid, cfg.TEST_CANTRIP)
+    local ok, result = pcall(Osi.HasSpell, guid, spell)
     return ok and (result == 1 or result == true)
 end
 
-local function grant(guid)
-    if not guid or not (Osi and Osi.AddSpell) then return end
+local function grant(guid, spell)
+    if not guid or not spell or not (Osi and Osi.AddSpell) then return end
     guid = tostring(guid)
-    if hasSpell(guid) then return end
+    if hasSpell(guid, spell) then return end
 
-    local ok, result = pcall(Osi.AddSpell, guid, cfg.TEST_CANTRIP)
+    local ok, result = pcall(Osi.AddSpell, guid, spell)
     if not ok then
-        ok, result = pcall(Osi.AddSpell, guid, cfg.TEST_CANTRIP, 0, 1)
+        ok, result = pcall(Osi.AddSpell, guid, spell, 0, 1)
     end
-    log("test cantrip grant: %s ok=%s result=%s", guid, tostring(ok), tostring(result))
+    log("test cantrip grant: %s %s ok=%s result=%s",
+        guid, spell, tostring(ok), tostring(result))
+end
+
+local function grantAll(guid)
+    for _, spell in ipairs(cfg.TEST_CANTRIPS or { cfg.TEST_CANTRIP }) do
+        grant(guid, spell)
+    end
 end
 
 local function grantParty()
@@ -41,12 +48,12 @@ local function grantParty()
             for _, guid in ipairs(value) do
                 if guid and not seen[guid] then
                     seen[guid] = true
-                    grant(guid)
+                    grantAll(guid)
                 end
             end
         elseif value and not seen[value] then
             seen[value] = true
-            grant(value)
+            grantAll(value)
         end
     end
 
@@ -78,7 +85,7 @@ if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
         grantParty()
     end)
     pcall(Ext.Osiris.RegisterListener, "CharacterJoinedParty", 1, "after", function(character)
-        grant(character)
+        grantAll(character)
     end)
 end
 
