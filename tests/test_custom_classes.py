@@ -59,6 +59,17 @@ class CustomClassesTests(unittest.TestCase):
         self.assertNotIn("DealDamage", ablaze.get("Boosts", ""))
         self.assertIn("2156dd48-f83b-4060-9a4e-cab994da8857", ablaze["StatusEffect"])
 
+    def test_ignite_wall_copy_uses_five_damage(self):
+        data = MODS / "CustomClasses/Public/CustomClasses/Stats/Generated/Data"
+        spells = parse_stats(data / "Spells.txt")
+        wall = spells["CC_OrbFireWall"]
+        aura = spells["CC_ORB_FIRE_LINE_AURA"]
+        self.assertEqual(wall["ItemWallStatus"], "CC_ORB_FIRE_LINE")
+        self.assertIn("DealDamage(5,Fire)", wall["TooltipDamageList"])
+        self.assertEqual(aura["OnApplySuccess"], "DealDamage(5,Fire)")
+        self.assertEqual(aura["OnTickSuccess"], "DealDamage(5,Fire)")
+        self.assertNotIn("5d8", aura["OnApplySuccess"])
+
     def test_ignite_charge_variant_creates_fire(self):
         data = MODS / "CustomClasses/Public/CustomClasses/Stats/Generated/Data"
         spells = parse_stats(data / "Spells.txt")
