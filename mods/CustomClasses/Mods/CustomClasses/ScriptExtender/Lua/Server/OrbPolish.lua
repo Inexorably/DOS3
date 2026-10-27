@@ -114,10 +114,15 @@ local function placeOrbs(x, y, z)
         return a.guid < b.guid
     end)
 
+    -- SPACING is the side length. For an equilateral triangle the
+    -- circumradius is side / sqrt(3), not side; using side * 0.866 made the
+    -- base wider than the two remaining sides.
+    local radius = SPACING / math.sqrt(3)
+    local halfSide = SPACING / 2
     local triangle = {
-        { 0.0, SPACING },
-        { -SPACING * 0.866, -SPACING * 0.5 },
-        { SPACING * 0.866, -SPACING * 0.5 },
+        { 0.0, radius },
+        { -halfSide, -radius / 2 },
+        { halfSide, -radius / 2 },
     }
     local function rotate(offset, angle)
         local c, s = math.cos(angle), math.sin(angle)
