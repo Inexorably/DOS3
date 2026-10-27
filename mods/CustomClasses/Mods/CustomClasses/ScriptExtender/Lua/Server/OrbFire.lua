@@ -38,8 +38,10 @@ end
 local function createFire(guid, x, y, z)
     x, y, z = tonumber(x), tonumber(y), tonumber(z)
     if not x or not y then return false end
+    -- BG3SE exposes CreateSurface as (surface, x, y, z, radius). The old
+    -- six-argument call is rejected by the engine.
     if Osi and Osi.CreateSurface then
-        local ok, err = pcall(Osi.CreateSurface, SURFACE, x, y, z, RADIUS, tostring(guid or ""))
+        local ok, err = pcall(Osi.CreateSurface, SURFACE, x, y, z, RADIUS)
         if ok then
             log("fire trail at %s (%.2f,%.2f,%.2f)", tostring(guid), x, y, z)
             return true
@@ -48,19 +50,30 @@ local function createFire(guid, x, y, z)
     else
         log("CreateSurface unavailable")
     end
-    if Osi and Osi.CreateSurfaceAtPosition then
-        local ok, err = pcall(Osi.CreateSurfaceAtPosition, SURFACE, x, y, z, RADIUS, tostring(guid or ""))
-        if ok then
-            log("fire trail at %s (%.2f,%.2f,%.2f) fallback", tostring(guid), x, y, z)
-            return true
-        end
-        log("CreateSurfaceAtPosition failed: %s", tostring(err))
-    end
     return false
 end
 
+local function createFireLine(guid, x1, y1, z1, x2, y2, z2)
+    x1, y1, z1 = tonumber(x1), tonumber(y1), tonumber(z1)
+    x2, y2, z2 = tonumber(x2), tonumber(y2), tonumber(z2)
+    if not (x1 and y1 and x2 and y2) then return false end
+    local dx, dy = x2 - x1, y2 - y1
+    local distance = math.sqrt(dx * dx + dy * dy)
+    local steps = math.max(1, math.ceil(distance / RADIUS))
+    local made = false
+    for i = 0, steps do
+        local t = i / steps
+        local x = x1 + dx * t
+        local y = y1 + dy * t
+        local z = (z1 or 0) + ((z2 or z1 or 0) - (z1 or 0)) * t
+        if createFire(guid, x, y, z) then made = true end
+    end
+    log("fire line: %s distance=%.2f steps=%d made=%s", tostring(guid), distance, steps, tostring(made))
+    return made
+end
+
 local function fireAtCurrent(guid)
-    if not guid or not hasStatus(guid, ABLAZE) then return false end
+    if not guid then return false end
     local x, y, z = positionOf(guid)
     if not x then return false end
     return createFire(guid, x, y, z)
@@ -223,12 +236,14 @@ local function onChargePosition(caster, x, y, z, spell)
     -- do not gate its Lua trail on a status query that may lag.
     if not ablaze and spell ~= "CC_BallCharge_Ignite" then return end
     local oldX, oldY, oldZ = positionOf(caster)
-    if oldX then createFire(caster, oldX, oldY, oldZ) end
     local targetX, targetY, targetZ = tonumber(x), tonumber(y), tonumber(z)
-    if targetX and Ext.Timer and Ext.Timer.WaitFor then
-        Ext.Timer.WaitFor(500, function()
-            createFire(caster, targetX, targetY, targetZ or oldZ or 0)
-        end)
+    if oldX and targetX then
+        createFireLine(caster, oldX, oldY, oldZ, targetX, targetY, targetZ or oldZ)
+    elseif oldX then
+        createFire(caster, oldX, oldY, oldZ)
+    end
+    if targetX then
+        createFire(caster, targetX, targetY, targetZ or oldZ or 0)
     end
 end
 
