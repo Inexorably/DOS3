@@ -490,9 +490,10 @@ is the **Summon Ball** cantrip:
   bludgeoning damage, and has a one-turn cooldown.
 - An alternate **Azure Orb** variant reuses `CC_Ball` stats and Charge. It
   keeps the sphere body so the summon has a visible mesh and portrait, and
-  uses the native black-hole visual overlay. The body texture is still the
-  shared flame-sphere material; a separate blue/purple texture/material
-  override is still needed for the exact recolor. It is summoned by
+  uses the native black-hole visual overlay. The flame-sphere base, glow, and
+  parameter textures are hue-shifted to blue/purple by
+  `scripts/recolor-cc-orb-textures.py`; this is a shared body texture, so both
+  orb variants use the recolored sphere. It is summoned by
   `CC_SummonBall_Azure`.
 - While `GRANT_TEST_CANTRIP` is enabled in `Server/Config.lua`, the test
   bootstrap grants both orb cantrips to every party member. This is a testing
