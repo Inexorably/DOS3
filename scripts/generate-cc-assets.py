@@ -99,6 +99,14 @@ def build_root_template() -> None:
             "attribute",
             {"id": "Object", "type": "FixedString", "value": "CC_ORB"},
         )
+        # Charge is granted by a status rather than DefaultBoosts so it can be
+        # removed and replaced by the Ignite Charge status at runtime.
+        charge_marker = ET.SubElement(statuses, "node", {"id": "Status"})
+        ET.SubElement(
+            charge_marker,
+            "attribute",
+            {"id": "Object", "type": "FixedString", "value": "CC_ORB_CHARGE"},
+        )
     set_attr(go, "MapKey", BALL_GUID)
     # Bake the final small scale into the root. Scaling via a stat boost happens
     # after spawn and causes the model to visibly shrink from its native size.
@@ -252,6 +260,24 @@ data "UseCosts" "ActionPoint:1"
 data "SpellFlags" "IsSpell;HasVerbalComponent;HasSomaticComponent;HasHighGroundRangeExtension"
 data "AIFlags" "CanNotUse"
 
+new entry "CC_ORB_CHARGE"
+type "StatusData"
+data "StatusType" "BOOST"
+data "DisplayName" "{handle('CC_ORB_CHARGE/name')}"
+data "Description" "{handle('CC_ORB_CHARGE/desc')}"
+data "StackId" "CC_ORB_CHARGE"
+data "Boosts" "UnlockSpell(CC_BallCharge)"
+data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"
+
+new entry "CC_ORB_CHARGE_IGNITE"
+type "StatusData"
+data "StatusType" "BOOST"
+data "DisplayName" "{handle('CC_ORB_CHARGE_IGNITE/name')}"
+data "Description" "{handle('CC_ORB_CHARGE_IGNITE/desc')}"
+data "StackId" "CC_ORB_CHARGE_IGNITE"
+data "Boosts" "UnlockSpell(CC_BallCharge_Ignite)"
+data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"
+
 new entry "CC_ORB"
 type "StatusData"
 data "StatusType" "BOOST"
@@ -271,7 +297,6 @@ data "StackId" "CC_ORB_ABLAZE"
 -- leaves the native fire trail as the orb moves or Charges; it does not carry
 -- a 1.5m damaging aura.
 data "SurfaceChange" "Ignite"
-data "Boosts" "UnlockSpell(CC_BallCharge_Ignite)"
 data "StatusEffect" "2156dd48-f83b-4060-9a4e-cab994da8857"
 data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"
 ''',
@@ -299,7 +324,7 @@ data "GameSize" "Tiny"
 data "Flags" "Floating;InvulnerableAndInteractive"
 data "PersonalStatusImmunities" "SILENCED;BLEEDING;GAPING_WOUND;CHEST_TRAUMA;SHOCKED;BURNING;SG_Condition;CRIPPLED;WILD_MAGIC_BURNING"
 data "ActionResources" "ActionPoint:2;BonusActionPoint:1;Movement:0"
-data "DefaultBoosts" "BlockRegainHP(Undead;Construct;Living);UnlockSpell(CC_BallCharge);StatusImmunity(SG_Blinded);StatusImmunity(SG_Charmed);StatusImmunity(SG_Condition);StatusImmunity(SG_Cursed);StatusImmunity(SG_DifficultTerrain);StatusImmunity(SG_Disease);StatusImmunity(SG_Exhausted);StatusImmunity(SG_Fleeing);StatusImmunity(SG_Frightened);StatusImmunity(SG_Incapacitated);StatusImmunity(SG_Paralyzed);StatusImmunity(SG_Petrified);StatusImmunity(SG_Poisoned);StatusImmunity(SG_Polymorph);StatusImmunity(SG_Possessed);StatusImmunity(SG_Prone);StatusImmunity(SG_Restrained);StatusImmunity(SG_Sleeping);StatusImmunity(SG_Sleeping_Magical);StatusImmunity(SG_Stunned);StatusImmunity(SG_Surface);StatusImmunity(SG_Unconscious)"
+data "DefaultBoosts" "BlockRegainHP(Undead;Construct;Living);StatusImmunity(SG_Blinded);StatusImmunity(SG_Charmed);StatusImmunity(SG_Condition);StatusImmunity(SG_Cursed);StatusImmunity(SG_DifficultTerrain);StatusImmunity(SG_Disease);StatusImmunity(SG_Exhausted);StatusImmunity(SG_Fleeing);StatusImmunity(SG_Frightened);StatusImmunity(SG_Incapacitated);StatusImmunity(SG_Paralyzed);StatusImmunity(SG_Petrified);StatusImmunity(SG_Poisoned);StatusImmunity(SG_Polymorph);StatusImmunity(SG_Possessed);StatusImmunity(SG_Prone);StatusImmunity(SG_Restrained);StatusImmunity(SG_Sleeping);StatusImmunity(SG_Sleeping_Magical);StatusImmunity(SG_Stunned);StatusImmunity(SG_Surface);StatusImmunity(SG_Unconscious)"
 data "Passives" "DarknessRules;ShortResting"
 data "DifficultyStatuses" "STATUS_EASY:PLAYER_BONUSES_EASYMODE"
 ''',
@@ -337,6 +362,10 @@ def write_loca() -> None:
             "Set an arcane orb ablaze. The orb leaves a trail of Fire behind it as it moves or Charges.",
         ),
         (handle("CC_ORB/name"), "Arcane Orb"),
+        (handle("CC_ORB_CHARGE/name"), "Charge Grant"),
+        (handle("CC_ORB_CHARGE/desc"), "Grants the orb Charge."),
+        (handle("CC_ORB_CHARGE_IGNITE/name"), "Ignite Charge Grant"),
+        (handle("CC_ORB_CHARGE_IGNITE/desc"), "Grants the orb Ignite Charge."),
         (handle("CC_ORB/desc"), "Marks a summoned arcane orb."),
         (handle("CC_ORB_ABLAZE/name"), "Ablaze"),
         (

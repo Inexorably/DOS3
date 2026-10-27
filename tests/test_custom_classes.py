@@ -82,7 +82,7 @@ class CustomClassesTests(unittest.TestCase):
         self.assertIn("StatusImmunity(SG_Charmed)", ball["DefaultBoosts"])
         self.assertIn("StatusImmunity(SG_Stunned)", ball["DefaultBoosts"])
         self.assertNotIn("BludgeoningResistance", ball)
-        self.assertIn("UnlockSpell(CC_BallCharge)", ball["DefaultBoosts"])
+        self.assertNotIn("UnlockSpell(CC_BallCharge)", ball["DefaultBoosts"])
         characters = read(data / "Characters.txt")
         self.assertIn('using "_Summons"', characters)
 

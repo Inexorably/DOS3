@@ -69,14 +69,27 @@ end
 local function swapCharge(target)
     if not target then return false end
     local guid = tostring(target)
+    -- The base Charge is granted by CC_ORB_CHARGE, not by the spellbook.
+    -- Replace the grant status; RemoveSpell alone cannot remove UnlockSpell.
+    if Osi and Osi.RemoveStatus then
+        pcall(Osi.RemoveStatus, guid, "CC_ORB_CHARGE")
+    end
+    if Osi and Osi.ApplyStatus then
+        pcall(Osi.ApplyStatus, guid, "CC_ORB_CHARGE_IGNITE", -1, 1)
+    end
+    -- Keep the direct spellbook fallback for builds where status grants are
+    -- not reflected immediately in the hotbar.
     if Osi and Osi.RemoveSpell then
         pcall(Osi.RemoveSpell, guid, "CC_BallCharge")
     end
-    if not (Osi and Osi.AddSpell) then return false end
-    local ok, err = pcall(Osi.AddSpell, guid, "CC_BallCharge_Ignite", 0, 1)
-    if not ok then ok, err = pcall(Osi.AddSpell, guid, "CC_BallCharge_Ignite", 0) end
-    log("ignite charge swap: target=%s ok=%s err=%s", guid, tostring(ok), tostring(err))
-    return ok
+    local ok, err
+    if Osi and Osi.AddSpell then
+        ok, err = pcall(Osi.AddSpell, guid, "CC_BallCharge_Ignite", 0, 1)
+        if not ok then ok, err = pcall(Osi.AddSpell, guid, "CC_BallCharge_Ignite", 0) end
+    end
+    log("ignite charge swap: target=%s grant=CC_ORB_CHARGE_IGNITE addSpell=%s err=%s",
+        guid, tostring(ok), tostring(err))
+    return true
 end
 
 local function swapAllAblazeOrbs()
