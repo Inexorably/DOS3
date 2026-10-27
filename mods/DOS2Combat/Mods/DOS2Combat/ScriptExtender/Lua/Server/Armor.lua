@@ -83,11 +83,13 @@ local function nativeArmorClass(handle, entity)
         local ok, ac = pcall(Osi.GetArmorClass, guid)
         local total = ok and tonumber(ac) or 0
         if total and total > 0 then
-            if not armorClassLogged[guid] and componentAc > 0 and total ~= componentAc then
+            local best = math.max(total, componentAc)
+            if not armorClassLogged[guid] and componentAc > 0 and best ~= componentAc then
                 armorClassLogged[guid] = true
-                U.Log("armor class source %s: total=%d component=%d", guid, total, componentAc)
+                U.Log("armor class source %s: total=%d component=%d used=%d",
+                    guid, total, componentAc, best)
             end
-            return total, entity and entity.Armor or nil
+            return best, entity and entity.Armor or nil
         end
     end
 
