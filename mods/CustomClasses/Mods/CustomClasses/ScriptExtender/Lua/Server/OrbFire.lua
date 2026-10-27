@@ -276,6 +276,18 @@ local function onTurnStarted(character)
     if ablaze then fireAtCurrent(character) end
 end
 
+local function castFireWall(caster, x, y, z)
+    if not (Osi and Osi.CastSpellAtPosition) then
+        log("wall cast unavailable: CastSpellAtPosition missing")
+        return false
+    end
+    local ok, err = pcall(Osi.CastSpellAtPosition, caster, "CC_OrbFireWall", x, y, z, 0, "")
+    log("wall cast: caster=%s target=(%.2f,%.2f,%.2f) ok=%s err=%s",
+        tostring(caster), tonumber(x) or 0, tonumber(y) or 0, tonumber(z) or 0,
+        tostring(ok), tostring(err))
+    return ok
+end
+
 local function onChargePosition(caster, x, y, z, spell)
     spell = tostring(spell or "")
     if spell ~= "CC_BallCharge" and spell ~= "CC_BallCharge_Ignite" then return end
@@ -287,6 +299,11 @@ local function onChargePosition(caster, x, y, z, spell)
     if not ablaze and spell ~= "CC_BallCharge_Ignite" then return end
     local oldX, oldY, oldZ = positionOf(caster)
     local targetX, targetY, targetZ = tonumber(x), tonumber(y), tonumber(z)
+    if targetX then
+        -- Copy of Wall of Fire: cast the custom wall from the old orb position
+        -- toward the charge destination. Its custom aura deals 5 Fire damage.
+        castFireWall(caster, targetX, targetY, targetZ or oldZ or 0)
+    end
     if oldX and targetX then
         createFireLine(caster, oldX, oldY, oldZ, targetX, targetY, targetZ or oldZ)
     elseif oldX then
