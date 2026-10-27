@@ -265,6 +265,9 @@ Known DOS2 visual references for the current test spells:
       equipped gear, Dexterity, SHIELD, and SHIELD_OF_FAITH).
 - [x] Add a manual AC fallback when both Osi and the Armor component report
       only base 10.
+- [x] Parse generic `AC(N)` bonuses from item `Boosts`, item
+      `PassivesOnEquip`, active statuses, and active passives instead of
+      hardcoding Shield of Faith.
 - [ ] Verify the reported 21 AC case (16 armor + 1 Dexterity + 2 shield +
       2 Shield of Faith) reports 59%, and that item hover and character hover
       stay aligned after equipment changes.
@@ -456,7 +459,9 @@ Known DOS2 visual references for the current test spells:
       orb remains orange.
 - [x] Allow up to three orbs at once using three distinct summon stack IDs.
 - [x] Reduce Charge base damage from 3 to 1.
-- [ ] Verify three orbs can coexist and each Charge uses the one-turn cooldown.
+- [x] Reposition the three orbs 1.5 m apart around the summon point.
+- [ ] Verify three orbs can coexist, are spaced out, and each Charge uses the
+      one-turn cooldown.
 
 ## Deferred
 

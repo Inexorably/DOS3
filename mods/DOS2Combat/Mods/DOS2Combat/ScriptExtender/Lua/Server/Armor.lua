@@ -75,14 +75,63 @@ local ARMOR_SLOTS = {
     "MeleeMainHand", "MeleeOffHand", "RangedMainHand", "RangedOffHand",
 }
 
-local AC_STATUS_BONUSES = {
-    SHIELD_OF_FAITH = 2,
-    ENR_LootStatus_SHIELD_OF_FAITH = 2,
-    ENR_Perm_SHIELD_OF_FAITH = 2,
-    SHIELD = 5,
-    ENR_LootStatus_SHIELD = 5,
-    ENR_Perm_SHIELD = 5,
-}
+local function acFromBoosts(boosts)
+    local total = 0
+    if type(boosts) ~= "string" then return total end
+    for value in boosts:gmatch("AC%(%s*(-?%d+)%s*%)") do
+        total = total + (tonumber(value) or 0)
+    end
+    return total
+end
+
+local function statBoosts(name, statType)
+    if not (name and Ext.Stats and Ext.Stats.Get) then return "" end
+    local ok, stat = pcall(Ext.Stats.Get, tostring(name), statType)
+    if not ok or not stat then return "" end
+    return U.SafeGet(stat, "Boosts") or ""
+end
+
+local function activeStatusArmor(entity)
+    local total = 0
+    local container = entity and entity.StatusContainer
+    local statuses = container and container.Statuses
+    if not statuses then return total end
+    for _, status in ipairs(statuses) do
+        local id = status and status.StatusId
+        if id then
+            total = total + acFromBoosts(statBoosts(id, "StatusData"))
+        end
+    end
+    return total
+end
+
+local function activePassiveArmor(entity)
+    local total = 0
+    local container = entity and entity.Passives
+    if not container then return total end
+    local list = container.Passives
+    if not list then return total end
+    for key, value in pairs(list) do
+        local name = type(key) == "number" and value or key
+        if name then
+            total = total + acFromBoosts(statBoosts(name, "PassiveData"))
+        end
+    end
+    return total
+end
+
+local function itemPassiveArmor(statsId)
+    local total = 0
+    if not (statsId and Ext.Stats and Ext.Stats.Get) then return total end
+    local ok, stat = pcall(Ext.Stats.Get, tostring(statsId), "Armor")
+    if not ok or not stat then return total end
+    local passives = U.SafeGet(stat, "PassivesOnEquip")
+    if type(passives) ~= "string" then return total end
+    for passive in passives:gmatch("[^;]+") do
+        total = total + acFromBoosts(statBoosts(passive, "PassiveData"))
+    end
+    return total
+end
 
 local function manualArmorClass(handle, entity)
     local guid = U.GuidOf(handle)
@@ -103,7 +152,8 @@ local function manualArmorClass(handle, entity)
                 end
             end
         end
-        return ac or 0, armor, statsId
+        ac = (ac or 0) + itemPassiveArmor(statsId)
+        return ac, armor, statsId
     end
 
     if Osi and Osi.GetEquippedItem then
@@ -155,10 +205,9 @@ local function manualArmorClass(handle, entity)
         if ok then dex = math.max(0, tonumber(value) or 0) end
     end
 
-    for name, bonus in pairs(AC_STATUS_BONUSES) do
-        if hasStatus(handle, name) then statuses = statuses + bonus end
-    end
-    return gear + dex + statuses, gear, dex, statuses
+    statuses = activeStatusArmor(entity)
+    local passives = activePassiveArmor(entity)
+    return gear + dex + statuses + passives, gear, dex, statuses + passives
 end
 
 local function nativeArmorClass(handle, entity)
