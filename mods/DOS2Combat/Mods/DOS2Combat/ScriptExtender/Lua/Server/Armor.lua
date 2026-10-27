@@ -102,11 +102,32 @@ local function activeStatusArmor(entity)
     local total = 0
     local container = component(entity, "StatusContainer")
     local statuses = container and component(container, "Statuses")
-    if not statuses then return total end
-    for _, status in ipairs(statuses) do
-        local id = status and component(status, "StatusId")
-        if id then
-            total = total + acFromBoosts(statBoosts(id, "StatusData"))
+    if statuses then
+        -- Statuses is exposed as a native collection in some BG3SE builds.
+        -- Never let an iterator/component-shape mismatch abort the armor
+        -- snapshot; fall back to the named status checks below.
+        local ok = pcall(function()
+            for _, status in ipairs(statuses) do
+                local id = status and component(status, "StatusId")
+                if id then
+                    total = total + acFromBoosts(statBoosts(id, "StatusData"))
+                end
+            end
+        end)
+        if not ok then total = 0 end
+    end
+    if total == 0 then
+        local guid = U.GuidOf(entity)
+        local fallback = {
+            SHIELD_OF_FAITH = 2,
+            ENR_LootStatus_SHIELD_OF_FAITH = 2,
+            ENR_Perm_SHIELD_OF_FAITH = 2,
+            SHIELD = 5,
+            ENR_LootStatus_SHIELD = 5,
+            ENR_Perm_SHIELD = 5,
+        }
+        for name, bonus in pairs(fallback) do
+            if guid and hasStatus(guid, name) then total = total + bonus end
         end
     end
     return total
@@ -118,12 +139,15 @@ local function activePassiveArmor(entity)
     if not container then return total end
     local list = component(container, "Passives")
     if not list then return total end
-    for key, value in pairs(list) do
-        local name = type(key) == "number" and value or key
-        if name then
-            total = total + acFromBoosts(statBoosts(name, "PassiveData"))
+    local ok = pcall(function()
+        for key, value in pairs(list) do
+            local name = type(key) == "number" and value or key
+            if name then
+                total = total + acFromBoosts(statBoosts(name, "PassiveData"))
+            end
         end
-    end
+    end)
+    if not ok then return 0 end
     return total
 end
 
