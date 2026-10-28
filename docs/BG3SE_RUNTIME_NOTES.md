@@ -347,6 +347,42 @@ wall in-game. `CastedSpell` handling only schedules endpoint cleanup, with a
 short delay so the engine can finish resolving the helper entities during the
 cast.
 
+## Direct damage (2026-10-28 04:30 run)
+
+`Osi.DealDamage`, which `DOS2Combat/Server/Surfaces.lua` also calls, is **not
+exposed** in this build:
+
+```text
+[CC] orb lightning: DealDamage failed: attempt to call a nil value
+[CC] orb lightning: 3 orb(s), 0 hit(s)
+```
+
+The engine action is `ApplyDamage`, confirmed from vanilla goals
+(`__PROC.txt`, `Act1_UND_General.txt`):
+
+```lua
+Osi.ApplyDamage(object, amount, "Lightning", source)
+```
+
+The damage-type argument is a plain string (`"Fire"`, `"Slashing"`,
+`"Piercing"`, `"Bludgeoning"`), not an enum, and the fourth argument is the
+source GUID. `Osi.ApplyDamage(object, amount, damageType)` also exists as a
+registered 3-argument overload.
+
+`type(Osi.Foo)` remains unreliable for the same reason as elsewhere in this
+file: the inventory line reports `DealDamage=nil` and `ApplyDamage=nil` even
+when `ApplyDamage` is callable, because the proxy resolves lazily.
+
+Confirmed working in `Extender Runtime 2026-10-28 04-38-32.log`:
+
+```text
+[CC] orb lightning: damage applied via apply4
+[CC] orb lightning: 3 orb(s), 3 hit(s)
+```
+
+`DOS2Combat/Server/Surfaces.lua` still calls `Osi.DealDamage` inside `pcall`, so
+its surface tick damage is a silent no-op in this build. Tracked in #10.
+
 ## Maintenance rule
 
 Whenever a runtime-only API/arity/enum is discovered:

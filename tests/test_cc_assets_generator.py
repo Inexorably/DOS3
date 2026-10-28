@@ -56,6 +56,9 @@ class CcAssetTests(unittest.TestCase):
         def run(command, check=None):
             parts = [str(part) for part in command]
             self.commands.append(parts)
+            source = Path(parts[parts.index("-s") + 1])
+            if source.suffix == ".lsx" and source.exists():
+                self.converted_xml = source.read_text(encoding="utf-8")
             destination = Path(parts[parts.index("-d") + 1])
             destination.parent.mkdir(parents=True, exist_ok=True)
             destination.write_bytes(b"stub")
@@ -100,6 +103,21 @@ class CcAssetTests(unittest.TestCase):
         self.assertIn("convert-resource", command)
         self.assertTrue(command[-1].endswith("_merged.lsf"))
 
+        # Only the azure orb root is emitted; the orange CC_Ball root is gone.
+        written = ET.fromstring(self.converted_xml)  # noqa: S314 - generated locally
+        names = [
+            attribute.get("value")
+            for attribute in written.iter("attribute")
+            if attribute.get("id") == "Name"
+        ]
+        self.assertEqual(names, ["CC_Ball_Azure"])
+        stats = [
+            attribute.get("value")
+            for attribute in written.iter("attribute")
+            if attribute.get("id") == "Stats"
+        ]
+        self.assertEqual(stats, ["CC_Ball"])
+
     def test_build_root_template_requires_hell_sphere(self) -> None:
         self.mod.ROOT_SOURCE.write_text(
             '<?xml version="1.0"?><save><region id="Templates" /></save>', encoding="utf-8"
@@ -115,13 +133,16 @@ class CcAssetTests(unittest.TestCase):
         characters = (self.mod.DATA / "Characters.txt").read_text(encoding="utf-8")
         spells = (self.mod.DATA / "Spells.txt").read_text(encoding="utf-8")
         self.assertIn('new entry "CC_Ball"', characters)
-        self.assertIn(self.mod.BALL_GUID, spells)
-        self.assertIn(f"CanStand('{self.mod.AZURE_BALL_GUID}')", spells)
-        self.assertIn(self.mod.handle("CC_SummonBall/name"), spells)
+        self.assertNotIn('new entry "CC_Ball_Azure"', characters)
+        self.assertNotIn("CC_SummonBall\"", spells)
+        self.assertIn(f"CanStand('{self.mod.ORB_GUID}')", spells)
+        self.assertIn(self.mod.handle("CC_SummonBall_Azure/name"), spells)
 
         loca = load_script("generate-armor-passives").read_loca(self.mod.LOCA)
-        self.assertEqual(len(loca), 24)
+        self.assertEqual(len(loca), 23)
         self.assertIn("Summon Azure Orb", dict(loca).values())
+        self.assertIn("Orb Chain Lightning", dict(loca).values())
+        self.assertNotIn("Summon Ball", dict(loca).values())
 
     def test_main_runs_every_stage(self) -> None:
         self.mod.ROOT_SOURCE.write_text(SOURCE_TEMPLATES, encoding="utf-8")

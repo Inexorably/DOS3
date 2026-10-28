@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate CustomClasses assets for the Summon Ball cantrip.
+"""Generate CustomClasses assets for the Summon Azure Orb cantrip.
 
 The ball is a cloned MageHand character root with the Black Hole visual
 template. The visual is scaled to one third in its Character stats. The ball
@@ -30,12 +30,18 @@ ROOT_XML = ROOT / ".analysis/cc_ball_root.lsx"
 DIVINE = ROOT / "tools/lslib/Packed/Tools/Divine.exe"
 
 NS = uuid.UUID("6ba7b810-9dad-11d1-80b4-00c04fd430c8")
-BALL_GUID = str(uuid.uuid5(NS, "CustomClasses/root/CC_Ball"))
-AZURE_BALL_GUID = str(uuid.uuid5(NS, "CustomClasses/root/CC_Ball_Azure"))
+ORB_GUID = str(uuid.uuid5(NS, "CustomClasses/root/CC_Ball_Azure"))
 AZURE_CHARACTER_VISUAL_ID = str(uuid.uuid5(NS, "CustomClasses/azure/visual/character"))
 BLACK_HOLE_VISUAL = "fd5aa94f-66ec-14ec-fa97-b88fae69796b"
 BLACK_HOLE_AURA = "203bf8b8-8dee-1724-e5e3-8479f16024f8"
 WALL_DAMAGE = 2
+CHAIN_LIGHTNING_DAMAGE = 2
+CHAIN_LIGHTNING_ANIMATION = (
+    "3ff87abf-1ea1-4c32-aadf-c822d74c7dc0,,;,,;cd5e5d4a-38e1-4d4d-b346-3fbc1e4c3c90,,;"
+    "141f48d9-9615-496a-8737-9240f0dba60d,,;d8925ce4-d6d9-400c-92f5-ad772ef7f178,,;,,;"
+    "eadedcce-d01b-4fbb-a1ae-d218f13aa5d6,,;,,;,"
+)
+CHAIN_LIGHTNING_PREPARE_EFFECT = "abf8542a-6c39-49ad-bc94-86c4585a5948"
 SPHERE_CAST_ANIMATION = (
     "0319ca29-4024-4649-9278-3c1f20c5f023,,;a71e11ca-95ab-463d-a4bf-fe8094126b61,,;"
     "352c3a89-f99c-4472-8424-58c0ffb15e55,,;a57fc614-ed20-4574-936b-bdcc6cebd36a,,;"
@@ -83,8 +89,8 @@ def build_root_template() -> None:
     # uses Projectile_Fly and its walk/run locomotion is not sufficient for the
     # charge action. Strip the hostile Hell Sphere defaults, then add the orb's
     # own visible invulnerability status.
-    go = copy.deepcopy(sphere)
-    child_container = go.find("./children")
+    orb = copy.deepcopy(sphere)
+    child_container = orb.find("./children")
     if child_container is not None:
         for child in list(child_container):
             if child.get("id") in ("StatusList", "SkillList", "OnDeathActions", "Tags"):
@@ -113,37 +119,26 @@ def build_root_template() -> None:
             "attribute",
             {"id": "Object", "type": "FixedString", "value": "CC_ORB_CHARGE"},
         )
-    set_attr(go, "MapKey", BALL_GUID)
+    set_attr(orb, "MapKey", ORB_GUID)
     # Bake the final small scale into the root. Scaling via a stat boost happens
     # after spawn and causes the model to visibly shrink from its native size.
-    set_attr(go, "Scale", "0.222222", "float")
-    set_attr(go, "Name", "CC_Ball")
-    set_attr(go, "Stats", "CC_Ball")
-    set_attr(go, "CharacterVisualResourceID", "512df42e-6b0b-5561-2381-f30794fa5ef9")
-    set_attr(go, "VisualTemplate", BLACK_HOLE_VISUAL)
-    set_attr(go, "Icon", "Portrait_Creature_FlamingSphere")
-    set_attr(go, "GeneratePortrait", "")
-    set_display_name(go, handle("CC_Ball/name"))
-
-    # Azure orb: keep the same stats and body-less character so Charge works,
-    # but replace the orange flame-sphere body with the native looping black-hole
-    # aura. This removes the red/orange material without shipping a modified
-    # texture shader graph.
-    azure = copy.deepcopy(go)
-    set_attr(azure, "MapKey", AZURE_BALL_GUID)
-    set_attr(azure, "Name", "CC_Ball_Azure")
-    set_attr(azure, "CharacterVisualResourceID", AZURE_CHARACTER_VISUAL_ID)
-    set_attr(azure, "VisualTemplate", BLACK_HOLE_VISUAL)
-    set_attr(azure, "Icon", "Portrait_Creature_ArcaneTurret")
-    set_display_name(azure, handle("CC_Ball_Azure/name"))
+    set_attr(orb, "Scale", "0.222222", "float")
+    set_attr(orb, "Name", "CC_Ball_Azure")
+    # The CC_Ball character stats are shared by every orb root; only the visual,
+    # name, and icon differ per variant.
+    set_attr(orb, "Stats", "CC_Ball")
+    set_attr(orb, "CharacterVisualResourceID", AZURE_CHARACTER_VISUAL_ID)
+    set_attr(orb, "VisualTemplate", BLACK_HOLE_VISUAL)
+    set_attr(orb, "Icon", "Portrait_Creature_ArcaneTurret")
+    set_attr(orb, "GeneratePortrait", "")
+    set_display_name(orb, handle("CC_Ball_Azure/name"))
 
     out = ET.Element("save")
     ET.SubElement(out, "version", {"major": "4", "minor": "0", "revision": "9", "build": "328"})
     region = ET.SubElement(out, "region", {"id": "Templates"})
     templates = ET.SubElement(region, "node", {"id": "Templates"})
     children = ET.SubElement(templates, "children")
-    children.append(go)
-    children.append(azure)
+    children.append(orb)
 
     ROOT_XML.parent.mkdir(parents=True, exist_ok=True)
     ET.ElementTree(out).write(ROOT_XML, encoding="utf-8", xml_declaration=True)
@@ -168,34 +163,25 @@ def build_root_template() -> None:
 def write_stats() -> None:
     DATA.mkdir(parents=True, exist_ok=True)
     (DATA / "Spells.txt").write_text(
-        f'''-- CustomClasses: Summon Ball cantrip and the ball's Charge action.
+        f'''-- CustomClasses: Summon Azure Orb cantrip and the orb's Charge action.
 
-new entry "CC_SummonBall"
+new entry "CC_SummonBall_Azure"
 type "SpellData"
 using "Target_MageHand"
 data "Level" "0"
 data "Cooldown" ""
-data "SpellProperties" "GROUND:Summon({BALL_GUID},UntilLongRest,,,'CC_BallStack1',UNSUMMON_ABLE);GROUND:Summon({BALL_GUID},UntilLongRest,,,'CC_BallStack2',UNSUMMON_ABLE);GROUND:Summon({BALL_GUID},UntilLongRest,,,'CC_BallStack3',UNSUMMON_ABLE)"
-data "TargetConditions" "CanStand('{BALL_GUID}') and not Character() and not Self()"
+data "SpellProperties" "GROUND:Summon({ORB_GUID},UntilLongRest,,,'CC_BallStack1',UNSUMMON_ABLE);GROUND:Summon({ORB_GUID},UntilLongRest,,,'CC_BallStack2',UNSUMMON_ABLE);GROUND:Summon({ORB_GUID},UntilLongRest,,,'CC_BallStack3',UNSUMMON_ABLE)"
+data "TargetConditions" "CanStand('{ORB_GUID}') and not Character() and not Self()"
 data "RequirementConditions" ""
 data "RequirementEvents" ""
 data "Requirements" ""
 data "RechargeValues" ""
 data "AICooldown" ""
-data "DisplayName" "{handle('CC_SummonBall/name')}"
-data "Description" "{handle('CC_SummonBall/desc')}"
-data "Icon" "Spell_Conjuration_MageHand"
-data "UseCosts" "ActionPoint:1"
-data "AIFlags" "CanNotUse"
-
-new entry "CC_SummonBall_Azure"
-type "SpellData"
-using "CC_SummonBall"
-data "SpellProperties" "GROUND:Summon({AZURE_BALL_GUID},UntilLongRest,,,'CC_BallStack1',UNSUMMON_ABLE);GROUND:Summon({AZURE_BALL_GUID},UntilLongRest,,,'CC_BallStack2',UNSUMMON_ABLE);GROUND:Summon({AZURE_BALL_GUID},UntilLongRest,,,'CC_BallStack3',UNSUMMON_ABLE)"
-data "TargetConditions" "CanStand('{AZURE_BALL_GUID}') and not Character() and not Self()"
 data "DisplayName" "{handle('CC_SummonBall_Azure/name')}"
 data "Description" "{handle('CC_SummonBall_Azure/desc')}"
 data "Icon" "TadpoleSuperPower_BlackHole"
+data "UseCosts" "ActionPoint:1"
+data "AIFlags" "CanNotUse"
 
 new entry "CC_BallCharge"
 type "SpellData"
@@ -266,9 +252,41 @@ data "UseCosts" "ActionPoint:1"
 data "SpellFlags" "IsSpell;HasVerbalComponent;HasSomaticComponent;HasHighGroundRangeExtension"
 data "AIFlags" "CanNotUse"
 
+new entry "CC_OrbChainLightning"
+type "SpellData"
+using "Target_MageHand"
+data "SpellType" "Target"
+data "Level" "0"
+data "Cooldown" ""
+data "RechargeValues" ""
+data "AICooldown" ""
+data "SpellRoll" ""
+data "WeaponTypes" ""
+data "SpellProperties" ""
+data "SpellSuccess" ""
+data "SpellFail" ""
+data "TargetConditions" "HasStatus('CC_ORB') and not Self()"
+data "RequirementConditions" ""
+data "RequirementEvents" ""
+data "Requirements" ""
+data "TargetRadius" "18"
+data "DisplayName" "{handle('CC_OrbChainLightning/name')}"
+data "Description" "{handle('CC_OrbChainLightning/desc')}"
+data "DescriptionParams" "Distance(3);Distance(8);DealDamage({CHAIN_LIGHTNING_DAMAGE},Lightning)"
+data "TooltipDamageList" "DealDamage({CHAIN_LIGHTNING_DAMAGE},Lightning)"
+data "Icon" "Spell_Evocation_ChainLightning"
+data "UseCosts" "ActionPoint:2"
+-- Target_MageHand inherits CannotTargetCharacter/CannotTargetItems. Remove
+-- those flags so the orb character itself can be selected.
+data "SpellFlags" "IsSpell;HasVerbalComponent;HasSomaticComponent;HasHighGroundRangeExtension"
+data "SpellAnimation" "{CHAIN_LIGHTNING_ANIMATION}"
+data "PrepareEffect" "{CHAIN_LIGHTNING_PREPARE_EFFECT}"
+data "CastEffect" "{CHAIN_LIGHTNING_PREPARE_EFFECT}"
+data "CastTextEvent" "Cast"
+data "AIFlags" "CanNotUse"
+
 new entry "CC_ORB_CHARGE"
 type "StatusData"
-data "StatusType" "BOOST"
 data "DisplayName" "{handle('CC_ORB_CHARGE/name')}"
 data "Description" "{handle('CC_ORB_CHARGE/desc')}"
 data "StackId" "CC_ORB_CHARGE"
@@ -366,8 +384,10 @@ data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndi
     )
 
     (DATA / "Characters.txt").write_text(
-        '''-- CustomClasses: summoned ball character.
--- The Black Hole visual is provided by the root template; scale it to 1/3.
+        '''-- CustomClasses: summoned orb character stats.
+-- Every orb root uses these stats; the root template supplies the visual,
+-- name, and icon. The Black Hole visual comes from the root template, and the
+-- root bakes the 0.222 scale so the model does not shrink after spawn.
 
 new entry "CC_Ball"
 type "Character"
@@ -396,17 +416,11 @@ data "DifficultyStatuses" "STATUS_EASY:PLAYER_BONUSES_EASYMODE"
 
 def write_loca() -> None:
     entries = [
-        (handle("CC_SummonBall/name"), "Summon Ball"),
-        (
-            handle("CC_SummonBall/desc"),
-            "Conjure up to three tiny arcane orbs. They cannot move on their own, but each can Charge at an enemy once per turn.",
-        ),
         (handle("CC_BallCharge/name"), "Charge"),
         (
             handle("CC_BallCharge/desc"),
             "Charge toward an enemy, dealing 1 bludgeoning damage for 2 AP. Once per turn.",
         ),
-        (handle("CC_Ball/name"), "Arcane Orb"),
         (handle("CC_SummonBall_Azure/name"), "Summon Azure Orb"),
         (
             handle("CC_SummonBall_Azure/desc"),
@@ -422,6 +436,11 @@ def write_loca() -> None:
         (
             handle("CC_IgniteOrb/desc"),
             "Set an arcane orb ablaze. The orb leaves a trail of Fire behind it as it moves or Charges.",
+        ),
+        (handle("CC_OrbChainLightning/name"), "Orb Chain Lightning"),
+        (
+            handle("CC_OrbChainLightning/desc"),
+            f"Call lightning down on enemies within 3 m of an arcane orb, dealing {CHAIN_LIGHTNING_DAMAGE} Lightning damage. If another orb is within 8 m, the bolt bounces to it and strikes around it too. Each orb can be struck once per cast. Costs 2 AP.",
         ),
         (handle("CC_ORB/name"), "Arcane Orb"),
         (handle("CC_ORB_CHARGE/name"), "Charge Grant"),
@@ -461,7 +480,7 @@ def main() -> None:
     write_stats()
     write_loca()
     print("CustomClasses assets generated")
-    print("ball root:", BALL_GUID)
+    print("azure orb root:", ORB_GUID)
     print("black hole visual:", BLACK_HOLE_VISUAL)
 
 

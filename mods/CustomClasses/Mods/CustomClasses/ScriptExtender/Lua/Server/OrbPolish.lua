@@ -183,7 +183,7 @@ end
 
 local function onUsingSpellAtPosition(caster, x, y, z, spell)
     spell = tostring(spell or "")
-    if spell ~= "CC_SummonBall" and spell ~= "CC_SummonBall_Azure" then return end
+    if spell ~= "CC_SummonBall_Azure" then return end
     x, y, z = tonumber(x), tonumber(y), tonumber(z)
     if not x or not y then return end
     local key = tostring(caster)

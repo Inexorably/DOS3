@@ -1,5 +1,7 @@
--- CustomClasses: summoned ball character.
--- The Black Hole visual is provided by the root template; scale it to 1/3.
+-- CustomClasses: summoned orb character stats.
+-- Every orb root uses these stats; the root template supplies the visual,
+-- name, and icon. The Black Hole visual comes from the root template, and the
+-- root bakes the 0.222 scale so the model does not shrink after spawn.
 
 new entry "CC_Ball"
 type "Character"

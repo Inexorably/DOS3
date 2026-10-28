@@ -460,6 +460,18 @@ Known DOS2 visual references for the current test spells:
 
 ## Custom Classes
 
+- [x] Add player-cast **Orb Chain Lightning**: targets `CC_ORB` orbs only,
+      strikes enemies within 3 m of each struck orb for 2 Lightning damage,
+      bounces to orbs within 8 m (each orb once per cast, per-orb enemy hits),
+      and plays lightning impact VFX at each orb and victim.
+- [x] Verify Orb Chain Lightning in-game: hotbar grant, 2 AP cost, orb-only
+      targeting, bounce order and distance, VFX placement, neutral/dead/caster
+      filtering, and damage. Confirmed in-game: chain resolves across three
+      orbs, VFX lands on each orb and victim, and all three strikes dealt
+      damage via `Osi.ApplyDamage` (`3 orb(s), 3 hit(s)`). Still worth watching
+      for: double hits when an enemy sits inside two struck radii, and the
+      per-orb strike stagger timing.
+
 - [x] Replace orb wall `CastSpell` event injection with the actual `UseSpell`
       action, using invisible endpoint items at the saved charge origin and
       actual landing point. Remove party-member teleportation and fake surface
@@ -475,11 +487,17 @@ Known DOS2 visual references for the current test spells:
 - [x] Verify the sphere-compatible wall animation removes `MissingAnimations`
       and produces the correctly placed wall, not merely a successful queue.
       Confirmed in-game; the cast now completes and spawns the wall.
-- [x] Add the alternate azure orb root, `CC_SummonBall_Azure` test cantrip,
-      visible sphere body, and working portrait.
+- [x] Add the azure orb root, `CC_SummonBall_Azure` test cantrip, visible
+      sphere body, and working portrait.
 - [x] Build a dedicated azure MaterialBank, VisualBank, and CharacterVisual
-      resource using a blue/purple glow map and glow colour, so the original
-      orb remains orange.
+      resource using a blue/purple glow map and glow colour instead of the
+      original orange material.
+- [x] Remove the original orange orb: its `CC_SummonBall` spell, root template,
+      and localization are gone. The shared `CC_Ball` character stats stay
+      because every orb root uses them.
+- [x] Verify the orange orb is gone in-game. Confirmed on a continued save:
+      `debug stat CC_SummonBall: NOT FOUND`, no `CC_SummonBall` grant attempts,
+      and the only orbs granted/spawned are `CC_SummonBall_Azure`.
 - [x] Allow up to three orbs at once using three distinct summon stack IDs.
 - [x] Reduce Charge base damage from 3 to 1.
 - [x] Reposition the three orbs 1.5 m apart around the summon point.
