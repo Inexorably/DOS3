@@ -258,7 +258,7 @@ class OrbWeaverAssetTests(unittest.TestCase):
         self.assertEqual(len(uuids), len(set(uuids)))
         self.assertNotIn(self.mod.PROGRESSION_TABLE_UUID, uuids)
 
-    def test_build_class_files_uses_vanilla_resource_names(self) -> None:
+    def test_build_class_files_writes_lsx_under_vanilla_names(self) -> None:
         original = self.mod.subprocess.run
         self.mod.subprocess.run = self.fake_divine()
         try:
@@ -266,35 +266,46 @@ class OrbWeaverAssetTests(unittest.TestCase):
         finally:
             self.mod.subprocess.run = original
 
-        destinations = sorted(
-            Path(parts[parts.index("-d") + 1]).name for parts in self.commands
+        # Class data is written as LSX directly: no Divine conversion runs.
+        self.assertEqual(self.commands, [])
+        expected = sorted([
+            "ClassDescriptions.lsx",
+            "Progressions.lsx",
+            "ProgressionDescriptions.lsx",
+            "AbilityDistributionPresets.lsx",
+            "SkillLists.lsx",
+            "Skills.lsx",
+            f"{self.mod.CLASS_TAG_UUID}.lsx",
+        ])
+        written = sorted(
+            path.name
+            for directory in (
+                self.mod.CLASS_DESCRIPTIONS, self.mod.PROGRESSIONS,
+                self.mod.CHARACTER_CREATION_PRESETS, self.mod.LISTS,
+                self.mod.DEFAULT_VALUES, self.mod.TAGS,
+            )
+            for path in Path(directory).glob("*")
         )
-        self.assertEqual(destinations, sorted([
-            "ClassDescriptions.lsf",
-            "Progressions.lsf",
-            "ProgressionDescriptions.lsf",
-            "AbilityDistributionPresets.lsf",
-            "SkillLists.lsf",
-            "Skills.lsf",
-            f"{self.mod.CLASS_TAG_UUID}.lsf",
-        ]))
+        self.assertEqual(written, expected)
         # The class must be a base class entry, and every progression row must
         # be in the shipped resource.
-        classes = self.converted_xml_for("cc_class_descriptions")
+        classes = ET.parse(self.mod.CLASS_DESCRIPTIONS / "ClassDescriptions.lsx").getroot()
         names = [
             attribute.get("value")
             for attribute in classes.iter("attribute")
             if attribute.get("id") == "Name"
         ]
         self.assertEqual(names, ["CC_Orbweaver"])
-        progressions = self.converted_xml_for("cc_progressions")
+        progressions = ET.parse(self.mod.PROGRESSIONS / "Progressions.lsx").getroot()
         levels = [
             attribute.get("value")
             for attribute in progressions.iter("attribute")
             if attribute.get("id") == "Level"
         ]
         self.assertEqual(levels, [str(level) for level in range(1, 13)])
-        presets = self.converted_xml_for("cc_ability_presets")
+        presets = ET.parse(
+            self.mod.CHARACTER_CREATION_PRESETS / "AbilityDistributionPresets.lsx"
+        ).getroot()
         class_uuids = [
             attribute.get("value")
             for attribute in presets.iter("attribute")
@@ -336,15 +347,15 @@ class OrbWeaverAssetTests(unittest.TestCase):
         self.assertTrue((self.mod.ROOTS / "_merged.lsf").exists())
         self.assertTrue((self.mod.DATA / "Spells.txt").exists())
         self.assertTrue(self.mod.LOCA.exists())
-        self.assertTrue((self.mod.CLASS_DESCRIPTIONS / "ClassDescriptions.lsf").exists())
-        self.assertTrue((self.mod.PROGRESSIONS / "Progressions.lsf").exists())
-        self.assertTrue((self.mod.PROGRESSIONS / "ProgressionDescriptions.lsf").exists())
+        self.assertTrue((self.mod.CLASS_DESCRIPTIONS / "ClassDescriptions.lsx").exists())
+        self.assertTrue((self.mod.PROGRESSIONS / "Progressions.lsx").exists())
+        self.assertTrue((self.mod.PROGRESSIONS / "ProgressionDescriptions.lsx").exists())
         self.assertTrue(
-            (self.mod.CHARACTER_CREATION_PRESETS / "AbilityDistributionPresets.lsf").exists()
+            (self.mod.CHARACTER_CREATION_PRESETS / "AbilityDistributionPresets.lsx").exists()
         )
-        self.assertTrue((self.mod.LISTS / "SkillLists.lsf").exists())
-        self.assertTrue((self.mod.DEFAULT_VALUES / "Skills.lsf").exists())
-        self.assertTrue((self.mod.TAGS / f"{self.mod.CLASS_TAG_UUID}.lsf").exists())
+        self.assertTrue((self.mod.LISTS / "SkillLists.lsx").exists())
+        self.assertTrue((self.mod.DEFAULT_VALUES / "Skills.lsx").exists())
+        self.assertTrue((self.mod.TAGS / f"{self.mod.CLASS_TAG_UUID}.lsx").exists())
 
 
 if __name__ == "__main__":

@@ -131,12 +131,12 @@ class ClassResourceTests(unittest.TestCase):
         """
         generator = load_generator()
         for path in (
-            generator.CLASS_DESCRIPTIONS / "ClassDescriptions.lsf",
-            generator.PROGRESSIONS / "Progressions.lsf",
-            generator.PROGRESSIONS / "ProgressionDescriptions.lsf",
-            generator.CHARACTER_CREATION_PRESETS / "AbilityDistributionPresets.lsf",
-            generator.LISTS / "SkillLists.lsf",
-            generator.DEFAULT_VALUES / "Skills.lsf",
+            generator.CLASS_DESCRIPTIONS / "ClassDescriptions.lsx",
+            generator.PROGRESSIONS / "Progressions.lsx",
+            generator.PROGRESSIONS / "ProgressionDescriptions.lsx",
+            generator.CHARACTER_CREATION_PRESETS / "AbilityDistributionPresets.lsx",
+            generator.LISTS / "SkillLists.lsx",
+            generator.DEFAULT_VALUES / "Skills.lsx",
         ):
             self.assertTrue(path.is_file(), path)
             self.assertGreater(path.stat().st_size, 0, path)
@@ -152,19 +152,19 @@ class ClassResourceTests(unittest.TestCase):
             generator.LISTS,
             generator.DEFAULT_VALUES,
         ):
-            merged = sorted(path.name for path in Path(directory).glob("*_merged.lsf"))
+            merged = sorted(path.name for path in Path(directory).glob("*_merged.lsx"))
             self.assertEqual(merged, [], f"{directory} ships {merged}")
 
     def test_class_tag_resource_is_guid_named(self) -> None:
         generator = load_generator()
-        tag = PUBLIC / "Tags" / f"{generator.CLASS_TAG_UUID}.lsf"
+        tag = PUBLIC / "Tags" / f"{generator.CLASS_TAG_UUID}.lsx"
         self.assertTrue(tag.is_file())
         self.assertGreater(tag.stat().st_size, 0)
 
     def test_only_one_class_tag_ships(self) -> None:
-        tags = sorted(path.name for path in (PUBLIC / "Tags").glob("*.lsf"))
+        tags = sorted(path.name for path in (PUBLIC / "Tags").glob("*.lsx"))
         generator = load_generator()
-        self.assertEqual(tags, [f"{generator.CLASS_TAG_UUID}.lsf"])
+        self.assertEqual(tags, [f"{generator.CLASS_TAG_UUID}.lsx"])
 
     def test_generated_ids_are_stable_and_distinct(self) -> None:
         # Deep copies or duplicate generation in the build script would make the

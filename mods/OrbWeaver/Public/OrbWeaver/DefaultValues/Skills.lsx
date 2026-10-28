@@ -1,0 +1,2 @@
+<?xml version='1.0' encoding='utf-8'?>
+<save><version major="4" minor="0" revision="9" build="329" /><region id="DefaultValues"><node id="root"><children><node id="DefaultValue"><attribute id="Add" type="LSString" value="Arcana;Investigation" /><attribute id="Level" type="int32" value="1" /><attribute id="TableUUID" type="guid" value="6759645c-cebb-5257-9b0d-064901c940f5" /><attribute id="UUID" type="guid" value="01eb02cc-d64d-55a7-8828-01b43bfb9801" /></node></children></node></region></save>

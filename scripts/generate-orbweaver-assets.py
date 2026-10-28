@@ -463,7 +463,7 @@ def build_class_files() -> None:
             [build_class_description()],
         ),
         "cc_class_descriptions.lsx",
-        CLASS_DESCRIPTIONS / "ClassDescriptions.lsf",
+        CLASS_DESCRIPTIONS / "ClassDescriptions.lsx",
     )
 
     _write_resource(
@@ -474,7 +474,7 @@ def build_class_files() -> None:
             build_progression_rows(),
         ),
         "cc_progressions.lsx",
-        PROGRESSIONS / "Progressions.lsf",
+        PROGRESSIONS / "Progressions.lsx",
     )
 
     _write_resource(
@@ -485,7 +485,7 @@ def build_class_files() -> None:
             [build_progression_description()],
         ),
         "cc_progression_descriptions.lsx",
-        PROGRESSIONS / "ProgressionDescriptions.lsf",
+        PROGRESSIONS / "ProgressionDescriptions.lsx",
     )
 
     _write_resource(
@@ -496,7 +496,7 @@ def build_class_files() -> None:
             [build_ability_preset()],
         ),
         "cc_ability_presets.lsx",
-        CHARACTER_CREATION_PRESETS / "AbilityDistributionPresets.lsf",
+        CHARACTER_CREATION_PRESETS / "AbilityDistributionPresets.lsx",
     )
 
     _write_resource(
@@ -507,7 +507,7 @@ def build_class_files() -> None:
             [build_skill_list()],
         ),
         "cc_skill_lists.lsx",
-        LISTS / "SkillLists.lsf",
+        LISTS / "SkillLists.lsx",
     )
 
     _write_resource(
@@ -518,7 +518,7 @@ def build_class_files() -> None:
             [build_default_skills()],
         ),
         "cc_default_skills.lsx",
-        DEFAULT_VALUES / "Skills.lsf",
+        DEFAULT_VALUES / "Skills.lsx",
     )
 
     tag_out = ET.Element("save")
@@ -530,15 +530,18 @@ def build_class_files() -> None:
     tag_node = build_class_tag()
     tag_holder.extend(tag_node.findall("attribute"))
     tag_holder.extend(tag_node.findall("children"))
-    _write_resource(tag_out, "cc_class_tag.lsx", TAGS / ("%s.lsf" % CLASS_TAG_UUID))
+    _write_resource(tag_out, "cc_class_tag.lsx", TAGS / ("%s.lsx" % CLASS_TAG_UUID))
 
 
 def _write_resource(root: ET.Element, temp_name: str, destination: Path) -> None:
-    temp_xml = TMP_DIR / temp_name
-    TMP_DIR.mkdir(parents=True, exist_ok=True)
-    ET.ElementTree(root).write(temp_xml, encoding="utf-8", xml_declaration=True)
-    convert_resource(temp_xml, destination)
-    temp_xml.unlink(missing_ok=True)
+    """Write class data as LSX.
+
+    Every published class mod ships these as .lsx and the engine merges them
+    directly, so no LSF conversion happens here. Root templates are the
+    exception: they must be LSF, and build_root_template converts them.
+    """
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    ET.ElementTree(root).write(destination, encoding="utf-8", xml_declaration=True)
 
 
 def write_stats() -> None:

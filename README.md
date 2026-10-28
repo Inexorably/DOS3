@@ -472,13 +472,13 @@ seven resources under `Public/OrbWeaver/`:
 
 | Resource | Purpose |
 | --- | --- |
-| `ClassDescriptions/ClassDescriptions.lsf` | the base-class entry |
-| `Progressions/Progressions.lsf` | one row per level 1-12 |
-| `Progressions/ProgressionDescriptions.lsf` | names the progression table |
-| `CharacterCreationPresets/AbilityDistributionPresets.lsf` | ability spread for character creation |
-| `Lists/SkillLists.lsf` | skills the class can pick |
-| `DefaultValues/Skills.lsf` | pre-selected skills in character creation |
-| `Tags/<uuid>.lsf` | `CLASS_ORBWEAVER` tag |
+| `ClassDescriptions/ClassDescriptions.lsx` | the base-class entry |
+| `Progressions/Progressions.lsx` | one row per level 1-12 |
+| `Progressions/ProgressionDescriptions.lsx` | names the progression table |
+| `CharacterCreationPresets/AbilityDistributionPresets.lsx` | ability spread for character creation |
+| `Lists/SkillLists.lsx` | skills the class can pick |
+| `DefaultValues/Skills.lsx` | pre-selected skills in character creation |
+| `Tags/<uuid>.lsx` | `CLASS_ORBWEAVER` tag |
 
 Each file reuses the **vanilla file name**, because the engine identifies a
 resource by its sub-path under `Public/<Module>/`. This matches published class
