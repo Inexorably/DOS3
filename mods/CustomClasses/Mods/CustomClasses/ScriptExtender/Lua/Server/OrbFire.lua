@@ -386,23 +386,30 @@ local function castFireWall(caster, x, y, z, oldX, oldY, oldZ)
         -- The accepted BG3SE signature observed in-game is
         --   CastSpell(caster, spell, spellType, target, level)
         -- Keep the known-good form first; the rest are diagnostic fallbacks.
+        -- Try every plausible argument ordering in this one charge. A pcall
+        -- success only proves the arity/type check passed, not that the wall
+        -- was created, so do not stop at the first accepted form.
         local attempts = {
             { "Wall,spell,target,0", { source, "CC_OrbFireWall", "Wall", caster, 0 } },
-            { "spell,0,Wall", { source, "CC_OrbFireWall", caster, 0, "Wall" } },
-            { "spell,0,Spell", { source, "CC_OrbFireWall", caster, 0, "Spell" } },
-            { "spell,0,empty", { source, "CC_OrbFireWall", caster, 0, "" } },
-            { "spell,0,source", { source, "CC_OrbFireWall", caster, 0, source } },
+            { "target,source,level", { source, "CC_OrbFireWall", caster, "Spell", 0 } },
+            { "target,level,source", { source, "CC_OrbFireWall", caster, 0, "Spell" } },
+            { "target,source,0", { source, "CC_OrbFireWall", caster, "Spell", 0 } },
+            { "target,level,empty", { source, "CC_OrbFireWall", caster, 0, "" } },
+            { "target,level,sourceGuid", { source, "CC_OrbFireWall", caster, 0, source } },
+            { "target,spellType,0", { source, "CC_OrbFireWall", caster, "Wall", 0 } },
+            { "target,spellType,level", { source, "CC_OrbFireWall", caster, "Wall", 0 } },
+            { "target,0", { source, "CC_OrbFireWall", caster, 0 } },
+            { "target,spellType", { source, "CC_OrbFireWall", caster, "Wall" } },
             { "Wall,spell,target", { source, "CC_OrbFireWall", "Wall", caster } },
+            { "Wall,spell,target,0,0", { source, "CC_OrbFireWall", "Wall", caster, 0, 0 } },
+            { "Wall,spell,target,0,empty", { source, "CC_OrbFireWall", "Wall", caster, 0, "" } },
         }
         local casted = false
         for i, attempt in ipairs(attempts) do
             local ok, err = pcall(Osi.CastSpell, table.unpack(attempt[2]))
             log("wall cast attempt %d (%s): ok=%s err=%s",
                 i, attempt[1], tostring(ok), tostring(err))
-            if ok then
-                casted = true
-                break
-            end
+            if ok then casted = true end
         end
 
         if not casted then
