@@ -34,7 +34,7 @@ class OrbFireTests(unittest.TestCase):
         self.harness.fire_listener("TurnStarted", "orb")
         calls = self.harness.osi_calls("CreateSurface")
         self.assertTrue(calls)
-        self.assertEqual(calls[0]["args"][0], "SurfaceFire")
+        self.assertEqual(calls[0]["args"][0], "Fire")
         self.assertAlmostEqual(calls[0]["args"][2], 1.0)
 
     def test_ignite_target_applies_ablaze_and_fire(self) -> None:
@@ -88,7 +88,7 @@ class OrbFireTests(unittest.TestCase):
         self.harness.fire_timers()
         calls = self.harness.osi_calls("CreateSurface")
         self.assertGreaterEqual(len(calls), 1)
-        self.assertEqual(calls[0]["args"][0], "SurfaceFire")
+        self.assertEqual(calls[0]["args"][0], "Fire")
 
 
 if __name__ == "__main__":
