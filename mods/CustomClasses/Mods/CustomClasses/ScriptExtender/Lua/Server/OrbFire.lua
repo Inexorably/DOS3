@@ -2,8 +2,8 @@
 --
 -- This intentionally does not apply native BURNING or an Ablaze aura to the
 -- orb. The orb gets a visual-only CC_ORB_ABLAZE status, and this module creates
--- Fire surfaces at its position. Charge is handled separately so the fire is
--- left behind when the orb rushes away.
+-- Fire surfaces at its position. After Charge, the orb casts a wall between
+-- its saved origin and its actual landing position.
 
 CC = CC or {}
 CC.OrbFire = CC.OrbFire or {}
@@ -12,12 +12,22 @@ local ABLAZE = "CC_ORB_ABLAZE"
 local SURFACE = "SurfaceFire"
 local RADIUS = 1.0
 
--- The player who cast Ignite, keyed by the targeted orb. The wall spell needs a
--- real target GUID; the player is temporarily moved to the charge destination
--- so the wall runs from the orb's old position to the new one.
-local IGNITE_SOURCE = {}
+local ENDPOINT_TEMPLATE = "0a0c1e0f-60a9-493f-a98b-d761187c7d38" -- Helper_Invisible_H
+local WALL = "CC_OrbFireWall"
 local CHARGE_START = {}
+local WALL_CASTS = {}
 local castFireWall
+
+local function clearWallCast(caster, state)
+    if WALL_CASTS[caster] ~= state then return end
+    WALL_CASTS[caster] = nil
+    for _, marker in ipairs(state.markers) do
+        local ok, err = pcall(Osi.RequestDelete, marker)
+        if not ok and Ext and Ext.Utils then
+            Ext.Utils.Print("[CC] wall endpoint cleanup failed: " .. tostring(err))
+        end
+    end
+end
 
 local function log(fmt, ...)
     if not (CC.Config and CC.Config.DEBUG) then return end
@@ -187,25 +197,6 @@ local function createFire(guid, x, y, z)
     return false
 end
 
-local function createFireLine(guid, x1, y1, z1, x2, y2, z2)
-    x1, y1, z1 = tonumber(x1), tonumber(y1), tonumber(z1)
-    x2, y2, z2 = tonumber(x2), tonumber(y2), tonumber(z2)
-    if not (x1 and y1 and x2 and y2) then return false end
-    local dx, dy = x2 - x1, y2 - y1
-    local distance = math.sqrt(dx * dx + dy * dy)
-    local steps = math.max(1, math.ceil(distance / RADIUS))
-    local made = false
-    for i = 0, steps do
-        local t = i / steps
-        local x = x1 + dx * t
-        local y = y1 + dy * t
-        local z = (z1 or 0) + ((z2 or z1 or 0) - (z1 or 0)) * t
-        if createFire(guid, x, y, z) then made = true end
-    end
-    log("fire line: %s distance=%.2f steps=%d made=%s", tostring(guid), distance, steps, tostring(made))
-    return made
-end
-
 local function fireAtCurrent(guid)
     if not guid then return false end
     local x, y, z = positionOf(guid)
@@ -266,7 +257,6 @@ local function applyIgnite(target, source)
     -- Do not make the skill swap depend on HasStatus. The target event is
     -- authoritative; some builds return ok from ApplyStatus while the query
     -- still reports false immediately afterward.
-    IGNITE_SOURCE[tostring(target)] = source
     swapCharge(target)
     swapAllAblazeOrbs()
     fireAtCurrent(target)
@@ -332,48 +322,50 @@ local function onIgniteEntity(entity)
 
     -- Prefer the actual event target. The CastedSpell fallback below handles
     -- builds where SpellCastEvent does not expose a target.
-    local target = hit.Target
-    if not target and hit.Targets then
+    local okTarget, target = pcall(function() return hit.Target end)
+    if not okTarget or not target then
         local ok, first = pcall(function() return hit.Targets[1] end)
-        if ok then target = first end
+        target = ok and first or nil
     end
     if target then
-        log("ignite SpellCastEvent: target=%s source=%s",
-            tostring(target), tostring(hit.Source or hit.Inflicter))
-        applyIgnite(target, hit.Source or hit.Inflicter)
+        local okSource, source = pcall(function() return hit.Source end)
+        if not okSource or not source then
+            local ok, inflicter = pcall(function() return hit.Inflicter end)
+            source = ok and inflicter or nil
+        end
+        log("ignite SpellCastEvent: target=%s source=%s", tostring(target), tostring(source))
+        applyIgnite(target, source)
     end
 end
 
-local function onCastedSpell(caster, spell)
+local function onCastedSpell(caster, spell, _, _, storyActionId)
     spell = tostring(spell or "")
+    local key = tostring(caster or "")
+    if spell == WALL then
+        local state = WALL_CASTS[key]
+        if state then
+            log("wall CastedSpell: caster=%s action=%s", key, tostring(storyActionId))
+            state.completed = true
+            Ext.Timer.WaitFor(1500, function() clearWallCast(key, state) end)
+        end
+        return
+    end
     if spell == "CC_BallCharge" or spell == "CC_BallCharge_Ignite" then
-        local state = CHARGE_START[tostring(caster or "")]
-        if not state then
-            log("charge wall: no saved start for %s", tostring(caster))
-            return
-        end
-        CHARGE_START[tostring(caster or "")] = nil
-        local ex, ey, ez = positionOf(caster)
-        if not ex then
-            ex, ey, ez = state.endX, state.endY, state.endZ
-        end
-        log("charge wall: charge finished caster=%s start=(%.2f,%.2f) end=(%.2f,%.2f)",
-            tostring(caster), state.startX or 0, state.startY or 0,
-            tonumber(ex) or 0, tonumber(ey) or 0)
+        local state = CHARGE_START[key]
+        if not state or state.actionId ~= storyActionId then return end
+        CHARGE_START[key] = nil
         local function castAfterCharge()
-            local walled = castFireWall(caster, ex, ey, ez,
-                state.startX, state.startY, state.startZ)
-            if not walled then
-                log("charge wall: wall cast unavailable; creating fallback line")
-                createFireLine(caster, state.startX, state.startY, state.startZ,
-                    ex, ey, ez)
+            -- Read after the rush has settled, not when the delay is queued.
+            -- The requested target may differ from the actual landing point.
+            local ex, ey, ez = positionOf(caster)
+            if not ex then
+                log("charge wall: landing position unavailable for %s", key)
+                return
             end
+            castFireWall(caster, ex, ey, ez,
+                state.startX, state.startY, state.startZ)
         end
-        if Ext.Timer and Ext.Timer.WaitFor then
-            Ext.Timer.WaitFor(150, castAfterCharge)
-        else
-            castAfterCharge()
-        end
+        Ext.Timer.WaitFor(150, castAfterCharge)
         return
     end
     if spell ~= "CC_IgniteOrb" then return end
@@ -392,170 +384,82 @@ local function onTurnStarted(character)
     if ablaze then fireAtCurrent(character) end
 end
 
-local function teleport(guid, x, y, z)
-    if not guid or not (Osi and Osi.TeleportToPosition) then return false end
-    local attempts = {
-        { guid, x, y, z, "", 0, 0, 0, 0, 1 },
-        { guid, x, y, z, "", 0, 0, 0, 1, 1 },
-    }
-    for _, args in ipairs(attempts) do
-        local ok = pcall(Osi.TeleportToPosition, table.unpack(args))
-        local ax, ay = positionOf(guid)
-        if ok and ax and ay
-            and math.abs(ax - x) <= 0.75 and math.abs(ay - y) <= 0.75 then
-            return true
-        end
-    end
-    return false
-end
-
 castFireWall = function(caster, x, y, z, oldX, oldY, oldZ)
-    local source = IGNITE_SOURCE[tostring(caster)]
-    if not source then
-        log("wall cast: no ignite source for %s", tostring(caster))
+    caster = tostring(caster)
+    if WALL_CASTS[caster] then
+        log("wall cast: already pending for %s", caster)
         return false
     end
-    if not (Osi and Osi.CastSpell) then
-        log("wall cast unavailable: CastSpell missing")
+    local dx, dz = x - oldX, z - oldZ
+    if dx * dx + dz * dz < 0.01 then return false end
+
+    -- UseSpell's two targets are the wall endpoints, not caster and target.
+    -- Snapshot both as invisible items so no party member has to be teleported.
+    local state = {
+        markers = {},
+        startPosition = { oldX, oldY, oldZ },
+        endPosition = { x, y, z },
+    }
+    WALL_CASTS[caster] = state
+    for _, pos in ipairs({ { oldX, oldY, oldZ }, { x, y, z } }) do
+        local ok, marker = pcall(Osi.CreateAt, ENDPOINT_TEMPLATE,
+            pos[1], pos[2], pos[3], 1, 0, "")
+        if not ok or not marker then
+            log("wall endpoint creation failed: %s", tostring(marker))
+            clearWallCast(caster, state)
+            return false
+        end
+        state.markers[#state.markers + 1] = marker
+    end
+
+    -- CastSpell is an Osiris EVENT. Calling it merely injects an event; it
+    -- never casts a spell. UseSpell is the actual engine action.
+    local ok, err = pcall(Osi.UseSpell, caster, WALL,
+        state.markers[1], state.markers[2], 1)
+    log("wall UseSpell: caster=%s start=(%.2f,%.2f,%.2f) end=(%.2f,%.2f,%.2f) queued=%s err=%s",
+        caster, oldX, oldY, oldZ, x, y, z, tostring(ok), tostring(err))
+    if not ok then
+        clearWallCast(caster, state)
         return false
     end
-
-    local function doCast()
-        local sx, sy, sz = positionOf(source)
-        if not sx then
-            log("wall cast: source position unavailable %s", tostring(source))
-            return
+    Ext.Timer.WaitFor(10000, function()
+        if WALL_CASTS[caster] == state then
+            if not state.completed then log("wall cast timed out without CastedSpell: %s", caster) end
+            clearWallCast(caster, state)
         end
-        -- After the rush the orb is at the destination. Move the player caster
-        -- to the old orb position and use the orb as the target GUID.
-        if not teleport(source, oldX, oldY, oldZ) then
-            log("wall cast: could not place player at old orb position")
-            return
-        end
-        local spell = "CC_OrbFireWall"
-        local function hasSpell(guid)
-            if not (Osi and Osi.HasSpell) then return nil end
-            local ok, value = pcall(Osi.HasSpell, guid, spell)
-            return ok and (value == 1 or value == true)
-        end
-        log("wall pre-grant: source=%s hasSpell=%s", tostring(source), tostring(hasSpell(source)))
-        if Osi and Osi.ApplyStatus then
-            local statusOk = pcall(Osi.ApplyStatus, source, "CC_ORB_WALL_GRANT", 100, 1)
-            log("wall grant status: source=%s ok=%s hasSpell=%s",
-                tostring(source), tostring(statusOk), tostring(hasSpell(source)))
-        end
-        local added, addErr
-        if Osi and Osi.AddSpell then
-            added, addErr = pcall(Osi.AddSpell, source, spell, 0, 1)
-            if not added then
-                added, addErr = pcall(Osi.AddSpell, source, spell, 0)
-            end
-        end
-        log("wall grant: source=%s added=%s err=%s hasSpell=%s",
-            tostring(source), tostring(added), tostring(addErr), tostring(hasSpell(source)))
-        if not hasSpell(source) then
-            if Osi and Osi.AddSpell then
-                pcall(Osi.AddSpell, caster, spell, 0, 1)
-            end
-            log("wall grant fallback: caster=%s hasSpell=%s",
-                tostring(caster), tostring(hasSpell(caster)))
-        end
-
-        -- Probe the multiple known/possible CastSpell overloads in one run.
-        -- The first accepted overload is used; failures are logged with the
-        -- exact Osiris error so we do not need a separate test per signature.
-        -- The accepted BG3SE signature observed in-game is
-        --   CastSpell(caster, spell, spellType, target, level)
-        -- Keep the known-good form first; the rest are diagnostic fallbacks.
-        -- Try every plausible argument ordering in this one charge. A pcall
-        -- success only proves the arity/type check passed, not that the wall
-        -- was created, so do not stop at the first accepted form.
-        local attempts = {
-            { "Wall,spell,target,level4", { source, "CC_OrbFireWall", "Wall", caster, 4 } },
-            { "target,source,level4", { source, "CC_OrbFireWall", caster, "Spell", 4 } },
-            { "target,level,source", { source, "CC_OrbFireWall", caster, 0, "Spell" } },
-            { "target,source,0", { source, "CC_OrbFireWall", caster, "Spell", 0 } },
-            { "target,level,empty", { source, "CC_OrbFireWall", caster, 0, "" } },
-            { "target,level,sourceGuid", { source, "CC_OrbFireWall", caster, 0, source } },
-            { "target,spellType,0", { source, "CC_OrbFireWall", caster, "Wall", 0 } },
-            { "target,spellType,level", { source, "CC_OrbFireWall", caster, "Wall", 0 } },
-            { "target,0", { source, "CC_OrbFireWall", caster, 0 } },
-            { "target,spellType", { source, "CC_OrbFireWall", caster, "Wall" } },
-            { "Wall,spell,target", { source, "CC_OrbFireWall", "Wall", caster } },
-            { "Wall,spell,target,0,0", { source, "CC_OrbFireWall", "Wall", caster, 0, 0 } },
-            { "Wall,spell,target,0,empty", { source, "CC_OrbFireWall", "Wall", caster, 0, "" } },
-        }
-        local casted = false
-        for i, attempt in ipairs(attempts) do
-            local ok, err = pcall(Osi.CastSpell, table.unpack(attempt[2]))
-            log("wall cast attempt %d (%s): ok=%s err=%s",
-                i, attempt[1], tostring(ok), tostring(err))
-            if ok then casted = true end
-        end
-
-        if not casted then
-            local reverse = {
-                { "orb->player,Wall,0", { caster, spell, "Wall", source, 0 } },
-                { "orb->player,Wall", { caster, spell, "Wall", source } },
-            }
-            for i, attempt in ipairs(reverse) do
-                local ok, err = pcall(Osi.CastSpell, table.unpack(attempt[2]))
-                log("wall reverse attempt %d (%s): ok=%s err=%s",
-                    i, attempt[1], tostring(ok), tostring(err))
-                if ok then casted = true; break end
-            end
-        end
-
-        if Ext.Timer and Ext.Timer.WaitFor then
-            Ext.Timer.WaitFor(500, function()
-                teleport(source, sx, sy, sz)
-                if Osi and Osi.RemoveStatus then
-                    pcall(Osi.RemoveStatus, source, "CC_ORB_WALL_GRANT")
-                end
-                log("wall cast: restored source position (casted=%s)", tostring(casted))
-                local function surfaceAt(x, y, z)
-                    if not (Osi and Osi.GetSurfaceTypeAtPosition) then return nil end
-                    local ok, value = pcall(Osi.GetSurfaceTypeAtPosition, x, y, z)
-                    return ok and value or nil
-                end
-                local oldSurface = surfaceAt(oldX, oldY, oldZ)
-                local newSurface = surfaceAt(x, y, z)
-                log("wall postcast: oldSurface=%s newSurface=%s orbStatus=%s",
-                    tostring(oldSurface), tostring(newSurface),
-                    tostring(hasStatus(caster, "CC_ORB_FIRE_LINE")))
-                local function isFire(value)
-                    return tostring(value or ""):lower():find("fire", 1, true) ~= nil
-                end
-                if not isFire(oldSurface) and not isFire(newSurface) then
-                    -- Diagnostic fallback: native Wall of Fire. If this produces
-                    -- the expected wall animation, the custom wall stat is the
-                    -- remaining problem; if it does not, the cast path is wrong.
-                    -- Native fallback uses the same target/source/level
-                    -- ordering as the likely CastSpell overload.
-                    local nativeOk, nativeErr = pcall(Osi.CastSpell,
-                        source, "Wall_WallOfFire", caster, "Spell", 4)
-                    log("native wall fallback: ok=%s err=%s",
-                        tostring(nativeOk), tostring(nativeErr))
-                    local made = createFireLine(caster, oldX, oldY, oldZ, x, y, z)
-                    log("wall postcast fallback line: made=%s", tostring(made))
-                end
-            end)
-        else
-            teleport(source, sx, sy, sz)
-        end
-    end
-
-    -- Run after the rush has moved the orb so the target GUID is at the
-    -- destination.
-    if Ext.Timer and Ext.Timer.WaitFor then
-        Ext.Timer.WaitFor(800, doCast)
-    else
-        doCast()
-    end
+    end)
     return true
 end
 
-local function onChargePosition(caster, x, y, z, spell)
+local function onWallCastState(entity)
+    local cast = entity and entity.SpellCastState
+    if not cast then return end
+    local ok, err = pcall(function()
+        if tostring(cast.SpellId.Prototype) ~= WALL then return end
+        local caster = Ext.Entity.Get(cast.Caster)
+        local uuid = caster and caster.Uuid and tostring(caster.Uuid.EntityUuid)
+        if not uuid then return end
+        for guid, pending in pairs(WALL_CASTS) do
+            if guid:sub(-36) == uuid:sub(-36) then
+                local target = cast.Targets[1]
+                if not target or not target.Target2 then
+                    log("wall positional targets: missing target pair for %s", guid)
+                    return
+                end
+                -- Osiris leaves the wall's positional fields unset. Supply
+                -- the ground endpoints explicitly, before the cast executes.
+                target.Position = pending.startPosition
+                target.Target2.Position = pending.endPosition
+                cast.CastEndPosition = pending.endPosition
+                log("wall positional targets applied: caster=%s", guid)
+                return
+            end
+        end
+    end)
+    if not ok then log("wall positional targets failed: %s", tostring(err)) end
+end
+
+local function onChargePosition(caster, x, y, z, spell, _, _, storyActionId)
     spell = tostring(spell or "")
     if spell ~= "CC_BallCharge" and spell ~= "CC_BallCharge_Ignite" then return end
     local ablaze = hasStatus(caster, ABLAZE)
@@ -566,13 +470,13 @@ local function onChargePosition(caster, x, y, z, spell)
     if not ablaze and spell ~= "CC_BallCharge_Ignite" then return end
     local oldX, oldY, oldZ = positionOf(caster)
     local targetX, targetY, targetZ = tonumber(x), tonumber(y), tonumber(z)
-    if oldX and targetX then
+    if oldX and targetX and targetY and targetZ then
         CHARGE_START[tostring(caster)] = {
             startX = oldX, startY = oldY, startZ = oldZ,
-            endX = targetX, endY = targetY, endZ = targetZ or oldZ or 0,
+            actionId = storyActionId,
         }
-        log("charge wall: saved start=(%.2f,%.2f) requestedEnd=(%.2f,%.2f); waiting for CastedSpell",
-            oldX, oldY, targetX, targetY)
+        log("charge wall: saved start=(%.2f,%.2f,%.2f) requestedEnd=(%.2f,%.2f,%.2f); waiting for CastedSpell",
+            oldX, oldY, oldZ, targetX, targetY, targetZ)
     else
         log("charge wall: missing positions start=%s target=%s",
             tostring(oldX), tostring(targetX))
@@ -581,11 +485,17 @@ end
 
 if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
     pcall(Ext.Osiris.RegisterListener, "CastSpellFailed", 5, "after",
-        function(caster, spell, reason, a, b)
+        function(caster, spell, spellType, spellElement, storyActionId)
             spell = tostring(spell or "")
-            if spell == "CC_OrbFireWall" or spell == "Wall_WallOfFire" then
-                log("wall CastSpellFailed: caster=%s spell=%s reason=%s a=%s b=%s",
-                    tostring(caster), spell, tostring(reason), tostring(a), tostring(b))
+            local key = tostring(caster or "")
+            if spell == WALL then
+                log("wall CastSpellFailed: caster=%s type=%s element=%s action=%s",
+                    key, tostring(spellType), tostring(spellElement), tostring(storyActionId))
+                local state = WALL_CASTS[key]
+                if state then clearWallCast(key, state) end
+            elseif spell == "CC_BallCharge" or spell == "CC_BallCharge_Ignite" then
+                local state = CHARGE_START[key]
+                if state and state.actionId == storyActionId then CHARGE_START[key] = nil end
             end
         end)
     local okTurn = pcall(Ext.Osiris.RegisterListener, "TurnStarted", 1, "after", onTurnStarted)
@@ -596,14 +506,15 @@ end
 if Ext and Ext.Entity and Ext.Entity.OnCreate then
     local okIgnite = pcall(Ext.Entity.OnCreate, "SpellCastEvent", onIgniteEntity)
     log("fire SpellCastEvent listener: %s", tostring(okIgnite))
+    local okWall = pcall(Ext.Entity.OnCreate, "SpellCastState", onWallCastState)
+    log("wall SpellCastState listener: %s", tostring(okWall))
 end
 
 -- One-time API inventory. This makes missing/wrong Osiris or surface paths
 -- visible at load instead of after the first manual rig test.
-log("API inventory: CastSpell=%s CastSpellAtPosition=%s UseSpell=%s CreateSurface=%s CreateSurfaceAtPosition=%s",
-    type(Osi and Osi.CastSpell), type(Osi and Osi.CastSpellAtPosition),
-    type(Osi and Osi.UseSpell), type(Osi and Osi.CreateSurface),
-    type(Osi and Osi.CreateSurfaceAtPosition))
+log("API inventory: UseSpell=%s CreateAt=%s RequestDelete=%s CreateSurface=%s",
+    type(Osi and Osi.UseSpell), type(Osi and Osi.CreateAt),
+    type(Osi and Osi.RequestDelete), type(Osi and Osi.CreateSurface))
 log("API inventory: Ext.Surface=%s Ext.Level=%s Ext.Enums=%s",
     type(Ext and Ext.Surface), type(Ext and Ext.Level), type(Ext and Ext.Enums))
 if Ext and Ext.Enums then

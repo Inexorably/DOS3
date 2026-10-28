@@ -497,7 +497,9 @@ is the **Summon Ball** cantrip:
   arcane-turret portrait.
 - **Ignite Orb** targets a `CC_ORB`-tagged orb and applies the visual-only
   `CC_ORB_ABLAZE` condition. It leaves Fire surfaces at the orb's position on
-  each turn and at the old and destination positions when the orb Charges.
+  each turn. After **Ignite Charge**, the orb casts a 5-damage wall of fire
+  from its original position to its actual landing position, without moving
+  any party members. The corrected wall cast still needs in-game verification.
   It deliberately does **not** use native `BURNING` or an Ablaze aura, so the
   orb does not carry a 1.5 m damaging aura.
 - While `GRANT_TEST_CANTRIP` is enabled in `Server/Config.lua`, the test

@@ -35,6 +35,11 @@ AZURE_BALL_GUID = str(uuid.uuid5(NS, "CustomClasses/root/CC_Ball_Azure"))
 AZURE_CHARACTER_VISUAL_ID = str(uuid.uuid5(NS, "CustomClasses/azure/visual/character"))
 BLACK_HOLE_VISUAL = "fd5aa94f-66ec-14ec-fa97-b88fae69796b"
 BLACK_HOLE_AURA = "203bf8b8-8dee-1724-e5e3-8479f16024f8"
+SPHERE_CAST_ANIMATION = (
+    "0319ca29-4024-4649-9278-3c1f20c5f023,,;a71e11ca-95ab-463d-a4bf-fe8094126b61,,;"
+    "352c3a89-f99c-4472-8424-58c0ffb15e55,,;a57fc614-ed20-4574-936b-bdcc6cebd36a,,;"
+    "b24b3f23-6d3a-43ce-ae3a-abfb44d26082,,;,,;,,;,,;,,"
+)
 
 
 def handle(tag: str) -> str:
@@ -205,7 +210,7 @@ data "TargetRadius" "9"
 data "HitRadius" "2"
 data "SpellRoll" ""
 data "WeaponTypes" ""
-data "SpellAnimation" "0319ca29-4024-4649-9278-3c1f20c5f023,,;a71e11ca-95ab-463d-a4bf-fe8094126b61,,;352c3a89-f99c-4472-8424-58c0ffb15e55,,;a57fc614-ed20-4574-936b-bdcc6cebd36a,,;b24b3f23-6d3a-43ce-ae3a-abfb44d26082,,;,,;,,;,,;,,"
+data "SpellAnimation" "{SPHERE_CAST_ANIMATION}"
 data "SpellAnimationIntentType" "Aggressive"
 data "PrepareEffect" "5822e00d-08d9-4ac0-8889-7ae3cb56d2d7"
 data "CastEffect" "6e871034-4d0c-4851-91ce-9d8f28343e85"
@@ -284,7 +289,10 @@ using "Wall_WallOfFire"
 data "Level" "4"
 data "UseCosts" ""
 data "Cooldown" ""
-data "SpellFlags" "HasVerbalComponent;HasSomaticComponent;IsSpell"
+data "SpellFlags" "IsSpell;Invisible"
+data "SpellAnimation" "{SPHERE_CAST_ANIMATION}"
+data "SpellAnimationIntentType" "Aggressive"
+data "CastTextEvent" "Cast"
 data "TooltipDamageList" "DealDamage(5,Fire)"
 data "TooltipStatusApply" "ApplyStatus(CC_ORB_FIRE_LINE,100,10)"
 data "DescriptionParams" "DealDamage(5,Fire)"
@@ -407,7 +415,7 @@ def write_loca() -> None:
         (handle("CC_BallCharge_Ignite/name"), "Ignite Charge"),
         (
             handle("CC_BallCharge_Ignite/desc"),
-            "Charge toward an enemy, dealing 1 bludgeoning damage and leaving a Fire surface at the destination. Costs 2 AP. Once per turn.",
+            "Charge toward an enemy, dealing 1 bludgeoning damage and creating a wall of fire from the orb's starting position to its landing position. The wall deals 5 Fire damage. Costs 2 AP. Once per turn.",
         ),
         (handle("CC_IgniteOrb/name"), "Ignite Orb"),
         (

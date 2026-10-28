@@ -12,7 +12,35 @@ Last updated from:
 
 ## Osiris API discoveries
 
-### Osi.CastSpell
+### Correction: CastSpell is an event, UseSpell is the action
+
+The earlier wall probes below called an **event**, not a spell-casting action.
+`Osi.CastSpell(...)` injects the story event; an accepted call cannot create a
+wall. Vanilla `_Greevers_Little_Helpers.txt` forwards the shorter `UseSpell`
+overloads to the five-argument action. The API reference documents it as:
+
+```lua
+Osi.UseSpell(caster, spell, firstTarget, secondTarget, 1)
+```
+
+References: [CastSpell](https://docs.baldursgate3.game/index.php?title=CastSpell),
+[UseSpell](https://docs.baldursgate3.game/index.php?title=UseSpell), and
+[CreateAt](https://docs.baldursgate3.game/index.php?title=CreateAt).
+
+The corrected orb implementation creates two `Helper_Invisible_H` items
+(`0a0c1e0f-60a9-493f-a98b-d761187c7d38`) at the saved origin and actual landing
+position and supplies them in that order. The orb is the caster; no player is
+teleported or granted a spell. Endpoint items are deleted on `CastedSpell`,
+`CastSpellFailed`, a synchronous error, or timeout. The internal wall uses the
+sphere-compatible Ram animation instead of humanoid casting animations and
+removes verbal/somatic requirements.
+
+**Source-verified API correction; resulting wall still needs in-game
+verification.** Look for `wall UseSpell` followed by the real `wall CastedSpell`
+event and visually verify the wall; a queued action is not proof of spawning.
+This supersedes the historical signature guesses and fallback advice below.
+
+### Historical Osi.CastSpell probes
 
 Observed on BG3SE v33 (Oct 24 2026 build):
 
@@ -48,9 +76,8 @@ Observed on BG3SE v33 (Oct 24 2026 build):
   This suggests the fifth parameter is not a level/source integer in every
   overload.
 
-Uncertain: the semantic argument order for a successful Wall cast. Do not
-assume the first `ok=true` overload is correct. Try all plausible overloads in a
-single run and verify via `CastedSpell`, a wall status, or a fire surface.
+These probes do not establish any casting signature: `CastSpell` is an event.
+Do not repeat the overload probes; use the `UseSpell` action described above.
 
 ### Osi.CastSpellAtPosition
 
@@ -230,10 +257,10 @@ ItemWall WallOfFire
 ItemWallStatus CC_ORB_FIRE_LINE
 SurfaceType Fire
 SurfaceRadius 1
-Lifetime 3
+Lifetime 10
 ```
 
-The wall was cast via `Osi.CastSpell`, but the log showed:
+The old implementation injected `Osi.CastSpell`, but the log showed:
 
 ```text
 wall postcast: oldSurface=nil newSurface=nil orbStatus=false
@@ -241,6 +268,59 @@ wall postcast: oldSurface=nil newSurface=nil orbStatus=false
 
 So the wall path is still **experimental/unverified**. Do not treat an accepted
 `Osi.CastSpell` call as proof that the wall spawned.
+
+## UseSpell wall rejection (2026-10-28 02:54 run)
+
+Confirmed in `Extender Runtime 2026-10-28 02-54-38.log` and
+`Osiris Runtime 2026-10-28 02-55-13.log`, with installed package SHA256
+`DF2C4188E1564F295DC9D94F281CA0F8FF631624E772C4BB64DA8D305D9353D6`:
+
+```text
+wall UseSpell: ... start=(-18.25,17.58,-429.25) end=(-14.00,17.52,-426.95) queued=true err=nil
+wall CastSpellFailed: ... type=wall element=Evocation action=0
+```
+
+Three attempts produced real `CastSpellFailed` events, not wall completion.
+The endpoints were captured and the helpers spawned, but the engine rejected
+the cast. The event's `type`, `element`, and action ID are **not** a failure
+reason; these logs do not establish why the cast failed.
+
+The diagnostic that should have exposed the detailed result instead crashed:
+
+```text
+Property does not exist: spell_cast::FinishedEventOneFrameComponent::SpellId
+```
+
+`SpellCastFinishedEvent` exposes `Result`, not `SpellId` or `Spell`. Read the
+spell prototype/caster from `entity.SpellCastState` when available and always
+preserve the finished result even if that state is gone. The corrected handler
+and wall stat/event logging need another in-game attempt to capture the actual
+rejection reason. Do not infer an animation, spellbook, or targeting failure
+from `CastSpellFailed` alone.
+
+The same run also confirmed `HitDesc::Target` is absent on Ignite's ECS event;
+`Target` and `Targets` accesses are now guarded, preserving the Osiris fallback.
+
+## Confirmed wall rejection reason (2026-10-28 03:02 run)
+
+`Extender Runtime 2026-10-28 03-02-28.log`, installed package SHA256
+`1480F0D4E1AFF9384498521E7346C50B988BBA0E7792A70B49ABA53F88EAE2B7`,
+records two attempts with:
+
+```text
+debug SpellCastFinished spell=CC_BallCharge_Ignite ... result=None
+wall UseSpell: ... queued=true err=nil
+debug SpellCastFinished spell=CC_OrbFireWall ... result=MissingAnimations
+wall CastSpellFailed: ... type=wall element=Evocation action=0
+```
+
+The live wall stat had `Animation=` and `Intent=None`. Clearing `SpellAnimation`
+is **not** a supported way to make this orb's scripted Wall cast instantaneous:
+the engine rejects it before casting. The replacement uses the same animation
+set as native `Target_FlamingSphere_Ram` and the working orb Charge, with
+`SpellAnimationIntentType Aggressive` and `CastTextEvent Cast`. The generator
+shares the animation constant between Charge and the wall. This addresses the
+confirmed rejection reason; visible wall placement still needs a game test.
 
 ## Maintenance rule
 
