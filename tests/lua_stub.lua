@@ -139,13 +139,13 @@ Ext = {
         LevelGameplayStarted = channel("LevelGameplayStarted"),
     },
     Level = {
-        CreateSurfaceAction = function(surface, pos, radius, duration)
-            return { surface = surface, pos = pos, radius = radius, duration = duration }
+        CreateSurfaceAction = function(actionType)
+            return { ActionType = actionType }
         end,
         ExecuteSurfaceAction = function(action)
             record(H.osi_calls, {
                 name = "CreateSurface",
-                args = { action.surface, action.pos, action.radius, action.duration },
+                args = { action.SurfaceType, action.Position, action.Radius, action.Duration },
             })
             return true
         end,
