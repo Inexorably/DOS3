@@ -13,8 +13,8 @@ CC.OrbLightning = CC.OrbLightning or {}
 
 local L = CC.OrbLightning
 local SPELL = "CC_OrbChainLightning"
-local ORB_STATUS = "CC_ORB"
-local ORB_STAT_IDS = { CC_Ball = true, CC_Ball_Azure = true }
+-- Azure orbs reuse the CC_Ball character stats; there is no CC_Ball_Azure stat.
+local ORB_STAT_ID = "CC_Ball"
 
 -- Impact burst from the chain lightning family. Played at each struck orb and
 -- each damaged enemy; the cast animation itself comes from the spell stat.
@@ -52,10 +52,13 @@ local function guidOf(entity)
     return tostring(value)
 end
 
-local function hasStatus(guid, status)
-    if not guid or not (Osi and Osi.HasStatus) then return false end
-    local ok, result = pcall(Osi.HasStatus, guid, status)
-    return ok and (result == 1 or result == true)
+-- Osiris events report GUIDs with a template prefix ("CC_Ball_Azure_<uuid>")
+-- while Ext.Entity.Uuid.EntityUuid returns the bare "<uuid>". Compare the
+-- trailing UUID so both forms match the same orb.
+local function keyOf(guid)
+    local text = tostring(guid or ""):lower()
+    if #text > 36 then return text:sub(-36) end
+    return text
 end
 
 local function distanceSq(a, b)
@@ -73,48 +76,49 @@ local function collectOrbs()
     local orbs = {}
     for _, entity in ipairs(entities) do
         local okData, data = pcall(function() return entity.Data end)
-        if okData and data and ORB_STAT_IDS[tostring(data.StatsId or "")] then
+        if okData and data and tostring(data.StatsId or "") == ORB_STAT_ID then
             local guid = guidOf(entity)
-            if guid and hasStatus(guid, ORB_STATUS) then
+            if guid then
                 local x, y, z = positionOf(guid)
                 if x then
-                    orbs[#orbs + 1] = { guid = guid, x = x, y = y, z = z }
+                    orbs[#orbs + 1] = { guid = guid, key = keyOf(guid), x = x, y = y, z = z }
                 end
             end
         end
     end
-    table.sort(orbs, function(a, b) return a.guid < b.guid end)
+    table.sort(orbs, function(a, b) return a.key < b.key end)
     return orbs
 end
 
 -- Breadth-first bounce order. Nearest unvisited orb is struck first so the
 -- bolt follows a short path; the visited set enforces "each orb at most once".
-local function chainOrder(orbs, startGuid)
-    local byGuid = {}
-    for _, orb in ipairs(orbs) do byGuid[orb.guid] = orb end
-    if not byGuid[startGuid] then return {} end
+local function chainOrder(orbs, target)
+    local byKey = {}
+    for _, orb in ipairs(orbs) do byKey[orb.key] = orb end
+    local targetKey = keyOf(target)
+    if not byKey[targetKey] then return {} end
 
     local bounceSq = setting("ORB_LIGHTNING_BOUNCE_RADIUS", 8.0)
     bounceSq = bounceSq * bounceSq
 
     local visited, order = {}, {}
-    local queue, head = { byGuid[startGuid] }, 1
+    local queue, head = { byKey[targetKey] }, 1
     while head <= #queue do
         local current = queue[head]
         head = head + 1
-        if not visited[current.guid] then
-            visited[current.guid] = true
+        if not visited[current.key] then
+            visited[current.key] = true
             order[#order + 1] = current
 
             local reachable = {}
             for _, orb in ipairs(orbs) do
-                if not visited[orb.guid] and distanceSq(current, orb) <= bounceSq then
+                if not visited[orb.key] and distanceSq(current, orb) <= bounceSq then
                     reachable[#reachable + 1] = { orb = orb, d = distanceSq(current, orb) }
                 end
             end
             table.sort(reachable, function(a, b)
                 if a.d ~= b.d then return a.d < b.d end
-                return a.orb.guid < b.orb.guid
+                return a.orb.key < b.orb.key
             end)
             for _, entry in ipairs(reachable) do
                 queue[#queue + 1] = entry.orb
@@ -132,14 +136,23 @@ local function isAlive(entity)
     return hp > 0
 end
 
+-- Osi.IsEnemy(caster, target, 1) matches the vanilla QRY_IsEnemy shape.
+-- Report the real pcall error once so a broken build is visible in the log.
+local enemyCheckError
 local function isEnemy(caster, target)
-    if not (Osi and Osi.IsEnemy) then return false end
     local ok, result = pcall(Osi.IsEnemy, caster, target, 1)
-    return ok and (result == 1 or result == true)
+    if not ok then
+        if enemyCheckError ~= tostring(result) then
+            enemyCheckError = tostring(result)
+            log("orb lightning: IsEnemy failed: %s", enemyCheckError)
+        end
+        return false
+    end
+    return result == 1 or result == true
 end
 
 -- Living, hostile characters within the hit radius of an orb. Orbs themselves
--- are excluded even if a player is somehow hostile to their own summons.
+-- are excluded so a chain never damages another orb's orb.
 local function enemiesNear(caster, orb)
     local found = {}
     if not (Ext.Entity and Ext.Entity.GetAllEntitiesWithComponent) then return found end
@@ -148,31 +161,45 @@ local function enemiesNear(caster, orb)
 
     local radiusSq = setting("ORB_LIGHTNING_HIT_RADIUS", 3.0)
     radiusSq = radiusSq * radiusSq
+    local casterKey = keyOf(caster)
+    local candidates, hostile = 0, 0
 
     for _, entity in ipairs(entities) do
         local guid = guidOf(entity)
-        if guid and guid ~= caster and isAlive(entity)
-            and not hasStatus(guid, ORB_STATUS) then
-            local x, y, z = positionOf(guid)
-            if x then
-                local point = { x = x, y = y, z = z }
-                if distanceSq(orb, point) <= radiusSq and isEnemy(caster, guid) then
-                    found[#found + 1] = { guid = guid, x = x, y = y, z = z }
+        if guid and keyOf(guid) ~= casterKey and isAlive(entity) then
+            local okData, data = pcall(function() return entity.Data end)
+            local stats = okData and data and tostring(data.StatsId or "") or ""
+            if stats ~= ORB_STAT_ID then
+                local x, y, z = positionOf(guid)
+                if x then
+                    local point = { x = x, y = y, z = z }
+                    if distanceSq(orb, point) <= radiusSq then
+                        candidates = candidates + 1
+                        if isEnemy(caster, guid) then
+                            hostile = hostile + 1
+                            found[#found + 1] = { guid = guid, x = x, y = y, z = z }
+                        end
+                    end
                 end
             end
         end
     end
+    log("orb lightning: orb %s in range=%d hostile=%d", orb.guid, candidates, hostile)
     table.sort(found, function(a, b) return a.guid < b.guid end)
     return found
 end
 
+local effectError
 local function playImpact(x, y, z)
-    if not (Osi and Osi.PlayEffectAtPosition) then return false end
     local ok, err = pcall(Osi.PlayEffectAtPosition, HIT_VFX, x, y, z)
-    if not ok then log("orb lightning: effect failed: %s", tostring(err)) end
+    if not ok and effectError ~= tostring(err) then
+        effectError = tostring(err)
+        log("orb lightning: PlayEffectAtPosition failed: %s", effectError)
+    end
     return ok
 end
 
+local damageError
 local function strikeOrb(caster, orb)
     playImpact(orb.x, orb.y, orb.z)
     local damage = setting("ORB_LIGHTNING_DAMAGE", 2)
@@ -180,10 +207,12 @@ local function strikeOrb(caster, orb)
     for _, enemy in ipairs(enemiesNear(caster, orb)) do
         playImpact(enemy.x, enemy.y, enemy.z)
         -- Damage is per orb, so an enemy inside two struck orbs is hit twice.
-        if pcall(Osi.DealDamage, enemy.guid, damage, "Lightning") then
+        local ok, err = pcall(Osi.DealDamage, enemy.guid, damage, "Lightning")
+        if ok then
             damaged = damaged + 1
-        else
-            log("orb lightning: damage failed for %s", enemy.guid)
+        elseif damageError ~= tostring(err) then
+            damageError = tostring(err)
+            log("orb lightning: DealDamage failed: %s", damageError)
         end
     end
     return damaged
@@ -191,11 +220,12 @@ end
 
 local function resolve(caster, target)
     local orbs = collectOrbs()
-    local order = chainOrder(orbs, tostring(target or ""))
+    local order = chainOrder(orbs, target)
     if #order == 0 then
-        log("orb lightning: %s is not an arcane orb", tostring(target))
+        log("orb lightning: no chain for target=%s (orbs found=%d)", tostring(target), #orbs)
         return false
     end
+    log("orb lightning: chain length=%d from %s", #order, tostring(target))
 
     -- Stagger strikes so the bolt visibly travels along the chain.
     local stepMs = setting("ORB_LIGHTNING_STEP_MS", 120)
@@ -269,3 +299,5 @@ end
 log("API inventory: IsEnemy=%s DealDamage=%s PlayEffectAtPosition=%s",
     type(Osi and Osi.IsEnemy), type(Osi and Osi.DealDamage),
     type(Osi and Osi.PlayEffectAtPosition))
+log("orb lightning: orb identity uses Data.StatsId '%s' and trailing GUID match",
+    ORB_STAT_ID)

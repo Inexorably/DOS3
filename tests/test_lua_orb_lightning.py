@@ -40,9 +40,7 @@ class OrbLightningTests(unittest.TestCase):
             H.osi_results["IsEnemy"] = function(caster, target)
                 return H.enemies[target] and 1 or 0
             end
-            H.osi_results["HasStatus"] = function(guid, status)
-                return status == "CC_ORB" and H.orbs[guid] and 1 or 0
-            end
+            H.osi_results["PlayEffectAtPosition"] = function(...) return true end
             H.osi_results["DealDamage"] = function(target, damage, damageType)
                 H.osi_calls[#H.osi_calls + 1] = {
                     name = "Damage",
@@ -55,15 +53,18 @@ class OrbLightningTests(unittest.TestCase):
 
     # ------------------------------------------------------------------ helpers
     def add_orb(self, guid: str, x: float, y: float, z: float = 0) -> None:
+        # Ext.Entity reports the bare UUID; Osiris events use a template
+        # prefix. Store the bare form so the prefix-insensitive match is tested.
+        bare = guid.split("_")[-1]
         self.harness.add_entity(guid, {
-            "Uuid": {"EntityUuid": guid},
+            "Uuid": {"EntityUuid": bare},
             "Data": {"StatsId": "CC_Ball"},
         })
         self.orb_guids.append(guid)
         self.harness.set_component("Data", self.orb_guids)
         self.harness.run(
             f'H.positions["{guid}"] = {{ {x}, {y}, {z} }}; '
-            f'H.orbs["{guid}"] = true'
+            f'H.positions["{bare}"] = {{ {x}, {y}, {z} }}'
         )
 
     def add_enemy(
@@ -85,13 +86,7 @@ class OrbLightningTests(unittest.TestCase):
         self.harness.run(f'H.enemies["{guid}"] = false')
 
     def add_unlit_orb(self, guid: str, x: float, y: float) -> None:
-        self.harness.add_entity(guid, {
-            "Uuid": {"EntityUuid": guid},
-            "Data": {"StatsId": "CC_Ball"},
-        })
-        self.orb_guids.append(guid)
-        self.harness.set_component("Data", self.orb_guids)
-        self.harness.run(f'H.positions["{guid}"] = {{ {x}, {y}, 0 }}')
+        self.add_orb(guid, x, y)
 
     def cast(self, target: str, caster: str = "caster", run_timers: bool = True) -> None:
         self.harness.run(f'H.positions["{caster}"] = {{ 0, 0, 0 }}')
@@ -162,12 +157,13 @@ class OrbLightningTests(unittest.TestCase):
         self.cast("a")
         self.assertEqual(self.damaged_targets(), ["middle", "middle"])
 
-    def test_only_lit_orbs_are_chain_targets(self) -> None:
-        self.add_orb("a", 10, 20)
-        self.add_unlit_orb("dark", 13, 20)
-        self.add_enemy("near_dark", 13.5, 20)
-        self.cast("a")
-        self.assertEqual(self.damaged_targets(), [])
+    def test_prefixed_target_guid_matches_bare_entity_guid(self) -> None:
+        # Osiris reports "CC_Ball_Azure_<uuid>"; Ext.Entity reports "<uuid>".
+        uuid = "9c051ce1-3706-d184-96af-d55dc4f24acc"
+        self.add_orb(f"CC_Ball_Azure_{uuid}", 10, 20)
+        self.add_enemy("near", 11, 20)
+        self.cast(f"CC_Ball_Azure_{uuid}")
+        self.assertEqual(self.damaged_targets(), ["near"])
 
     def test_non_orb_target_does_nothing(self) -> None:
         self.add_enemy("ally", 10, 20)
