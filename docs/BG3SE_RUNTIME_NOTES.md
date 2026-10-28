@@ -373,9 +373,15 @@ registered 3-argument overload.
 file: the inventory line reports `DealDamage=nil` and `ApplyDamage=nil` even
 when `ApplyDamage` is callable, because the proxy resolves lazily.
 
-Separately: `DOS2Combat/Server/Surfaces.lua` calls `Osi.DealDamage` inside
-`pcall`, so its surface tick damage silently does nothing in this build. That is
-out of scope for the CustomClasses work but should be switched to `ApplyDamage`.
+Confirmed working in `Extender Runtime 2026-10-28 04-38-32.log`:
+
+```text
+[CC] orb lightning: damage applied via apply4
+[CC] orb lightning: 3 orb(s), 3 hit(s)
+```
+
+`DOS2Combat/Server/Surfaces.lua` still calls `Osi.DealDamage` inside `pcall`, so
+its surface tick damage is a silent no-op in this build. Tracked in #10.
 
 ## Maintenance rule
 
