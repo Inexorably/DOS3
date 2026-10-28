@@ -243,6 +243,49 @@ local function playImpact(x, y, z)
 end
 
 local damageError
+-- ApplyDamage is the engine action for direct damage:
+--   ApplyDamage(object, damage, damageType, source)
+-- Osi.DealDamage, used elsewhere in this repo, is not exposed in this build
+-- and fails with "attempt to call a nil value". Probe the documented shapes
+-- once and cache whichever is accepted.
+local damageForm
+local function dealDamage(target, amount, damageType, source)
+    local candidates
+    if damageForm == "apply4" then
+        candidates = { { "apply4", { target, amount, damageType, source } } }
+    elseif damageForm == "apply3" then
+        candidates = { { "apply3", { target, amount, damageType } } }
+    elseif damageForm == "deal" then
+        candidates = { { "deal", { target, amount, damageType } } }
+    else
+        candidates = {
+            { "apply4", { target, amount, damageType, source } },
+            { "apply3", { target, amount, damageType } },
+            { "deal", { target, amount, damageType } },
+        }
+    end
+
+    for _, candidate in ipairs(candidates) do
+        local name, args = candidate[1], candidate[2]
+        local fn = (name == "deal") and Osi.DealDamage or Osi.ApplyDamage
+        if fn then
+            local ok, err = pcall(fn, table.unpack(args))
+            if ok then
+                if not damageForm then
+                    damageForm = name
+                    log("orb lightning: damage applied via %s", name)
+                end
+                return true
+            end
+            if damageError ~= tostring(err) then
+                damageError = tostring(err)
+                log("orb lightning: damage via %s failed: %s", name, damageError)
+            end
+        end
+    end
+    return false
+end
+
 local function strikeOrb(caster, orb)
     playImpact(orb.x, orb.y, orb.z)
     local damage = setting("ORB_LIGHTNING_DAMAGE", 2)
@@ -250,12 +293,8 @@ local function strikeOrb(caster, orb)
     for _, enemy in ipairs(enemiesNear(caster, orb)) do
         playImpact(enemy.x, enemy.y, enemy.z)
         -- Damage is per orb, so an enemy inside two struck orbs is hit twice.
-        local ok, err = pcall(Osi.DealDamage, enemy.guid, damage, "Lightning")
-        if ok then
+        if dealDamage(enemy.guid, damage, "Lightning", caster) then
             damaged = damaged + 1
-        elseif damageError ~= tostring(err) then
-            damageError = tostring(err)
-            log("orb lightning: DealDamage failed: %s", damageError)
         end
     end
     return damaged
@@ -339,9 +378,9 @@ if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
         tostring(okTarget), tostring(okCasted))
 end
 
-log("API inventory: IsEnemy=%s IsPartyMember=%s GetFaction=%s DealDamage=%s PlayEffectAtPosition=%s",
+log("API inventory: IsEnemy=%s IsPartyMember=%s GetFaction=%s ApplyDamage=%s DealDamage=%s PlayEffectAtPosition=%s",
     type(Osi and Osi.IsEnemy), type(Osi and Osi.IsPartyMember),
-    type(Osi and Osi.GetFaction), type(Osi and Osi.DealDamage),
-    type(Osi and Osi.PlayEffectAtPosition))
+    type(Osi and Osi.GetFaction), type(Osi and Osi.ApplyDamage),
+    type(Osi and Osi.DealDamage), type(Osi and Osi.PlayEffectAtPosition))
 log("orb lightning: orb identity uses Data.StatsId '%s' and trailing GUID match",
     ORB_STAT_ID)

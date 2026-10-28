@@ -44,12 +44,16 @@ class OrbLightningTests(unittest.TestCase):
                 return H.enemies[target] and 1 or 0
             end
             H.osi_results["PlayEffectAtPosition"] = function(...) return true end
-            H.osi_results["DealDamage"] = function(target, damage, damageType)
+            -- This build exposes ApplyDamage, not DealDamage.
+            H.osi_results["ApplyDamage"] = function(target, damage, damageType, source)
                 H.osi_calls[#H.osi_calls + 1] = {
                     name = "Damage",
                     args = { target, damage, damageType },
                 }
                 return true
+            end
+            H.osi_results["DealDamage"] = function()
+                error("attempt to call a nil value")
             end
             """
         )
@@ -106,6 +110,69 @@ class OrbLightningTests(unittest.TestCase):
         return [str(args[0]) for args in self.damages()]
 
     # -------------------------------------------------------------------- tests
+    def test_damage_uses_apply_damage_with_caster_source(self) -> None:
+        # ApplyDamage is the engine action; DealDamage is not exposed here.
+        self.add_orb("orb", 10, 20)
+        self.add_enemy("near", 11, 20)
+        self.cast("orb")
+        calls = self.harness.osi_calls("ApplyDamage")
+        self.assertEqual([call["args"][:3] for call in calls], [["near", 2, "Lightning"]])
+        self.assertEqual(str(calls[0]["args"][3]), "caster")
+        self.assertFalse(self.harness.osi_called("DealDamage"))
+        self.assertTrue(any(
+            "damage applied via apply4" in line for line in self.harness.prints()
+        ))
+
+    def test_damage_falls_back_to_three_argument_apply_damage(self) -> None:
+        self.harness.run('''
+            H.osi_results["ApplyDamage"] = function(target, damage, damageType, source)
+                if source ~= nil then error("No function named 'ApplyDamage' exists.") end
+                H.osi_calls[#H.osi_calls + 1] = {
+                    name = "Damage", args = { target, damage, damageType },
+                }
+                return true
+            end
+        ''')
+        self.add_orb("orb", 10, 20)
+        self.add_enemy("near", 11, 20)
+        self.cast("orb")
+        self.assertEqual(self.damaged_targets(), ["near"])
+        self.assertTrue(any(
+            "damage applied via apply3" in line for line in self.harness.prints()
+        ))
+
+    def test_damage_falls_back_to_deal_damage(self) -> None:
+        self.harness.run('''
+            H.osi_results["ApplyDamage"] = function() error("ApplyDamage missing") end
+            H.osi_results["DealDamage"] = function(target, damage, damageType)
+                H.osi_calls[#H.osi_calls + 1] = {
+                    name = "Damage", args = { target, damage, damageType },
+                }
+                return true
+            end
+        ''')
+        self.add_orb("orb", 10, 20)
+        self.add_enemy("near", 11, 20)
+        self.cast("orb")
+        self.assertEqual(self.damaged_targets(), ["near"])
+        self.assertTrue(any(
+            "damage applied via deal" in line for line in self.harness.prints()
+        ))
+
+    def test_failed_damage_reports_zero_hits(self) -> None:
+        self.harness.run('''
+            H.osi_results["ApplyDamage"] = function() error("attempt to call a nil value") end
+            H.osi_results["DealDamage"] = function() error("attempt to call a nil value") end
+        ''')
+        self.add_orb("orb", 10, 20)
+        self.add_enemy("near", 11, 20)
+        self.cast("orb")
+        self.assertEqual(self.damaged_targets(), [])
+        self.assertTrue(any(
+            "damage via apply4 failed" in line and "attempt to call a nil value" in line
+            for line in self.harness.prints()
+        ))
+
     def test_strikes_enemies_within_three_metres(self) -> None:
         self.add_orb("orb", 10, 20)
         self.add_enemy("near", 12.5, 20)
