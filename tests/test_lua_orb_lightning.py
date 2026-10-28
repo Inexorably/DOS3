@@ -37,7 +37,10 @@ class OrbLightningTests(unittest.TestCase):
                 local pos = H.positions[guid]
                 if pos then return table.unpack(pos) end
             end
-            H.osi_results["IsEnemy"] = function(caster, target)
+            H.osi_results["IsEnemy"] = function(caster, target, extra)
+                if extra ~= nil then
+                    error("No function named 'IsEnemy' exists that can be called with 3 parameters.")
+                end
                 return H.enemies[target] and 1 or 0
             end
             H.osi_results["PlayEffectAtPosition"] = function(...) return true end
@@ -156,6 +159,50 @@ class OrbLightningTests(unittest.TestCase):
         self.add_enemy("middle", 11.5, 20)
         self.cast("a")
         self.assertEqual(self.damaged_targets(), ["middle", "middle"])
+
+    def test_is_enemy_two_argument_form_is_used(self) -> None:
+        # The third Osiris argument is the out parameter; passing it fails.
+        self.add_orb("orb", 10, 20)
+        self.add_enemy("near", 11, 20)
+        self.cast("orb")
+        self.assertEqual(self.damaged_targets(), ["near"])
+        self.assertTrue(any(
+            "IsEnemy accepts 2 argument(s)" in line for line in self.harness.prints()
+        ))
+
+    def disable_is_enemy(self) -> None:
+        # Osi is a proxy, so a nil assignment cannot hide the symbol.
+        self.harness.run('''
+            H.osi_results["IsEnemy"] = function()
+                error("No function named 'IsEnemy' exists.")
+            end
+        ''')
+
+    def test_faction_fallback_when_is_enemy_is_unavailable(self) -> None:
+        self.disable_is_enemy()
+        self.harness.set_osi_result("IsPartyMember", 0)
+        self.harness.run('''
+            H.osi_results["GetFaction"] = function(guid)
+                if guid == "caster" then return "FACTION_PLAYER" end
+                return "FACTION_ENEMY"
+            end
+        ''')
+        self.add_orb("orb", 10, 20)
+        self.add_enemy("near", 11, 20)
+        self.cast("orb")
+        self.assertEqual(self.damaged_targets(), ["near"])
+        self.assertTrue(any(
+            "IsEnemy unavailable, comparing factions" in line
+            for line in self.harness.prints()
+        ))
+
+    def test_faction_fallback_spares_party_members(self) -> None:
+        self.disable_is_enemy()
+        self.harness.set_osi_result("IsPartyMember", 1)
+        self.add_orb("orb", 10, 20)
+        self.add_enemy("near", 11, 20)
+        self.cast("orb")
+        self.assertEqual(self.damaged_targets(), [])
 
     def test_prefixed_target_guid_matches_bare_entity_guid(self) -> None:
         # Osiris reports "CC_Ball_Azure_<uuid>"; Ext.Entity reports "<uuid>".

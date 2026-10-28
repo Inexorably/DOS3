@@ -136,19 +136,54 @@ local function isAlive(entity)
     return hp > 0
 end
 
--- Osi.IsEnemy(caster, target, 1) matches the vanilla QRY_IsEnemy shape.
--- Report the real pcall error once so a broken build is visible in the log.
+-- IsEnemy's third Osiris argument is the out parameter, so the Lua binding
+-- takes two arguments. Probe both known shapes once and cache the accepted
+-- one; the log records which form worked.
+local enemyArity
 local enemyCheckError
-local function isEnemy(caster, target)
-    local ok, result = pcall(Osi.IsEnemy, caster, target, 1)
-    if not ok then
-        if enemyCheckError ~= tostring(result) then
-            enemyCheckError = tostring(result)
-            log("orb lightning: IsEnemy failed: %s", enemyCheckError)
+local function isEnemyByOsi(caster, target)
+    local candidates = enemyArity and { enemyArity } or { 2, 3 }
+    for _, arity in ipairs(candidates) do
+        local args = { caster, target }
+        if arity == 3 then args[3] = 1 end
+        local ok, result = pcall(Osi.IsEnemy, table.unpack(args))
+        if ok then
+            if not enemyArity then
+                enemyArity = arity
+                log("orb lightning: IsEnemy accepts %d argument(s)", arity)
+            end
+            return true, result == 1 or result == true
         end
-        return false
+        local err = tostring(result)
+        if enemyCheckError ~= err then
+            enemyCheckError = err
+            log("orb lightning: IsEnemy with %d argument(s) failed: %s", arity, err)
+        end
     end
-    return result == 1 or result == true
+    return false, false
+end
+
+-- Fallback for builds without a usable IsEnemy: different factions and not a
+-- party member. GetFaction also uses an out parameter, so it is a 1-arg call.
+local enemyFallback = false
+local function isEnemyByFaction(caster, target)
+    local okParty, member = pcall(Osi.IsPartyMember, target, 0, 0)
+    if okParty and (member == 1 or member == true) then return false end
+    local okA, factionA = pcall(Osi.GetFaction, caster)
+    local okB, factionB = pcall(Osi.GetFaction, target)
+    if not okA or not okB or not factionA or not factionB then return false end
+    return tostring(factionA) ~= tostring(factionB)
+end
+
+local function isEnemy(caster, target)
+    if enemyFallback then return isEnemyByFaction(caster, target) end
+    local usable, hostile = isEnemyByOsi(caster, target)
+    if usable then return hostile end
+    if not enemyArity then
+        enemyFallback = true
+        log("orb lightning: IsEnemy unavailable, comparing factions instead")
+    end
+    return isEnemyByFaction(caster, target)
 end
 
 -- Living, hostile characters within the hit radius of an orb. Orbs themselves
@@ -163,6 +198,7 @@ local function enemiesNear(caster, orb)
     radiusSq = radiusSq * radiusSq
     local casterKey = keyOf(caster)
     local candidates, hostile = 0, 0
+    local sample = {}
 
     for _, entity in ipairs(entities) do
         local guid = guidOf(entity)
@@ -175,16 +211,23 @@ local function enemiesNear(caster, orb)
                     local point = { x = x, y = y, z = z }
                     if distanceSq(orb, point) <= radiusSq then
                         candidates = candidates + 1
-                        if isEnemy(caster, guid) then
+                        local enemy = isEnemy(caster, guid)
+                        if enemy then
                             hostile = hostile + 1
                             found[#found + 1] = { guid = guid, x = x, y = y, z = z }
+                        elseif #sample < 3 then
+                            local okParty, member = pcall(Osi.IsPartyMember, guid, 0, 0)
+                            sample[#sample + 1] = string.format("%s(stats=%s party=%s)",
+                                guid, stats ~= "" and stats or "?",
+                                tostring(okParty and member or "?"))
                         end
                     end
                 end
             end
         end
     end
-    log("orb lightning: orb %s in range=%d hostile=%d", orb.guid, candidates, hostile)
+    log("orb lightning: orb %s in range=%d hostile=%d%s", orb.guid, candidates, hostile,
+        #sample > 0 and (" skipped=" .. table.concat(sample, ", ")) or "")
     table.sort(found, function(a, b) return a.guid < b.guid end)
     return found
 end
@@ -296,8 +339,9 @@ if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
         tostring(okTarget), tostring(okCasted))
 end
 
-log("API inventory: IsEnemy=%s DealDamage=%s PlayEffectAtPosition=%s",
-    type(Osi and Osi.IsEnemy), type(Osi and Osi.DealDamage),
+log("API inventory: IsEnemy=%s IsPartyMember=%s GetFaction=%s DealDamage=%s PlayEffectAtPosition=%s",
+    type(Osi and Osi.IsEnemy), type(Osi and Osi.IsPartyMember),
+    type(Osi and Osi.GetFaction), type(Osi and Osi.DealDamage),
     type(Osi and Osi.PlayEffectAtPosition))
 log("orb lightning: orb identity uses Data.StatsId '%s' and trailing GUID match",
     ORB_STAT_ID)
