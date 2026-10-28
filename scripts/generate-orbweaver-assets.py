@@ -79,6 +79,7 @@ CLASS_SKILLS = (
     "Religion",
 )
 SKILL_LIST_UUID = str(uuid.uuid5(NS, "CustomClasses/list/skills"))
+ABILITY_LIST_UUID = str(uuid.uuid5(NS, "CustomClasses/list/abilities"))
 SKILL_CHOICES = 2
 
 # Ability spread shown by the character-creation "recommended" preset.
@@ -287,7 +288,9 @@ def build_progression_rows() -> list[ET.Element]:
         if level == 1:
             values["Boosts"] = (class_spell_boosts(), "LSString")
             values["Selectors"] = (
-                "SelectSkills(%s,%d)" % (SKILL_LIST_UUID, SKILL_CHOICES), "LSString"
+                "SelectAbilityBonus(%s,AbilityBonus,2,1);SelectSkills(%s,%d)"
+                % (ABILITY_LIST_UUID, SKILL_LIST_UUID, SKILL_CHOICES),
+                "LSString",
             )
         if level in ABILITY_IMPROVEMENT_LEVELS:
             values["AllowImprovement"] = ("true", "bool")
@@ -405,6 +408,58 @@ def build_skill_list() -> ET.Element:
     return node
 
 
+def build_ability_list() -> ET.Element:
+    """The abilities offered by the level-1 SelectAbilityBonus selector."""
+    node = ET.Element("node", {"id": "AbilityList"})
+    ET.SubElement(
+        node,
+        "attribute",
+        {
+            "id": "Abilities",
+            "type": "LSString",
+            "value": "Strength, Dexterity, Constitution, Intelligence, Wisdom, Charisma",
+        },
+    )
+    ET.SubElement(
+        node,
+        "attribute",
+        {"id": "Name", "type": "FixedString", "value": "Orbweaver Ability List"},
+    )
+    ET.SubElement(
+        node, "attribute", {"id": "UUID", "type": "guid", "value": ABILITY_LIST_UUID}
+    )
+    return node
+
+
+def build_default_abilities() -> ET.Element:
+    """Pre-selected ability bonuses, keyed by the class table."""
+    node = ET.Element("node", {"id": "DefaultValue"})
+    ET.SubElement(
+        node, "attribute", {"id": "Add", "type": "LSString", "value": "Intelligence;Constitution"}
+    )
+    ET.SubElement(node, "attribute", {"id": "Level", "type": "int32", "value": "1"})
+    ET.SubElement(
+        node,
+        "attribute",
+        {"id": "SelectorId", "type": "LSString", "value": "AbilityBonus"},
+    )
+    ET.SubElement(
+        node,
+        "attribute",
+        {"id": "TableUUID", "type": "guid", "value": PROGRESSION_TABLE_UUID},
+    )
+    ET.SubElement(
+        node,
+        "attribute",
+        {
+            "id": "UUID",
+            "type": "guid",
+            "value": str(uuid.uuid5(NS, GUID_NAMESPACE_TAG + "/defaults/abilities")),
+        },
+    )
+    return node
+
+
 def build_default_skills() -> ET.Element:
     """Pre-selected skills for character creation, keyed by the class table."""
     node = ET.Element("node", {"id": "DefaultValue"})
@@ -504,7 +559,7 @@ def build_class_files() -> None:
             "SkillLists",
             "root",
             {"major": "4", "minor": "7", "revision": "1", "build": "0"},
-            [build_skill_list()],
+            [build_skill_list(), build_ability_list()],
         ),
         "cc_skill_lists.lsx",
         LISTS / "SkillLists.lsx",
@@ -515,7 +570,7 @@ def build_class_files() -> None:
             "DefaultValues",
             "root",
             {"major": "4", "minor": "0", "revision": "9", "build": "329"},
-            [build_default_skills()],
+            [build_default_skills(), build_default_abilities()],
         ),
         "cc_default_skills.lsx",
         DEFAULT_VALUES / "Skills.lsx",

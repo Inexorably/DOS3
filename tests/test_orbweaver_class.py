@@ -225,6 +225,45 @@ class CharacterCreationRequirementTests(unittest.TestCase):
         assert uuid_attr is not None
         self.assertEqual(uuid_attr.get("value"), self.generator.SKILL_LIST_UUID)
 
+    def test_ability_bonus_selector_uses_our_ability_list(self) -> None:
+        rows = self.generator.build_progression_rows()
+        level_one = next(
+            row for row in rows
+            if row.find("attribute[@id='Level']").get("value") == "1"
+        )
+        selectors = level_one.find("attribute[@id='Selectors']")
+        assert selectors is not None
+        value = selectors.get("value") or ""
+        self.assertIn(
+            f"SelectAbilityBonus({self.generator.ABILITY_LIST_UUID},AbilityBonus,2,1)", value
+        )
+
+    def test_ability_list_offers_every_ability(self) -> None:
+        node = self.generator.build_ability_list()
+        abilities = node.find("attribute[@id='Abilities']")
+        assert abilities is not None
+        listed = [item.strip() for item in (abilities.get("value") or "").split(",")]
+        self.assertEqual(
+            listed,
+            ["Strength", "Dexterity", "Constitution", "Intelligence", "Wisdom", "Charisma"],
+        )
+        uuid_attr = node.find("attribute[@id='UUID']")
+        assert uuid_attr is not None
+        self.assertEqual(uuid_attr.get("value"), self.generator.ABILITY_LIST_UUID)
+
+    def test_default_abilities_use_the_ability_bonus_selector(self) -> None:
+        node = self.generator.build_default_abilities()
+        selector = node.find("attribute[@id='SelectorId']")
+        assert selector is not None
+        self.assertEqual(selector.get("value"), "AbilityBonus")
+        table = node.find("attribute[@id='TableUUID']")
+        assert table is not None
+        self.assertEqual(table.get("value"), self.generator.PROGRESSION_TABLE_UUID)
+        added = node.find("attribute[@id='Add']")
+        assert added is not None
+        for ability in ("Intelligence", "Constitution"):
+            self.assertIn(ability, added.get("value") or "")
+
     def test_default_skills_use_the_progression_table(self) -> None:
         node = self.generator.build_default_skills()
         table = node.find("attribute[@id='TableUUID']")
