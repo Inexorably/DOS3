@@ -122,7 +122,8 @@ local function createFire(guid, x, y, z)
                         action.Position = pos
                         action.Radius = RADIUS
                         action.Duration = 10
-                        action.Owner = guid
+                        -- Owner is an EntityHandle, not a GUID string. Leaving it
+                        -- unset is valid for a world surface action.
                     end)
                     log("Ext.Level action fields %s: ok=%s err=%s",
                         entry[1], tostring(fieldsOk), tostring(fieldsErr))

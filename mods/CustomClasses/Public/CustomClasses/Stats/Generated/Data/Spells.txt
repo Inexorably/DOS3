@@ -129,7 +129,7 @@ data "ItemWall" "WallOfFire"
 data "ItemWallStatus" "CC_ORB_FIRE_LINE"
 data "SurfaceType" "Fire"
 data "SurfaceRadius" "1"
-data "Lifetime" "3"
+data "Lifetime" "10"
 
 new entry "CC_ORB_WALL_GRANT"
 type "StatusData"
