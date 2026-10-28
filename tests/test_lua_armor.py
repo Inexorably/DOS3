@@ -68,6 +68,10 @@ class ArmorTests(unittest.TestCase):
             "Server/Armor.lua",
         ):
             self.harness.load(module)
+        # These tests assert exact post-reduction damage. The default 5% random
+        # critical chance would occasionally double the result and fail them.
+        # Tests that exercise criticals force one through hit metadata.
+        self.harness.run("DOS2C.Config.CRIT_BASE_CHANCE = 0")
         self.harness.run(ENTITY_FACTORY)
 
     def character(self, guid: str, **options) -> None:
@@ -258,7 +262,6 @@ class ArmorTests(unittest.TestCase):
 
     def test_deal_damage_applies_critical_multiplier(self) -> None:
         self.character("victim4", ac=20)
-        self.harness.run("DOS2C.Config.CRIT_BASE_CHANCE = 0")
         event = self.harness.raw(
             """
             return {
