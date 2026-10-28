@@ -27,6 +27,9 @@ ROOTS = PUBLIC / "RootTemplates"
 CLASS_DESCRIPTIONS = PUBLIC / "ClassDescriptions"
 PROGRESSIONS = PUBLIC / "Progressions"
 TAGS = PUBLIC / "Tags"
+CHARACTER_CREATION_PRESETS = PUBLIC / "CharacterCreationPresets"
+LISTS = PUBLIC / "Lists"
+DEFAULT_VALUES = PUBLIC / "DefaultValues"
 LOCA = MOD / "Localization/English/OrbWeaver.loca"
 ROOT_SOURCE = ROOT / ".analysis/rootsshared/Public/Shared/RootTemplates/_merged.lsx"
 ROOT_XML = ROOT / ".analysis/cc_ball_root.lsx"
@@ -59,6 +62,32 @@ ABILITY_IMPROVEMENT_LEVELS = (4, 8, 12)
 
 # Every spell the class owns at level 1.
 CLASS_SPELLS = ("CC_SummonBall_Azure", "CC_IgniteOrb", "CC_OrbChainLightning")
+
+# Class skills offered at character creation. Arcana/Investigation/History fit an
+# Intelligence caster; the class picks two.
+CLASS_SKILLS = (
+    "Arcana",
+    "Deception",
+    "History",
+    "Insight",
+    "Investigation",
+    "Perception",
+    "Persuasion",
+    "Religion",
+)
+SKILL_LIST_UUID = str(uuid.uuid5(NS, "CustomClasses/list/skills"))
+SKILL_CHOICES = 2
+
+# Ability spread shown by the character-creation "recommended" preset.
+CLASS_ABILITY_SPREAD = {
+    "Strength": 8,
+    "Dexterity": 13,
+    "Constitution": 14,
+    "Intelligence": 15,
+    "Wisdom": 12,
+    "Charisma": 10,
+}
+DEFAULT_SKILLS = ("Arcana", "Investigation")
 WALL_DAMAGE = 2
 CHAIN_LIGHTNING_DAMAGE = 2
 CHAIN_LIGHTNING_ANIMATION = (
@@ -249,6 +278,9 @@ def build_progression_rows() -> list[ET.Element]:
         }
         if level == 1:
             values["Boosts"] = (class_spell_boosts(), "LSString")
+            values["Selectors"] = (
+                "SelectSkills(%s,%d)" % (SKILL_LIST_UUID, SKILL_CHOICES), "LSString"
+            )
         if level in ABILITY_IMPROVEMENT_LEVELS:
             values["AllowImprovement"] = ("true", "bool")
         for name, (value, value_type) in values.items():
@@ -285,37 +317,154 @@ def build_class_tag() -> ET.Element:
     return node
 
 
-def build_class_files() -> None:
-    """Write the ClassDescriptions, Progressions, and Tag resources.
+def build_ability_preset() -> ET.Element:
+    """Character-creation ability spread for the class.
 
-    Each file uses the same resource name the vanilla game ships
-    (``ClassDescriptions``, ``Progressions``) so the engine merges our entries
-    with the vanilla definitions instead of replacing them -- the same rule the
-    orb root follows by reusing the vanilla ``RootTemplates/_merged`` name. The
-    tag is a standalone GUID-named resource, matching how the game stores tags.
+    The class-select screen needs one AbilityDistributionPreset per class whose
+    ClassUUID matches the class description. Without it the class is not offered
+    during character creation.
+    """
+    node = ET.Element("node", {"id": "AbilityDistributionPreset"})
+    for ability, value in CLASS_ABILITY_SPREAD.items():
+        ET.SubElement(
+            node, "attribute", {"id": ability, "type": "int32", "value": str(value)}
+        )
+    ET.SubElement(
+        node, "attribute", {"id": "ClassUUID", "type": "guid", "value": CLASS_UUID}
+    )
+    ET.SubElement(
+        node,
+        "attribute",
+        {
+            "id": "UUID",
+            "type": "guid",
+            "value": str(uuid.uuid5(NS, GUID_NAMESPACE_TAG + "/preset/CC_Orbweaver")),
+        },
+    )
+    return node
+
+
+def build_skill_list() -> ET.Element:
+    """SkillList so the level-1 SelectSkills selector has skills to offer."""
+    node = ET.Element("node", {"id": "SkillList"})
+    ET.SubElement(
+        node, "attribute", {"id": "Name", "type": "FixedString", "value": "Orbweaver Skill List"}
+    )
+    ET.SubElement(
+        node,
+        "attribute",
+        {"id": "Skills", "type": "LSString", "value": ", ".join(CLASS_SKILLS)},
+    )
+    ET.SubElement(
+        node, "attribute", {"id": "UUID", "type": "guid", "value": SKILL_LIST_UUID}
+    )
+    return node
+
+
+def build_default_skills() -> ET.Element:
+    """Pre-selected skills for character creation, keyed by the class table."""
+    node = ET.Element("node", {"id": "DefaultValue"})
+    ET.SubElement(
+        node, "attribute", {"id": "Add", "type": "LSString", "value": ";".join(DEFAULT_SKILLS)}
+    )
+    ET.SubElement(node, "attribute", {"id": "Level", "type": "int32", "value": "1"})
+    ET.SubElement(
+        node,
+        "attribute",
+        {"id": "TableUUID", "type": "guid", "value": PROGRESSION_TABLE_UUID},
+    )
+    ET.SubElement(
+        node,
+        "attribute",
+        {
+            "id": "UUID",
+            "type": "guid",
+            "value": str(uuid.uuid5(NS, GUID_NAMESPACE_TAG + "/defaults/skills")),
+        },
+    )
+    return node
+
+
+def build_save(region: str, holder: str, version: dict[str, str],
+               entries: list[ET.Element]) -> ET.Element:
+    out = ET.Element("save")
+    ET.SubElement(out, "version", version)
+    region_node = ET.SubElement(out, "region", {"id": region})
+    holder_node = ET.SubElement(region_node, "node", {"id": holder})
+    children = ET.SubElement(holder_node, "children")
+    for entry in entries:
+        children.append(entry)
+    return out
+
+
+def build_class_files() -> None:
+    """Write every resource the class needs to appear and play.
+
+    Mod resources for content the base game already ships must be named
+    ``<VanillaName>_merged.lsf``. The engine only merges resources whose file
+    name carries the ``_merged`` suffix -- exactly why the orb root ships as
+    ``RootTemplates/_merged.lsf``. A plainly named ``ClassDescriptions.lsf`` is
+    ignored, which is why the class never showed up in character creation.
+
+    The tag is different: tags are standalone resources addressed by GUID, so it
+    keeps the ``<uuid>.lsf`` name the vanilla game uses.
     """
     TMP_DIR.mkdir(parents=True, exist_ok=True)
 
-    class_out = ET.Element("save")
-    class_out.append(
-        ET.Element("version", {"major": "4", "minor": "7", "revision": "1", "build": "1"})
+    _write_resource(
+        build_save(
+            "ClassDescriptions",
+            "root",
+            {"major": "4", "minor": "7", "revision": "1", "build": "1"},
+            [build_class_description()],
+        ),
+        "cc_class_descriptions.lsx",
+        CLASS_DESCRIPTIONS / "_merged.lsf",
     )
-    class_region = ET.SubElement(class_out, "region", {"id": "ClassDescriptions"})
-    class_holder = ET.SubElement(class_region, "node", {"id": "root"})
-    class_children = ET.SubElement(class_holder, "children")
-    class_children.append(build_class_description())
-    _write_resource(class_out, "cc_class_descriptions.lsx", CLASS_DESCRIPTIONS / "ClassDescriptions.lsf")
 
-    progression_out = ET.Element("save")
-    progression_out.append(
-        ET.Element("version", {"major": "4", "minor": "5", "revision": "0", "build": "0"})
+    _write_resource(
+        build_save(
+            "Progressions",
+            "root",
+            {"major": "4", "minor": "5", "revision": "0", "build": "0"},
+            build_progression_rows(),
+        ),
+        "cc_progressions.lsx",
+        PROGRESSIONS / "_merged.lsf",
     )
-    progression_region = ET.SubElement(progression_out, "region", {"id": "Progressions"})
-    progression_holder = ET.SubElement(progression_region, "node", {"id": "root"})
-    progression_children = ET.SubElement(progression_holder, "children")
-    for row in build_progression_rows():
-        progression_children.append(row)
-    _write_resource(progression_out, "cc_progressions.lsx", PROGRESSIONS / "Progressions.lsf")
+
+    _write_resource(
+        build_save(
+            "AbilityDistributionPresets",
+            "root",
+            {"major": "4", "minor": "0", "revision": "9", "build": "307"},
+            [build_ability_preset()],
+        ),
+        "cc_ability_presets.lsx",
+        CHARACTER_CREATION_PRESETS / "_merged.lsf",
+    )
+
+    _write_resource(
+        build_save(
+            "SkillLists",
+            "root",
+            {"major": "4", "minor": "7", "revision": "1", "build": "0"},
+            [build_skill_list()],
+        ),
+        "cc_skill_lists.lsx",
+        LISTS / "SkillLists_merged.lsf",
+    )
+
+    _write_resource(
+        build_save(
+            "DefaultValues",
+            "root",
+            {"major": "4", "minor": "0", "revision": "9", "build": "329"},
+            [build_default_skills()],
+        ),
+        "cc_default_skills.lsx",
+        DEFAULT_VALUES / "Skills_merged.lsf",
+    )
 
     tag_out = ET.Element("save")
     tag_out.append(

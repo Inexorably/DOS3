@@ -383,6 +383,34 @@ Confirmed working in `Extender Runtime 2026-10-28 04-38-32.log`:
 `DOS2Combat/Server/Surfaces.lua` still calls `Osi.DealDamage` inside `pcall`, so
 its surface tick damage is a silent no-op in this build. Tracked in #10.
 
+## Custom class resources must be named `_merged.lsf`
+
+A brand new base class did not appear in character creation with resources named
+`Public/OrbWeaver/ClassDescriptions/ClassDescriptions.lsf` and
+`Public/OrbWeaver/Progressions/Progressions.lsf`, even though the mod loaded
+(`'Orbweaver': SE v1; flags: Lua` in the Script Extender log) and the files were
+present in the pak.
+
+Cause: the engine only **merges** a mod resource whose file name ends in
+`_merged`. A plainly named resource is not merged, so our entries were never
+added to the vanilla `ClassDescriptions`/`Progressions`. This is the same rule
+the orb root already follows as `RootTemplates/_merged.lsf`.
+
+Fix: rename every patched resource to `<VanillaName>_merged.lsf`
+(`ClassDescriptions/_merged.lsf`, `Progressions/_merged.lsf`,
+`CharacterCreationPresets/_merged.lsf`, `Lists/SkillLists_merged.lsf`,
+`DefaultValues/Skills_merged.lsf`). Tags stay GUID-named because they are
+standalone resources addressed by UUID.
+
+Also required for class visibility: one `AbilityDistributionPreset` per class
+whose `ClassUUID` matches the class description. Without it character creation
+does not offer the class. Skill choice needs a level-1
+`SelectSkills(<SkillList uuid>,N)` selector that points at an own `SkillList`
+entry in `Lists/SkillLists_merged.lsf`.
+
+Source: the community Basic Class Creation guide, which ships
+`Public/<Mod>/ClassDescriptions`, `Progressions`, and `CharacterCreationPresets`.
+
 ## Maintenance rule
 
 Whenever a runtime-only API/arity/enum is discovered:

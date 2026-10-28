@@ -467,14 +467,16 @@ Known DOS2 visual references for the current test spells:
 - [x] Stop granting the orb spells to every party member: `GRANT_TEST_CANTRIP`
       now defaults to false and the class progression unlocks the spells at
       level 1. The test grant remains as an opt-in escape hatch.
-- [ ] Verify the class in-game: appears in character creation, the tag shows a
-      class name and description, level 1 unlocks the three orb spells, leveling
-      1-12 grants the ability improvements, and existing Orbweaver saves keep
-      working after a rebuild.
-- [ ] Confirm the engine merges `ClassDescriptions.lsf` / `Progressions.lsf`
-      with the vanilla classes instead of replacing them (all 12 vanilla
-      classes must still be selectable). If it replaces them, switch both files
-      to the `_merged.lsf` naming used by `RootTemplates`.
+- [x] Diagnose why the class was missing from class select: mod resources are
+      only merged when the file name carries the `_merged` suffix, so the
+      plainly named `ClassDescriptions.lsf` was ignored. Also missing was the
+      per-class `AbilityDistributionPreset`, which character creation requires.
+      Both are fixed, with skill list/`SelectSkills` and default skills added.
+- [ ] Verify the class is now selectable in character creation, that it offers
+      two skills from the class list, that level 1 unlocks the three orb spells,
+      that leveling 1-12 grants the ability improvements, and that all 12
+      vanilla classes are still selectable (the `_merged` files must merge, not
+      replace). Also confirm existing Orbweaver saves still load.
 
 - [x] Add player-cast **Orb Chain Lightning**: targets `CC_ORB` orbs only,
       strikes enemies within 3 m of each struck orb for 2 Lightning damage,

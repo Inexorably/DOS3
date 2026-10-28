@@ -46,6 +46,9 @@ class OrbWeaverAssetTests(unittest.TestCase):
         self.mod.DATA = public / "Stats" / "Generated" / "Data"
         self.mod.CLASS_DESCRIPTIONS = public / "ClassDescriptions"
         self.mod.PROGRESSIONS = public / "Progressions"
+        self.mod.CHARACTER_CREATION_PRESETS = public / "CharacterCreationPresets"
+        self.mod.LISTS = public / "Lists"
+        self.mod.DEFAULT_VALUES = public / "DefaultValues"
         self.mod.TAGS = public / "Tags"
         self.mod.TMP_DIR = self.root / "tmp"
         self.mod.LOCA = self.root / "Localization" / "English" / "OrbWeaver.loca"
@@ -64,17 +67,18 @@ class OrbWeaverAssetTests(unittest.TestCase):
             source = Path(parts[parts.index("-s") + 1])
             destination = Path(parts[parts.index("-d") + 1])
             if source.suffix == ".lsx" and source.exists():
-                self.converted[str(destination)] = source.read_text(encoding="utf-8")
+                self.converted[source.name] = source.read_text(encoding="utf-8")
             destination.parent.mkdir(parents=True, exist_ok=True)
             destination.write_bytes(b"stub")
             return subprocess.CompletedProcess(command, 0)
 
         return run
 
-    def converted_xml_for(self, filename: str) -> ET.Element:
-        matches = [xml for path, xml in self.converted.items() if path.endswith(filename)]
-        self.assertEqual(len(matches), 1, f"expected one conversion to {filename}")
-        return ET.fromstring(matches[0])  # noqa: S314 - generated locally
+    def converted_xml_for(self, source_stem: str) -> ET.Element:
+        """Return the XML written for a temp source, e.g. ``cc_progressions``."""
+        name = f"{source_stem}.lsx"
+        self.assertIn(name, self.converted, f"expected a conversion from {name}")
+        return ET.fromstring(self.converted[name])  # noqa: S314 - generated locally
 
     def test_set_attr_creates_and_types_attributes(self) -> None:
         node = ET.Element("node")
@@ -114,7 +118,7 @@ class OrbWeaverAssetTests(unittest.TestCase):
         self.assertTrue(command[-1].endswith("_merged.lsf"))
 
         # Only the azure orb root is emitted; the orange CC_Ball root is gone.
-        written = self.converted_xml_for("_merged.lsf")
+        written = self.converted_xml_for("cc_ball_root")
         names = [
             attribute.get("value")
             for attribute in written.iter("attribute")
@@ -247,7 +251,7 @@ class OrbWeaverAssetTests(unittest.TestCase):
         self.assertEqual(len(uuids), len(set(uuids)))
         self.assertNotIn(self.mod.PROGRESSION_TABLE_UUID, uuids)
 
-    def test_build_class_files_uses_vanilla_resource_names(self) -> None:
+    def test_build_class_files_uses_merged_resource_names(self) -> None:
         original = self.mod.subprocess.run
         self.mod.subprocess.run = self.fake_divine()
         try:
@@ -255,28 +259,40 @@ class OrbWeaverAssetTests(unittest.TestCase):
         finally:
             self.mod.subprocess.run = original
 
-        destinations = [Path(parts[parts.index("-d") + 1]).name for parts in self.commands]
-        self.assertEqual(sorted(destinations), sorted([
-            "ClassDescriptions.lsf",
-            "Progressions.lsf",
+        destinations = sorted(
+            Path(parts[parts.index("-d") + 1]).name for parts in self.commands
+        )
+        self.assertEqual(destinations, sorted([
+            "_merged.lsf",
+            "_merged.lsf",
+            "_merged.lsf",
+            "SkillLists_merged.lsf",
+            "Skills_merged.lsf",
             f"{self.mod.CLASS_TAG_UUID}.lsf",
         ]))
         # The class must be a base class entry, and every progression row must
         # be in the shipped resource.
-        classes = self.converted_xml_for("ClassDescriptions.lsf")
+        classes = self.converted_xml_for("cc_class_descriptions")
         names = [
             attribute.get("value")
             for attribute in classes.iter("attribute")
             if attribute.get("id") == "Name"
         ]
         self.assertEqual(names, ["CC_Orbweaver"])
-        progressions = self.converted_xml_for("Progressions.lsf")
+        progressions = self.converted_xml_for("cc_progressions")
         levels = [
             attribute.get("value")
             for attribute in progressions.iter("attribute")
             if attribute.get("id") == "Level"
         ]
         self.assertEqual(levels, [str(level) for level in range(1, 13)])
+        presets = self.converted_xml_for("cc_ability_presets")
+        class_uuids = [
+            attribute.get("value")
+            for attribute in presets.iter("attribute")
+            if attribute.get("id") == "ClassUUID"
+        ]
+        self.assertEqual(class_uuids, [self.mod.CLASS_UUID])
 
     def test_frozen_guid_namespace_keeps_saves_valid(self) -> None:
         # These values are derived from GUID_NAMESPACE_TAG. Changing it would
@@ -312,8 +328,11 @@ class OrbWeaverAssetTests(unittest.TestCase):
         self.assertTrue((self.mod.ROOTS / "_merged.lsf").exists())
         self.assertTrue((self.mod.DATA / "Spells.txt").exists())
         self.assertTrue(self.mod.LOCA.exists())
-        self.assertTrue((self.mod.CLASS_DESCRIPTIONS / "ClassDescriptions.lsf").exists())
-        self.assertTrue((self.mod.PROGRESSIONS / "Progressions.lsf").exists())
+        self.assertTrue((self.mod.CLASS_DESCRIPTIONS / "_merged.lsf").exists())
+        self.assertTrue((self.mod.PROGRESSIONS / "_merged.lsf").exists())
+        self.assertTrue((self.mod.CHARACTER_CREATION_PRESETS / "_merged.lsf").exists())
+        self.assertTrue((self.mod.LISTS / "SkillLists_merged.lsf").exists())
+        self.assertTrue((self.mod.DEFAULT_VALUES / "Skills_merged.lsf").exists())
         self.assertTrue((self.mod.TAGS / f"{self.mod.CLASS_TAG_UUID}.lsf").exists())
 
 

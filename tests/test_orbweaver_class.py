@@ -119,22 +119,42 @@ class ClassOwnershipTests(unittest.TestCase):
 class ClassResourceTests(unittest.TestCase):
     """Committed class resources exist and complement the vanilla files."""
 
-    def test_shipped_resources_use_vanilla_names(self) -> None:
-        # The engine merges resources by name, so these must match the vanilla
-        # resource names rather than inventing a filename.
-        self.assertTrue((PUBLIC / "ClassDescriptions/ClassDescriptions.lsf").is_file())
-        self.assertTrue((PUBLIC / "Progressions/Progressions.lsf").is_file())
+    def test_merging_resources_use_the_merged_suffix(self) -> None:
+        # The engine only merges a mod resource whose file name carries the
+        # _merged suffix (the same rule the orb root follows). A plainly named
+        # ClassDescriptions.lsf is ignored, so the class never appeared in
+        # character creation. Guard that naming for every patched resource.
+        generator = load_generator()
+        for path in (
+            generator.CLASS_DESCRIPTIONS / "_merged.lsf",
+            generator.PROGRESSIONS / "_merged.lsf",
+            generator.CHARACTER_CREATION_PRESETS / "_merged.lsf",
+            generator.LISTS / "SkillLists_merged.lsf",
+            generator.DEFAULT_VALUES / "Skills_merged.lsf",
+        ):
+            self.assertTrue(path.is_file(), path)
+            self.assertGreater(path.stat().st_size, 0, path)
+
+    def test_no_plainly_named_replacement_is_shipped(self) -> None:
+        # A plain-named copy would replace (not merge) the vanilla resource.
+        for stale in (
+            "ClassDescriptions/ClassDescriptions.lsf",
+            "Progressions/Progressions.lsf",
+            "CharacterCreationPresets/AbilityDistributionPresets.lsf",
+        ):
+            self.assertFalse((PUBLIC / stale).exists(), stale)
+
+    def test_ability_preset_covers_every_class(self) -> None:
+        # Character creation needs one preset per class whose ClassUUID matches.
+        generator = load_generator()
+        preset_path = generator.CHARACTER_CREATION_PRESETS / "_merged.lsf"
+        self.assertTrue(preset_path.is_file())
 
     def test_class_tag_resource_is_guid_named(self) -> None:
         generator = load_generator()
         tag = PUBLIC / "Tags" / f"{generator.CLASS_TAG_UUID}.lsf"
         self.assertTrue(tag.is_file())
         self.assertGreater(tag.stat().st_size, 0)
-
-    def test_no_stray_merged_variant_is_shipped(self) -> None:
-        # A leftover _merged.lsf would be a second, unused copy of the class.
-        self.assertFalse((PUBLIC / "ClassDescriptions/_merged.lsf").exists())
-        self.assertFalse((PUBLIC / "Progressions/_merged.lsf").exists())
 
     def test_only_one_class_tag_ships(self) -> None:
         tags = sorted(path.name for path in (PUBLIC / "Tags").glob("*.lsf"))
@@ -154,6 +174,68 @@ class ClassResourceTests(unittest.TestCase):
         self.assertEqual(uuid_attr.get("value"), generator.CLASS_UUID)
 
 
+class CharacterCreationRequirementTests(unittest.TestCase):
+    """The pieces character creation needs for a new base class."""
+
+    generator: ModuleType
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.generator = load_generator()
+
+    def test_ability_preset_matches_the_class_uuid(self) -> None:
+        preset = self.generator.build_ability_preset()
+        class_uuid = preset.find("attribute[@id='ClassUUID']")
+        assert class_uuid is not None
+        self.assertEqual(class_uuid.get("value"), self.generator.CLASS_UUID)
+        for ability in ("Strength", "Dexterity", "Constitution",
+                        "Intelligence", "Wisdom", "Charisma"):
+            attribute = preset.find(f"attribute[@id='{ability}']")
+            assert attribute is not None, ability
+            self.assertTrue(8 <= int(attribute.get("value")) <= 15, ability)
+        uuid_attr = preset.find("attribute[@id='UUID']")
+        assert uuid_attr is not None
+        self.assertNotEqual(uuid_attr.get("value"), self.generator.CLASS_UUID)
+
+    def test_level_one_selects_skills_from_the_class_list(self) -> None:
+        rows = self.generator.build_progression_rows()
+        level_one = next(
+            row for row in rows
+            if row.find("attribute[@id='Level']").get("value") == "1"
+        )
+        selectors = level_one.find("attribute[@id='Selectors']")
+        assert selectors is not None
+        value = selectors.get("value") or ""
+        self.assertIn(
+            f"SelectSkills({self.generator.SKILL_LIST_UUID},", value
+        )
+
+    def test_skill_list_contains_the_offered_skills(self) -> None:
+        node = self.generator.build_skill_list()
+        skills = node.find("attribute[@id='Skills']")
+        assert skills is not None
+        listed = [item.strip() for item in (skills.get("value") or "").split(",")]
+        self.assertEqual(listed, list(self.generator.CLASS_SKILLS))
+        uuid_attr = node.find("attribute[@id='UUID']")
+        assert uuid_attr is not None
+        self.assertEqual(uuid_attr.get("value"), self.generator.SKILL_LIST_UUID)
+
+    def test_default_skills_use_the_progression_table(self) -> None:
+        node = self.generator.build_default_skills()
+        table = node.find("attribute[@id='TableUUID']")
+        assert table is not None
+        self.assertEqual(table.get("value"), self.generator.PROGRESSION_TABLE_UUID)
+        level = node.find("attribute[@id='Level']")
+        assert level is not None
+        self.assertEqual(level.get("value"), "1")
+        added = node.find("attribute[@id='Add']")
+        assert added is not None
+        for skill in self.generator.DEFAULT_SKILLS:
+            self.assertIn(skill, added.get("value") or "")
+        for skill in self.generator.DEFAULT_SKILLS:
+            self.assertIn(skill, self.generator.CLASS_SKILLS)
+
+
 class ClassLocalizationTests(unittest.TestCase):
     def test_class_localization_is_generated(self) -> None:
         loca = read(MOD_FOLDER / "Localization/English/OrbWeaver.loca")
@@ -166,6 +248,9 @@ class ClassLocalizationTests(unittest.TestCase):
         for path in (
             generator.CLASS_DESCRIPTIONS,
             generator.PROGRESSIONS,
+            generator.CHARACTER_CREATION_PRESETS,
+            generator.LISTS,
+            generator.DEFAULT_VALUES,
             generator.TAGS,
         ):
             self.assertEqual(Path(path), Path(PUBLIC / Path(path).name))
