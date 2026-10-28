@@ -35,7 +35,7 @@ class OrbFireTests(unittest.TestCase):
         calls = self.harness.osi_calls("CreateSurface")
         self.assertTrue(calls)
         self.assertIn(calls[0]["args"][0], ("Fire", "SurfaceFire"))
-        self.assertAlmostEqual(calls[0]["args"][2], 1.0)
+        self.assertAlmostEqual(calls[0]["args"][1], 1.0)
 
     def test_ignite_target_applies_ablaze_and_fire(self) -> None:
         self.harness.run(
