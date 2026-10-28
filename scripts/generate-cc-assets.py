@@ -24,9 +24,13 @@ MOD = ROOT / "mods/CustomClasses"
 PUBLIC = MOD / "Public/CustomClasses"
 DATA = PUBLIC / "Stats/Generated/Data"
 ROOTS = PUBLIC / "RootTemplates"
+CLASS_DESCRIPTIONS = PUBLIC / "ClassDescriptions"
+PROGRESSIONS = PUBLIC / "Progressions"
+TAGS = PUBLIC / "Tags"
 LOCA = MOD / "Localization/English/CustomClasses.loca"
 ROOT_SOURCE = ROOT / ".analysis/rootsshared/Public/Shared/RootTemplates/_merged.lsx"
 ROOT_XML = ROOT / ".analysis/cc_ball_root.lsx"
+TMP_DIR = ROOT / ".analysis"
 DIVINE = ROOT / "tools/lslib/Packed/Tools/Divine.exe"
 
 NS = uuid.UUID("6ba7b810-9dad-11d1-80b4-00c04fd430c8")
@@ -34,6 +38,23 @@ ORB_GUID = str(uuid.uuid5(NS, "CustomClasses/root/CC_Ball_Azure"))
 AZURE_CHARACTER_VISUAL_ID = str(uuid.uuid5(NS, "CustomClasses/azure/visual/character"))
 BLACK_HOLE_VISUAL = "fd5aa94f-66ec-14ec-fa97-b88fae69796b"
 BLACK_HOLE_AURA = "203bf8b8-8dee-1724-e5e3-8479f16024f8"
+
+# Custom class. The SpellCastingAbility/PrimaryAbility values are the uint8
+# ability ids used by ClassDescriptions (1 Strength, 2 Dexterity,
+# 3 Constitution, 4 Intelligence, 5 Wisdom, 6 Charisma).
+CLASS_NAME = "CC_Orbweaver"
+CLASS_DISPLAY_NAME = "Orbweaver"
+CLASS_TAG_NAME = "CLASS_ORBWEAVER"
+CLASS_UUID = str(uuid.uuid5(NS, "CustomClasses/class/CC_Orbweaver"))
+CLASS_TAG_UUID = str(uuid.uuid5(NS, "CustomClasses/tag/CLASS_ORBWEAVER"))
+PROGRESSION_TABLE_UUID = str(uuid.uuid5(NS, "CustomClasses/progression/CC_Orbweaver"))
+PRIMARY_ABILITY_INTELLIGENCE = 4
+CLASS_POSE = "0f07ec6e-4ef0-434e-9a51-1353260ccff8"
+MAX_LEVEL = 12
+ABILITY_IMPROVEMENT_LEVELS = (4, 8, 12)
+
+# Every spell the class owns at level 1.
+CLASS_SPELLS = ("CC_SummonBall_Azure", "CC_IgniteOrb", "CC_OrbChainLightning")
 WALL_DAMAGE = 2
 CHAIN_LIGHTNING_DAMAGE = 2
 CHAIN_LIGHTNING_ANIMATION = (
@@ -143,6 +164,13 @@ def build_root_template() -> None:
     ROOT_XML.parent.mkdir(parents=True, exist_ok=True)
     ET.ElementTree(out).write(ROOT_XML, encoding="utf-8", xml_declaration=True)
     ROOTS.mkdir(parents=True, exist_ok=True)
+    convert_resource(ROOT_XML, ROOTS / "_merged.lsf")
+    ROOT_XML.unlink(missing_ok=True)
+
+
+def convert_resource(xml_path: Path, destination: Path) -> None:
+    """Convert an LSX source into the LSF resource the game loads."""
+    destination.parent.mkdir(parents=True, exist_ok=True)
     subprocess.run(
         [
             str(DIVINE),
@@ -151,13 +179,158 @@ def build_root_template() -> None:
             "-g",
             "bg3",
             "-s",
-            str(ROOT_XML.resolve()),
+            str(xml_path.resolve()),
             "-d",
-            str((ROOTS / "_merged.lsf").resolve()),
+            str(destination.resolve()),
         ],
         check=True,
     )
-    ROOT_XML.unlink(missing_ok=True)
+
+
+def class_spell_boosts() -> str:
+    """Unlock the class spells. Boosts run on every level assignment."""
+    return ";".join("UnlockSpell(%s)" % spell for spell in CLASS_SPELLS)
+
+
+def build_class_description() -> ET.Element:
+    """ClassDescriptions entry for the Orbweaver base class.
+
+    A base class (no ParentGuid) needs a unique UUID, a progression table, an
+    ability pair, and a Tag. The tag resource is written by build_class_files.
+    """
+    node = ET.Element("node", {"id": "ClassDescription"})
+    attributes = {
+        "BaseHp": ("8", "int32"),
+        "CharacterCreationPose": (CLASS_POSE, "guid"),
+        "ClassEquipment": ("EQP_CC_Wizard", "FixedString"),
+        "ClassHotbarColumns": ("6", "int32"),
+        "CommonHotbarColumns": ("9", "int32"),
+        "ItemsHotbarColumns": ("2", "int32"),
+        "HpPerLevel": ("5", "int32"),
+        "LearningStrategy": ("1", "uint8"),
+        "Name": (CLASS_NAME, "FixedString"),
+        "PrimaryAbility": (str(PRIMARY_ABILITY_INTELLIGENCE), "uint8"),
+        "ProgressionTableUUID": (PROGRESSION_TABLE_UUID, "guid"),
+        "SoundClassType": ("Wizard", "FixedString"),
+        "SpellCastingAbility": (str(PRIMARY_ABILITY_INTELLIGENCE), "uint8"),
+        "UUID": (CLASS_UUID, "guid"),
+    }
+    for name, (value, value_type) in attributes.items():
+        ET.SubElement(node, "attribute", {"id": name, "type": value_type, "value": value})
+    for name, tag in (("DisplayName", "CC_Orbweaver/name"),
+                      ("Description", "CC_Orbweaver/desc")):
+        ET.SubElement(
+            node,
+            "attribute",
+            {"id": name, "type": "TranslatedString", "handle": handle(tag), "version": "1"},
+        )
+
+    children = ET.SubElement(node, "children")
+    tags = ET.SubElement(children, "node", {"id": "Tags"})
+    ET.SubElement(tags, "attribute", {"id": "Object", "type": "guid", "value": CLASS_TAG_UUID})
+    return node
+
+
+def build_progression_rows() -> list[ET.Element]:
+    """One Progression row per level, all sharing the class table UUID."""
+    rows = []
+    for level in range(1, MAX_LEVEL + 1):
+        row = ET.Element("node", {"id": "Progression"})
+        values = {
+            "Level": (str(level), "uint8"),
+            "Name": (CLASS_NAME, "LSString"),
+            "ProgressionType": ("0", "uint8"),
+            "TableUUID": (PROGRESSION_TABLE_UUID, "guid"),
+            "UUID": (str(uuid.uuid5(NS, "CustomClasses/progression/CC_Orbweaver/%d" % level)), "guid"),
+        }
+        if level == 1:
+            values["Boosts"] = (class_spell_boosts(), "LSString")
+        if level in ABILITY_IMPROVEMENT_LEVELS:
+            values["AllowImprovement"] = ("true", "bool")
+        for name, (value, value_type) in values.items():
+            ET.SubElement(row, "attribute", {"id": name, "type": value_type, "value": value})
+        rows.append(row)
+    return rows
+
+
+def build_class_tag() -> ET.Element:
+    """Tag resource so the class can be referenced by ClassDescriptions."""
+    node = ET.Element("node", {"id": "Tags"})
+    attributes = {
+        "Name": (CLASS_TAG_NAME, "FixedString"),
+        "UUID": (CLASS_TAG_UUID, "guid"),
+        "Icon": ("", "FixedString"),
+    }
+    for name, (value, value_type) in attributes.items():
+        ET.SubElement(node, "attribute", {"id": name, "type": value_type, "value": value})
+    for tag_id, tag_handle in (
+        ("DisplayName", handle("CC_Orbweaver/name")),
+        ("DisplayDescription", handle("CC_Orbweaver/desc")),
+    ):
+        ET.SubElement(
+            node,
+            "attribute",
+            {"id": tag_id, "type": "TranslatedString", "handle": tag_handle, "version": "1"},
+        )
+    children = ET.SubElement(node, "children")
+    categories = ET.SubElement(children, "node", {"id": "Categories"})
+    category_children = ET.SubElement(categories, "children")
+    for category in ("Code", "Class", "CharacterSheet"):
+        entry = ET.SubElement(category_children, "node", {"id": "Category"})
+        ET.SubElement(entry, "attribute", {"id": "Name", "type": "LSString", "value": category})
+    return node
+
+
+def build_class_files() -> None:
+    """Write the ClassDescriptions, Progressions, and Tag resources.
+
+    Each file uses the same resource name the vanilla game ships
+    (``ClassDescriptions``, ``Progressions``) so the engine merges our entries
+    with the vanilla definitions instead of replacing them -- the same rule the
+    orb root follows by reusing the vanilla ``RootTemplates/_merged`` name. The
+    tag is a standalone GUID-named resource, matching how the game stores tags.
+    """
+    TMP_DIR.mkdir(parents=True, exist_ok=True)
+
+    class_out = ET.Element("save")
+    class_out.append(
+        ET.Element("version", {"major": "4", "minor": "7", "revision": "1", "build": "1"})
+    )
+    class_region = ET.SubElement(class_out, "region", {"id": "ClassDescriptions"})
+    class_holder = ET.SubElement(class_region, "node", {"id": "root"})
+    class_children = ET.SubElement(class_holder, "children")
+    class_children.append(build_class_description())
+    _write_resource(class_out, "cc_class_descriptions.lsx", CLASS_DESCRIPTIONS / "ClassDescriptions.lsf")
+
+    progression_out = ET.Element("save")
+    progression_out.append(
+        ET.Element("version", {"major": "4", "minor": "5", "revision": "0", "build": "0"})
+    )
+    progression_region = ET.SubElement(progression_out, "region", {"id": "Progressions"})
+    progression_holder = ET.SubElement(progression_region, "node", {"id": "root"})
+    progression_children = ET.SubElement(progression_holder, "children")
+    for row in build_progression_rows():
+        progression_children.append(row)
+    _write_resource(progression_out, "cc_progressions.lsx", PROGRESSIONS / "Progressions.lsf")
+
+    tag_out = ET.Element("save")
+    tag_out.append(
+        ET.Element("version", {"major": "4", "minor": "0", "revision": "0", "build": "58"})
+    )
+    tag_region = ET.SubElement(tag_out, "region", {"id": "Tags"})
+    tag_holder = ET.SubElement(tag_region, "node", {"id": "Tags"})
+    tag_node = build_class_tag()
+    tag_holder.extend(tag_node.findall("attribute"))
+    tag_holder.extend(tag_node.findall("children"))
+    _write_resource(tag_out, "cc_class_tag.lsx", TAGS / ("%s.lsf" % CLASS_TAG_UUID))
+
+
+def _write_resource(root: ET.Element, temp_name: str, destination: Path) -> None:
+    temp_xml = TMP_DIR / temp_name
+    TMP_DIR.mkdir(parents=True, exist_ok=True)
+    ET.ElementTree(root).write(temp_xml, encoding="utf-8", xml_declaration=True)
+    convert_resource(temp_xml, destination)
+    temp_xml.unlink(missing_ok=True)
 
 
 def write_stats() -> None:
@@ -457,6 +630,11 @@ def write_loca() -> None:
             handle("CC_ORB_ABLAZE/desc"),
             "This orb is ablaze and leaves Fire surfaces behind it. It does not emit a damaging aura.",
         ),
+        (handle("CC_Orbweaver/name"), CLASS_DISPLAY_NAME),
+        (
+            handle("CC_Orbweaver/desc"),
+            "An Orbweaver fights through conjured orbs. Summon azure orbs, set them ablaze so their Charge leaves a wall of fire, and call down lightning that arcs between them.",
+        ),
     ]
 
     header_size = 12
@@ -479,9 +657,12 @@ def main() -> None:
     build_root_template()
     write_stats()
     write_loca()
+    build_class_files()
     print("CustomClasses assets generated")
     print("azure orb root:", ORB_GUID)
     print("black hole visual:", BLACK_HOLE_VISUAL)
+    print("class:", CLASS_NAME, CLASS_UUID)
+    print("class tag:", CLASS_TAG_NAME, CLASS_TAG_UUID)
 
 
 if __name__ == "__main__":

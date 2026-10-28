@@ -1,15 +1,20 @@
--- CustomClasses test configuration.
+-- CustomClasses configuration.
 --
--- The first CustomClasses spell is a test cantrip. Set this to false once the
--- spell is granted through a real class/progression instead of the test
--- bootstrap.
+-- The orb spells belong to the CC_Orbweaver class progression, so they are no
+-- longer granted to every party member. The test grant is kept as an escape
+-- hatch: set GRANT_TEST_CANTRIP to true to put the spells on the whole party
+-- again when a character without the class needs to test them.
 CC = CC or {}
 CC.Config = {
     DEBUG = true,
     LOG_PREFIX = "[CC]",
-    GRANT_TEST_CANTRIP = true,
+    GRANT_TEST_CANTRIP = false,
     TEST_CANTRIP = "CC_SummonBall_Azure",
     TEST_CANTRIPS = { "CC_SummonBall_Azure", "CC_IgniteOrb", "CC_OrbChainLightning" },
+
+    -- Class that owns the orb spells. Must match the ClassDescriptions Name
+    -- in scripts/generate-cc-assets.py.
+    CLASS_NAME = "CC_Orbweaver",
 
     -- Orb Chain Lightning. Damage and radii live here because the server Lua
     -- resolves the chain; the spell stat only mirrors the damage in its
