@@ -236,9 +236,14 @@ class OrbWeaverAssetTests(unittest.TestCase):
             self.assertEqual(attributes["Name"], "CC_Orbweaver")
             self.assertEqual(attributes["ProgressionType"], "0")
 
-        level_one = by_level[1]["Boosts"]
-        for spell in self.mod.CLASS_SPELLS:
-            self.assertIn(f"UnlockSpell({spell})", level_one)
+        # Spells are granted through AddSpells + a SpellList, not UnlockSpell.
+        level_one = by_level[1]["Selectors"]
+        self.assertIn(
+            f"AddSpells({self.mod.SPELL_LIST_UUID},,,,AlwaysPrepared)", level_one
+        )
+        spell_list = self.mod.build_spell_list()
+        spells = spell_list.find("attribute[@id='Spells']").get("value")
+        self.assertEqual(spells.split(";"), list(self.mod.CLASS_SPELLS))
 
         # Only the ability-improvement levels may offer a feat/ASI.
         for level, attributes in by_level.items():
@@ -274,6 +279,7 @@ class OrbWeaverAssetTests(unittest.TestCase):
             "ProgressionDescriptions.lsx",
             "AbilityDistributionPresets.lsx",
             "SkillLists.lsx",
+            "SpellLists.lsx",
             "Skills.lsx",
             f"{self.mod.CLASS_TAG_UUID}.lsx",
         ])

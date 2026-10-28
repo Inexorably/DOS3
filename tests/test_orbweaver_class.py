@@ -99,16 +99,27 @@ class ClassOwnershipTests(unittest.TestCase):
             self.assertIn(spell, listed)
 
     def test_progression_grants_every_class_spell(self) -> None:
+        """Spells are granted through a SpellList, as vanilla classes do.
+
+        No vanilla progression row uses UnlockSpell in Boosts, so an UnlockSpell
+        grant is silently ignored and the class starts with no spells.
+        """
         rows = self.generator.build_progression_rows()
         level_one = next(
             row for row in rows
             if row.find("attribute[@id='Level']").get("value") == "1"
         )
-        boosts = level_one.find("attribute[@id='Boosts']")
-        assert boosts is not None
-        value = boosts.get("value") or ""
-        for spell in self.generator.CLASS_SPELLS:
-            self.assertIn(f"UnlockSpell({spell})", value)
+        selectors = level_one.find("attribute[@id='Selectors']")
+        assert selectors is not None
+        self.assertIn(
+            f"AddSpells({self.generator.SPELL_LIST_UUID},,,,AlwaysPrepared)",
+            selectors.get("value") or "",
+        )
+        spell_list = self.generator.build_spell_list()
+        spells = spell_list.find("attribute[@id='Spells']")
+        assert spells is not None
+        listed = [item.strip() for item in (spells.get("value") or "").split(";")]
+        self.assertEqual(listed, list(self.generator.CLASS_SPELLS))
 
     def test_class_spells_exist_in_shipped_stats(self) -> None:
         spells = read(PUBLIC / "Stats/Generated/Data/Spells.txt")
@@ -136,10 +147,36 @@ class ClassResourceTests(unittest.TestCase):
             generator.PROGRESSIONS / "ProgressionDescriptions.lsx",
             generator.CHARACTER_CREATION_PRESETS / "AbilityDistributionPresets.lsx",
             generator.LISTS / "SkillLists.lsx",
+            generator.LISTS / "SpellLists.lsx",
             generator.DEFAULT_VALUES / "Skills.lsx",
         ):
             self.assertTrue(path.is_file(), path)
             self.assertGreater(path.stat().st_size, 0, path)
+
+    def test_class_icon_is_a_vanilla_bc7_texture(self) -> None:
+        """Vanilla ClassIcons are BC7 with a DX10 header.
+
+        The GUI loader ignored a re-encoded BC3 payload, so the generator copies
+        a vanilla icon byte-for-byte. Assert the header and the copy.
+        """
+        import struct
+
+        generator = load_generator()
+        for source_dir, destination in (
+            (generator.VANILLA_CLASS_ICONS,
+             generator.GAME_GUI / f"Assets/ClassIcons/{generator.CLASS_NAME}.DDS"),
+            (generator.VANILLA_LOWRES_ICONS,
+             generator.LOWRES_GUI / f"ClassIcons/{generator.CLASS_NAME}.DDS"),
+        ):
+            data = destination.read_bytes()
+            self.assertEqual(data[:4], b"DDS ", destination)
+            self.assertEqual(data[84:88], b"DX10", destination)
+            dxgi = struct.unpack("<I", data[128:132])[0]
+            self.assertEqual(dxgi, 98, destination)  # BC7_UNORM
+            self.assertEqual(struct.unpack("<I", data[28:32])[0], 1, destination)
+            source = source_dir / generator.ICON_SOURCE
+            if source.is_file():
+                self.assertEqual(data, source.read_bytes(), destination)
 
     def test_no_merged_variant_is_shipped(self) -> None:
         # `_merged` is only correct for RootTemplates. Anything else would be a

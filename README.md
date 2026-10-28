@@ -479,6 +479,7 @@ seven resources under `Public/OrbWeaver/`:
 | `Lists/SkillLists.lsx` | skills the class can pick |
 | `DefaultValues/Skills.lsx` | pre-selected skills in character creation |
 | `Tags/<uuid>.lsx` | `CLASS_ORBWEAVER` tag |
+| `Lists/SpellLists.lsx` | SpellList referenced by the level-1 `AddSpells` selector |
 | `../Game/GUI/Assets/ClassIcons/CC_Orbweaver.DDS` | class-select icon (a LowRes copy ships too) |
 
 Each file reuses the **vanilla file name**, because the engine identifies a

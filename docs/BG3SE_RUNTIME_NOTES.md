@@ -430,6 +430,56 @@ Also confirmed: a *subclass* is just another `ClassDescription` node with
 so subclasses are not fundamentally simpler — they still need a
 `ClassDescriptions` entry and a progression table.
 
+## Class spells are granted by a selector, not by Boosts
+
+A new class appeared in character creation but started play with none of its
+spells. The progression granted them with:
+
+```text
+Boosts = UnlockSpell(CC_SummonBall_Azure);UnlockSpell(CC_IgniteOrb);...
+```
+
+Zero of the 286 vanilla `Progression` rows use `UnlockSpell` inside `Boosts`, and
+the engine silently ignores it there. Vanilla grants class spells through
+selectors pointing at a `SpellList`:
+
+```text
+Selectors = AddSpells(34c3321d-75ab-4b50-a44d-cbac8705a360,,,,AlwaysPrepared)
+```
+
+Fix: ship `Public/<Mod>/Lists/SpellLists.lsx` with a `SpellList` node holding the
+spell names, and reference its UUID from a level-1 `AddSpells(<uuid>,,,,AlwaysPrepared)`
+selector. `SelectSpells`/`AddSpells` both exist; `AddSpells` grants without a
+pick list, which suits a fixed class list.
+
+## GUI textures need a DX10 header (and are BC7 in vanilla)
+
+The class-select icon did not appear. Vanilla
+`Public/Game/GUI/Assets/ClassIcons/<ClassName>.DDS` files use a **DX10 extended
+header** with `dxgiFormat = 98` (`DXGI_FORMAT_BC7_UNORM`); the engine's GUI
+texture loader ignored the legacy DXT5 fourcc header that Pillow writes.
+
+Diagnose a DDS by reading offsets:
+
+```text
+0-3    "DDS "
+12-19  height, width (uint32 LE)
+28-31  mipMapCount (vanilla class icons use 1)
+84-87  fourCC ("DXT5" legacy, or "DX10")
+128+   DXT10 header: dxgiFormat, resourceDimension, miscFlag, arraySize, miscFlags2
+```
+
+Rewriting the header to DX10 with `dxgiFormat = 77` (`BC3_UNORM`) still did not
+produce a visible icon: every vanilla class icon is **BC7** (`dxgiFormat = 98`),
+and the loader appears to require it. Pillow cannot encode BC7, so this repo
+copies a vanilla icon **byte-for-byte** to
+`Assets/ClassIcons/<ClassName>.DDS` and `AssetsLowRes/ClassIcons/<ClassName>.DDS`.
+Recolouring would need a BC7 encoder (e.g. texconv); the icon art is therefore
+the vanilla source named by `ICON_SOURCE`.
+
+Both sizes ship: `Assets/ClassIcons/<Name>.DDS` and
+`AssetsLowRes/ClassIcons/<Name>.DDS`.
+
 ## Maintenance rule
 
 Whenever a runtime-only API/arity/enum is discovered:

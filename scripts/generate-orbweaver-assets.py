@@ -12,8 +12,8 @@ packaging OrbWeaver; scripts/build.sh does it automatically.
 
 from __future__ import annotations
 
-import colorsys
 import copy
+import shutil
 import struct
 import subprocess
 import uuid
@@ -88,6 +88,7 @@ CLASS_SKILLS = (
 SKILL_LIST_UUID = str(uuid.uuid5(NS, "CustomClasses/list/skills"))
 ABILITY_LIST_UUID = str(uuid.uuid5(NS, "CustomClasses/list/abilities"))
 SKILL_CHOICES = 2
+SPELL_LIST_UUID = str(uuid.uuid5(NS, "CustomClasses/list/spells"))
 
 # Ability spread shown by the character-creation "recommended" preset.
 CLASS_ABILITY_SPREAD = {
@@ -231,9 +232,14 @@ def convert_resource(xml_path: Path, destination: Path) -> None:
     )
 
 
-def class_spell_boosts() -> str:
-    """Unlock the class spells. Boosts run on every level assignment."""
-    return ";".join("UnlockSpell(%s)" % spell for spell in CLASS_SPELLS)
+def class_spell_selector() -> str:
+    """Grant the class spells the way vanilla classes do.
+
+    No vanilla progression row uses ``UnlockSpell`` in ``Boosts``; classes get
+    their spells through an ``AddSpells``/``SelectSpells`` selector pointing at
+    a SpellList. Using UnlockSpell here silently granted nothing.
+    """
+    return "AddSpells(%s,,,,AlwaysPrepared)" % SPELL_LIST_UUID
 
 
 def build_class_description() -> ET.Element:
@@ -293,10 +299,10 @@ def build_progression_rows() -> list[ET.Element]:
             "UUID": (str(uuid.uuid5(NS, GUID_NAMESPACE_TAG + "/progression/CC_Orbweaver/%d" % level)), "guid"),
         }
         if level == 1:
-            values["Boosts"] = (class_spell_boosts(), "LSString")
             values["Selectors"] = (
-                "SelectAbilityBonus(%s,AbilityBonus,2,1);SelectSkills(%s,%d)"
-                % (ABILITY_LIST_UUID, SKILL_LIST_UUID, SKILL_CHOICES),
+                "SelectAbilityBonus(%s,AbilityBonus,2,1);SelectSkills(%s,%d);%s"
+                % (ABILITY_LIST_UUID, SKILL_LIST_UUID, SKILL_CHOICES,
+                   class_spell_selector()),
                 "LSString",
             )
         if level in ABILITY_IMPROVEMENT_LEVELS:
@@ -411,6 +417,25 @@ def build_skill_list() -> ET.Element:
     )
     ET.SubElement(
         node, "attribute", {"id": "UUID", "type": "guid", "value": SKILL_LIST_UUID}
+    )
+    return node
+
+
+def build_spell_list() -> ET.Element:
+    """SpellList holding the class spells, referenced by the AddSpells selector."""
+    node = ET.Element("node", {"id": "SpellList"})
+    ET.SubElement(
+        node,
+        "attribute",
+        {"id": "Name", "type": "FixedString", "value": "Orbweaver spells"},
+    )
+    ET.SubElement(
+        node,
+        "attribute",
+        {"id": "Spells", "type": "LSString", "value": ";".join(CLASS_SPELLS)},
+    )
+    ET.SubElement(
+        node, "attribute", {"id": "UUID", "type": "guid", "value": SPELL_LIST_UUID}
     )
     return node
 
@@ -570,6 +595,17 @@ def build_class_files() -> None:
         ),
         "cc_skill_lists.lsx",
         LISTS / "SkillLists.lsx",
+    )
+
+    _write_resource(
+        build_save(
+            "SpellLists",
+            "root",
+            {"major": "4", "minor": "7", "revision": "1", "build": "0"},
+            [build_spell_list()],
+        ),
+        "cc_spell_lists.lsx",
+        LISTS / "SpellLists.lsx",
     )
 
     _write_resource(
@@ -926,49 +962,34 @@ def write_loca() -> None:
     LOCA.write_bytes(bytes(out + text_table))
 
 
+DXGI_FORMAT_BC3_UNORM = 77
+D3D10_RESOURCE_DIMENSION_TEXTURE2D = 3
+
+
 def build_class_icon() -> None:
-    """Create the class-select icon.
+    """Ship the class-select icon.
 
-    The engine looks up ``Public/Game/GUI/Assets/ClassIcons/<ClassDescription
-    Name>.DDS`` plus a low-resolution variant. The source is the vanilla Wizard
-    icon, hue-shifted to the azure orb's blue-violet so the class reads as our
-    own without shipping a new texture pipeline. Committed output is used when
-    the extracted vanilla icons are unavailable.
+    The GUI resolves icons with ``IconIdToSourceConverter`` from
+    ``Assets/ClassIcons/<ClassDescription Name>.DDS`` plus an ``AssetsLowRes``
+    copy. Every vanilla icon is BC7 with a DX10 header, and a re-encoded BC3
+    payload was not picked up by the loader, so the safest output is a
+    byte-identical copy of a vanilla icon. Recolouring needs a BC7 encoder,
+    which this toolchain does not have; swap the source file name to change the
+    art. Committed output is used when the extracted icons are unavailable.
     """
-    source = VANILLA_CLASS_ICONS / ICON_SOURCE
-    if not source.is_file():
-        print("class icon source unavailable; keeping committed icons")
-        return
-
-    from PIL import Image
-
-    def recolor(image):
-        pixels = []
-        for r, g, b, a in image.convert("RGBA").getdata():
-            h, s, v = colorsys.rgb_to_hsv(r / 255.0, g / 255.0, b / 255.0)
-            # Keep the icon's luminance/structure; only rotate the hue and lift
-            # a little saturation so it stays legible at small sizes.
-            nr, ng, nb = colorsys.hsv_to_rgb(ICON_HUE, min(1.0, s * 1.15 + 0.1), v)
-            pixels.append((int(nr * 255), int(ng * 255), int(nb * 255), a))
-        out = image.convert("RGBA").copy()
-        out.putdata(pixels)
-        return out
-
-    full = recolor(Image.open(source))
-    destinations = [
-        GAME_GUI / "Assets/ClassIcons" / f"{CLASS_NAME}.DDS",
-        LOWRES_GUI / "ClassIcons" / f"{CLASS_NAME}.DDS",
-    ]
-    for destination in destinations:
+    pairs = (
+        (VANILLA_CLASS_ICONS, GAME_GUI / "Assets/ClassIcons"),
+        (VANILLA_LOWRES_ICONS, LOWRES_GUI / "ClassIcons"),
+    )
+    for source_dir, destination_dir in pairs:
+        source = source_dir / ICON_SOURCE
+        if not source.is_file():
+            print("class icon source unavailable; keeping committed icons")
+            continue
+        destination = destination_dir / f"{CLASS_NAME}.DDS"
         destination.parent.mkdir(parents=True, exist_ok=True)
-    full.save(destinations[0], pixel_format="DXT5")
-
-    lowres_source = VANILLA_LOWRES_ICONS / ICON_SOURCE
-    if lowres_source.is_file():
-        recolor(Image.open(lowres_source)).save(destinations[1], pixel_format="DXT5")
-    else:
-        full.save(destinations[1], pixel_format="DXT5")
-    print("class icon:", destinations[0])
+        shutil.copyfile(source, destination)
+        print("class icon:", destination)
 
 
 def main() -> None:
