@@ -193,6 +193,31 @@ Also unresolved:
 - `action.SurfaceType = "Fire"` is accepted by the setter but does not produce a
   visible surface.
 
+## Surface action Owner / lifetime findings
+
+From the 02:13 run:
+
+```text
+Ext.Level action fields string CreateSurface: ok=false
+OrbFire.lua:125: Param 3: expected a C++ value, got string
+```
+
+Line 125 was:
+
+```lua
+action.Owner = guid
+```
+
+`SurfaceAction.Owner` is an `EntityHandle`, not a GUID string. Assigning a
+string throws and aborts the whole field-initialization block. Leave `Owner`
+unset for a world surface action unless an actual entity handle is available.
+
+This was the last blocker in the surface fallback path.
+
+Separately, `CC_OrbFireWall` had `Lifetime 3`, which explains ash quickly
+replacing the fire. It is now `Lifetime 10`; the custom line status is
+`CC_ORB_FIRE_LINE` and deals 5 Fire damage per tick.
+
 ## CustomClasses wall status
 
 The copied wall spell is:
