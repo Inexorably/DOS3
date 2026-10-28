@@ -327,8 +327,10 @@ local function castFireWall(caster, x, y, z)
         return false
     end
 
+    -- Osiris signature: CastSpell(caster, spell, target, level, source).
+    -- The four-argument form does not exist in this build.
     local ok, err = pcall(Osi.CastSpell,
-        caster, "CC_OrbFireWall", "Wall", source)
+        caster, "CC_OrbFireWall", source, 0, "Spell")
     log("wall cast: caster=%s target=%s ok=%s err=%s",
         tostring(caster), tostring(source), tostring(ok), tostring(err))
 
