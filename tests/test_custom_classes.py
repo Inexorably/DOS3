@@ -4,29 +4,33 @@ import unittest
 
 from .support import MODS, parse_stats, read
 
-BALL_ROOT = "1ed5b457-e9e9-5a34-91aa-f2632b429b67"
+ORB_ROOT = "bb583d89-d0b2-517d-9999-ef2ec7da45a4"
 
 
 class CustomClassesTests(unittest.TestCase):
-    def test_summon_ball_cantrip_and_charge_are_defined(self):
+    def test_summon_orb_cantrip_and_charge_are_defined(self):
         data = MODS / "CustomClasses/Public/CustomClasses/Stats/Generated/Data"
         spells = parse_stats(data / "Spells.txt")
-        summon = spells["CC_SummonBall"]
         charge = spells["CC_BallCharge"]
         azure = spells["CC_SummonBall_Azure"]
 
-        self.assertEqual(summon["Level"], "0")
-        self.assertEqual(summon["UseCosts"], "ActionPoint:1")
-        self.assertIn("UntilLongRest", summon["SpellProperties"])
-        self.assertEqual(summon.get("RequirementConditions"), "")
-        self.assertEqual(summon.get("Requirements"), "")
-        self.assertIn("CC_BallStack1", summon["SpellProperties"])
-        self.assertIn("CC_BallStack2", summon["SpellProperties"])
-        self.assertIn("CC_BallStack3", summon["SpellProperties"])
-        self.assertIn(BALL_ROOT, summon["TargetConditions"])
-        self.assertIn("CC_SummonBall_Azure", read(data / "Spells.txt"))
-        self.assertIn("bb583d89-d0b2-517d-9999-ef2ec7da45a4", azure["SpellProperties"])
+        # The orange orb was removed; azure is now the only summon and must be
+        # self-contained rather than inheriting from a deleted entry.
+        self.assertNotIn("CC_SummonBall", spells)
+        self.assertNotIn("using \"CC_SummonBall\"", read(data / "Spells.txt"))
+        self.assertEqual(azure["Level"], "0")
+        self.assertEqual(azure["UseCosts"], "ActionPoint:1")
+        self.assertIn("UntilLongRest", azure["SpellProperties"])
+        self.assertEqual(azure.get("RequirementConditions"), "")
+        self.assertEqual(azure.get("Requirements"), "")
+        self.assertIn("CC_BallStack1", azure["SpellProperties"])
+        self.assertIn("CC_BallStack2", azure["SpellProperties"])
+        self.assertIn("CC_BallStack3", azure["SpellProperties"])
+        self.assertIn(ORB_ROOT, azure["TargetConditions"])
+        self.assertIn(ORB_ROOT, azure["SpellProperties"])
         self.assertEqual(azure["Icon"], "TadpoleSuperPower_BlackHole")
+        self.assertEqual(azure["DisplayName"], "h578b2ad022b35ee99a5534ea4f454fb9")
+        self.assertEqual(azure["Description"], "hea649e2004c95feb8f12c90cb38bd465")
 
         self.assertEqual(charge["Level"], "2")
         self.assertEqual(charge["Cooldown"], "OncePerTurn")
@@ -123,5 +127,6 @@ class CustomClassesTests(unittest.TestCase):
         loca = MODS / "CustomClasses/Localization/English/CustomClasses.loca"
         self.assertGreater(root.stat().st_size, 0)
         self.assertGreater(visual.stat().st_size, 0)
-        self.assertIn("Summon Ball", read(loca).replace("\x00", "\n"))
+        self.assertIn("Summon Azure Orb", read(loca).replace("\x00", "\n"))
+        self.assertNotIn("Summon Ball", read(loca).replace("\x00", "\n"))
         self.assertIn("Charge", read(loca).replace("\x00", "\n"))

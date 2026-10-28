@@ -8,9 +8,8 @@ CC.Config = {
     DEBUG = true,
     LOG_PREFIX = "[CC]",
     GRANT_TEST_CANTRIP = true,
-    TEST_CANTRIP = "CC_SummonBall",
-    TEST_CANTRIPS = { "CC_SummonBall", "CC_SummonBall_Azure", "CC_IgniteOrb",
-        "CC_OrbChainLightning" },
+    TEST_CANTRIP = "CC_SummonBall_Azure",
+    TEST_CANTRIPS = { "CC_SummonBall_Azure", "CC_IgniteOrb", "CC_OrbChainLightning" },
 
     -- Orb Chain Lightning. Damage and radii live here because the server Lua
     -- resolves the chain; the spell stat only mirrors the damage in its

@@ -115,14 +115,16 @@ class CcAssetTests(unittest.TestCase):
         characters = (self.mod.DATA / "Characters.txt").read_text(encoding="utf-8")
         spells = (self.mod.DATA / "Spells.txt").read_text(encoding="utf-8")
         self.assertIn('new entry "CC_Ball"', characters)
-        self.assertIn(self.mod.BALL_GUID, spells)
-        self.assertIn(f"CanStand('{self.mod.AZURE_BALL_GUID}')", spells)
-        self.assertIn(self.mod.handle("CC_SummonBall/name"), spells)
+        self.assertNotIn('new entry "CC_Ball_Azure"', characters)
+        self.assertNotIn("CC_SummonBall\"", spells)
+        self.assertIn(f"CanStand('{self.mod.ORB_GUID}')", spells)
+        self.assertIn(self.mod.handle("CC_SummonBall_Azure/name"), spells)
 
         loca = load_script("generate-armor-passives").read_loca(self.mod.LOCA)
-        self.assertEqual(len(loca), 26)
+        self.assertEqual(len(loca), 23)
         self.assertIn("Summon Azure Orb", dict(loca).values())
         self.assertIn("Orb Chain Lightning", dict(loca).values())
+        self.assertNotIn("Summon Ball", dict(loca).values())
 
     def test_main_runs_every_stage(self) -> None:
         self.mod.ROOT_SOURCE.write_text(SOURCE_TEMPLATES, encoding="utf-8")

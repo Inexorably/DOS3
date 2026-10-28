@@ -52,9 +52,16 @@ class OrbPolishTests(unittest.TestCase):
     def logs(self) -> str:
         return " ".join(self.harness.prints())
 
-    def cast(self, spell: str = "CC_SummonBall", x: float = 0.0, y: float = 0.0) -> None:
+    def cast(self, spell: str = "CC_SummonBall_Azure", x: float = 0.0, y: float = 0.0) -> None:
         self.harness.fire_listener("UsingSpellAtPosition", "caster", x, y, 0, spell)
         self.harness.fire_timers()
+
+    def test_removed_orange_summon_is_ignored(self) -> None:
+        self.harness.run('H.entities["origin"] = { position = { 0, 0, 0 } }')
+        orbs = [self.orb(index) for index in (1, 2, 3)]
+        self.harness.set_component("Data", orbs)
+        self.cast(spell="CC_SummonBall")
+        self.assertNotIn("orb summon cast", self.logs())
 
     def test_listener_is_registered(self) -> None:
         self.assertIn("UsingSpellAtPosition", self.harness.listeners())
@@ -76,7 +83,7 @@ class OrbPolishTests(unittest.TestCase):
 
     def test_cast_without_position_is_ignored(self) -> None:
         self.harness.fire_listener("UsingSpellAtPosition", "caster", "bogus", "bogus", 0,
-                                   "CC_SummonBall")
+                                   "CC_SummonBall_Azure")
         self.assertNotIn("orb summon cast", self.logs())
 
     def test_distant_orbs_are_not_moved(self) -> None:

@@ -484,11 +484,16 @@ Known DOS2 visual references for the current test spells:
 - [x] Verify the sphere-compatible wall animation removes `MissingAnimations`
       and produces the correctly placed wall, not merely a successful queue.
       Confirmed in-game; the cast now completes and spawns the wall.
-- [x] Add the alternate azure orb root, `CC_SummonBall_Azure` test cantrip,
-      visible sphere body, and working portrait.
+- [x] Add the azure orb root, `CC_SummonBall_Azure` test cantrip, visible
+      sphere body, and working portrait.
 - [x] Build a dedicated azure MaterialBank, VisualBank, and CharacterVisual
-      resource using a blue/purple glow map and glow colour, so the original
-      orb remains orange.
+      resource using a blue/purple glow map and glow colour instead of the
+      original orange material.
+- [x] Remove the original orange orb: its `CC_SummonBall` spell, root template,
+      and localization are gone. The shared `CC_Ball` character stats stay
+      because every orb root uses them.
+- [ ] Verify in-game that `CC_SummonBall` no longer appears in the hotbar and
+      that an existing save with orange orbs neither crashes nor respawns them.
 - [x] Allow up to three orbs at once using three distinct summon stack IDs.
 - [x] Reduce Charge base damage from 3 to 1.
 - [x] Reposition the three orbs 1.5 m apart around the summon point.
