@@ -467,7 +467,9 @@ Known DOS2 visual references for the current test spells:
 - [ ] Verify Orb Chain Lightning in-game: hotbar grant, 2 AP cost, orb-only
       targeting reticle, bounce order and distance, double hits for enemies in
       two radii, VFX placement, neutral/dead/caster filtering, and that
-      `Osi.IsEnemy`/`Osi.PlayEffectAtPosition` behave as expected in this build.
+      `Osi.ApplyDamage` actually removes hit points in this build.
+      Chain, VFX, and enemy detection are confirmed; damage now uses
+      `ApplyDamage` after `DealDamage` was found to be unexposed.
 
 - [x] Replace orb wall `CastSpell` event injection with the actual `UseSpell`
       action, using invisible endpoint items at the saved charge origin and
