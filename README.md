@@ -11,7 +11,7 @@ champions, higher enemy health, and convenient respec access.
 | Enemy Randomization | `mods/EnemyRandomization` | Required | Random enemy buffs, themed champions, summoning variants, and generated champion loot |
 | Enemy Health Multiplier | `mods/EnemyHealth` | Not required | Doubles base enemy health on Tactician by overriding the native difficulty boost |
 | Respec Anywhere | `mods/RespecAnywhere` | Required | Grants a hotbar Respec spell that opens Withers' native respec UI, plus a console command |
-| OrbWeaver | `mods/OrbWeaver` | Required for class testing | The Orbweaver class and its arcane orb spells: Summon Azure Orb, Ignite Orb, Orb Chain Lightning |
+| OrbWeaver | `mods/OrbWeaver` | Required for class testing | The Orbweaver class and its arcane orb spells: Summon Azure Orb, Ignite Orb, Orb Chain Lightning, Orb Lightning Bolt |
 
 The mods can be used independently. Enemy Randomization is designed to work
 alongside DOS2 Combat Overhaul, and Enemy Health uses the native Tactician
@@ -492,7 +492,8 @@ a mod convention — it is only the vanilla name for `RootTemplates/_merged`.
 - The class carries an existing vanilla class tag alongside its own
   `CLASS_ORBWEAVER` tag, as working class mods do.
 - Level 1 unlocks the class spell list: **Summon Azure Orb**, **Ignite Orb**,
-  and **Orb Chain Lightning**, and offers two skills from the class skill list
+  **Orb Chain Lightning**, and **Orb Lightning Bolt**, and offers two skills
+  from the class skill list
   (Arcana, Deception, History, Insight, Investigation, Perception, Persuasion,
   Religion).
 - The orb spells are **no longer granted to every party member**. To put them
@@ -543,6 +544,13 @@ a mod convention — it is only the vanilla name for `RootTemplates/_merged`.
   any party members.
   It deliberately does **not** use native `BURNING` or an Ablaze aura, so the
   orb does not carry a 1.5 m damaging aura.
+- **Orb Lightning Bolt** uses the same targeting and bounce rules as chain
+  lightning (orb only, 8 m between orbs, each orb visited once) but damages
+  enemies **between** consecutive orbs instead of around each one: anything
+  within **1.5 m** of the line from orb a to orb b takes **8 Lightning** damage,
+  then the bolt arcs on to the next orb. An enemy where two segments meet is hit
+  once per segment. It needs at least **two** orbs, costs **2 AP**, and draws a
+  lightning beam between each pair with an impact burst at both ends.
 - **Orb Chain Lightning** is cast by the player and can only target a
   `CC_ORB` orb. It costs **2 AP** and deals **2 Lightning** damage to enemies
   within **3 m** of the struck orb. If another orb is within **8 m**, the bolt
@@ -557,6 +565,7 @@ CC_Orbweaver          the class; owns the spells below
 CC_SummonBall_Azure   Summon Azure Orb cantrip
 CC_IgniteOrb          set an orb ablaze and leave a fire trail
 CC_OrbChainLightning  player-cast lightning that chains between orbs
+CC_OrbLightningBolt   player-cast bolt that zaps the gap between orbs
 CC_BallCharge         orb Charge action
 CC_Ball               orb character stats shared by every orb root
 ```

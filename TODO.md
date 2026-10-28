@@ -460,6 +460,15 @@ Known DOS2 visual references for the current test spells:
 
 ## OrbWeaver
 
+- [x] Add player-cast **Orb Lightning Bolt**: orb-only targeting, the same 8 m
+      bounce order and once-per-orb rule as chain lightning, 8 Lightning damage
+      per segment to enemies within 1.5 m of the line between consecutive orbs,
+      lightning-beam VFX between orbs and an impact burst at each end. Shared
+      orb logic moved to `Server/OrbShared.lua` so both spells use one source.
+- [ ] Verify Orb Lightning Bolt in-game: the bolt grants from the class spell
+      list, the beam draws between orbs, enemies between orbs take 8 damage,
+      enemies beside the corridor take none, and a single orb deals nothing.
+
 - [x] Add a new base class, `CC_Orbweaver` (Orbweaver), that owns the orb
       spells. Generated `ClassDescriptions.lsf`, `Progressions.lsf` (levels
       1-12, ability improvements at 4/8/12), and a `CLASS_ORBWEAVER` tag

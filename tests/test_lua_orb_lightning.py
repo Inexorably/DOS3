@@ -24,7 +24,12 @@ ORB_VFX = (
 class OrbLightningTests(unittest.TestCase):
     def setUp(self) -> None:
         self.harness = LuaModHarness("OrbWeaver")
-        for module in ("Server/Utils.lua", "Server/Config.lua", "Server/OrbLightning.lua"):
+        for module in (
+            "Server/Utils.lua",
+            "Server/Config.lua",
+            "Server/OrbShared.lua",
+            "Server/OrbLightning.lua",
+        ):
             self.harness.load(module)
         self.orb_guids: list[str] = []
         self.health_guids: list[str] = []

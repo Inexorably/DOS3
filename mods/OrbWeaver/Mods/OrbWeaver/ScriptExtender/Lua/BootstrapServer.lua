@@ -1,10 +1,12 @@
 Ext.Require("Server/Utils.lua")
 Ext.Require("Server/Config.lua")
+Ext.Require("Server/OrbShared.lua")
 Ext.Require("Server/ChargeDebug.lua")
 Ext.Require("Server/TestCantrip.lua")
 Ext.Require("Server/OrbPolish.lua")
 Ext.Require("Server/OrbFire.lua")
 Ext.Require("Server/OrbLightning.lua")
+Ext.Require("Server/OrbBolt.lua")
 Ext.Require("Server/ClassDiagnostics.lua")
 
 OW.Utils.Log("server bootstrap complete")
