@@ -16,6 +16,8 @@ local RADIUS = 1.0
 -- real target GUID; the player is temporarily moved to the charge destination
 -- so the wall runs from the orb's old position to the new one.
 local IGNITE_SOURCE = {}
+local CHARGE_START = {}
+local castFireWall
 
 local function log(fmt, ...)
     if not (CC.Config and CC.Config.DEBUG) then return end
@@ -342,7 +344,38 @@ local function onIgniteEntity(entity)
 end
 
 local function onCastedSpell(caster, spell)
-    if tostring(spell or "") ~= "CC_IgniteOrb" then return end
+    spell = tostring(spell or "")
+    if spell == "CC_BallCharge" or spell == "CC_BallCharge_Ignite" then
+        local state = CHARGE_START[tostring(caster or "")]
+        if not state then
+            log("charge wall: no saved start for %s", tostring(caster))
+            return
+        end
+        CHARGE_START[tostring(caster or "")] = nil
+        local ex, ey, ez = positionOf(caster)
+        if not ex then
+            ex, ey, ez = state.endX, state.endY, state.endZ
+        end
+        log("charge wall: charge finished caster=%s start=(%.2f,%.2f) end=(%.2f,%.2f)",
+            tostring(caster), state.startX or 0, state.startY or 0,
+            tonumber(ex) or 0, tonumber(ey) or 0)
+        local function castAfterCharge()
+            local walled = castFireWall(caster, ex, ey, ez,
+                state.startX, state.startY, state.startZ)
+            if not walled then
+                log("charge wall: wall cast unavailable; creating fallback line")
+                createFireLine(caster, state.startX, state.startY, state.startZ,
+                    ex, ey, ez)
+            end
+        end
+        if Ext.Timer and Ext.Timer.WaitFor then
+            Ext.Timer.WaitFor(150, castAfterCharge)
+        else
+            castAfterCharge()
+        end
+        return
+    end
+    if spell ~= "CC_IgniteOrb" then return end
     if RECENT_TARGET[tostring(caster or "")] then
         log("ignite CastedSpell skipped: exact target already handled caster=%s", tostring(caster))
         return
@@ -375,7 +408,7 @@ local function teleport(guid, x, y, z)
     return false
 end
 
-local function castFireWall(caster, x, y, z, oldX, oldY, oldZ)
+castFireWall = function(caster, x, y, z, oldX, oldY, oldZ)
     local source = IGNITE_SOURCE[tostring(caster)]
     if not source then
         log("wall cast: no ignite source for %s", tostring(caster))
@@ -523,22 +556,16 @@ local function onChargePosition(caster, x, y, z, spell)
     if not ablaze and spell ~= "CC_BallCharge_Ignite" then return end
     local oldX, oldY, oldZ = positionOf(caster)
     local targetX, targetY, targetZ = tonumber(x), tonumber(y), tonumber(z)
-    local walled = false
-    if targetX then
-        -- Copy of Wall of Fire: cast the custom wall from the old orb position
-        -- toward the charge destination. Its custom aura deals 5 Fire damage.
-        walled = castFireWall(caster, targetX, targetY, targetZ or oldZ or 0,
-            oldX, oldY, oldZ)
-    end
-    if not walled then
-        if oldX and targetX then
-            createFireLine(caster, oldX, oldY, oldZ, targetX, targetY, targetZ or oldZ)
-        elseif oldX then
-            createFire(caster, oldX, oldY, oldZ)
-        end
-    end
-    if targetX then
-        createFire(caster, targetX, targetY, targetZ or oldZ or 0)
+    if oldX and targetX then
+        CHARGE_START[tostring(caster)] = {
+            startX = oldX, startY = oldY, startZ = oldZ,
+            endX = targetX, endY = targetY, endZ = targetZ or oldZ or 0,
+        }
+        log("charge wall: saved start=(%.2f,%.2f) requestedEnd=(%.2f,%.2f); waiting for CastedSpell",
+            oldX, oldY, targetX, targetY)
+    else
+        log("charge wall: missing positions start=%s target=%s",
+            tostring(oldX), tostring(targetX))
     end
 end
 

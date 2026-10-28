@@ -85,6 +85,9 @@ class OrbFireTests(unittest.TestCase):
         self.harness.fire_listener(
             "UsingSpellAtPosition", "orb", 14, 20, 0, "CC_BallCharge"
         )
+        self.harness.fire_listener(
+            "CastedSpell", "orb", "CC_BallCharge_Ignite", "rush", "", 0, 0
+        )
         self.harness.fire_timers()
         calls = self.harness.osi_calls("CreateSurface")
         self.assertGreaterEqual(len(calls), 1)
