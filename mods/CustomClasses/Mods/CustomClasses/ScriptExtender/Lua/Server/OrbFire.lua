@@ -12,6 +12,11 @@ local ABLAZE = "CC_ORB_ABLAZE"
 local SURFACE = "SurfaceFire"
 local RADIUS = 1.0
 
+-- The player who cast Ignite, keyed by the targeted orb. The wall spell needs a
+-- real target GUID; the player is temporarily moved to the charge destination
+-- so the wall runs from the orb's old position to the new one.
+local IGNITE_SOURCE = {}
+
 local function log(fmt, ...)
     if not (CC.Config and CC.Config.DEBUG) then return end
     local text = string.format(fmt, ...)
@@ -182,6 +187,7 @@ local function applyIgnite(target, source)
     -- Do not make the skill swap depend on HasStatus. The target event is
     -- authoritative; some builds return ok from ApplyStatus while the query
     -- still reports false immediately afterward.
+    IGNITE_SOURCE[tostring(target)] = source
     swapCharge(target)
     swapAllAblazeOrbs()
     fireAtCurrent(target)
@@ -276,18 +282,64 @@ local function onTurnStarted(character)
     if ablaze then fireAtCurrent(character) end
 end
 
+local function teleport(guid, x, y, z)
+    if not guid or not (Osi and Osi.TeleportToPosition) then return false end
+    local attempts = {
+        { guid, x, y, z, "", 0, 0, 0, 0, 1 },
+        { guid, x, y, z, "", 0, 0, 0, 1, 1 },
+    }
+    for _, args in ipairs(attempts) do
+        local ok = pcall(Osi.TeleportToPosition, table.unpack(args))
+        local ax, ay = positionOf(guid)
+        if ok and ax and ay
+            and math.abs(ax - x) <= 0.75 and math.abs(ay - y) <= 0.75 then
+            return true
+        end
+    end
+    return false
+end
+
 local function castFireWall(caster, x, y, z)
-    if not (Osi and Osi.CastSpellAtPosition) then
-        log("wall cast unavailable: CastSpellAtPosition missing")
+    local source = IGNITE_SOURCE[tostring(caster)]
+    if not source then
+        log("wall cast: no ignite source for %s", tostring(caster))
         return false
     end
-    -- BG3SE order: caster, x, y, z, spell, spellLevel,
-    -- addWeaponDamage, isGlobal.
-    local ok, err = pcall(Osi.CastSpellAtPosition,
-        caster, x, y, z, "CC_OrbFireWall", 0, 0, 0)
-    log("wall cast: caster=%s target=(%.2f,%.2f,%.2f) ok=%s err=%s",
-        tostring(caster), tonumber(x) or 0, tonumber(y) or 0, tonumber(z) or 0,
-        tostring(ok), tostring(err))
+    if not (Osi and Osi.CastSpell) then
+        log("wall cast unavailable: CastSpell missing")
+        return false
+    end
+
+    local sx, sy, sz = positionOf(source)
+    if not sx then
+        log("wall cast: source position unavailable %s", tostring(source))
+        return false
+    end
+
+    -- The wall spell requires a target entity, not a world position. Move the
+    -- player caster to the destination, then cast from the orb's old position
+    -- to that target. Restore the player immediately afterward.
+    if Osi.AddSpell then
+        pcall(Osi.AddSpell, caster, "CC_OrbFireWall", 0, 1)
+    end
+    if not teleport(source, x, y, z) then
+        log("wall cast: could not place target at destination")
+        return false
+    end
+
+    local ok, err = pcall(Osi.CastSpell,
+        caster, "CC_OrbFireWall", "Wall", source)
+    log("wall cast: caster=%s target=%s ok=%s err=%s",
+        tostring(caster), tostring(source), tostring(ok), tostring(err))
+
+    if Ext.Timer and Ext.Timer.WaitFor then
+        Ext.Timer.WaitFor(500, function()
+            teleport(source, sx, sy, sz)
+            log("wall cast: restored source position")
+        end)
+    else
+        teleport(source, sx, sy, sz)
+    end
     return ok
 end
 
