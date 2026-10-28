@@ -76,27 +76,48 @@ local function createFire(guid, x, y, z)
                     and Ext.Enums.SurfaceActionType.CreateSurface },
         }
         local surfaceTypes = {
-            { "string SurfaceFire", "SurfaceFire" },
             { "string Fire", "Fire" },
-            { "enum SurfaceFire", Ext.Enums and Ext.Enums.SurfaceType
-                    and Ext.Enums.SurfaceType.SurfaceFire },
-            { "enum Fire", Ext.Enums and Ext.Enums.SurfaceType
-                    and Ext.Enums.SurfaceType.Fire },
+            { "string SurfaceFire", "SurfaceFire" },
         }
+        if Ext.Enums and Ext.Enums.SurfaceType then
+            local okEnums, enums = pcall(function() return Ext.Enums.SurfaceType end)
+            if okEnums and enums then
+                local okPairs = pcall(function()
+                    for key, value in pairs(enums) do
+                        if tostring(key):lower():find("fire", 1, true) then
+                            surfaceTypes[#surfaceTypes + 1] = { "enum " .. tostring(key), value }
+                        end
+                    end
+                end)
+                log("Ext.Enums.SurfaceType scan: ok=%s count=%d", tostring(okPairs), #surfaceTypes)
+            end
+        end
         for i, entry in ipairs(actionTypes) do
             if entry[2] ~= nil then
                 local ok, action = pcall(Ext.Level.CreateSurfaceAction, entry[2])
                 if ok and action then
-                    action.Position = pos
-                    action.Radius = RADIUS
-                    action.Duration = 10
-                    for j, st in ipairs(surfaceTypes) do
-                        if st[2] ~= nil then
-                            action.SurfaceType = st[2]
-                            local executed, err = pcall(Ext.Level.ExecuteSurfaceAction, action)
-                            log("fire trail Ext.Level %s/%s at (%.2f,%.2f,%.2f) executed=%s err=%s",
-                                entry[1], st[1], x, y, z, tostring(executed), tostring(err))
-                            if executed then return true end
+                    local fieldsOk, fieldsErr = pcall(function()
+                        action.Position = pos
+                        action.Radius = RADIUS
+                        action.Duration = 10
+                    end)
+                    log("Ext.Level action fields %s: ok=%s err=%s",
+                        entry[1], tostring(fieldsOk), tostring(fieldsErr))
+                    if fieldsOk then
+                        for j, st in ipairs(surfaceTypes) do
+                            if st[2] ~= nil then
+                                local setOk, setErr = pcall(function()
+                                    action.SurfaceType = st[2]
+                                end)
+                                log("Ext.Level surface type %s/%s: set=%s err=%s",
+                                    entry[1], st[1], tostring(setOk), tostring(setErr))
+                                if setOk then
+                                    local executed, err = pcall(Ext.Level.ExecuteSurfaceAction, action)
+                                    log("fire trail Ext.Level %s/%s at (%.2f,%.2f,%.2f) executed=%s err=%s",
+                                        entry[1], st[1], x, y, z, tostring(executed), tostring(err))
+                                    if executed then return true end
+                                end
+                            end
                         end
                     end
                 else
