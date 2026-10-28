@@ -40,6 +40,62 @@ class CustomClassesTests(unittest.TestCase):
         self.assertEqual(charge.get("RechargeValues"), "")
         self.assertEqual(charge.get("WeaponTypes"), "")
 
+    def test_ignite_orb_and_visual_only_ablaze_status_are_defined(self):
+        data = MODS / "CustomClasses/Public/CustomClasses/Stats/Generated/Data"
+        spells = parse_stats(data / "Spells.txt")
+        ignite = spells["CC_IgniteOrb"]
+        ablaze = spells["CC_ORB_ABLAZE"]
+
+        self.assertEqual(ignite["Level"], "0")
+        self.assertEqual(ignite["UseCosts"], "ActionPoint:1")
+        self.assertIn("CC_ORB", ignite["TargetConditions"])
+        self.assertIn("TARGET:ApplyStatus(CC_ORB_ABLAZE", ignite["SpellProperties"])
+        self.assertNotIn("CannotTargetCharacter", ignite["SpellFlags"])
+        self.assertNotIn("CannotTargetItems", ignite["SpellFlags"])
+        self.assertEqual(ablaze["StatusType"], "BOOST")
+        self.assertEqual(ablaze["SurfaceChange"], "Ignite")
+        self.assertNotIn("TickFunctors", ablaze)
+        self.assertNotIn("AuraStatuses", ablaze)
+        self.assertNotIn("DealDamage", ablaze.get("Boosts", ""))
+        self.assertIn("2156dd48-f83b-4060-9a4e-cab994da8857", ablaze["StatusEffect"])
+
+    def test_ignite_wall_copy_uses_fixed_two_damage(self):
+        data = MODS / "CustomClasses/Public/CustomClasses/Stats/Generated/Data"
+        spells = parse_stats(data / "Spells.txt")
+        wall = spells["CC_OrbFireWall"]
+        aura = spells["CC_ORB_FIRE_LINE_AURA"]
+        self.assertEqual(wall["SpellType"], "Wall")
+        self.assertEqual(wall["ItemWall"], "WallOfFire")
+        self.assertEqual(wall["ItemWallStatus"], "CC_ORB_FIRE_LINE")
+        self.assertEqual(wall["UseCosts"], "")
+        self.assertEqual(wall["Cooldown"], "")
+        self.assertEqual(wall["SpellAnimation"], spells["CC_BallCharge"]["SpellAnimation"])
+        self.assertTrue(wall["SpellAnimation"])
+        self.assertEqual(wall["SpellAnimationIntentType"], "Aggressive")
+        self.assertEqual(wall["CastTextEvent"], "Cast")
+        self.assertNotIn("HasSomaticComponent", wall["SpellFlags"])
+        self.assertNotIn("HasVerbalComponent", wall["SpellFlags"])
+        self.assertNotIn("IsConcentration", wall["SpellFlags"])
+        self.assertEqual(wall["Lifetime"], "10")
+        self.assertIn("DealDamage(2,Fire)", wall["TooltipDamageList"])
+        self.assertNotIn("DealDamage(5,Fire)", wall["TooltipDamageList"])
+        self.assertEqual(aura["OnApplySuccess"], "DealDamage(2,Fire)")
+        self.assertEqual(aura["OnTickSuccess"], "DealDamage(2,Fire)")
+        self.assertEqual(aura["OnApplyFail"], "DealDamage(2,Fire)")
+        self.assertEqual(aura["OnTickFail"], "DealDamage(2,Fire)")
+        self.assertEqual(aura["TooltipDamage"], "DealDamage(2,Fire)")
+        self.assertEqual(spells["CC_ORB_FIRE_LINE"]["TooltipDamage"], "DealDamage(2,Fire)")
+        self.assertNotIn("5d8", aura["OnApplySuccess"])
+
+    def test_ignite_charge_variant_creates_fire(self):
+        data = MODS / "CustomClasses/Public/CustomClasses/Stats/Generated/Data"
+        spells = parse_stats(data / "Spells.txt")
+        charge = spells["CC_BallCharge_Ignite"]
+        self.assertEqual(charge["Level"], "2")
+        self.assertEqual(charge["UseCosts"], "ActionPoint:2")
+        self.assertIn("CreateSurface(1.5,1,Fire)", charge["SpellProperties"])
+        self.assertIn("DealDamage(1,Bludgeoning)", charge["SpellSuccess"])
+
     def test_ball_has_no_movement_and_is_scaled_to_one_third(self):
         data = MODS / "CustomClasses/Public/CustomClasses/Stats/Generated/Data"
         chars = parse_stats(data / "Characters.txt")
@@ -54,7 +110,7 @@ class CustomClassesTests(unittest.TestCase):
         self.assertIn("StatusImmunity(SG_Charmed)", ball["DefaultBoosts"])
         self.assertIn("StatusImmunity(SG_Stunned)", ball["DefaultBoosts"])
         self.assertNotIn("BludgeoningResistance", ball)
-        self.assertIn("UnlockSpell(CC_BallCharge)", ball["DefaultBoosts"])
+        self.assertNotIn("UnlockSpell(CC_BallCharge)", ball["DefaultBoosts"])
         characters = read(data / "Characters.txt")
         self.assertIn('using "_Summons"', characters)
 

@@ -35,6 +35,12 @@ AZURE_BALL_GUID = str(uuid.uuid5(NS, "CustomClasses/root/CC_Ball_Azure"))
 AZURE_CHARACTER_VISUAL_ID = str(uuid.uuid5(NS, "CustomClasses/azure/visual/character"))
 BLACK_HOLE_VISUAL = "fd5aa94f-66ec-14ec-fa97-b88fae69796b"
 BLACK_HOLE_AURA = "203bf8b8-8dee-1724-e5e3-8479f16024f8"
+WALL_DAMAGE = 2
+SPHERE_CAST_ANIMATION = (
+    "0319ca29-4024-4649-9278-3c1f20c5f023,,;a71e11ca-95ab-463d-a4bf-fe8094126b61,,;"
+    "352c3a89-f99c-4472-8424-58c0ffb15e55,,;a57fc614-ed20-4574-936b-bdcc6cebd36a,,;"
+    "b24b3f23-6d3a-43ce-ae3a-abfb44d26082,,;,,;,,;,,;,,"
+)
 
 
 def handle(tag: str) -> str:
@@ -90,6 +96,22 @@ def build_root_template() -> None:
             status,
             "attribute",
             {"id": "Object", "type": "FixedString", "value": "INVULNERABLE"},
+        )
+        # Marker used by the ignite cantrip's TargetConditions so it can only
+        # target an arcane orb, not arbitrary summons or characters.
+        orb_marker = ET.SubElement(statuses, "node", {"id": "Status"})
+        ET.SubElement(
+            orb_marker,
+            "attribute",
+            {"id": "Object", "type": "FixedString", "value": "CC_ORB"},
+        )
+        # Charge is granted by a status rather than DefaultBoosts so it can be
+        # removed and replaced by the Ignite Charge status at runtime.
+        charge_marker = ET.SubElement(statuses, "node", {"id": "Status"})
+        ET.SubElement(
+            charge_marker,
+            "attribute",
+            {"id": "Object", "type": "FixedString", "value": "CC_ORB_CHARGE"},
         )
     set_attr(go, "MapKey", BALL_GUID)
     # Bake the final small scale into the root. Scaling via a stat boost happens
@@ -189,7 +211,7 @@ data "TargetRadius" "9"
 data "HitRadius" "2"
 data "SpellRoll" ""
 data "WeaponTypes" ""
-data "SpellAnimation" "0319ca29-4024-4649-9278-3c1f20c5f023,,;a71e11ca-95ab-463d-a4bf-fe8094126b61,,;352c3a89-f99c-4472-8424-58c0ffb15e55,,;a57fc614-ed20-4574-936b-bdcc6cebd36a,,;b24b3f23-6d3a-43ce-ae3a-abfb44d26082,,;,,;,,;,,;,,"
+data "SpellAnimation" "{SPHERE_CAST_ANIMATION}"
 data "SpellAnimationIntentType" "Aggressive"
 data "PrepareEffect" "5822e00d-08d9-4ac0-8889-7ae3cb56d2d7"
 data "CastEffect" "6e871034-4d0c-4851-91ce-9d8f28343e85"
@@ -205,6 +227,140 @@ data "Icon" "Action_Boar_Charge"
 data "UseCosts" "ActionPoint:2"
 data "DamageType" "Bludgeoning"
 data "SpellFlags" "IsHarmful"
+
+new entry "CC_BallCharge_Ignite"
+type "SpellData"
+using "CC_BallCharge"
+data "Level" "2"
+data "Cooldown" "OncePerTurn"
+data "UseCosts" "ActionPoint:2"
+data "DisplayName" "{handle('CC_BallCharge_Ignite/name')}"
+data "Description" "{handle('CC_BallCharge_Ignite/desc')}"
+data "SpellProperties" "GROUND:CreateSurface(1.5,1,Fire)"
+data "SpellSuccess" "DealDamage(1,Bludgeoning)"
+data "TooltipDamageList" "DealDamage(1,Bludgeoning)"
+data "Icon" "Action_Boar_Charge"
+
+new entry "CC_IgniteOrb"
+type "SpellData"
+using "Target_MageHand"
+data "SpellType" "Target"
+data "Level" "0"
+data "Cooldown" ""
+data "RechargeValues" ""
+data "AICooldown" ""
+data "SpellProperties" "TARGET:ApplyStatus(CC_ORB_ABLAZE,100,-1)"
+data "SpellSuccess" ""
+data "SpellFail" ""
+data "TargetConditions" "HasStatus('CC_ORB') and not Self()"
+data "RequirementConditions" ""
+data "RequirementEvents" ""
+data "Requirements" ""
+data "TargetRadius" "18"
+data "DisplayName" "{handle('CC_IgniteOrb/name')}"
+data "Description" "{handle('CC_IgniteOrb/desc')}"
+data "Icon" "Status_Burning"
+data "UseCosts" "ActionPoint:1"
+-- Target_MageHand inherits CannotTargetCharacter/CannotTargetItems. Remove
+-- those flags so the orb character itself can be selected.
+data "SpellFlags" "IsSpell;HasVerbalComponent;HasSomaticComponent;HasHighGroundRangeExtension"
+data "AIFlags" "CanNotUse"
+
+new entry "CC_ORB_CHARGE"
+type "StatusData"
+data "StatusType" "BOOST"
+data "DisplayName" "{handle('CC_ORB_CHARGE/name')}"
+data "Description" "{handle('CC_ORB_CHARGE/desc')}"
+data "StackId" "CC_ORB_CHARGE"
+data "Boosts" "UnlockSpell(CC_BallCharge)"
+data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"
+
+new entry "CC_ORB_CHARGE_IGNITE"
+type "StatusData"
+data "StatusType" "BOOST"
+data "DisplayName" "{handle('CC_ORB_CHARGE_IGNITE/name')}"
+data "Description" "{handle('CC_ORB_CHARGE_IGNITE/desc')}"
+data "StackId" "CC_ORB_CHARGE_IGNITE"
+data "Boosts" "UnlockSpell(CC_BallCharge_Ignite)"
+data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"
+
+new entry "CC_OrbFireWall"
+type "SpellData"
+using "Wall_WallOfFire"
+data "Level" "4"
+data "UseCosts" ""
+data "Cooldown" ""
+data "SpellFlags" "IsSpell;Invisible"
+data "SpellAnimation" "{SPHERE_CAST_ANIMATION}"
+data "SpellAnimationIntentType" "Aggressive"
+data "CastTextEvent" "Cast"
+data "TooltipDamageList" "DealDamage({WALL_DAMAGE},Fire)"
+data "TooltipStatusApply" "ApplyStatus(CC_ORB_FIRE_LINE,100,10)"
+data "DescriptionParams" "DealDamage({WALL_DAMAGE},Fire)"
+data "SpellType" "Wall"
+data "ItemWall" "WallOfFire"
+data "ItemWallStatus" "CC_ORB_FIRE_LINE"
+data "SurfaceType" "Fire"
+data "SurfaceRadius" "1"
+data "Lifetime" "10"
+
+new entry "CC_ORB_WALL_GRANT"
+type "StatusData"
+data "StatusType" "BOOST"
+data "DisplayName" "Orb Fire Wall"
+data "Description" "Temporary internal grant for the orb fire wall."
+data "StackId" "CC_ORB_WALL_GRANT"
+data "Boosts" "UnlockSpell(CC_OrbFireWall)"
+data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"
+
+new entry "CC_ORB_FIRE_LINE"
+type "StatusData"
+using "WALLOFFIRE"
+data "DisplayName" "{handle('CC_ORB_FIRE_LINE/name')}"
+data "Description" "{handle('CC_ORB_FIRE_LINE/desc')}"
+data "DescriptionParams" "Distance(3);DealDamage({WALL_DAMAGE},Fire)"
+data "StackId" "CC_ORB_FIRE_LINE"
+data "AuraRadius" "1"
+data "AuraStatuses" "ApplyStatus(CC_ORB_FIRE_LINE_AURA,100,1)"
+data "TooltipDamage" "DealDamage({WALL_DAMAGE},Fire)"
+
+new entry "CC_ORB_FIRE_LINE_AURA"
+type "StatusData"
+using "WALLOFFIRE_AURA"
+data "DisplayName" "{handle('CC_ORB_FIRE_LINE_AURA/name')}"
+data "Description" "{handle('CC_ORB_FIRE_LINE_AURA/desc')}"
+data "DescriptionParams" "DealDamage({WALL_DAMAGE},Fire)"
+data "StackId" "CC_ORB_FIRE_LINE"
+data "TooltipDamage" "DealDamage({WALL_DAMAGE},Fire)"
+data "OnApplyRoll" ""
+data "OnApplySuccess" "DealDamage({WALL_DAMAGE},Fire)"
+data "OnApplyFail" "DealDamage({WALL_DAMAGE},Fire)"
+data "OnTickRoll" ""
+data "OnTickSuccess" "DealDamage({WALL_DAMAGE},Fire)"
+data "OnTickFail" "DealDamage({WALL_DAMAGE},Fire)"
+data "StatusGroups" "SG_Condition;SG_DropForNonMutingDialog"
+
+new entry "CC_ORB"
+type "StatusData"
+data "StatusType" "BOOST"
+data "DisplayName" "{handle('CC_ORB/name')}"
+data "Description" "{handle('CC_ORB/desc')}"
+data "StackId" "CC_ORB"
+data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"
+
+new entry "CC_ORB_ABLAZE"
+type "StatusData"
+data "StatusType" "BOOST"
+data "DisplayName" "{handle('CC_ORB_ABLAZE/name')}"
+data "Description" "{handle('CC_ORB_ABLAZE/desc')}"
+data "Icon" "Status_Burning"
+data "StackId" "CC_ORB_ABLAZE"
+-- Visual-only: no TickFunctors, AuraStatuses, or damage functors. SurfaceChange
+-- leaves the native fire trail as the orb moves or Charges; it does not carry
+-- a 1.5m damaging aura.
+data "SurfaceChange" "Ignite"
+data "StatusEffect" "2156dd48-f83b-4060-9a4e-cab994da8857"
+data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"
 ''',
         encoding="utf-8",
     )
@@ -230,7 +386,7 @@ data "GameSize" "Tiny"
 data "Flags" "Floating;InvulnerableAndInteractive"
 data "PersonalStatusImmunities" "SILENCED;BLEEDING;GAPING_WOUND;CHEST_TRAUMA;SHOCKED;BURNING;SG_Condition;CRIPPLED;WILD_MAGIC_BURNING"
 data "ActionResources" "ActionPoint:2;BonusActionPoint:1;Movement:0"
-data "DefaultBoosts" "BlockRegainHP(Undead;Construct;Living);UnlockSpell(CC_BallCharge);StatusImmunity(SG_Blinded);StatusImmunity(SG_Charmed);StatusImmunity(SG_Condition);StatusImmunity(SG_Cursed);StatusImmunity(SG_DifficultTerrain);StatusImmunity(SG_Disease);StatusImmunity(SG_Exhausted);StatusImmunity(SG_Fleeing);StatusImmunity(SG_Frightened);StatusImmunity(SG_Incapacitated);StatusImmunity(SG_Paralyzed);StatusImmunity(SG_Petrified);StatusImmunity(SG_Poisoned);StatusImmunity(SG_Polymorph);StatusImmunity(SG_Possessed);StatusImmunity(SG_Prone);StatusImmunity(SG_Restrained);StatusImmunity(SG_Sleeping);StatusImmunity(SG_Sleeping_Magical);StatusImmunity(SG_Stunned);StatusImmunity(SG_Surface);StatusImmunity(SG_Unconscious)"
+data "DefaultBoosts" "BlockRegainHP(Undead;Construct;Living);StatusImmunity(SG_Blinded);StatusImmunity(SG_Charmed);StatusImmunity(SG_Condition);StatusImmunity(SG_Cursed);StatusImmunity(SG_DifficultTerrain);StatusImmunity(SG_Disease);StatusImmunity(SG_Exhausted);StatusImmunity(SG_Fleeing);StatusImmunity(SG_Frightened);StatusImmunity(SG_Incapacitated);StatusImmunity(SG_Paralyzed);StatusImmunity(SG_Petrified);StatusImmunity(SG_Poisoned);StatusImmunity(SG_Polymorph);StatusImmunity(SG_Possessed);StatusImmunity(SG_Prone);StatusImmunity(SG_Restrained);StatusImmunity(SG_Sleeping);StatusImmunity(SG_Sleeping_Magical);StatusImmunity(SG_Stunned);StatusImmunity(SG_Surface);StatusImmunity(SG_Unconscious)"
 data "Passives" "DarknessRules;ShortResting"
 data "DifficultyStatuses" "STATUS_EASY:PLAYER_BONUSES_EASYMODE"
 ''',
@@ -257,6 +413,31 @@ def write_loca() -> None:
             "Conjure up to three tiny azure orbs. They cannot move on their own, but each can Charge at an enemy once per turn.",
         ),
         (handle("CC_Ball_Azure/name"), "Azure Orb"),
+        (handle("CC_BallCharge_Ignite/name"), "Ignite Charge"),
+        (
+            handle("CC_BallCharge_Ignite/desc"),
+            f"Charge toward an enemy, dealing 1 bludgeoning damage and creating a wall of fire from the orb's starting position to its landing position. The wall deals {WALL_DAMAGE} Fire damage. Costs 2 AP. Once per turn.",
+        ),
+        (handle("CC_IgniteOrb/name"), "Ignite Orb"),
+        (
+            handle("CC_IgniteOrb/desc"),
+            "Set an arcane orb ablaze. The orb leaves a trail of Fire behind it as it moves or Charges.",
+        ),
+        (handle("CC_ORB/name"), "Arcane Orb"),
+        (handle("CC_ORB_CHARGE/name"), "Charge Grant"),
+        (handle("CC_ORB_CHARGE/desc"), "Grants the orb Charge."),
+        (handle("CC_ORB_CHARGE_IGNITE/name"), "Ignite Charge Grant"),
+        (handle("CC_ORB_CHARGE_IGNITE/desc"), "Grants the orb Ignite Charge."),
+        (handle("CC_ORB_FIRE_LINE/name"), "Orb Fire Wall"),
+        (handle("CC_ORB_FIRE_LINE/desc"), f"A wall of fire left by an Ignite Charge. It deals {WALL_DAMAGE} Fire damage."),
+        (handle("CC_ORB_FIRE_LINE_AURA/name"), "Orb Fire"),
+        (handle("CC_ORB_FIRE_LINE_AURA/desc"), f"Standing in the orb's fire deals {WALL_DAMAGE} Fire damage."),
+        (handle("CC_ORB/desc"), "Marks a summoned arcane orb."),
+        (handle("CC_ORB_ABLAZE/name"), "Ablaze"),
+        (
+            handle("CC_ORB_ABLAZE/desc"),
+            "This orb is ablaze and leaves Fire surfaces behind it. It does not emit a damaging aura.",
+        ),
     ]
 
     header_size = 12

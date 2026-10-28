@@ -138,6 +138,18 @@ Ext = {
         ModuleLoad = channel("ModuleLoad"),
         LevelGameplayStarted = channel("LevelGameplayStarted"),
     },
+    Level = {
+        CreateSurfaceAction = function(actionType)
+            return { ActionType = actionType }
+        end,
+        ExecuteSurfaceAction = function(action)
+            record(H.osi_calls, {
+                name = "CreateSurface",
+                args = { action.SurfaceType, action.Position, action.Radius, action.Duration },
+            })
+            return true
+        end,
+    },
     Loca = {
         CreateHandle = function(_, text) return "h" .. tostring(text) end,
         GetAllEntries = function() return H.locas end,

@@ -460,6 +460,21 @@ Known DOS2 visual references for the current test spells:
 
 ## Custom Classes
 
+- [x] Replace orb wall `CastSpell` event injection with the actual `UseSpell`
+      action, using invisible endpoint items at the saved charge origin and
+      actual landing point. Remove party-member teleportation and fake surface
+      fallback success; add endpoint, cleanup, and multiple-orb regression tests.
+- [x] Verify Azure Orb Ignite Charge creates the visible 2-damage wall from the
+      pre-charge position to the actual post-charge position. Confirmed in-game
+      after supplying the explicit ground endpoints on `SpellCastState`.
+- [x] Diagnose the real wall rejection: the corrected finished-event logger
+      confirmed `result=MissingAnimations` in the 2026-10-28 03:02 logs. Replace
+      the blank wall animation with the sphere's working Ram/Charge animation,
+      Aggressive intent, and the Cast text event; keep regression tests for the
+      finished-event schema and shared animation.
+- [x] Verify the sphere-compatible wall animation removes `MissingAnimations`
+      and produces the correctly placed wall, not merely a successful queue.
+      Confirmed in-game; the cast now completes and spawns the wall.
 - [x] Add the alternate azure orb root, `CC_SummonBall_Azure` test cantrip,
       visible sphere body, and working portrait.
 - [x] Build a dedicated azure MaterialBank, VisualBank, and CharacterVisual

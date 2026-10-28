@@ -37,7 +37,7 @@ local function dumpSpell(name)
 end
 
 local function dumpAll()
-    for _, name in ipairs({ "CC_SummonBall", "CC_BallCharge", "CC_Ball" }) do
+    for _, name in ipairs({ "CC_SummonBall", "CC_BallCharge", "CC_BallCharge_Ignite", "CC_OrbFireWall" }) do
         dumpSpell(name)
     end
 end
@@ -52,7 +52,7 @@ end
 
 local function isBallSpell(value)
     local text = tostring(value or "")
-    return text:find("CC_Ball", 1, true) ~= nil
+    return text:find("CC_Ball", 1, true) ~= nil or text == "CC_OrbFireWall"
 end
 
 local function onStartedPreviewing(caster, spell, a, b)
@@ -80,10 +80,10 @@ local function onUsingSpellAtPosition(caster, x, y, z, spell, a, b, c)
         tostring(spell), tostring(a), tostring(b), tostring(c))
 end
 
-local function onUsingSpellOnTarget(caster, target, spell, a, b)
+local function onUsingSpellOnTarget(caster, target, spell, a, b, c)
     if not isBallSpell(spell) then return end
-    log("debug UsingSpellOnTarget caster=%s target=%s spell=%s a=%s b=%s",
-        tostring(caster), tostring(target), tostring(spell), tostring(a), tostring(b))
+    log("debug UsingSpellOnTarget caster=%s target=%s spell=%s a=%s b=%s c=%s",
+        tostring(caster), tostring(target), tostring(spell), tostring(a), tostring(b), tostring(c))
 end
 
 local function onCastSpell(caster, spell, a, b, c)
@@ -103,16 +103,44 @@ local function onSpellCastEntity(entity)
     local hit = ev and ev.Hit
     local spell = hit and hit.SpellId
     if not isBallSpell(spell) then return end
+    local okTarget, target = pcall(function() return ev.Target end)
+    local okCaster, caster = pcall(function() return hit.InflicterOwner or hit.Inflicter end)
     log("debug SpellCastEvent spell=%s target=%s caster=%s",
-        tostring(spell), tostring(ev.Target), tostring(hit.InflicterOwner or hit.Inflicter))
+        tostring(spell), tostring(okTarget and target or "<unavailable>"),
+        tostring(okCaster and caster or "<unavailable>"))
 end
 
 local function onSpellFinishedEntity(entity)
     local ev = entity and entity.SpellCastFinishedEvent
     if not ev then return end
-    local spell = ev.SpellId or ev.Spell
-    if not isBallSpell(spell) then return end
-    log("debug SpellCastFinished spell=%s result=%s", tostring(spell), tostring(ev.Result))
+    -- FinishedEvent exposes Result, not SpellId. The spell identity belongs
+    -- to the cast entity's SpellCastState component, when still available.
+    local ok, spell, caster = pcall(function()
+        local state = entity.SpellCastState
+        if not state then return nil end
+        return state.SpellId.Prototype, state.Caster
+    end)
+    if ok and spell and not isBallSpell(spell) then return end
+    log("debug SpellCastFinished spell=%s caster=%s result=%s",
+        tostring(ok and spell or "<unavailable>"), tostring(caster), tostring(ev.Result))
+    if ok and spell == "CC_OrbFireWall" then
+        local dumped, err = pcall(function()
+            local state = entity.SpellCastState
+            local function pos(value)
+                if not value then return "nil" end
+                return string.format("(%.2f,%.2f,%.2f)", value[1], value[2], value[3])
+            end
+            log("debug wall targeting: cast=%s end=%s targets=%d",
+                pos(state.CastPosition), pos(state.CastEndPosition), #state.Targets)
+            for i, target in ipairs(state.Targets) do
+                local second = target.Target2
+                log("debug wall target %d: type=%s entity=%s pos=%s secondEntity=%s secondPos=%s",
+                    i, tostring(target.TargetingType), tostring(target.Target), pos(target.Position),
+                    tostring(second and second.Target), pos(second and second.Position))
+            end
+        end)
+        if not dumped then log("debug wall targeting unavailable: %s", tostring(err)) end
+    end
 end
 
 function D.Init()
@@ -126,7 +154,7 @@ function D.Init()
     register("CastSpellFailed", 5, onCastFailed)
     register("UsingSpell", 5, onUsingSpell)
     register("UsingSpellAtPosition", 8, onUsingSpellAtPosition)
-    register("UsingSpellOnTarget", 5, onUsingSpellOnTarget)
+    register("UsingSpellOnTarget", 6, onUsingSpellOnTarget)
     register("CastSpell", 5, onCastSpell)
     register("CastedSpell", 5, onCastedSpell)
 
