@@ -63,17 +63,45 @@ local function createFire(guid, x, y, z)
         end
     end
 
-    -- Structured fallback for builds that expose surface actions directly.
+    -- Ext.Level.CreateSurfaceAction takes a SurfaceActionType enum, not a
+    -- surface name. Build the action, then assign its fields.
     if Ext and Ext.Level and Ext.Level.CreateSurfaceAction then
         local pos = { x = x, y = y, z = z or 0 }
-        local ok, action = pcall(Ext.Level.CreateSurfaceAction, SURFACE, pos, RADIUS, 10)
-        if ok and action then
-            local executed, err = pcall(Ext.Level.ExecuteSurfaceAction, action)
-            log("fire trail via Ext.Level at (%.2f,%.2f,%.2f) executed=%s err=%s",
-                x, y, z, tostring(executed), tostring(err))
-            if executed then return true end
-        else
-            log("Ext.Level CreateSurfaceAction failed: %s", tostring(action))
+        local actionTypes = {
+            { "string CreateSurface", "CreateSurface" },
+            { "string CreateSurfaceAction", "CreateSurfaceAction" },
+            { "enum CreateSurface",
+                Ext.Enums and Ext.Enums.SurfaceActionType
+                    and Ext.Enums.SurfaceActionType.CreateSurface },
+        }
+        local surfaceTypes = {
+            { "string SurfaceFire", "SurfaceFire" },
+            { "string Fire", "Fire" },
+            { "enum SurfaceFire", Ext.Enums and Ext.Enums.SurfaceType
+                    and Ext.Enums.SurfaceType.SurfaceFire },
+            { "enum Fire", Ext.Enums and Ext.Enums.SurfaceType
+                    and Ext.Enums.SurfaceType.Fire },
+        }
+        for i, entry in ipairs(actionTypes) do
+            if entry[2] ~= nil then
+                local ok, action = pcall(Ext.Level.CreateSurfaceAction, entry[2])
+                if ok and action then
+                    action.Position = pos
+                    action.Radius = RADIUS
+                    action.Duration = 10
+                    for j, st in ipairs(surfaceTypes) do
+                        if st[2] ~= nil then
+                            action.SurfaceType = st[2]
+                            local executed, err = pcall(Ext.Level.ExecuteSurfaceAction, action)
+                            log("fire trail Ext.Level %s/%s at (%.2f,%.2f,%.2f) executed=%s err=%s",
+                                entry[1], st[1], x, y, z, tostring(executed), tostring(err))
+                            if executed then return true end
+                        end
+                    end
+                else
+                    log("Ext.Level CreateSurfaceAction %s failed: %s", entry[1], tostring(action))
+                end
+            end
         end
     end
 
@@ -322,8 +350,33 @@ local function castFireWall(caster, x, y, z, oldX, oldY, oldZ)
             log("wall cast: could not place player at old orb position")
             return
         end
-        if Osi.AddSpell then
-            pcall(Osi.AddSpell, source, "CC_OrbFireWall", 0, 1)
+        local spell = "CC_OrbFireWall"
+        local function hasSpell(guid)
+            if not (Osi and Osi.HasSpell) then return nil end
+            local ok, value = pcall(Osi.HasSpell, guid, spell)
+            return ok and (value == 1 or value == true)
+        end
+        log("wall pre-grant: source=%s hasSpell=%s", tostring(source), tostring(hasSpell(source)))
+        if Osi and Osi.ApplyStatus then
+            local statusOk = pcall(Osi.ApplyStatus, source, "CC_ORB_WALL_GRANT", 100, 1)
+            log("wall grant status: source=%s ok=%s hasSpell=%s",
+                tostring(source), tostring(statusOk), tostring(hasSpell(source)))
+        end
+        local added, addErr
+        if Osi and Osi.AddSpell then
+            added, addErr = pcall(Osi.AddSpell, source, spell, 0, 1)
+            if not added then
+                added, addErr = pcall(Osi.AddSpell, source, spell, 0)
+            end
+        end
+        log("wall grant: source=%s added=%s err=%s hasSpell=%s",
+            tostring(source), tostring(added), tostring(addErr), tostring(hasSpell(source)))
+        if not hasSpell(source) then
+            if Osi and Osi.AddSpell then
+                pcall(Osi.AddSpell, caster, spell, 0, 1)
+            end
+            log("wall grant fallback: caster=%s hasSpell=%s",
+                tostring(caster), tostring(hasSpell(caster)))
         end
 
         -- Probe the multiple known/possible CastSpell overloads in one run.
@@ -351,10 +404,43 @@ local function castFireWall(caster, x, y, z, oldX, oldY, oldZ)
             end
         end
 
+        if not casted then
+            local reverse = {
+                { "orb->player,Wall,0", { caster, spell, "Wall", source, 0 } },
+                { "orb->player,Wall", { caster, spell, "Wall", source } },
+            }
+            for i, attempt in ipairs(reverse) do
+                local ok, err = pcall(Osi.CastSpell, table.unpack(attempt[2]))
+                log("wall reverse attempt %d (%s): ok=%s err=%s",
+                    i, attempt[1], tostring(ok), tostring(err))
+                if ok then casted = true; break end
+            end
+        end
+
         if Ext.Timer and Ext.Timer.WaitFor then
             Ext.Timer.WaitFor(500, function()
                 teleport(source, sx, sy, sz)
+                if Osi and Osi.RemoveStatus then
+                    pcall(Osi.RemoveStatus, source, "CC_ORB_WALL_GRANT")
+                end
                 log("wall cast: restored source position (casted=%s)", tostring(casted))
+                local function surfaceAt(x, y, z)
+                    if not (Osi and Osi.GetSurfaceTypeAtPosition) then return nil end
+                    local ok, value = pcall(Osi.GetSurfaceTypeAtPosition, x, y, z)
+                    return ok and value or nil
+                end
+                local oldSurface = surfaceAt(oldX, oldY, oldZ)
+                local newSurface = surfaceAt(x, y, z)
+                log("wall postcast: oldSurface=%s newSurface=%s orbStatus=%s",
+                    tostring(oldSurface), tostring(newSurface),
+                    tostring(hasStatus(caster, "CC_ORB_FIRE_LINE")))
+                local function isFire(value)
+                    return tostring(value or ""):lower():find("fire", 1, true) ~= nil
+                end
+                if not isFire(oldSurface) and not isFire(newSurface) then
+                    local made = createFireLine(caster, oldX, oldY, oldZ, x, y, z)
+                    log("wall postcast fallback line: made=%s", tostring(made))
+                end
             end)
         else
             teleport(source, sx, sy, sz)
