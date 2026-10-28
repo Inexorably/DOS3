@@ -471,8 +471,8 @@ castFireWall = function(caster, x, y, z, oldX, oldY, oldZ)
         -- success only proves the arity/type check passed, not that the wall
         -- was created, so do not stop at the first accepted form.
         local attempts = {
-            { "Wall,spell,target,0", { source, "CC_OrbFireWall", "Wall", caster, 0 } },
-            { "target,source,level", { source, "CC_OrbFireWall", caster, "Spell", 0 } },
+            { "Wall,spell,target,level4", { source, "CC_OrbFireWall", "Wall", caster, 4 } },
+            { "target,source,level4", { source, "CC_OrbFireWall", caster, "Spell", 4 } },
             { "target,level,source", { source, "CC_OrbFireWall", caster, 0, "Spell" } },
             { "target,source,0", { source, "CC_OrbFireWall", caster, "Spell", 0 } },
             { "target,level,empty", { source, "CC_OrbFireWall", caster, 0, "" } },
@@ -527,6 +527,13 @@ castFireWall = function(caster, x, y, z, oldX, oldY, oldZ)
                     return tostring(value or ""):lower():find("fire", 1, true) ~= nil
                 end
                 if not isFire(oldSurface) and not isFire(newSurface) then
+                    -- Diagnostic fallback: native Wall of Fire. If this produces
+                    -- the expected wall animation, the custom wall stat is the
+                    -- remaining problem; if it does not, the cast path is wrong.
+                    local nativeOk, nativeErr = pcall(Osi.CastSpell,
+                        source, "Wall_WallOfFire", "Wall", caster, 4)
+                    log("native wall fallback: ok=%s err=%s",
+                        tostring(nativeOk), tostring(nativeErr))
                     local made = createFireLine(caster, oldX, oldY, oldZ, x, y, z)
                     log("wall postcast fallback line: made=%s", tostring(made))
                 end

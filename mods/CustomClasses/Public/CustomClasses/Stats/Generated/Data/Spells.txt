@@ -117,7 +117,7 @@ data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndi
 new entry "CC_OrbFireWall"
 type "SpellData"
 using "Wall_WallOfFire"
-data "Level" "0"
+data "Level" "4"
 data "UseCosts" ""
 data "Cooldown" ""
 data "SpellFlags" "HasVerbalComponent;HasSomaticComponent;IsSpell"
