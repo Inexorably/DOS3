@@ -467,11 +467,13 @@ Known DOS2 visual references for the current test spells:
 - [x] Stop granting the orb spells to every party member: `GRANT_TEST_CANTRIP`
       now defaults to false and the class progression unlocks the spells at
       level 1. The test grant remains as an opt-in escape hatch.
-- [x] Diagnose why the class was missing from class select: mod resources are
-      only merged when the file name carries the `_merged` suffix, so the
-      plainly named `ClassDescriptions.lsf` was ignored. Also missing was the
-      per-class `AbilityDistributionPreset`, which character creation requires.
-      Both are fixed, with skill list/`SelectSkills` and default skills added.
+- [x] Diagnose class visibility by reading published class mods
+      (`deggertsen/bg3-class-surgebinder`, `snikkidoodle/bg3-alchemist-class`).
+      Class resources must reuse the plain vanilla file names; `_merged` is only
+      the vanilla name for `RootTemplates`. Also added
+      `ProgressionDescriptions`, the per-class `AbilityDistributionPreset`, a
+      vanilla class tag alongside `CLASS_ORBWEAVER`, skill list + `SelectSkills`
+      selector, and default skills.
 - [ ] Verify the class is now selectable in character creation, that it offers
       two skills from the class list, that level 1 unlocks the three orb spells,
       that leveling 1-12 grants the ability improvements, and that all 12

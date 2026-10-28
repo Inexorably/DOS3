@@ -383,33 +383,52 @@ Confirmed working in `Extender Runtime 2026-10-28 04-38-32.log`:
 `DOS2Combat/Server/Surfaces.lua` still calls `Osi.DealDamage` inside `pcall`, so
 its surface tick damage is a silent no-op in this build. Tracked in #10.
 
-## Custom class resources must be named `_merged.lsf`
+## Custom class resources: reuse the vanilla file names
 
-A brand new base class did not appear in character creation with resources named
-`Public/OrbWeaver/ClassDescriptions/ClassDescriptions.lsf` and
-`Public/OrbWeaver/Progressions/Progressions.lsf`, even though the mod loaded
-(`'Orbweaver': SE v1; flags: Lua` in the Script Extender log) and the files were
-present in the pak.
+A new base class did not appear in character creation. Two mistakes, both found
+by reading published class mods rather than the tutorial alone.
 
-Cause: the engine only **merges** a mod resource whose file name ends in
-`_merged`. A plainly named resource is not merged, so our entries were never
-added to the vanilla `ClassDescriptions`/`Progressions`. This is the same rule
-the orb root already follows as `RootTemplates/_merged.lsf`.
+**1. Do not rename class resources to `_merged`.** `_merged` is not a mod
+convention — it is literally the vanilla file name for `RootTemplates`
+(`Public/Shared/RootTemplates/_merged.lsx`), which is why the orb root uses it.
+The engine identifies a resource by its sub-path under `Public/<Module>/`, so a
+class mod's files must be named exactly like the vanilla ones.
+`ClassDescriptions/_merged.lsf` is a resource the engine never looks up, so the
+class silently never appears.
 
-Fix: rename every patched resource to `<VanillaName>_merged.lsf`
-(`ClassDescriptions/_merged.lsf`, `Progressions/_merged.lsf`,
-`CharacterCreationPresets/_merged.lsf`, `Lists/SkillLists_merged.lsf`,
-`DefaultValues/Skills_merged.lsf`). Tags stay GUID-named because they are
-standalone resources addressed by UUID.
+Reference implementations, both openly readable on GitHub:
 
-Also required for class visibility: one `AbilityDistributionPreset` per class
-whose `ClassUUID` matches the class description. Without it character creation
-does not offer the class. Skill choice needs a level-1
-`SelectSkills(<SkillList uuid>,N)` selector that points at an own `SkillList`
-entry in `Lists/SkillLists_merged.lsf`.
+- `deggertsen/bg3-class-surgebinder` (class + subclasses):
+  ```text
+  Public/Surgebinder/ClassDescriptions/ClassDescriptions.lsx
+  Public/Surgebinder/Progressions/Progressions.lsx
+  Public/Surgebinder/Progressions/ProgressionDescriptions.lsx
+  Public/Surgebinder/CharacterCreationPresets/AbilityDistributionPresets.lsx
+  Public/Surgebinder/DefaultValues/{Abilities,Passives,Skills}.lsx
+  Public/Surgebinder/Lists/{AbilityLists,SkillLists}.lsx
+  Public/Surgebinder/Tags/<uuid>.lsx
+  ```
+- `snikkidoodle/bg3-alchemist-class` (class with fewer files — shows the minimum):
+  ```text
+  Public/Alchemist_Class_Homebrew/ClassDescriptions/ClassDescriptions.lsx
+  Public/Alchemist_Class_Homebrew/Progressions/Progressions.lsx
+  Public/Alchemist_Class_Homebrew/Lists/{SkillLists,SpellLists}.lsx
+  Public/Alchemist_Class_Homebrew/Stats/...
+  ```
 
-Source: the community Basic Class Creation guide, which ships
-`Public/<Mod>/ClassDescriptions`, `Progressions`, and `CharacterCreationPresets`.
+So `ClassDescriptions` + `Progressions` are the hard minimum; presets,
+defaults, and extra lists add character-creation polish.
+
+**2. Attach a vanilla class tag as well as your own.** Both reference mods list
+an existing vanilla class tag (Alchemist uses Wizard's
+`6fe3ae27-dc6c-4fc9-9245-710c790c396c`) alongside their custom tag. A custom
+class tag only needs the `Code` and `CharacterSheet` categories; `Class` is not
+used by either working mod.
+
+Also confirmed: a *subclass* is just another `ClassDescription` node with
+`ParentGuid` pointing at a base class UUID and its own `ProgressionTableUUID`,
+so subclasses are not fundamentally simpler — they still need a
+`ClassDescriptions` entry and a progression table.
 
 ## Maintenance rule
 

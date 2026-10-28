@@ -188,9 +188,15 @@ class OrbWeaverAssetTests(unittest.TestCase):
         # A base class must not declare a parent.
         self.assertNotIn("ParentGuid", attributes)
 
-        tag = node.find("./children/node[@id='Tags']/attribute[@id='Object']")
-        assert tag is not None
-        self.assertEqual(tag.get("value"), self.mod.CLASS_TAG_UUID)
+        # Published class mods attach an existing vanilla class tag next to
+        # their own custom tag.
+        tag_uuids = [
+            attribute.get("value")
+            for attribute in node.findall("./children/node[@id='Tags']/attribute[@id='Object']")
+        ]
+        self.assertEqual(
+            tag_uuids, [self.mod.VANILLA_CLASS_TAG_UUID, self.mod.CLASS_TAG_UUID]
+        )
 
     def test_class_tag_uses_class_categories(self) -> None:
         node = self.mod.build_class_tag()
@@ -210,7 +216,8 @@ class OrbWeaverAssetTests(unittest.TestCase):
                 "/attribute[@id='Name']"
             )
         ]
-        self.assertIn("Class", categories)
+        # Published class mods use Code + CharacterSheet on their class tag.
+        self.assertEqual(categories, ["Code", "CharacterSheet"])
 
     def test_progression_has_every_level_and_grants_class_spells(self) -> None:
         rows = self.mod.build_progression_rows()
@@ -251,7 +258,7 @@ class OrbWeaverAssetTests(unittest.TestCase):
         self.assertEqual(len(uuids), len(set(uuids)))
         self.assertNotIn(self.mod.PROGRESSION_TABLE_UUID, uuids)
 
-    def test_build_class_files_uses_merged_resource_names(self) -> None:
+    def test_build_class_files_uses_vanilla_resource_names(self) -> None:
         original = self.mod.subprocess.run
         self.mod.subprocess.run = self.fake_divine()
         try:
@@ -263,11 +270,12 @@ class OrbWeaverAssetTests(unittest.TestCase):
             Path(parts[parts.index("-d") + 1]).name for parts in self.commands
         )
         self.assertEqual(destinations, sorted([
-            "_merged.lsf",
-            "_merged.lsf",
-            "_merged.lsf",
-            "SkillLists_merged.lsf",
-            "Skills_merged.lsf",
+            "ClassDescriptions.lsf",
+            "Progressions.lsf",
+            "ProgressionDescriptions.lsf",
+            "AbilityDistributionPresets.lsf",
+            "SkillLists.lsf",
+            "Skills.lsf",
             f"{self.mod.CLASS_TAG_UUID}.lsf",
         ]))
         # The class must be a base class entry, and every progression row must
@@ -328,11 +336,14 @@ class OrbWeaverAssetTests(unittest.TestCase):
         self.assertTrue((self.mod.ROOTS / "_merged.lsf").exists())
         self.assertTrue((self.mod.DATA / "Spells.txt").exists())
         self.assertTrue(self.mod.LOCA.exists())
-        self.assertTrue((self.mod.CLASS_DESCRIPTIONS / "_merged.lsf").exists())
-        self.assertTrue((self.mod.PROGRESSIONS / "_merged.lsf").exists())
-        self.assertTrue((self.mod.CHARACTER_CREATION_PRESETS / "_merged.lsf").exists())
-        self.assertTrue((self.mod.LISTS / "SkillLists_merged.lsf").exists())
-        self.assertTrue((self.mod.DEFAULT_VALUES / "Skills_merged.lsf").exists())
+        self.assertTrue((self.mod.CLASS_DESCRIPTIONS / "ClassDescriptions.lsf").exists())
+        self.assertTrue((self.mod.PROGRESSIONS / "Progressions.lsf").exists())
+        self.assertTrue((self.mod.PROGRESSIONS / "ProgressionDescriptions.lsf").exists())
+        self.assertTrue(
+            (self.mod.CHARACTER_CREATION_PRESETS / "AbilityDistributionPresets.lsf").exists()
+        )
+        self.assertTrue((self.mod.LISTS / "SkillLists.lsf").exists())
+        self.assertTrue((self.mod.DEFAULT_VALUES / "Skills.lsf").exists())
         self.assertTrue((self.mod.TAGS / f"{self.mod.CLASS_TAG_UUID}.lsf").exists())
 
 

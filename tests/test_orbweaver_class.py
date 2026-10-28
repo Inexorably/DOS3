@@ -119,36 +119,41 @@ class ClassOwnershipTests(unittest.TestCase):
 class ClassResourceTests(unittest.TestCase):
     """Committed class resources exist and complement the vanilla files."""
 
-    def test_merging_resources_use_the_merged_suffix(self) -> None:
-        # The engine only merges a mod resource whose file name carries the
-        # _merged suffix (the same rule the orb root follows). A plainly named
-        # ClassDescriptions.lsf is ignored, so the class never appeared in
-        # character creation. Guard that naming for every patched resource.
+    def test_resources_use_the_vanilla_resource_names(self) -> None:
+        """Mod class resources must reuse the vanilla file names.
+
+        The engine identifies a resource by its sub-path under
+        `Public/<Module>/`, so a mod's file must be named exactly like the
+        vanilla one (`ClassDescriptions`, `Progressions`, ...). Verified against
+        published class mods (bg3-class-surgebinder, bg3-alchemist-class), which
+        all use plain names. `_merged` is only the vanilla name for
+        RootTemplates, not a mod convention.
+        """
         generator = load_generator()
         for path in (
-            generator.CLASS_DESCRIPTIONS / "_merged.lsf",
-            generator.PROGRESSIONS / "_merged.lsf",
-            generator.CHARACTER_CREATION_PRESETS / "_merged.lsf",
-            generator.LISTS / "SkillLists_merged.lsf",
-            generator.DEFAULT_VALUES / "Skills_merged.lsf",
+            generator.CLASS_DESCRIPTIONS / "ClassDescriptions.lsf",
+            generator.PROGRESSIONS / "Progressions.lsf",
+            generator.PROGRESSIONS / "ProgressionDescriptions.lsf",
+            generator.CHARACTER_CREATION_PRESETS / "AbilityDistributionPresets.lsf",
+            generator.LISTS / "SkillLists.lsf",
+            generator.DEFAULT_VALUES / "Skills.lsf",
         ):
             self.assertTrue(path.is_file(), path)
             self.assertGreater(path.stat().st_size, 0, path)
 
-    def test_no_plainly_named_replacement_is_shipped(self) -> None:
-        # A plain-named copy would replace (not merge) the vanilla resource.
-        for stale in (
-            "ClassDescriptions/ClassDescriptions.lsf",
-            "Progressions/Progressions.lsf",
-            "CharacterCreationPresets/AbilityDistributionPresets.lsf",
-        ):
-            self.assertFalse((PUBLIC / stale).exists(), stale)
-
-    def test_ability_preset_covers_every_class(self) -> None:
-        # Character creation needs one preset per class whose ClassUUID matches.
+    def test_no_merged_variant_is_shipped(self) -> None:
+        # `_merged` is only correct for RootTemplates. Anything else would be a
+        # resource name the engine does not look up.
         generator = load_generator()
-        preset_path = generator.CHARACTER_CREATION_PRESETS / "_merged.lsf"
-        self.assertTrue(preset_path.is_file())
+        for directory in (
+            generator.CLASS_DESCRIPTIONS,
+            generator.PROGRESSIONS,
+            generator.CHARACTER_CREATION_PRESETS,
+            generator.LISTS,
+            generator.DEFAULT_VALUES,
+        ):
+            merged = sorted(path.name for path in Path(directory).glob("*_merged.lsf"))
+            self.assertEqual(merged, [], f"{directory} ships {merged}")
 
     def test_class_tag_resource_is_guid_named(self) -> None:
         generator = load_generator()

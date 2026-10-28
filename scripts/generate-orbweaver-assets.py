@@ -54,6 +54,9 @@ CLASS_DISPLAY_NAME = "Orbweaver"
 CLASS_TAG_NAME = "CLASS_ORBWEAVER"
 CLASS_UUID = str(uuid.uuid5(NS, GUID_NAMESPACE_TAG + "/class/CC_Orbweaver"))
 CLASS_TAG_UUID = str(uuid.uuid5(NS, GUID_NAMESPACE_TAG + "/tag/CLASS_ORBWEAVER"))
+# Vanilla Wizard tag (Public/Shared/Tags/6fe3ae27-...). Real class mods attach an
+# existing class tag next to their own so the character sheet and dialogue work.
+VANILLA_CLASS_TAG_UUID = "6fe3ae27-dc6c-4fc9-9245-710c790c396c"
 PROGRESSION_TABLE_UUID = str(uuid.uuid5(NS, GUID_NAMESPACE_TAG + "/progression/CC_Orbweaver"))
 PRIMARY_ABILITY_INTELLIGENCE = 4
 CLASS_POSE = "0f07ec6e-4ef0-434e-9a51-1353260ccff8"
@@ -234,6 +237,7 @@ def build_class_description() -> ET.Element:
     node = ET.Element("node", {"id": "ClassDescription"})
     attributes = {
         "BaseHp": ("8", "int32"),
+        "CanLearnSpells": ("false", "bool"),
         "CharacterCreationPose": (CLASS_POSE, "guid"),
         "ClassEquipment": ("EQP_CC_Wizard", "FixedString"),
         "ClassHotbarColumns": ("6", "int32"),
@@ -259,8 +263,12 @@ def build_class_description() -> ET.Element:
         )
 
     children = ET.SubElement(node, "children")
-    tags = ET.SubElement(children, "node", {"id": "Tags"})
-    ET.SubElement(tags, "attribute", {"id": "Object", "type": "guid", "value": CLASS_TAG_UUID})
+    # Every working class mod references an existing vanilla class tag alongside
+    # its own. The vanilla tag supplies the character-sheet plumbing (dialogue,
+    # class-specific checks); the custom tag identifies the class itself.
+    for tag_uuid in (VANILLA_CLASS_TAG_UUID, CLASS_TAG_UUID):
+        tags = ET.SubElement(children, "node", {"id": "Tags"})
+        ET.SubElement(tags, "attribute", {"id": "Object", "type": "guid", "value": tag_uuid})
     return node
 
 
@@ -311,9 +319,45 @@ def build_class_tag() -> ET.Element:
     children = ET.SubElement(node, "children")
     categories = ET.SubElement(children, "node", {"id": "Categories"})
     category_children = ET.SubElement(categories, "children")
-    for category in ("Code", "Class", "CharacterSheet"):
+    # Match the categories real class mods use on their class tag.
+    for category in ("Code", "CharacterSheet"):
         entry = ET.SubElement(category_children, "node", {"id": "Category"})
         ET.SubElement(entry, "attribute", {"id": "Name", "type": "LSString", "value": category})
+    return node
+
+
+def build_progression_description() -> ET.Element:
+    """Name the progression table so the class sheet can label it.
+
+    Real class mods ship this alongside Progressions: the entry whose
+    ``ProgressionTableId`` matches the class table and whose ``Type`` is the
+    class name is what names the table in the UI.
+    """
+    node = ET.Element("node", {"id": "ProgressionDescription"})
+    for name, tag in (("Description", "CC_Orbweaver/desc"),
+                      ("DisplayName", "CC_Orbweaver/name")):
+        ET.SubElement(
+            node,
+            "attribute",
+            {"id": name, "type": "TranslatedString", "handle": handle(tag), "version": "1"},
+        )
+    ET.SubElement(
+        node,
+        "attribute",
+        {"id": "ProgressionTableId", "type": "guid", "value": PROGRESSION_TABLE_UUID},
+    )
+    ET.SubElement(
+        node, "attribute", {"id": "Type", "type": "FixedString", "value": CLASS_NAME}
+    )
+    ET.SubElement(
+        node,
+        "attribute",
+        {
+            "id": "UUID",
+            "type": "guid",
+            "value": str(uuid.uuid5(NS, GUID_NAMESPACE_TAG + "/progression-description")),
+        },
+    )
     return node
 
 
@@ -419,7 +463,7 @@ def build_class_files() -> None:
             [build_class_description()],
         ),
         "cc_class_descriptions.lsx",
-        CLASS_DESCRIPTIONS / "_merged.lsf",
+        CLASS_DESCRIPTIONS / "ClassDescriptions.lsf",
     )
 
     _write_resource(
@@ -430,7 +474,18 @@ def build_class_files() -> None:
             build_progression_rows(),
         ),
         "cc_progressions.lsx",
-        PROGRESSIONS / "_merged.lsf",
+        PROGRESSIONS / "Progressions.lsf",
+    )
+
+    _write_resource(
+        build_save(
+            "ProgressionDescriptions",
+            "root",
+            {"major": "4", "minor": "5", "revision": "0", "build": "0"},
+            [build_progression_description()],
+        ),
+        "cc_progression_descriptions.lsx",
+        PROGRESSIONS / "ProgressionDescriptions.lsf",
     )
 
     _write_resource(
@@ -441,7 +496,7 @@ def build_class_files() -> None:
             [build_ability_preset()],
         ),
         "cc_ability_presets.lsx",
-        CHARACTER_CREATION_PRESETS / "_merged.lsf",
+        CHARACTER_CREATION_PRESETS / "AbilityDistributionPresets.lsf",
     )
 
     _write_resource(
@@ -452,7 +507,7 @@ def build_class_files() -> None:
             [build_skill_list()],
         ),
         "cc_skill_lists.lsx",
-        LISTS / "SkillLists_merged.lsf",
+        LISTS / "SkillLists.lsf",
     )
 
     _write_resource(
@@ -463,7 +518,7 @@ def build_class_files() -> None:
             [build_default_skills()],
         ),
         "cc_default_skills.lsx",
-        DEFAULT_VALUES / "Skills_merged.lsf",
+        DEFAULT_VALUES / "Skills.lsf",
     )
 
     tag_out = ET.Element("save")
