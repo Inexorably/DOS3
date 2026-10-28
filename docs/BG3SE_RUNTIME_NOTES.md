@@ -169,6 +169,30 @@ Known runtime errors:
 Uncertain: the exact valid `SurfaceType` enum key. Confirm from a runtime log
 that prints `Ext.Enums.SurfaceType` keys, then record the accepted key here.
 
+## Latest surface result (2026-10-28 02:05 run)
+
+`Ext.Level.ExecuteSurfaceAction` returned `true` for every line segment:
+
+```text
+Ext.Level action fields string CreateSurface: ok=true err=nil
+Ext.Level surface type string CreateSurface/string Fire: set=true err=nil
+fire trail Ext.Level string CreateSurface/string Fire ... executed=true
+fire line: ... made=true
+```
+
+**However, no fire appeared in game.** Therefore `ExecuteSurfaceAction`
+returning `true` is a false-positive for this use case. Do not treat it as proof
+that a surface was created. The current code now tries `Osi.CreateSurface` with
+the source-GUID argument shape first and keeps the level action only as a
+fallback. That Osi path is still unverified.
+
+Also unresolved:
+
+- The wall spell's `Osi.CastSpell` calls return `ok=true` for several overloads
+  but no `CastedSpell` event or wall appears.
+- `action.SurfaceType = "Fire"` is accepted by the setter but does not produce a
+  visible surface.
+
 ## CustomClasses wall status
 
 The copied wall spell is:
