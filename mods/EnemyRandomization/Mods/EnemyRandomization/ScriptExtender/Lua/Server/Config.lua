@@ -98,6 +98,11 @@ ER.Config = {
     REMOVED_BUFF_STATUSES = {
         ENR_Perm_SURVIVAL_INSTINCT = true,
         SURVIVAL_INSTINCT = true,
+        -- These copies keep vanilla's DownedStatus, but each *_DOWNED status
+        -- only removes the vanilla source, so the wrapper never runs out.
+        ENR_Perm_DEATH_WARD = true,
+        ENR_Perm_RELENTLESS_RAGE = true,
+        ENR_Perm_UNDEAD_FORTITUDE = true,
     },
 
     -- Native BG3 statuses used by the first pass. Every entry here must be a
