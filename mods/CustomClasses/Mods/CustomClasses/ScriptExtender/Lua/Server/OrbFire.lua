@@ -63,6 +63,23 @@ local function createFire(guid, x, y, z)
         end
     end
 
+    -- Prefer the Osiris surface call: its observed error says argument 3 must
+    -- be a string, which matches the source-GUID form.
+    if Osi and Osi.CreateSurface then
+        local osiAttempts = {
+            { "sourceGuid,10", { SURFACE, RADIUS, tostring(guid or ""), x, y, z or 0, 10 } },
+            { "empty,10", { SURFACE, RADIUS, "", x, y, z or 0, 10 } },
+            { "sourceGuid", { SURFACE, RADIUS, tostring(guid or ""), x, y, z or 0 } },
+            { "Fire,10", { SURFACE, RADIUS, "Fire", x, y, z or 0, 10 } },
+        }
+        for i, attempt in ipairs(osiAttempts) do
+            local ok, err = pcall(Osi.CreateSurface, table.unpack(attempt[2]))
+            log("Osi.CreateSurface attempt %d (%s): ok=%s err=%s",
+                i, attempt[1], tostring(ok), tostring(err))
+            if ok then return true end
+        end
+    end
+
     -- Ext.Level.CreateSurfaceAction takes a SurfaceActionType enum, not a
     -- surface name. Build the action, then assign its fields.
     if Ext and Ext.Level and Ext.Level.CreateSurfaceAction then
@@ -75,23 +92,26 @@ local function createFire(guid, x, y, z)
                 Ext.Enums and Ext.Enums.SurfaceActionType
                     and Ext.Enums.SurfaceActionType.CreateSurface },
         }
-        local surfaceTypes = {
-            { "string Fire", "Fire" },
-            { "string SurfaceFire", "SurfaceFire" },
-        }
+        local surfaceTypes = {}
         if Ext.Enums and Ext.Enums.SurfaceType then
             local okEnums, enums = pcall(function() return Ext.Enums.SurfaceType end)
             if okEnums and enums then
                 local okPairs = pcall(function()
                     for key, value in pairs(enums) do
                         if tostring(key):lower():find("fire", 1, true) then
+                            log("SurfaceType enum candidate: %s=%s",
+                                tostring(key), tostring(value))
                             surfaceTypes[#surfaceTypes + 1] = { "enum " .. tostring(key), value }
                         end
                     end
                 end)
-                log("Ext.Enums.SurfaceType scan: ok=%s count=%d", tostring(okPairs), #surfaceTypes)
+                log("Ext.Enums.SurfaceType scan: ok=%s candidates=%d",
+                    tostring(okPairs), #surfaceTypes)
             end
         end
+        -- String labels are fallback only; the enum values take priority.
+        surfaceTypes[#surfaceTypes + 1] = { "string Fire", "Fire" }
+        surfaceTypes[#surfaceTypes + 1] = { "string SurfaceFire", "SurfaceFire" }
         for i, entry in ipairs(actionTypes) do
             if entry[2] ~= nil then
                 local ok, action = pcall(Ext.Level.CreateSurfaceAction, entry[2])
@@ -100,6 +120,7 @@ local function createFire(guid, x, y, z)
                         action.Position = pos
                         action.Radius = RADIUS
                         action.Duration = 10
+                        action.Owner = guid
                     end)
                     log("Ext.Level action fields %s: ok=%s err=%s",
                         entry[1], tostring(fieldsOk), tostring(fieldsErr))
@@ -142,9 +163,14 @@ local function createFire(guid, x, y, z)
     -- differs across BG3SE releases.
     if Osi and Osi.CreateSurface then
         local attempts = {
+            -- The observed error says argument 3 must be a string, which points
+            -- to the source GUID form: (surface, radius, source, x, y, z, ...).
+            { SURFACE, RADIUS, tostring(guid or ""), x, y, z or 0, 10 },
+            { SURFACE, RADIUS, tostring(guid or ""), x, y, z or 0 },
+            { SURFACE, RADIUS, "Fire", x, y, z or 0, 10 },
+            { SURFACE, RADIUS, "", x, y, z or 0, 10 },
             { SURFACE, RADIUS, x, y, z or 0 },
             { SURFACE, x, y, z or 0, RADIUS },
-            { SURFACE, RADIUS, "", 1.0, 10, 0, 0, 1.0, 0, 0 },
         }
         for i, args in ipairs(attempts) do
             local ok, err = pcall(Osi.CreateSurface, table.unpack(args))
