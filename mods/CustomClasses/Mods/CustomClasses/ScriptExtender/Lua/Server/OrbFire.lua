@@ -329,14 +329,16 @@ local function castFireWall(caster, x, y, z, oldX, oldY, oldZ)
         -- Probe the multiple known/possible CastSpell overloads in one run.
         -- The first accepted overload is used; failures are logged with the
         -- exact Osiris error so we do not need a separate test per signature.
+        -- The accepted BG3SE signature observed in-game is
+        --   CastSpell(caster, spell, spellType, target, level)
+        -- Keep the known-good form first; the rest are diagnostic fallbacks.
         local attempts = {
+            { "Wall,spell,target,0", { source, "CC_OrbFireWall", "Wall", caster, 0 } },
+            { "spell,0,Wall", { source, "CC_OrbFireWall", caster, 0, "Wall" } },
             { "spell,0,Spell", { source, "CC_OrbFireWall", caster, 0, "Spell" } },
             { "spell,0,empty", { source, "CC_OrbFireWall", caster, 0, "" } },
-            { "spell,0,Wall", { source, "CC_OrbFireWall", caster, 0, "Wall" } },
             { "spell,0,source", { source, "CC_OrbFireWall", caster, 0, source } },
-            { "spell,0,0", { source, "CC_OrbFireWall", caster, 0, 0 } },
             { "Wall,spell,target", { source, "CC_OrbFireWall", "Wall", caster } },
-            { "Wall,spell,target,0", { source, "CC_OrbFireWall", "Wall", caster, 0 } },
         }
         local casted = false
         for i, attempt in ipairs(attempts) do
