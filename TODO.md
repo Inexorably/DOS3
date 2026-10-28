@@ -460,6 +460,15 @@ Known DOS2 visual references for the current test spells:
 
 ## Custom Classes
 
+- [x] Add player-cast **Orb Chain Lightning**: targets `CC_ORB` orbs only,
+      strikes enemies within 3 m of each struck orb for 2 Lightning damage,
+      bounces to orbs within 8 m (each orb once per cast, per-orb enemy hits),
+      and plays lightning impact VFX at each orb and victim.
+- [ ] Verify Orb Chain Lightning in-game: hotbar grant, 2 AP cost, orb-only
+      targeting reticle, bounce order and distance, double hits for enemies in
+      two radii, VFX placement, neutral/dead/caster filtering, and that
+      `Osi.IsEnemy`/`Osi.PlayEffectAtPosition` behave as expected in this build.
+
 - [x] Replace orb wall `CastSpell` event injection with the actual `UseSpell`
       action, using invisible endpoint items at the saved charge origin and
       actual landing point. Remove party-member teleportation and fake surface

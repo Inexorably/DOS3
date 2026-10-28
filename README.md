@@ -502,6 +502,12 @@ is the **Summon Ball** cantrip:
   any party members.
   It deliberately does **not** use native `BURNING` or an Ablaze aura, so the
   orb does not carry a 1.5 m damaging aura.
+- **Orb Chain Lightning** is cast by the player and can only target a
+  `CC_ORB` orb. It costs **2 AP** and deals **2 Lightning** damage to enemies
+  within **3 m** of the struck orb. If another orb is within **8 m**, the bolt
+  bounces to it and strikes around that orb as well; each orb can be struck
+  only once per cast, so a chain can never double back. An enemy inside two
+  struck orbs' radii is damaged once per orb.
 - While `GRANT_TEST_CANTRIP` is enabled in `Server/Config.lua`, the test
   bootstrap grants the orb and Ignite cantrips to every party member. This is a
   testing aid; disable it once the spells are granted through a real class
@@ -511,6 +517,7 @@ is the **Summon Ball** cantrip:
 CC_SummonBall         Summon Ball cantrip
 CC_SummonBall_Azure   Summon Azure Orb cantrip
 CC_IgniteOrb          set an orb ablaze and leave a fire trail
+CC_OrbChainLightning  player-cast lightning that chains between orbs
 CC_BallCharge         orb Charge action
 CC_Ball               summoned orb character
 ```

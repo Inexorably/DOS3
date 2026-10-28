@@ -36,6 +36,13 @@ AZURE_CHARACTER_VISUAL_ID = str(uuid.uuid5(NS, "CustomClasses/azure/visual/chara
 BLACK_HOLE_VISUAL = "fd5aa94f-66ec-14ec-fa97-b88fae69796b"
 BLACK_HOLE_AURA = "203bf8b8-8dee-1724-e5e3-8479f16024f8"
 WALL_DAMAGE = 2
+CHAIN_LIGHTNING_DAMAGE = 2
+CHAIN_LIGHTNING_ANIMATION = (
+    "3ff87abf-1ea1-4c32-aadf-c822d74c7dc0,,;,,;cd5e5d4a-38e1-4d4d-b346-3fbc1e4c3c90,,;"
+    "141f48d9-9615-496a-8737-9240f0dba60d,,;d8925ce4-d6d9-400c-92f5-ad772ef7f178,,;,,;"
+    "eadedcce-d01b-4fbb-a1ae-d218f13aa5d6,,;,,;,"
+)
+CHAIN_LIGHTNING_PREPARE_EFFECT = "abf8542a-6c39-49ad-bc94-86c4585a5948"
 SPHERE_CAST_ANIMATION = (
     "0319ca29-4024-4649-9278-3c1f20c5f023,,;a71e11ca-95ab-463d-a4bf-fe8094126b61,,;"
     "352c3a89-f99c-4472-8424-58c0ffb15e55,,;a57fc614-ed20-4574-936b-bdcc6cebd36a,,;"
@@ -266,9 +273,41 @@ data "UseCosts" "ActionPoint:1"
 data "SpellFlags" "IsSpell;HasVerbalComponent;HasSomaticComponent;HasHighGroundRangeExtension"
 data "AIFlags" "CanNotUse"
 
+new entry "CC_OrbChainLightning"
+type "SpellData"
+using "Target_MageHand"
+data "SpellType" "Target"
+data "Level" "0"
+data "Cooldown" ""
+data "RechargeValues" ""
+data "AICooldown" ""
+data "SpellRoll" ""
+data "WeaponTypes" ""
+data "SpellProperties" ""
+data "SpellSuccess" ""
+data "SpellFail" ""
+data "TargetConditions" "HasStatus('CC_ORB') and not Self()"
+data "RequirementConditions" ""
+data "RequirementEvents" ""
+data "Requirements" ""
+data "TargetRadius" "18"
+data "DisplayName" "{handle('CC_OrbChainLightning/name')}"
+data "Description" "{handle('CC_OrbChainLightning/desc')}"
+data "DescriptionParams" "Distance(3);Distance(8);DealDamage({CHAIN_LIGHTNING_DAMAGE},Lightning)"
+data "TooltipDamageList" "DealDamage({CHAIN_LIGHTNING_DAMAGE},Lightning)"
+data "Icon" "Spell_Evocation_ChainLightning"
+data "UseCosts" "ActionPoint:2"
+-- Target_MageHand inherits CannotTargetCharacter/CannotTargetItems. Remove
+-- those flags so the orb character itself can be selected.
+data "SpellFlags" "IsSpell;HasVerbalComponent;HasSomaticComponent;HasHighGroundRangeExtension"
+data "SpellAnimation" "{CHAIN_LIGHTNING_ANIMATION}"
+data "PrepareEffect" "{CHAIN_LIGHTNING_PREPARE_EFFECT}"
+data "CastEffect" "{CHAIN_LIGHTNING_PREPARE_EFFECT}"
+data "CastTextEvent" "Cast"
+data "AIFlags" "CanNotUse"
+
 new entry "CC_ORB_CHARGE"
 type "StatusData"
-data "StatusType" "BOOST"
 data "DisplayName" "{handle('CC_ORB_CHARGE/name')}"
 data "Description" "{handle('CC_ORB_CHARGE/desc')}"
 data "StackId" "CC_ORB_CHARGE"
@@ -422,6 +461,11 @@ def write_loca() -> None:
         (
             handle("CC_IgniteOrb/desc"),
             "Set an arcane orb ablaze. The orb leaves a trail of Fire behind it as it moves or Charges.",
+        ),
+        (handle("CC_OrbChainLightning/name"), "Orb Chain Lightning"),
+        (
+            handle("CC_OrbChainLightning/desc"),
+            f"Call lightning down on enemies within 3 m of an arcane orb, dealing {CHAIN_LIGHTNING_DAMAGE} Lightning damage. If another orb is within 8 m, the bolt bounces to it and strikes around it too. Each orb can be struck once per cast. Costs 2 AP.",
         ),
         (handle("CC_ORB/name"), "Arcane Orb"),
         (handle("CC_ORB_CHARGE/name"), "Charge Grant"),

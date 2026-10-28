@@ -120,8 +120,9 @@ class CcAssetTests(unittest.TestCase):
         self.assertIn(self.mod.handle("CC_SummonBall/name"), spells)
 
         loca = load_script("generate-armor-passives").read_loca(self.mod.LOCA)
-        self.assertEqual(len(loca), 24)
+        self.assertEqual(len(loca), 26)
         self.assertIn("Summon Azure Orb", dict(loca).values())
+        self.assertIn("Orb Chain Lightning", dict(loca).values())
 
     def test_main_runs_every_stage(self) -> None:
         self.mod.ROOT_SOURCE.write_text(SOURCE_TEMPLATES, encoding="utf-8")
