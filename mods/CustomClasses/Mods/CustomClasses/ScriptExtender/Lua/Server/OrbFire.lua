@@ -326,16 +326,33 @@ local function castFireWall(caster, x, y, z, oldX, oldY, oldZ)
             pcall(Osi.AddSpell, source, "CC_OrbFireWall", 0, 1)
         end
 
-        -- Osiris signature: CastSpell(caster, spell, target, level, source).
-        local ok, err = pcall(Osi.CastSpell,
-            source, "CC_OrbFireWall", caster, 0, "Spell")
-        log("wall cast: caster=%s target=%s ok=%s err=%s",
-            tostring(source), tostring(caster), tostring(ok), tostring(err))
+        -- Probe the multiple known/possible CastSpell overloads in one run.
+        -- The first accepted overload is used; failures are logged with the
+        -- exact Osiris error so we do not need a separate test per signature.
+        local attempts = {
+            { "spell,0,Spell", { source, "CC_OrbFireWall", caster, 0, "Spell" } },
+            { "spell,0,empty", { source, "CC_OrbFireWall", caster, 0, "" } },
+            { "spell,0,Wall", { source, "CC_OrbFireWall", caster, 0, "Wall" } },
+            { "spell,0,source", { source, "CC_OrbFireWall", caster, 0, source } },
+            { "spell,0,0", { source, "CC_OrbFireWall", caster, 0, 0 } },
+            { "Wall,spell,target", { source, "CC_OrbFireWall", "Wall", caster } },
+            { "Wall,spell,target,0", { source, "CC_OrbFireWall", "Wall", caster, 0 } },
+        }
+        local casted = false
+        for i, attempt in ipairs(attempts) do
+            local ok, err = pcall(Osi.CastSpell, table.unpack(attempt[2]))
+            log("wall cast attempt %d (%s): ok=%s err=%s",
+                i, attempt[1], tostring(ok), tostring(err))
+            if ok then
+                casted = true
+                break
+            end
+        end
 
         if Ext.Timer and Ext.Timer.WaitFor then
             Ext.Timer.WaitFor(500, function()
                 teleport(source, sx, sy, sz)
-                log("wall cast: restored source position")
+                log("wall cast: restored source position (casted=%s)", tostring(casted))
             end)
         else
             teleport(source, sx, sy, sz)
@@ -391,6 +408,19 @@ end
 if Ext and Ext.Entity and Ext.Entity.OnCreate then
     local okIgnite = pcall(Ext.Entity.OnCreate, "SpellCastEvent", onIgniteEntity)
     log("fire SpellCastEvent listener: %s", tostring(okIgnite))
+end
+
+-- One-time API inventory. This makes missing/wrong Osiris or surface paths
+-- visible at load instead of after the first manual rig test.
+log("API inventory: CastSpell=%s CastSpellAtPosition=%s UseSpell=%s CreateSurface=%s CreateSurfaceAtPosition=%s",
+    type(Osi and Osi.CastSpell), type(Osi and Osi.CastSpellAtPosition),
+    type(Osi and Osi.UseSpell), type(Osi and Osi.CreateSurface),
+    type(Osi and Osi.CreateSurfaceAtPosition))
+log("API inventory: Ext.Surface=%s Ext.Level=%s Ext.Enums=%s",
+    type(Ext and Ext.Surface), type(Ext and Ext.Level), type(Ext and Ext.Enums))
+if Ext and Ext.Enums then
+    log("API inventory: SurfaceActionType=%s SurfaceType=%s",
+        type(Ext.Enums.SurfaceActionType), type(Ext.Enums.SurfaceType))
 end
 
 if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
