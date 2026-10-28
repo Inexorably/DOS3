@@ -66,7 +66,8 @@ local function createFire(guid, x, y, z)
     -- Ext.Level.CreateSurfaceAction takes a SurfaceActionType enum, not a
     -- surface name. Build the action, then assign its fields.
     if Ext and Ext.Level and Ext.Level.CreateSurfaceAction then
-        local pos = { x = x, y = y, z = z or 0 }
+        -- SurfaceAction.Position is a vector array, not a keyed table.
+        local pos = { x, y, z or 0 }
         local actionTypes = {
             { "string CreateSurface", "CreateSurface" },
             { "string CreateSurfaceAction", "CreateSurfaceAction" },
