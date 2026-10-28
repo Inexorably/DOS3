@@ -299,7 +299,7 @@ local function teleport(guid, x, y, z)
     return false
 end
 
-local function castFireWall(caster, x, y, z)
+local function castFireWall(caster, x, y, z, oldX, oldY, oldZ)
     local source = IGNITE_SOURCE[tostring(caster)]
     if not source then
         log("wall cast: no ignite source for %s", tostring(caster))
@@ -310,39 +310,46 @@ local function castFireWall(caster, x, y, z)
         return false
     end
 
-    local sx, sy, sz = positionOf(source)
-    if not sx then
-        log("wall cast: source position unavailable %s", tostring(source))
-        return false
-    end
+    local function doCast()
+        local sx, sy, sz = positionOf(source)
+        if not sx then
+            log("wall cast: source position unavailable %s", tostring(source))
+            return
+        end
+        -- After the rush the orb is at the destination. Move the player caster
+        -- to the old orb position and use the orb as the target GUID.
+        if not teleport(source, oldX, oldY, oldZ) then
+            log("wall cast: could not place player at old orb position")
+            return
+        end
+        if Osi.AddSpell then
+            pcall(Osi.AddSpell, source, "CC_OrbFireWall", 0, 1)
+        end
 
-    -- The wall spell requires a target entity, not a world position. Move the
-    -- player caster to the destination, then cast from the orb's old position
-    -- to that target. Restore the player immediately afterward.
-    if Osi.AddSpell then
-        pcall(Osi.AddSpell, caster, "CC_OrbFireWall", 0, 1)
-    end
-    if not teleport(source, x, y, z) then
-        log("wall cast: could not place target at destination")
-        return false
-    end
+        -- Osiris signature: CastSpell(caster, spell, target, level, source).
+        local ok, err = pcall(Osi.CastSpell,
+            source, "CC_OrbFireWall", caster, 0, "Spell")
+        log("wall cast: caster=%s target=%s ok=%s err=%s",
+            tostring(source), tostring(caster), tostring(ok), tostring(err))
 
-    -- Osiris signature: CastSpell(caster, spell, target, level, source).
-    -- The four-argument form does not exist in this build.
-    local ok, err = pcall(Osi.CastSpell,
-        caster, "CC_OrbFireWall", source, 0, "Spell")
-    log("wall cast: caster=%s target=%s ok=%s err=%s",
-        tostring(caster), tostring(source), tostring(ok), tostring(err))
-
-    if Ext.Timer and Ext.Timer.WaitFor then
-        Ext.Timer.WaitFor(500, function()
+        if Ext.Timer and Ext.Timer.WaitFor then
+            Ext.Timer.WaitFor(500, function()
+                teleport(source, sx, sy, sz)
+                log("wall cast: restored source position")
+            end)
+        else
             teleport(source, sx, sy, sz)
-            log("wall cast: restored source position")
-        end)
-    else
-        teleport(source, sx, sy, sz)
+        end
     end
-    return ok
+
+    -- Run after the rush has moved the orb so the target GUID is at the
+    -- destination.
+    if Ext.Timer and Ext.Timer.WaitFor then
+        Ext.Timer.WaitFor(800, doCast)
+    else
+        doCast()
+    end
+    return true
 end
 
 local function onChargePosition(caster, x, y, z, spell)
@@ -360,7 +367,8 @@ local function onChargePosition(caster, x, y, z, spell)
     if targetX then
         -- Copy of Wall of Fire: cast the custom wall from the old orb position
         -- toward the charge destination. Its custom aura deals 5 Fire damage.
-        walled = castFireWall(caster, targetX, targetY, targetZ or oldZ or 0)
+        walled = castFireWall(caster, targetX, targetY, targetZ or oldZ or 0,
+            oldX, oldY, oldZ)
     end
     if not walled then
         if oldX and targetX then
