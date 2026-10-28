@@ -8,7 +8,7 @@ experimental.
 Last updated from:
 - `Extender Runtime 2026-10-28 02-00-11.log`
 - `Osiris Runtime 2026-10-28 02-00-47.log`
-- CustomClasses package `254882e72fa2be0ec94b6ea35ed8fc8b`
+- OrbWeaver package `254882e72fa2be0ec94b6ea35ed8fc8b` (formerly packaged as `CustomClasses`)
 
 ## Osiris API discoveries
 
@@ -246,7 +246,7 @@ Separately, `CC_OrbFireWall` had `Lifetime 3`, which explains ash quickly
 replacing the fire. It is now `Lifetime 10`; the custom line status is
 `CC_ORB_FIRE_LINE` and deals 2 Fire damage per tick.
 
-## CustomClasses wall status
+## OrbWeaver wall status
 
 The copied wall spell is:
 
@@ -382,6 +382,103 @@ Confirmed working in `Extender Runtime 2026-10-28 04-38-32.log`:
 
 `DOS2Combat/Server/Surfaces.lua` still calls `Osi.DealDamage` inside `pcall`, so
 its surface tick damage is a silent no-op in this build. Tracked in #10.
+
+## Custom class resources: reuse the vanilla file names
+
+A new base class did not appear in character creation. Two mistakes, both found
+by reading published class mods rather than the tutorial alone.
+
+**1. Do not rename class resources to `_merged`.** `_merged` is not a mod
+convention — it is literally the vanilla file name for `RootTemplates`
+(`Public/Shared/RootTemplates/_merged.lsx`), which is why the orb root uses it.
+The engine identifies a resource by its sub-path under `Public/<Module>/`, so a
+class mod's files must be named exactly like the vanilla ones.
+`ClassDescriptions/_merged.lsf` is a resource the engine never looks up, so the
+class silently never appears.
+
+Reference implementations, both openly readable on GitHub:
+
+- `deggertsen/bg3-class-surgebinder` (class + subclasses):
+  ```text
+  Public/Surgebinder/ClassDescriptions/ClassDescriptions.lsx
+  Public/Surgebinder/Progressions/Progressions.lsx
+  Public/Surgebinder/Progressions/ProgressionDescriptions.lsx
+  Public/Surgebinder/CharacterCreationPresets/AbilityDistributionPresets.lsx
+  Public/Surgebinder/DefaultValues/{Abilities,Passives,Skills}.lsx
+  Public/Surgebinder/Lists/{AbilityLists,SkillLists}.lsx
+  Public/Surgebinder/Tags/<uuid>.lsx
+  ```
+- `snikkidoodle/bg3-alchemist-class` (class with fewer files — shows the minimum):
+  ```text
+  Public/Alchemist_Class_Homebrew/ClassDescriptions/ClassDescriptions.lsx
+  Public/Alchemist_Class_Homebrew/Progressions/Progressions.lsx
+  Public/Alchemist_Class_Homebrew/Lists/{SkillLists,SpellLists}.lsx
+  Public/Alchemist_Class_Homebrew/Stats/...
+  ```
+
+So `ClassDescriptions` + `Progressions` are the hard minimum; presets,
+defaults, and extra lists add character-creation polish.
+
+**2. Attach a vanilla class tag as well as your own.** Both reference mods list
+an existing vanilla class tag (Alchemist uses Wizard's
+`6fe3ae27-dc6c-4fc9-9245-710c790c396c`) alongside their custom tag. A custom
+class tag only needs the `Code` and `CharacterSheet` categories; `Class` is not
+used by either working mod.
+
+Also confirmed: a *subclass* is just another `ClassDescription` node with
+`ParentGuid` pointing at a base class UUID and its own `ProgressionTableUUID`,
+so subclasses are not fundamentally simpler — they still need a
+`ClassDescriptions` entry and a progression table.
+
+## Class spells are granted by a selector, not by Boosts
+
+A new class appeared in character creation but started play with none of its
+spells. The progression granted them with:
+
+```text
+Boosts = UnlockSpell(CC_SummonBall_Azure);UnlockSpell(CC_IgniteOrb);...
+```
+
+Zero of the 286 vanilla `Progression` rows use `UnlockSpell` inside `Boosts`, and
+the engine silently ignores it there. Vanilla grants class spells through
+selectors pointing at a `SpellList`:
+
+```text
+Selectors = AddSpells(34c3321d-75ab-4b50-a44d-cbac8705a360,,,,AlwaysPrepared)
+```
+
+Fix: ship `Public/<Mod>/Lists/SpellLists.lsx` with a `SpellList` node holding the
+spell names, and reference its UUID from a level-1 `AddSpells(<uuid>,,,,AlwaysPrepared)`
+selector. `SelectSpells`/`AddSpells` both exist; `AddSpells` grants without a
+pick list, which suits a fixed class list.
+
+## GUI textures need a DX10 header (and are BC7 in vanilla)
+
+The class-select icon did not appear. Vanilla
+`Public/Game/GUI/Assets/ClassIcons/<ClassName>.DDS` files use a **DX10 extended
+header** with `dxgiFormat = 98` (`DXGI_FORMAT_BC7_UNORM`); the engine's GUI
+texture loader ignored the legacy DXT5 fourcc header that Pillow writes.
+
+Diagnose a DDS by reading offsets:
+
+```text
+0-3    "DDS "
+12-19  height, width (uint32 LE)
+28-31  mipMapCount (vanilla class icons use 1)
+84-87  fourCC ("DXT5" legacy, or "DX10")
+128+   DXT10 header: dxgiFormat, resourceDimension, miscFlag, arraySize, miscFlags2
+```
+
+Rewriting the header to DX10 with `dxgiFormat = 77` (`BC3_UNORM`) still did not
+produce a visible icon: every vanilla class icon is **BC7** (`dxgiFormat = 98`),
+and the loader appears to require it. Pillow cannot encode BC7, so this repo
+copies a vanilla icon **byte-for-byte** to
+`Assets/ClassIcons/<ClassName>.DDS` and `AssetsLowRes/ClassIcons/<ClassName>.DDS`.
+Recolouring would need a BC7 encoder (e.g. texconv); the icon art is therefore
+the vanilla source named by `ICON_SOURCE`.
+
+Both sizes ship: `Assets/ClassIcons/<Name>.DDS` and
+`AssetsLowRes/ClassIcons/<Name>.DDS`.
 
 ## Maintenance rule
 

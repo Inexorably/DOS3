@@ -15,7 +15,7 @@ except ImportError:  # pragma: no cover
 @unittest.skipUnless(HAVE_LUPA, "lupa is not installed")
 class OrbFireTests(unittest.TestCase):
     def setUp(self) -> None:
-        self.harness = LuaModHarness("CustomClasses")
+        self.harness = LuaModHarness("OrbWeaver")
         for module in ("Server/Config.lua", "Server/OrbFire.lua"):
             self.harness.load(module)
         self.harness.run(

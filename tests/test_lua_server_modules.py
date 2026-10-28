@@ -191,7 +191,7 @@ class Dos2CombatHarnessTests(unittest.TestCase):
 class BootstrapSmokeTests(unittest.TestCase):
     """Every mod's server bootstrap must load and register under the stub runtime."""
 
-    MODS = ("DOS2Combat", "EnemyRandomization", "CustomClasses")
+    MODS = ("DOS2Combat", "EnemyRandomization", "OrbWeaver")
 
     def bootstrap(self, mod: str) -> LuaModHarness:
         harness = LuaModHarness(mod)

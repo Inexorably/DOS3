@@ -458,7 +458,27 @@ Known DOS2 visual references for the current test spells:
 - [ ] Verify the hotbar spell and `!respec` command open the native respec UI
       in-game, including multiplayer caster routing.
 
-## Custom Classes
+## OrbWeaver
+
+- [x] Add a new base class, `CC_Orbweaver` (Orbweaver), that owns the orb
+      spells. Generated `ClassDescriptions.lsf`, `Progressions.lsf` (levels
+      1-12, ability improvements at 4/8/12), and a `CLASS_ORBWEAVER` tag
+      resource. Intelligence-based, 8 base HP / 5 per level.
+- [x] Stop granting the orb spells to every party member: `GRANT_TEST_CANTRIP`
+      now defaults to false and the class progression unlocks the spells at
+      level 1. The test grant remains as an opt-in escape hatch.
+- [x] Diagnose class visibility by reading published class mods
+      (`deggertsen/bg3-class-surgebinder`, `snikkidoodle/bg3-alchemist-class`).
+      Class resources must reuse the plain vanilla file names; `_merged` is only
+      the vanilla name for `RootTemplates`. Also added
+      `ProgressionDescriptions`, the per-class `AbilityDistributionPreset`, a
+      vanilla class tag alongside `CLASS_ORBWEAVER`, skill list + `SelectSkills`
+      selector, and default skills.
+- [ ] Verify the class is now selectable in character creation, that it offers
+      two skills from the class list, that level 1 unlocks the three orb spells,
+      that leveling 1-12 grants the ability improvements, and that all 12
+      vanilla classes are still selectable (the `_merged` files must merge, not
+      replace). Also confirm existing Orbweaver saves still load.
 
 - [x] Add player-cast **Orb Chain Lightning**: targets `CC_ORB` orbs only,
       strikes enemies within 3 m of each struck orb for 2 Lightning damage,
