@@ -28,3 +28,8 @@ __pycache__/
 
 # Local GitHub credential
 GH_PAT.txt
+
+# BG3 runtime output written into the repository root
+db/
+gold.*.log
+network.*.log
