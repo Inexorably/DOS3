@@ -530,8 +530,10 @@ castFireWall = function(caster, x, y, z, oldX, oldY, oldZ)
                     -- Diagnostic fallback: native Wall of Fire. If this produces
                     -- the expected wall animation, the custom wall stat is the
                     -- remaining problem; if it does not, the cast path is wrong.
+                    -- Native fallback uses the same target/source/level
+                    -- ordering as the likely CastSpell overload.
                     local nativeOk, nativeErr = pcall(Osi.CastSpell,
-                        source, "Wall_WallOfFire", "Wall", caster, 4)
+                        source, "Wall_WallOfFire", caster, "Spell", 4)
                     log("native wall fallback: ok=%s err=%s",
                         tostring(nativeOk), tostring(nativeErr))
                     local made = createFireLine(caster, oldX, oldY, oldZ, x, y, z)
@@ -578,6 +580,14 @@ local function onChargePosition(caster, x, y, z, spell)
 end
 
 if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
+    pcall(Ext.Osiris.RegisterListener, "CastSpellFailed", 5, "after",
+        function(caster, spell, reason, a, b)
+            spell = tostring(spell or "")
+            if spell == "CC_OrbFireWall" or spell == "Wall_WallOfFire" then
+                log("wall CastSpellFailed: caster=%s spell=%s reason=%s a=%s b=%s",
+                    tostring(caster), spell, tostring(reason), tostring(a), tostring(b))
+            end
+        end)
     local okTurn = pcall(Ext.Osiris.RegisterListener, "TurnStarted", 1, "after", onTurnStarted)
     local okCharge = pcall(Ext.Osiris.RegisterListener, "UsingSpellAtPosition", 8, "after", onChargePosition)
     log("fire listeners: turn=%s charge=%s", tostring(okTurn), tostring(okCharge))
