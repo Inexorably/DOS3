@@ -12,6 +12,7 @@ packaging OrbWeaver; scripts/build.sh does it automatically.
 
 from __future__ import annotations
 
+import colorsys
 import copy
 import struct
 import subprocess
@@ -28,6 +29,12 @@ CLASS_DESCRIPTIONS = PUBLIC / "ClassDescriptions"
 PROGRESSIONS = PUBLIC / "Progressions"
 TAGS = PUBLIC / "Tags"
 CHARACTER_CREATION_PRESETS = PUBLIC / "CharacterCreationPresets"
+GAME_GUI = MOD / "Public/Game/GUI"
+LOWRES_GUI = MOD / "Public/Game/GUI/AssetsLowRes"
+VANILLA_CLASS_ICONS = ROOT / ".analysis/ui2/Public/Game/GUI/Assets/ClassIcons"
+VANILLA_LOWRES_ICONS = ROOT / ".analysis/ui2/Public/Game/GUI/AssetsLowRes/ClassIcons"
+ICON_SOURCE = "Wizard.DDS"
+ICON_HUE = 0.62  # blue-violet, matching the azure orb
 LISTS = PUBLIC / "Lists"
 DEFAULT_VALUES = PUBLIC / "DefaultValues"
 LOCA = MOD / "Localization/English/OrbWeaver.loca"
@@ -919,11 +926,57 @@ def write_loca() -> None:
     LOCA.write_bytes(bytes(out + text_table))
 
 
+def build_class_icon() -> None:
+    """Create the class-select icon.
+
+    The engine looks up ``Public/Game/GUI/Assets/ClassIcons/<ClassDescription
+    Name>.DDS`` plus a low-resolution variant. The source is the vanilla Wizard
+    icon, hue-shifted to the azure orb's blue-violet so the class reads as our
+    own without shipping a new texture pipeline. Committed output is used when
+    the extracted vanilla icons are unavailable.
+    """
+    source = VANILLA_CLASS_ICONS / ICON_SOURCE
+    if not source.is_file():
+        print("class icon source unavailable; keeping committed icons")
+        return
+
+    from PIL import Image
+
+    def recolor(image):
+        pixels = []
+        for r, g, b, a in image.convert("RGBA").getdata():
+            h, s, v = colorsys.rgb_to_hsv(r / 255.0, g / 255.0, b / 255.0)
+            # Keep the icon's luminance/structure; only rotate the hue and lift
+            # a little saturation so it stays legible at small sizes.
+            nr, ng, nb = colorsys.hsv_to_rgb(ICON_HUE, min(1.0, s * 1.15 + 0.1), v)
+            pixels.append((int(nr * 255), int(ng * 255), int(nb * 255), a))
+        out = image.convert("RGBA").copy()
+        out.putdata(pixels)
+        return out
+
+    full = recolor(Image.open(source))
+    destinations = [
+        GAME_GUI / "Assets/ClassIcons" / f"{CLASS_NAME}.DDS",
+        LOWRES_GUI / "ClassIcons" / f"{CLASS_NAME}.DDS",
+    ]
+    for destination in destinations:
+        destination.parent.mkdir(parents=True, exist_ok=True)
+    full.save(destinations[0], pixel_format="DXT5")
+
+    lowres_source = VANILLA_LOWRES_ICONS / ICON_SOURCE
+    if lowres_source.is_file():
+        recolor(Image.open(lowres_source)).save(destinations[1], pixel_format="DXT5")
+    else:
+        full.save(destinations[1], pixel_format="DXT5")
+    print("class icon:", destinations[0])
+
+
 def main() -> None:
     build_root_template()
     write_stats()
     write_loca()
     build_class_files()
+    build_class_icon()
     print("OrbWeaver assets generated")
     print("azure orb root:", ORB_GUID)
     print("black hole visual:", BLACK_HOLE_VISUAL)

@@ -3,7 +3,9 @@
 -- The orb spells belong to the CC_Orbweaver class progression, so they are no
 -- longer granted to every party member. The test grant is kept as an escape
 -- hatch: set GRANT_TEST_CANTRIP to true to put the spells on the whole party
--- again when a character without the class needs to test them.
+-- again when a character without the class needs to test them. It is checked on
+-- session load AND on CharacterJoinedParty; missing the latter check silently
+-- kept handing the orb spells to every new party member.
 OW = OW or {}
 OW.Config = {
     DEBUG = true,

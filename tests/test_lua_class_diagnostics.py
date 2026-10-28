@@ -58,7 +58,7 @@ class ClassDiagnosticsTests(unittest.TestCase):
         self.assertIn("ClassDescription count=2 hasOurClass=true", logs)
         self.assertIn("CC_Orbweaver", logs)
         self.assertIn("Wizard", logs)
-        self.assertIn("Progression count=1 hasOurTable=1", logs)
+        self.assertIn("hasOurTable=true", logs)
 
     def test_reports_absence_of_our_class(self) -> None:
         self.harness.run(

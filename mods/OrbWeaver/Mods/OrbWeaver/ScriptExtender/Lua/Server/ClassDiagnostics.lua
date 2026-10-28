@@ -15,6 +15,8 @@ local D = OW.ClassDiagnostics
 local MODULE_UUID = "7cc8bd70-8e2b-5236-b2ac-d8568e346055"
 local CLASS_UUID = "ecf2f098-df55-5485-8bce-64d99ffd879c"
 local PROGRESSION_TABLE_UUID = "6759645c-cebb-5257-9b0d-064901c940f5"
+-- Level-1 progression row; if this loads, the table loaded too.
+local PROGRESSION_ROW_UUID = "6810d8a8-e257-5333-8678-748104dbf1fe"
 
 local function log(fmt, ...)
     OW.Utils.Log("class diag: " .. fmt, ...)
@@ -63,6 +65,14 @@ local function classNames(guids)
     return names
 end
 
+local function containsGuid(list, uuid)
+    if not list then return false end
+    for _, guid in ipairs(list) do
+        if sameGuid(guid, uuid) then return true end
+    end
+    return false
+end
+
 function D.Report()
     if not classManager() then return end
 
@@ -79,17 +89,41 @@ function D.Report()
 
     local progressions = getAll("Progression")
     if progressions then
-        local mine = 0
-        for _, guid in ipairs(progressions) do
-            if sameGuid(guid, PROGRESSION_TABLE_UUID) then mine = mine + 1 end
+        -- Report row presence too: GetAll may key by table rather than by row,
+        -- so a table hit alone is not proof that the rows loaded.
+        log("Progression count=%d hasOurTable=%s hasOurLevel1Row=%s"
+            .. " hasOurClass=%s",
+            #progressions,
+            text(containsGuid(progressions, PROGRESSION_TABLE_UUID)),
+            text(containsGuid(progressions, PROGRESSION_ROW_UUID)),
+            text(containsGuid(classes or {}, CLASS_UUID)))
+    end
+
+    if Ext.StaticData.Get then
+        for _, probe in ipairs({
+            { "Progression", PROGRESSION_ROW_UUID },
+            { "Progression", PROGRESSION_TABLE_UUID },
+            { "ProgressionDescription", PROGRESSION_TABLE_UUID },
+        }) do
+            local ok, resource = pcall(Ext.StaticData.Get, probe[2], probe[1])
+            log("Get(%s, %s) ok=%s found=%s", probe[2], probe[1],
+                text(ok), text(ok and resource ~= nil or resource))
         end
-        log("Progression count=%d hasOurTable=%d", #progressions, mine)
     end
 
     if Ext.StaticData.GetByModId then
         local ok, list = pcall(Ext.StaticData.GetByModId, "ClassDescription", MODULE_UUID)
-        if ok and type(list) == "table" then
-            log("classes registered by our module=%d", #list)
+        if ok and list ~= nil then
+            -- BG3SE returns Array<Guid> userdata, which supports # but is not a
+            -- plain Lua table, so type() must not be used to validate it.
+            local counted = false
+            local count
+            local okCount, result = pcall(function() return #list end)
+            if okCount and type(result) == "number" then
+                counted, count = true, result
+            end
+            log("classes registered by our module=%s (counted=%s)",
+                counted and tostring(count) or "<unknown>", text(counted))
         else
             log("GetByModId failed: %s", text(list))
         end

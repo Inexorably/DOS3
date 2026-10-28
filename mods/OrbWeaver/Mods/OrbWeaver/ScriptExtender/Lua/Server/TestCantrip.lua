@@ -85,6 +85,10 @@ if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
         grantParty()
     end)
     pcall(Ext.Osiris.RegisterListener, "CharacterJoinedParty", 1, "after", function(character)
+        -- Respect the flag here too: without this check every character that
+        -- joins the party receives the orb spells regardless of config, which
+        -- defeats the class progression.
+        if not cfg.GRANT_TEST_CANTRIP then return end
         grantAll(character)
     end)
 end
