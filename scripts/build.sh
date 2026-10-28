@@ -48,18 +48,18 @@ if [[ ! -d "$SRC" ]]; then
     echo "Usage: $0 [ModFolder]" >&2
     exit 1
 fi
-if [[ "$MOD" == "CustomClasses" ]]; then
-    CC_ROOT_SOURCE="$ROOT/.analysis/rootsshared/Public/Shared/RootTemplates/_merged.lsx"
-    CC_VISUAL_SOURCE="$ROOT/.analysis/conjurations.lsx"
-    SPHERE_TEX="$ROOT/.analysis/ccsphere/Generated/Public/Shared/Assets/Characters/_Models/_Creatures/Sphere_Flame/Resources/SPHERE_Flame_A_Boulder_A_BM.DDS"
+if [[ "$MOD" == "OrbWeaver" ]]; then
+    OW_ROOT_SOURCE="$ROOT/.analysis/rootsshared/Public/Shared/RootTemplates/_merged.lsx"
+    OW_VISUAL_SOURCE="$ROOT/.analysis/conjurations.lsx"
+    OW_SPHERE_TEX="$ROOT/.analysis/ccsphere/Generated/Public/Shared/Assets/Characters/_Models/_Creatures/Sphere_Flame/Resources/SPHERE_Flame_A_Boulder_A_BM.DDS"
 
     # Official builds consume the checked-in generated assets so local and
     # cloud packages are built from the same inputs. Regeneration is explicit.
-    if [[ "${CC_SKIP_GENERATION:-0}" == "1" || "${CC_FORCE_GENERATION:-0}" != "1" || ! -f "$CC_ROOT_SOURCE" ]]; then
-        echo "Using committed CustomClasses generated assets"
+    if [[ "${OW_SKIP_GENERATION:-0}" == "1" || "${OW_FORCE_GENERATION:-0}" != "1" || ! -f "$OW_ROOT_SOURCE" ]]; then
+        echo "Using committed OrbWeaver generated assets"
     else
-        echo "Regenerating CustomClasses root template, textures, and localization"
-        if [[ ! -f "$SPHERE_TEX" ]]; then
+        echo "Regenerating OrbWeaver root template, textures, and localization"
+        if [[ ! -f "$OW_SPHERE_TEX" ]]; then
             BG3_DATA="${BG3_DATA:-D:/SteamLibrary/steamapps/common/Baldurs Gate 3/Data}"
             if [[ -f "$BG3_DATA/Textures.pak" ]]; then
                 mkdir -p "$ROOT/.analysis/ccsphere"
@@ -68,13 +68,13 @@ if [[ "$MOD" == "CustomClasses" ]]; then
                 echo "BG3 Textures.pak not found at $BG3_DATA; using committed orb textures"
             fi
         fi
-        if [[ -f "$SPHERE_TEX" && -f "$CC_VISUAL_SOURCE" ]]; then
-            (cd "$ROOT" && python scripts/recolor-cc-orb-textures.py)
-            (cd "$ROOT" && python scripts/build-cc-azure-visual.py)
+        if [[ -f "$OW_SPHERE_TEX" && -f "$OW_VISUAL_SOURCE" ]]; then
+            (cd "$ROOT" && python scripts/recolor-orbweaver-textures.py)
+            (cd "$ROOT" && python scripts/build-orbweaver-azure-visual.py)
         else
             echo "Custom orb source assets unavailable; using committed visual resources"
         fi
-        (cd "$ROOT" && python scripts/generate-cc-assets.py)
+        (cd "$ROOT" && python scripts/generate-orbweaver-assets.py)
     fi
 fi
 if [[ "$MOD" == "EnemyRandomization" ]]; then

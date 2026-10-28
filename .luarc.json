@@ -1,6 +1,6 @@
 {
   "runtime.version": "Lua 5.4",
   "workspace.checkThirdParty": false,
-  "diagnostics.globals": ["Ext", "Osi", "DOS2C", "ER", "GetHostCharacter"],
+  "diagnostics.globals": ["Ext", "Osi", "DOS2C", "ER", "OW", "GetHostCharacter"],
   "diagnostics.strictMode": false
 }

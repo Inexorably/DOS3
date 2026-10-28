@@ -8,7 +8,7 @@ experimental.
 Last updated from:
 - `Extender Runtime 2026-10-28 02-00-11.log`
 - `Osiris Runtime 2026-10-28 02-00-47.log`
-- CustomClasses package `254882e72fa2be0ec94b6ea35ed8fc8b`
+- OrbWeaver package `254882e72fa2be0ec94b6ea35ed8fc8b` (formerly packaged as `CustomClasses`)
 
 ## Osiris API discoveries
 
@@ -246,7 +246,7 @@ Separately, `CC_OrbFireWall` had `Lifetime 3`, which explains ash quickly
 replacing the fire. It is now `Lifetime 10`; the custom line status is
 `CC_ORB_FIRE_LINE` and deals 2 Fire damage per tick.
 
-## CustomClasses wall status
+## OrbWeaver wall status
 
 The copied wall spell is:
 

@@ -458,7 +458,7 @@ Known DOS2 visual references for the current test spells:
 - [ ] Verify the hotbar spell and `!respec` command open the native respec UI
       in-game, including multiplayer caster routing.
 
-## Custom Classes
+## OrbWeaver
 
 - [x] Add a new base class, `CC_Orbweaver` (Orbweaver), that owns the orb
       spells. Generated `ClassDescriptions.lsf`, `Progressions.lsf` (levels

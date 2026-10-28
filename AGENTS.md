@@ -20,10 +20,16 @@ DOS2Combat
 EnemyRandomization
 EnemyHealth
 RespecAnywhere
+OrbWeaver
 ```
 
 Do not hardcode a single-mod assumption into shared tooling. New mods are
 discovered from `mods/*/info.json` by CI and the CD matrix.
+
+Class mods are kept decoupled on purpose: each new class gets its own mod
+folder, its own `Mods/<Folder>` Script Extender tree, its own `Public/<Folder>`
+assets, and its own Lua table (for example `OW` in OrbWeaver). Do not add a
+second class to an existing class mod or share its Lua table.
 
 ## Commands
 
@@ -46,6 +52,7 @@ into `tools/lslib` automatically when it is missing:
 ./scripts/build.sh EnemyRandomization
 ./scripts/build.sh EnemyHealth
 ./scripts/build.sh RespecAnywhere
+./scripts/build.sh OrbWeaver
 ```
 
 A local `EnemyRandomization` build regenerates its catalogs from `.analysis`,
