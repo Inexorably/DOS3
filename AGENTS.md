@@ -121,6 +121,13 @@ and replaces the single latest GitHub release.
 - Generated loot stats are intentionally split into many files to avoid a
   single oversized stats load.
 
+## Runtime-Only API Notes
+
+Before guessing at an Osiris function signature, arity, event shape, or enum
+label, check `docs/BG3SE_RUNTIME_NOTES.md`. It records only behavior confirmed
+from BG3SE logs, including the exact error text and package/commit context.
+Update it after any runtime discovery that cannot be verified statically.
+
 ## Where Guidance Belongs
 
 - `AGENTS.md`: always-on repository rules, commands, architecture boundaries,
