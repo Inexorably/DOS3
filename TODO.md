@@ -460,6 +460,18 @@ Known DOS2 visual references for the current test spells:
 
 ## OrbWeaver
 
+- [x] Add player-cast **Orb Stone Wall**: target an orb and raise a wall of stone
+      through it and every other orb within 8 m of the previous orb, chaining
+      orb-to-orb (A->B->C, B->A->C, C->B->A, ...). Pillars every 2 m along the
+      line, 5 HP each. Charging an orb that is on the wall collapses it; charging
+      an orb that is not on the wall leaves it standing.
+- [ ] Verify Orb Stone Wall in-game: the spell appears for the class, pillars
+      spawn and look like a wall, each pillar dies to 5 damage (the `Vitality 5`
+      on `CC_OrbWallStone` is unconfirmed against a template-spawned object),
+      charging a wall orb collapses every pillar, and charging an off-wall orb
+      leaves the wall intact.
+
+
 - [x] Add player-cast **Orb Triangulation**: target an orb as the triangle's
       vertex; the two nearest orbs form the opposite side, and a projectile is
       fired from the vertex through that side's midpoint. 6 Lightning damage to

@@ -279,6 +279,7 @@ OrbFire
 OrbLightning   -- CC_OrbChainLightning: damage around each struck orb
 OrbBolt        -- CC_OrbLightningBolt: damage along the corridor between orbs
 OrbTriangulation -- CC_OrbTriangulation: damage along a triangle's median
+OrbStoneWall    -- CC_OrbStoneWall: a stone wall chained through orbs; charge collapses it
 ClassDiagnostics
 ```
 
@@ -314,6 +315,22 @@ the cast logs `error: could not draw the beam ...; no damage applied` and does
 nothing. A stand-in animation would hide a broken beam behind something that
 appears to work. A custom projectile-type stat is not an option either, because it
 previously failed with `result=MissingAnimations`.
+
+`OrbStoneWall` targets one orb and walks the orbs with the same breadth-first,
+nearest-first ordering the lightning chain uses (`OrbShared.chainOrder`), bounded
+by `ORB_STONE_WALL_LINK_RADIUS` (8 m), so the wall may run A->B->C, B->A->C,
+C->B->A and so on. Pillars are placed every
+`ORB_STONE_WALL_PILLAR_SPACING` metres along the resulting polyline with
+`Osi.CreateAt` on the vanilla `OBJ_Destr_Wall_Stone` root template; each pillar is
+`ORB_STONE_WALL_PILLAR_HP` (5) hit points via the `CC_OrbWallStone` object stat.
+`Osi.CreateAt` can return a GUID without placing anything, so each pillar's
+position is read back and an unplaced pillar is deleted and excluded.
+
+The wall records its **node orbs**. Charging collapses the wall only when the
+charged orb is one of those nodes, which is why a wall raised through A and C
+survives B charging even though B stands between them. Charge detection is the
+`UsingSpellAtPosition` event for `CC_BallCharge` / `CC_BallCharge_Ignite`, the
+same event the fire wall uses.
 
 The class owns the orb spells through a level-1 selector, exactly like vanilla
 classes:
