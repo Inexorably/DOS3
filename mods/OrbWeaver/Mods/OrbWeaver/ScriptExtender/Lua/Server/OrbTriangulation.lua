@@ -148,16 +148,27 @@ local function beamSegments(vertex, endPoint, segmentMetres, maxSegments)
     return points, length
 end
 
+-- How far an anchor actually ended up from where it was asked to go. The engine
+-- can refuse to place a helper inside geometry, which shortens the visible beam
+-- without failing the Osi call, so the result is read back and compared.
+local function anchorDrift(anchor, point)
+    local x, y, z = S.positionOf(anchor)
+    if not x then return nil end
+    local dx, dy, dz = x - point.x, y - point.y, (z or 0) - (point.z or 0)
+    return math.sqrt(dx * dx + dy * dy + dz * dz)
+end
+
 -- Draws the beam from the targeted orb along the median to `endPoint`, one
 -- beam per segment so the whole line is visible.
 -- Returns a cleanup function and the number of segments, or nil when no entity
 -- anchor could be made at all.
 local function drawBeam(vertex, endPoint, lifetimeMs)
-    local segmentMetres = S.setting("ORB_TRIANGULATION_BEAM_SEGMENT_M", 5.0)
-    local maxSegments = S.setting("ORB_TRIANGULATION_MAX_BEAM_SEGMENTS", 12)
+    local segmentMetres = S.setting("ORB_TRIANGULATION_BEAM_SEGMENT_M", 2.5)
+    local maxSegments = S.setting("ORB_TRIANGULATION_MAX_BEAM_SEGMENTS", 16)
     local points, length = beamSegments(vertex, endPoint, segmentMetres, maxSegments)
 
     local anchors = {}
+    local drawnDistance = 0
     local function cleanup()
         for _, guid in ipairs(anchors) do deleteAnchor(guid) end
         anchors = {}
@@ -166,24 +177,40 @@ local function drawBeam(vertex, endPoint, lifetimeMs)
     -- The orb is the first entity; every point on the line becomes an anchor, so
     -- each beam runs anchor-to-anchor with the last one ending at the beam end.
     local previous = vertex.guid
-    for _, point in ipairs(points) do
+    local drawn = 0
+    for index, point in ipairs(points) do
         local anchor = createAnchor(point.x, point.y, point.z)
         if not anchor then
             cleanup()
             return nil
         end
         anchors[#anchors + 1] = anchor
+
+        local drift = anchorDrift(anchor, point)
+        if drift == nil then
+            -- Position unknown: the item was created but is not in the world, so
+            -- no beam will render from it. Stop here rather than chaining on.
+            log("segment %d anchor %s has no position; beam ends %d segment(s) in",
+                index, tostring(anchor), drawn)
+            break
+        elseif drift > 1.0 then
+            log("segment %d anchor landed %.1f m from where it was asked to be",
+                index, drift)
+        end
+
         if not S.playBeam(previous, anchor, BEAM_VFX) then
             cleanup()
             return nil
         end
+        drawn = drawn + 1
         previous = anchor
+        drawnDistance = length * (index / #points)
     end
 
     if Ext and Ext.Timer and Ext.Timer.WaitFor then
         Ext.Timer.WaitFor(lifetimeMs, cleanup)
     end
-    return cleanup, #anchors, length
+    return cleanup, drawn, drawnDistance, length
 end
 
 -- Fires the beam, then resolves damage when it has played. The beam is visible
@@ -199,10 +226,14 @@ local function animateAndStrike(caster, vertex, endPoint)
         log("%d hit(s) along the median (%.1f m)", hits, length)
     end
 
-    local cleanup, segments = drawBeam(vertex, endPoint, lifetime)
+    local cleanup, segments, drawnDistance = drawBeam(vertex, endPoint, lifetime)
     if cleanup then
         log("beam drawn from %s to (%.1f,%.1f,%.1f), %d segment(s) over %.1f m",
             vertex.key, endPoint.x, endPoint.y, endPoint.z, segments, length)
+        if drawnDistance < length - 0.5 then
+            log("warning: beam only reaches %.1f m of %.1f m",
+                drawnDistance, length)
+        end
     else
         -- No anchor available: keep the projectile visible along the path so the
         -- spell still looks like it came from the orb.

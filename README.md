@@ -557,8 +557,8 @@ a mod convention — it is only the vanilla name for `RootTemplates/_merged`.
   two (nearest) orbs form the opposite side, and a beam is fired from the
   vertex through that side's **midpoint** ? the triangle's median ? continuing
   on to **25 m**, shown as a lightning energy beam from the orb along the whole
-  line (drawn in short segments, because a single beam fades out before the far
-  end). Enemies within **1.5 m** of that line take **6 Lightning** damage.
+  line (drawn as a chain of short segments, because a single beam fades out over
+  its own length). The beam crosses the whole span regardless of what it hits. Enemies within **1.5 m** of that line take **6 Lightning** damage.
   Needs **three** orbs and costs **2 AP**.
 - **Orb Chain Lightning** is cast by the player and can only target a
   `CC_ORB` orb. It costs **2 AP** and deals **2 Lightning** damage to enemies

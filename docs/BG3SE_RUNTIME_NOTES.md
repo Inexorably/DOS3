@@ -526,6 +526,26 @@ each between consecutive invisible `Helper_Invisible_H` anchors
 deleted after `ORB_TRIANGULATION_BEAM_LIFETIME_MS`; a failed segment cleans up the
 anchors already placed so a rejected cast cannot leak helper items.
 
+## Osi.CreateAt can succeed without placing anything (2026-10-28 20:40 run)
+
+`Osi.CreateAt` returns a GUID even when the engine will not place the helper
+(`Helper_Invisible_H`) where asked - inside geometry, for instance. `pcall`
+succeeds, `Osi.PlayBeamEffect` from that GUID succeeds, and the beam simply does
+not render, so a long beam silently ends short with nothing in the log.
+
+Always **read the position back** after creating a positional anchor:
+
+```lua
+local x, y, z = Osi.GetPosition(anchor)   -- nil when the item is not in the world
+```
+
+`OrbTriangulation.drawBeam` does this for every segment anchor, stops the chain
+when an anchor has no position, and logs either
+`segment N anchor <guid> has no position; beam ends M segment(s) in` or
+`segment N anchor landed X m from where it was asked to be`, plus
+`warning: beam only reaches X m of Y m`. Treat a missing position as a hard stop,
+not as a zero position.
+
 ## Maintenance rule
 
 Whenever a runtime-only API/arity/enum is discovered:

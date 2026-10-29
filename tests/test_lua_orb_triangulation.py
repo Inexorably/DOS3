@@ -274,8 +274,8 @@ class OrbTriangulationTests(unittest.TestCase):
         self.triangle()
         self.cast("b", run_timers=False)
         beams = self.harness.osi_calls("PlayBeamEffect")
-        # 25 m at 5 m per beam = 5 beams, chained anchor to anchor.
-        self.assertEqual(len(beams), 5)
+        # 25 m at 2.5 m per beam = 10 beams, chained anchor to anchor.
+        self.assertEqual(len(beams), 10)
         for previous, current in zip(beams, beams[1:], strict=False):
             self.assertEqual(str(current["args"][0]), str(previous["args"][1]))
 
@@ -312,7 +312,45 @@ class OrbTriangulationTests(unittest.TestCase):
                          "anchors must outlive the beam")
         self.harness.fire_timers()
         deleted = [call["args"][0] for call in self.harness.osi_calls("RequestDelete")]
-        self.assertEqual(deleted, ["anchor1", "anchor2", "anchor3", "anchor4", "anchor5"])
+        self.assertEqual(deleted, [f"anchor{i}" for i in range(1, 11)])
+
+    def test_beam_stops_with_a_warning_when_an_anchor_never_lands(self) -> None:
+        # If the engine refuses to place a helper (inside geometry, say) the Osi
+        # call still succeeds, so the beam would silently end early. The read-back
+        # catches it and reports the real reach.
+        self.triangle()
+        self.harness.run(
+            'local made = 0\n'
+            'local create = H.osi_results["CreateAt"]\n'
+            'H.osi_results["CreateAt"] = function(...)\n'
+            '  made = made + 1\n'
+            '  local guid = create(...)\n'
+            '  if made > 3 then H.positions[guid] = nil end\n'
+            '  return guid\n'
+            'end'
+        )
+        self.cast("b", run_timers=False)
+        self.assertEqual(len(self.harness.osi_calls("PlayBeamEffect")), 3)
+        self.assertIn("has no position", self.logs())
+        self.assertIn("beam only reaches", self.logs())
+        self.harness.fire_timers()
+
+    def test_an_anchor_that_lands_far_away_is_reported(self) -> None:
+        self.triangle()
+        self.harness.run(
+            'local made = 0\n'
+            'local create = H.osi_results["CreateAt"]\n'
+            'H.osi_results["CreateAt"] = function(...)\n'
+            '  made = made + 1\n'
+            '  local _, x, y, z = ...\n'
+            '  local guid = create(...)\n'
+            '  if made == 2 then H.positions[guid] = { x + 5, y, z } end\n'
+            '  return guid\n'
+            'end'
+        )
+        self.cast("b", run_timers=False)
+        self.assertIn("landed 5.0 m from where it was asked to be", self.logs())
+        self.harness.fire_timers()
 
     def test_partial_anchors_are_cleaned_up_when_a_beam_fails(self) -> None:
         self.triangle()
@@ -407,7 +445,7 @@ class OrbTriangulationTests(unittest.TestCase):
         self.harness.fire_timers()
         self.assertEqual(self.damaged_targets(), ["median"])
         self.assertEqual(
-            len(self.harness.osi_calls("PlayBeamEffect")), 5,
+            len(self.harness.osi_calls("PlayBeamEffect")), 10,
             "the duplicate cast must not draw a second beam",
         )
         self.assertIn("ignoring CastedSpell", self.logs())

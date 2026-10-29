@@ -480,10 +480,14 @@ Known DOS2 visual references for the current test spells:
       `UsingSpellOnTarget`, outlived the 1.5 s suppression window and ran the
       whole cast again, so every enemy on the line took damage twice. The
       fallback is now suppressed by content, not by elapsed time.
+- [x] Shorten the beam segments to 2.5 m (was 5 m) and read every anchor's
+      position back, since `Osi.CreateAt` can return a GUID without placing
+      anything and the beam then silently ends short.
 - [ ] Verify Orb Triangulation in-game: grants from the class list, the beam is
       visible from the orb along the full 25 m, enemies up to 25 m along the
       median take damage exactly once, enemies beside it do not, and two orbs log
-      "need 3 orbs".
+      "need 3 orbs". Log lines to check: `beam drawn ... 10 segment(s) over
+      25.0 m` and no `beam only reaches` / `has no position` warning.
 
 - [x] Add player-cast **Orb Lightning Bolt**: orb-only targeting, the same 8 m
       bounce order and once-per-orb rule as chain lightning, 8 Lightning damage

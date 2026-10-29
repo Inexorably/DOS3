@@ -299,10 +299,16 @@ through the target event) rather than time-based.
 
 `OrbTriangulation` draws its shot with `PlayBeamEffect` (the lightning energy
 beam) from the targeted orb to invisible `Helper_Invisible_H` items created along
-the line. One beam fades out before a distant end point, so the line is drawn as a
-chain of beams no longer than `ORB_TRIANGULATION_BEAM_SEGMENT_M` (5 m), capped by
-`ORB_TRIANGULATION_MAX_BEAM_SEGMENTS` (12); every anchor is deleted after
-`ORB_TRIANGULATION_BEAM_LIFETIME_MS` (1.5 s). Damage resolves after
+the line. One beam fades out over its own length, so the line is drawn as a chain
+of short beams, each no longer than `ORB_TRIANGULATION_BEAM_SEGMENT_M` (2.5 m) and
+capped by `ORB_TRIANGULATION_MAX_BEAM_SEGMENTS` (16); every anchor is deleted after
+`ORB_TRIANGULATION_BEAM_LIFETIME_MS` (1.5 s). Each anchor's position is read back
+because `Osi.CreateAt` can return a GUID without placing anything, which would
+otherwise end the beam early with no symptom in the log; the chain stops at the
+first anchor that has no position and the shortfall is logged.
+
+The beam does **not** stop at the first enemy it crosses: the whole line is drawn
+first, and damage resolves once along the full corridor. Damage resolves after
 `ORB_TRIANGULATION_BEAM_MS` (300 ms) so the beam is seen before anything is hit. If the anchor item cannot be created, the spell falls
 back to the stepped `PlayEffectAtPosition` projectile (one frame per 2 m, capped at
 16) — a custom projectile-type stat is not an option because it previously failed
