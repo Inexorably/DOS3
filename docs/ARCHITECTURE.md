@@ -319,15 +319,24 @@ previously failed with `result=MissingAnimations`.
 `OrbStoneWall` targets one orb and walks the orbs with the same breadth-first,
 nearest-first ordering the lightning chain uses (`OrbShared.chainOrder`), bounded
 by `ORB_STONE_WALL_LINK_RADIUS` (8 m), so the wall may run A->B->C, B->A->C,
-C->B->A and so on. Pillars are placed every
-`ORB_STONE_WALL_PILLAR_SPACING` metres along the resulting polyline with
-`Osi.CreateAt` on the vanilla `OBJ_Destr_Wall_Stone` root template, then each
-pillar is set to `ORB_STONE_WALL_PILLAR_HP` (5) with `Osi.SetHitpoints`. The hit
-points are applied at runtime rather than through an Object stat: `CreateAt`
-spawns by **root template**, so a stat entry is never applied and would only look
-like it was setting them (the template's own vitality is 22).
-`Osi.CreateAt` can return a GUID without placing anything, so each pillar's
-position is read back and an unplaced pillar is deleted and excluded.
+C->B->A and so on. A wall is raised between **each consecutive pair** of orbs.
+
+The wall is the vanilla **Wall of Stone** spell: `Osi.UseSpell` casts the internal
+`CC_OrbStoneWallCast` (`using "Wall_WallOfStone"`) with the two orbs as its
+endpoints, exactly the way `OrbFire` casts Wall of Fire. That is deliberate - the
+engine builds real stone pillars with the correct model, collision and
+line-of-sight blocking. Spawning an object by root template was tried first and
+gave a **ruined map prop** (`OBJ_Destr_Wall_Stone`), which looks like a crumbling
+wall rather than a wall of stone. `UseSpell` leaves `SpellCastState` positions
+unset, so each segment's endpoints are injected before the cast executes, the same
+workaround the fire wall needs.
+
+Segments are cast one at a time: `CastedSpell` for one segment collects the
+pillars the engine created and starts the next. Pillars are found by matching
+`ORB_STONE_WALL_PILLAR_STAT_MATCH` against their stat id within
+`ORB_STONE_WALL_PILLAR_MATCH_RADIUS` of the segment, which keeps enemies standing
+on the line out of the wall, then each is set to `ORB_STONE_WALL_PILLAR_HP` (5)
+with `Osi.SetHitpoints` (vanilla pillars are 30).
 
 The wall records its **node orbs**. Charging collapses the wall only when the
 charged orb is one of those nodes, which is why a wall raised through A and C

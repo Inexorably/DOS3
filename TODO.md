@@ -466,12 +466,15 @@ Known DOS2 visual references for the current test spells:
       line, 5 HP each (set at runtime with `Osi.SetHitpoints`). Charging an orb
       that is on the wall collapses it; charging an orb that is not on the wall
       leaves it standing.
-- [ ] Verify Orb Stone Wall in-game: the spell appears for the class, pillars
-      spawn and look like a wall, each pillar dies to **5** damage (runtime
-      `Osi.SetHitpoints` is unconfirmed for template-spawned objects - look for
-      `error: could not set pillar ... to 5 hit points`), charging a wall orb
-      collapses every pillar, and charging an off-wall orb leaves the wall
-      intact.
+- [ ] Verify Orb Stone Wall in-game: the spell appears for the class, the wall is
+      the real **Wall of Stone** (stone pillars, blocks movement and line of
+      sight) and not a crumbling prop, each pillar dies to **5** damage (look for
+      `error: could not set pillar ... to 5 hit points`), a three-orb chain builds
+      two wall sections, charging a wall orb collapses every pillar, and charging
+      an off-wall orb leaves the wall intact. Log lines: `wall segment 1/2 a->b`,
+      `segment a->b raised N pillar(s)`, `wall raised through a->b->c`.
+      If `raised 0 pillar(s)` appears, the pillar stat id did not match
+      `ORB_STONE_WALL_PILLAR_STAT_MATCH`; widen it in Config.lua.
 
 
 - [x] Add player-cast **Orb Triangulation**: target an orb as the triangle's

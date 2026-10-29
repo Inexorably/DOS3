@@ -207,7 +207,7 @@ data "TargetRadius" "18"
 data "DisplayName" "h625e33724e25597faa8c32b2b14641e6"
 data "Description" "h3c455811f4305e7da09ee8118d0bd005"
 data "DescriptionParams" "Distance(8)"
-data "Icon" "Spell_Conjuration_WallOfStone"
+data "Icon" "Spell_WallOfStone"
 data "UseCosts" "ActionPoint:2"
 -- Target_MageHand inherits CannotTargetCharacter/CannotTargetItems. Remove
 -- those flags so the orb character itself can be selected.
@@ -216,6 +216,19 @@ data "SpellAnimation" "0319ca29-4024-4649-9278-3c1f20c5f023,,;a71e11ca-95ab-463d
 data "PrepareEffect" "abf8542a-6c39-49ad-bc94-86c4585a5948"
 data "CastEffect" "abf8542a-6c39-49ad-bc94-86c4585a5948"
 data "CastTextEvent" "Cast"
+data "AIFlags" "CanNotUse"
+
+-- Internal wall cast: the vanilla Wall of Stone spell, so the engine builds real
+-- stone pillars (model, collision, line-of-sight blocking) between two orbs. It is
+-- invisible and free; the player pays for CC_OrbStoneWall instead.
+new entry "CC_OrbStoneWallCast"
+type "SpellData"
+using "Wall_WallOfStone"
+data "Level" "0"
+data "UseCosts" ""
+data "Cooldown" ""
+data "SpellFlags" "IsSpell;Invisible"
+data "SpellAnimation" "0319ca29-4024-4649-9278-3c1f20c5f023,,;a71e11ca-95ab-463d-a4bf-fe8094126b61,,;352c3a89-f99c-4472-8424-58c0ffb15e55,,;a57fc614-ed20-4574-936b-bdcc6cebd36a,,;b24b3f23-6d3a-43ce-ae3a-abfb44d26082,,;,,;,,;,,;,,"
 data "AIFlags" "CanNotUse"
 
 new entry "CC_ORB_CHARGE"
