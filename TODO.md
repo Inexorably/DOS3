@@ -466,15 +466,17 @@ Known DOS2 visual references for the current test spells:
       line, 5 HP each (set at runtime with `Osi.SetHitpoints`). Charging an orb
       that is on the wall collapses it; charging an orb that is not on the wall
       leaves it standing.
-- [ ] Verify Orb Stone Wall in-game: the spell appears for the class, pillars are
-      the real Wall of Stone pillars (not a crumbling prop) and block movement and
-      line of sight, each pillar dies to **5** damage (look for
-      `error: could not set pillar ... to 5 hit points`), a three-orb chain builds
-      one continuous wall, charging a wall orb collapses every pillar, and charging
-      an off-wall orb leaves the wall intact. Log lines: `wall raised through
-      a->b->c: N pillar(s)`, `collapsed (charged orb ...)`,
-      `not part of any wall`. The combat log must show **one** Orb Stone Wall cast
-      and no extra "Wall of Stone" entries.
+- [ ] Verify Orb Stone Wall in-game: the spell appears for the class, the wall
+      segments look like a stone wall (not scrolls - the old template was the Wall
+      of Stone *scroll*), each segment dies to **5** damage, a three-orb chain
+      builds one continuous wall, charging a wall orb collapses every segment, and
+      charging an off-wall orb leaves the wall intact. Log lines:
+      `wall raised through a->b->c: N pillar(s)`, `collapsed (charged orb ...)`,
+      `not part of any wall`. The combat log must show **one** Orb Stone Wall cast.
+- [ ] Optional: try the Wall of Stone spell's own wall art
+      (`VFX_Static_Wall_Spell_Stone_A_*`) via
+      `ORB_STONE_WALL_PILLAR_TEMPLATE`. Those are visual-only, so they cannot take
+      damage; use only if the look matters more than the 5 HP.
 - [x] Add player-cast **Orb Triangulation**: target an orb as the triangle's
       vertex; the two nearest orbs form the opposite side, and a projectile is
       fired from the vertex through that side's midpoint. 6 Lightning damage to

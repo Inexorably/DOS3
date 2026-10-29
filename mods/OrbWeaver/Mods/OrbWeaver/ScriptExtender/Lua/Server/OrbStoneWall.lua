@@ -24,10 +24,26 @@ local T = OW.OrbStoneWall
 local S = OW.OrbShared
 local SPELL = "CC_OrbStoneWall"
 
--- OBJ_Wall_Of_Stone: the Wall of Stone pillar (30 vitality, Armor 15, vulnerable
--- to Force and Thunder). Using this template means the wall looks exactly like
--- the real spell's wall instead of a ruined map prop.
-local PILLAR_TEMPLATE = "d13587f4-a1f4-4833-bd1e-da1c7951d680"
+-- Wall segment template, overridable from Config.lua.
+--
+-- The default is PUZ_NAT_Sandstone_Wall_Breakable_A: a real stone wall segment
+-- with hit points, so the wall both looks like stone and can be destroyed.
+--
+-- Do NOT use these:
+--   d13587f4-a1f4-4833-bd1e-da1c7951d680  OBJ_Wall_Of_Stone's RootTemplate, which
+--                                        is actually the Wall of Stone *scroll*
+--                                        (it spawns scrolls), and
+--   f0b8705f-bc6f-44a2-b6f7-521f4524e179  OBJ_Destr_Wall_Stone, a crumbling/
+--                                        ruined map prop.
+--
+-- The Wall of Stone spell's own wall art is the VFX_Static_Wall_Spell_Stone_A_
+-- {Low,High}{Left,Middle,Right}_A family, but those are visual-only templates with
+-- no hit points, so a wall built from them could not be damaged.
+local DEFAULT_PILLAR_TEMPLATE = "5412686b-2854-4970-b428-07e30f9dae01"
+
+local function pillarTemplate()
+    return S.setting("ORB_STONE_WALL_PILLAR_TEMPLATE", DEFAULT_PILLAR_TEMPLATE)
+end
 
 -- Charge spells an orb can cast once the player spends its charge.
 local CHARGE_SPELLS = {
@@ -90,7 +106,7 @@ end
 
 local function createPillar(point)
     if not (Osi and Osi.CreateAt) then return nil end
-    local ok, guid = pcall(Osi.CreateAt, PILLAR_TEMPLATE,
+    local ok, guid = pcall(Osi.CreateAt, pillarTemplate(),
         point.x, point.y, point.z, 1, 0, "")
     if not ok or not guid then
         log("pillar creation failed at (%.1f,%.1f,%.1f): %s",

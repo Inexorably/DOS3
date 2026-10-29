@@ -65,4 +65,8 @@ OW.Config = {
     -- metres along the chain, each set to PILLAR_HP hit points.
     ORB_STONE_WALL_PILLAR_SPACING = 2.0,
     ORB_STONE_WALL_PILLAR_HP = 5,
+    -- Root template of one wall segment. The default is
+    -- PUZ_NAT_Sandstone_Wall_Breakable_A, a destructible stone wall. Change this
+    -- to swap the wall's art without touching the Lua.
+    ORB_STONE_WALL_PILLAR_TEMPLATE = "5412686b-2854-4970-b428-07e30f9dae01",
 }

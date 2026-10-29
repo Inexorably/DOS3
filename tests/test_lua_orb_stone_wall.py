@@ -16,8 +16,13 @@ try:
 except ImportError:  # pragma: no cover - depends on the environment
     HAVE_LUPA = False
 
-# OBJ_Wall_Of_Stone: the object the vanilla Wall of Stone spell builds.
-PILLAR_TEMPLATE = "d13587f4-a1f4-4833-bd1e-da1c7951d680"
+# PUZ_NAT_Sandstone_Wall_Breakable_A: a destructible stone wall segment.
+PILLAR_TEMPLATE = "5412686b-2854-4970-b428-07e30f9dae01"
+
+# The Wall of Stone scroll (what OBJ_Wall_Of_Stone's RootTemplate actually points
+# at) and the crumbling ruined prop (OBJ_Destr_Wall_Stone).
+SCROLL_TEMPLATE = "d13587f4-a1f4-4833-bd1e-da1c7951d680"
+RUINED_TEMPLATE = "f0b8705f-bc6f-44a2-b6f7-521f4524e179"
 
 
 @unittest.skipUnless(HAVE_LUPA, "lupa is not installed")
@@ -332,11 +337,23 @@ class OrbStoneWallStatsTests(unittest.TestCase):
         self.assertNotIn("CastedSpell", code)
         self.assertIn("Osi.CreateAt", code)
 
-    def test_pillars_use_the_real_wall_of_stone_object(self) -> None:
-        # OBJ_Wall_Of_Stone, not OBJ_Destr_Wall_Stone (a crumbling map prop).
+    def test_pillars_use_a_real_destructible_stone_wall(self) -> None:
         self.assertIn(PILLAR_TEMPLATE, self.module)
-        self.assertNotIn("f0b8705f-bc6f-44a2-b6f7-521f4524e179", self.module)
+        self.assertIn(PILLAR_TEMPLATE, self.config)
+
+    def test_never_spawns_the_scroll_template(self) -> None:
+        # OBJ_Wall_Of_Stone's RootTemplate is the Wall of Stone *scroll*, so
+        # spawning it produced scrolls rather than pillars.
+        code = re.sub(r"--[^\n]*", "", self.module)
+        self.assertNotIn(SCROLL_TEMPLATE, code)
+
+    def test_never_spawns_the_crumbling_ruined_prop(self) -> None:
+        code = re.sub(r"--[^\n]*", "", self.module)
+        self.assertNotIn(RUINED_TEMPLATE, code)
         self.assertNotIn("OBJ_Destr_Wall_Stone", self.spells_txt)
+
+    def test_the_template_can_be_swapped_from_config(self) -> None:
+        self.assertIn("ORB_STONE_WALL_PILLAR_TEMPLATE", self.config)
 
     def test_link_radius_and_hp_match_server_config(self) -> None:
         self.assertEqual(self.config_number("ORB_STONE_WALL_LINK_RADIUS"), "8.0")

@@ -323,19 +323,33 @@ lightning chain uses (`OrbShared.chainOrder`), bounded by
 C->B->A and so on.
 
 Pillars are placed directly with `Osi.CreateAt`, one every
-`ORB_STONE_WALL_PILLAR_SPACING` metres along the polyline through those orbs. The
-template is the vanilla **Wall of Stone** pillar object (`OBJ_Wall_Of_Stone`,
-`d13587f4-a1f4-4833-bd1e-da1c7951d680`; 30 vitality, Armor 15, vulnerable to Force
-and Thunder), so the wall looks like the real spell's wall. Do **not** use
-`OBJ_Destr_Wall_Stone` - that is a crumbling/ruined map prop. Each pillar is then
-set to `ORB_STONE_WALL_PILLAR_HP` (5) with `Osi.SetHitpoints`, because the stat
-ships with 30. `CreateAt` can return a GUID without placing anything, so each
-pillar's position is read back and an unplaced pillar is deleted and excluded.
+`ORB_STONE_WALL_PILLAR_SPACING` metres along the polyline through those orbs, and
+each is set to `ORB_STONE_WALL_PILLAR_HP` (5) with `Osi.SetHitpoints`.
+`CreateAt` can return a GUID without placing anything, so each pillar's position
+is read back and an unplaced pillar is deleted and excluded.
+
+The template is `ORB_STONE_WALL_PILLAR_TEMPLATE`, default
+`PUZ_NAT_Sandstone_Wall_Breakable_A` - a genuinely breakable stone wall segment,
+so the wall both looks like stone and can be destroyed. Two templates that look
+plausible but are wrong:
+
+- `d13587f4-a1f4-4833-bd1e-da1c7951d680` is `OBJ_Wall_Of_Stone`'s `RootTemplate`,
+  but it is the **Wall of Stone scroll** template, so spawning it produces
+  scrolls. There is no pillar object stat in the game data: the spell's pillars
+  come from the engine-side `ItemWall "WallOfStone"` definition, which only exists
+  while the wall spell is cast.
+- `f0b8705f-bc6f-44a2-b6f7-521f4524e179` (`OBJ_Destr_Wall_Stone`) is a
+  crumbling/ruined map prop.
+
+The Wall of Stone spell's own wall art is the
+`VFX_Static_Wall_Spell_Stone_A_{Low,High}{Left,Middle,Right}_A` template family,
+but those are visual-only with no hit points, so a wall built from them could not
+be damaged.
 
 Casting the real `Wall_WallOfStone` spell through `Osi.UseSpell` was implemented
-first and abandoned for two reasons: it added a second **Wall of Stone** entry to
-the combat log, and `UseSpell` leaves the wall's positional fields unset so the
-cast produced no pillars. The single spell stays the only combat-log entry.
+and abandoned: it added a second **Wall of Stone** entry to the combat log, and
+`UseSpell` leaves the wall's positional fields unset so the cast produced no
+pillars. This spell casts nothing; the pillars are the only thing it creates.
 
 The wall records its **node orbs**. Charging collapses the wall only when the
 charged orb is one of those nodes, which is why a wall raised through A and C
