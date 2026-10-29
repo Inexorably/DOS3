@@ -126,8 +126,10 @@ end
 local function pickBuff(guid)
     local total = 0
     local available = {}
+    local retired = C.REMOVED_BUFF_STATUSES or {}
     for _, entry in ipairs(C.BUFFS or {}) do
-        if entry.status and isPositiveStatus(entry.status) and not hasStatus(guid, entry.status) then
+        if entry.status and isPositiveStatus(entry.status) and not retired[entry.status]
+            and not hasStatus(guid, entry.status) then
             local weight = tonumber(entry.weight) or 1
             if weight > 0 then
                 total = total + weight
@@ -439,7 +441,8 @@ local function applyOne(entity, party)
         -- If a buff survived but the marker did not (older save or interrupted
         -- write), adopt the existing state instead of stacking a new buff.
         for _, entry in ipairs(C.BUFFS or {}) do
-            if entry.status and hasStatus(guid, entry.status) then
+            if entry.status and not (C.REMOVED_BUFF_STATUSES or {})[entry.status]
+                and hasStatus(guid, entry.status) then
                 pcall(Osi.ApplyStatus, guid, C.MARKER_STATUS, -1, 1)
                 adopted = true
                 log("adopted existing buff %s for %s", entry.status, guid)
