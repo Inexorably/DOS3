@@ -11,7 +11,7 @@ champions, higher enemy health, and convenient respec access.
 | Enemy Randomization | `mods/EnemyRandomization` | Required | Random enemy buffs, themed champions, summoning variants, and generated champion loot |
 | Enemy Health Multiplier | `mods/EnemyHealth` | Not required | Doubles base enemy health on Tactician by overriding the native difficulty boost |
 | Respec Anywhere | `mods/RespecAnywhere` | Required | Grants a hotbar Respec spell that opens Withers' native respec UI, plus a console command |
-| OrbWeaver | `mods/OrbWeaver` | Required for class testing | The Orbweaver class and its arcane orb spells: Summon Azure Orb, Ignite Orb, Orb Chain Lightning, Orb Lightning Bolt, plus positioning PoCs |
+| OrbWeaver | `mods/OrbWeaver` | Required for class testing | The Orbweaver class and its arcane orb spells: Summon Azure Orb, Ignite Orb, Orb Chain Lightning, Orb Lightning Bolt |
 
 The mods can be used independently. Enemy Randomization is designed to work
 alongside DOS2 Combat Overhaul, and Enemy Health uses the native Tactician
@@ -552,19 +552,6 @@ a mod convention — it is only the vanilla name for `RootTemplates/_merged`.
   cast** even though neighbouring corridors share an orb. It needs at least
   **two** orbs, costs **2 AP**, and draws a lightning beam between each pair
   with an impact burst at both ends.
-### Positioning proof-of-concepts
-
-Experimental spells, grouped in `Server/OrbPositioning.lua` so the set can be
-tuned or removed together. See `docs/ORB_SPELL_CONCEPTS.md` for the wider
-backlog.
-
-| Spell | AP | Effect |
-| --- | --- | --- |
-| **Close the Triangle** | 2 | connects all three orbs; enemies within 1.5 m of any edge take 4 Lightning |
-| **Orb Swap** | 1 | swaps the targeted orb with its nearest neighbour |
-| **Orb Convergence** | 2 | pulls every orb onto the target, then bursts for 3 Lightning per gathered orb |
-| **Orb Circuit** | 2 | closes a loop of orbs within 8 m and electrifies the interior for 5 Lightning |
-
 - **Orb Chain Lightning** is cast by the player and can only target a
   `CC_ORB` orb. It costs **2 AP** and deals **2 Lightning** damage to enemies
   within **3 m** of the struck orb. If another orb is within **8 m**, the bolt
@@ -580,10 +567,6 @@ CC_SummonBall_Azure   Summon Azure Orb cantrip
 CC_IgniteOrb          set an orb ablaze and leave a fire trail
 CC_OrbChainLightning  player-cast lightning that chains between orbs
 CC_OrbLightningBolt   player-cast bolt that zaps the gap between orbs
-CC_OrbCloseTriangle   PoC: connect all three orb edges
-CC_OrbSwap            PoC: swap two orbs
-CC_OrbConvergence     PoC: gather orbs and burst
-CC_OrbCircuit         PoC: electrify the interior of an orb loop
 CC_BallCharge         orb Charge action
 CC_Ball               orb character stats shared by every orb root
 ```
