@@ -242,7 +242,7 @@ local stripBonusActionBoosts
 
 local function patchCharacter(stat)
     local cfg = DOS2C.Config
-    local applied = stripBonusActionBoosts(stat)
+    local applied = stripBonusActionBoosts(stat, "DefaultBoosts")
     local resources = U.SafeGet(stat, "ActionResources")
     if type(resources) ~= "string" or resources == "" then
         -- Character entries that inherit ActionResources do not repeat it.
@@ -820,13 +820,13 @@ end
 local SPELL_SAVE_FIELDS = {
     "SpellProperties", "SpellSuccess", "SpellFail",
     "OriginSpellProperties", "OriginSpellSuccess", "OriginSpellFail",
-    "TargetConditions", "RequirementConditions", "Conditions",
+    "TargetConditions", "RequirementConditions",
 }
 
 local STATUS_SAVE_FIELDS = {
-    "OnApplyRoll", "OnTickRoll", "Roll",
-    "StatsFunctors", "OnApplyFunctors", "OnRemoveFunctors", "TickFunctors",
-    "Conditions", "AuraStatuses", "Boosts",
+    "OnApplyRoll", "OnTickRoll",
+    "OnApplyFunctors", "OnRemoveFunctors", "TickFunctors",
+    "AuraStatuses", "Boosts",
 }
 
 local PASSIVE_SAVE_FIELDS = {
@@ -834,7 +834,7 @@ local PASSIVE_SAVE_FIELDS = {
 }
 
 local WEAPON_SAVE_FIELDS = {
-    "WeaponFunctors", "DefaultBoosts", "Boosts", "StatsFunctors",
+    "WeaponFunctors", "DefaultBoosts", "Boosts",
 }
 
 local function neutralizeSavingThrowFields(stat, fields)
@@ -1082,25 +1082,23 @@ end
 -- Convert native d20 critical-threshold and attack-roll advantage metadata into
 -- the custom deterministic critical/damage maps used by Armor.lua. This keeps
 -- feats and statuses meaningful after attack rolls are removed.
-stripBonusActionBoosts = function(stat)
-    local changed = false
-    for _, field in ipairs({ "Boosts", "DefaultBoosts" }) do
-        local current = U.SafeGet(stat, field)
-        if type(current) == "string" and current ~= "" then
-            local cleaned = current:gsub("%s*;?%s*ActionResource%(%s*BonusActionPoint%s*,%s*%d+%s*,%s*%d+%s*%)", "")
-            cleaned = cleaned:gsub("%s*;?%s*BonusActionPoint%(%s*%d+%s*%)", "")
-            cleaned = cleaned:gsub("^%s*;%s*", ""):gsub("%s*;%s*$", "")
-            if cleaned ~= current and U.SafeSet(stat, field, cleaned) then changed = true end
-        end
+stripBonusActionBoosts = function(stat, field)
+    -- Statuses and passives have Boosts; characters have DefaultBoosts.
+    local current = U.SafeGet(stat, field)
+    if type(current) == "string" and current ~= "" then
+        local cleaned = current:gsub("%s*;?%s*ActionResource%(%s*BonusActionPoint%s*,%s*%d+%s*,%s*%d+%s*%)", "")
+        cleaned = cleaned:gsub("%s*;?%s*BonusActionPoint%(%s*%d+%s*%)", "")
+        cleaned = cleaned:gsub("^%s*;%s*", ""):gsub("%s*;%s*$", "")
+        if cleaned ~= current then return U.SafeSet(stat, field, cleaned) end
     end
-    return changed
+    return false
 end
 
 local function recordCombatModifiers(name, stat, passive)
     local cfg = DOS2C.Config
     local text = U.SafeGet(stat, "Boosts")
     if type(text) ~= "string" then text = "" end
-    local functors = U.SafeGet(stat, "StatsFunctors")
+    local functors = passive and U.SafeGet(stat, "StatsFunctors") or nil
     if type(functors) == "string" and functors ~= "" then
         text = text .. ";" .. functors
     end
@@ -1248,7 +1246,7 @@ end
 local function patchStatusDamage(name, stat)
     local changed = neutralizeSavingThrowFields(stat, STATUS_SAVE_FIELDS)
     if stripDeadSavingThrowBoosts(stat) then changed = true end
-    if stripBonusActionBoosts(stat) then changed = true end
+    if stripBonusActionBoosts(stat, "Boosts") then changed = true end
     if recordCombatModifiers(name, stat, false) then changed = true end
     if patchBlindedRange(name, stat) then changed = true end
     if cleanupAttackDebuff(stat) then changed = true end
@@ -1266,7 +1264,7 @@ end
 local function patchPassiveDamage(name, stat)
     local changed = neutralizeSavingThrowFields(stat, PASSIVE_SAVE_FIELDS)
     if stripDeadSavingThrowBoosts(stat) then changed = true end
-    if stripBonusActionBoosts(stat) then changed = true end
+    if stripBonusActionBoosts(stat, "Boosts") then changed = true end
     if recordCombatModifiers(name, stat, true) then changed = true end
     if DOS2C.Config.COMPRESS_DAMAGE_RANGES then
         for _, field in ipairs(PASSIVE_DAMAGE_FIELDS) do
