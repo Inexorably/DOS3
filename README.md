@@ -548,9 +548,10 @@ a mod convention — it is only the vanilla name for `RootTemplates/_merged`.
   lightning (orb only, 8 m between orbs, each orb visited once) but damages
   enemies **between** consecutive orbs instead of around each one: anything
   within **1.5 m** of the line from orb a to orb b takes **8 Lightning** damage,
-  then the bolt arcs on to the next orb. An enemy where two segments meet is hit
-  once per segment. It needs at least **two** orbs, costs **2 AP**, and draws a
-  lightning beam between each pair with an impact burst at both ends.
+  then the bolt arcs on to the next orb. Each enemy is hit **at most once per
+  cast** even though neighbouring corridors share an orb. It needs at least
+  **two** orbs, costs **2 AP**, and draws a lightning beam between each pair
+  with an impact burst at both ends.
 - **Orb Chain Lightning** is cast by the player and can only target a
   `CC_ORB` orb. It costs **2 AP** and deals **2 Lightning** damage to enemies
   within **3 m** of the struck orb. If another orb is within **8 m**, the bolt

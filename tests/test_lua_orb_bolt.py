@@ -158,7 +158,7 @@ class OrbBoltTests(unittest.TestCase):
         self.add_orb("b", 16, 20)
         self.add_orb("c", 16, 26)
         self.add_enemy("ab", 13, 20)
-        self.add_enemy("bc", 16, 23)
+        self.add_enemy("bc", 17, 23)
         self.cast("a")
         self.assertEqual(self.damaged_targets(), ["ab", "bc"])
 
@@ -190,13 +190,26 @@ class OrbBoltTests(unittest.TestCase):
         # a->b then b->c, and never c->a again.
         self.assertEqual(len(self.beams()), 2)
 
-    def test_enemy_at_a_shared_corner_takes_one_hit_per_segment(self) -> None:
+    def test_enemy_near_the_shared_orb_is_hit_only_once(self) -> None:
+        # Corridors a->b and b->c share orb b, so an enemy within range of b
+        # belongs to both. The bolt is one path, so it must only be hit once.
         self.add_orb("a", 10, 20)
         self.add_orb("b", 16, 20)
         self.add_orb("c", 16, 26)
         self.add_enemy("corner", 16, 20)
         self.cast("a")
-        self.assertEqual(self.damaged_targets(), ["corner", "corner"])
+        self.assertEqual(self.damaged_targets(), ["corner"])
+        self.assertTrue(any(
+            "repeat(s) skipped" in line for line in self.harness.prints()
+        ))
+
+    def test_an_enemy_is_hit_at_most_once_per_cast(self) -> None:
+        self.add_orb("a", 10, 20)
+        self.add_orb("b", 16, 20)
+        self.add_orb("c", 16, 26)
+        self.add_enemy("corner", 16.4, 20)
+        self.cast("a")
+        self.assertEqual(len(self.damaged_targets()), 1)
 
     def test_single_orb_deals_no_damage(self) -> None:
         self.add_orb("a", 10, 20)

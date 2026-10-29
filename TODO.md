@@ -468,6 +468,9 @@ Known DOS2 visual references for the current test spells:
 - [ ] Verify Orb Lightning Bolt in-game: the bolt grants from the class spell
       list, the beam draws between orbs, enemies between orbs take 8 damage,
       enemies beside the corridor take none, and a single orb deals nothing.
+      First test showed damage landing twice when the enemy stood near the
+      middle orb of a triangle; enemies are now hit at most once per cast
+      (`repeat(s) skipped` in the log). Re-check on a triangle.
 
 - [x] Add a new base class, `CC_Orbweaver` (Orbweaver), that owns the orb
       spells. Generated `ClassDescriptions.lsf`, `Progressions.lsf` (levels

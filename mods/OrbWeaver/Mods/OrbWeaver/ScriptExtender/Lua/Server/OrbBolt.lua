@@ -5,7 +5,9 @@
 -- at most once (a -> b -> c, never back to a). The difference is what takes the
 -- damage: instead of striking around each orb, the bolt damages everything in
 -- the corridor between consecutive orbs, so enemies standing between a<->b and
--- b<->c are hit. A single orb has no corridor and therefore deals no damage.
+-- b<->c are hit. Corridors share their endpoint orbs, so an enemy near a middle
+-- orb would sit in two of them; each enemy is therefore damaged at most once per
+-- cast. A single orb has no corridor and therefore deals no damage.
 --
 -- Shared orb helpers live in OrbShared.
 
@@ -29,9 +31,11 @@ local function log(fmt, ...)
     S.log("orb bolt: " .. fmt, ...)
 end
 
--- Zaps everything between two orbs. Damage is per segment, so an enemy standing
--- where two segments meet takes one hit from each.
-local function strikeSegment(caster, from, to)
+-- Zaps everything between two orbs. An enemy is hit at most once per cast: the
+-- bolt is one continuous path through the orbs, and corridors share their
+-- endpoint orbs, so without this an enemy standing near a middle orb would
+-- take a hit from both neighbouring segments.
+local function strikeSegment(caster, from, to, struck)
     local damage = S.setting("ORB_BOLT_DAMAGE", 8)
     local radius = S.setting("ORB_BOLT_CORRIDOR_RADIUS", 1.5)
     local label = string.format("orb bolt: %s->%s", from.key, to.key)
@@ -40,14 +44,19 @@ local function strikeSegment(caster, from, to)
     S.playEffectAt(from.x, from.y, from.z, IMPACT_VFX)
     S.playEffectAt(to.x, to.y, to.z, IMPACT_VFX)
 
-    local damaged = 0
+    local damaged, repeated = 0, 0
     for _, enemy in ipairs(S.enemiesAlongSegment(caster, from, to, radius, label)) do
-        S.playEffectAt(enemy.x, enemy.y, enemy.z, IMPACT_VFX)
-        if S.dealDamage(enemy.guid, damage, "Lightning", caster) then
-            damaged = damaged + 1
+        if struck[enemy.guid] then
+            repeated = repeated + 1
+        else
+            struck[enemy.guid] = true
+            S.playEffectAt(enemy.x, enemy.y, enemy.z, IMPACT_VFX)
+            if S.dealDamage(enemy.guid, damage, "Lightning", caster) then
+                damaged = damaged + 1
+            end
         end
     end
-    return damaged
+    return damaged, repeated
 end
 
 function B.Resolve(caster, target)
@@ -68,13 +77,17 @@ function B.Resolve(caster, target)
     -- Stagger segments so the bolt visibly travels a -> b -> c.
     local stepMs = S.setting("ORB_BOLT_STEP_MS", 150)
     local segments = #order - 1
-    local hits = 0
+    local strikes, repeated = 0, 0
+    local struck = {}
     for index = 1, segments do
         local from, to = order[index], order[index + 1]
         local function step()
-            hits = hits + strikeSegment(caster, from, to)
+            local damaged, duplicate = strikeSegment(caster, from, to, struck)
+            strikes = strikes + damaged
+            repeated = repeated + duplicate
             if index == segments then
-                log("%d orb(s), %d segment(s), %d hit(s)", #order, segments, hits)
+                log("%d orb(s), %d segment(s), %d hit(s), %d repeat(s) skipped",
+                    #order, segments, strikes, repeated)
             end
         end
         if index > 1 and Ext and Ext.Timer and Ext.Timer.WaitFor then
