@@ -266,6 +266,27 @@ Divine round-trips these resources with `<region id="root">` even from the
 vanilla file, so the region id written into the LSF is not the discriminator —
 the resource path and file name are.
 
+Server Lua for the class loads in this order (`BootstrapServer.lua`):
+
+```text
+Utils
+Config
+OrbShared      -- orb discovery, chain order, hostility, damage, beams
+ChargeDebug
+TestCantrip
+OrbPolish
+OrbFire
+OrbLightning   -- CC_OrbChainLightning: damage around each struck orb
+OrbBolt        -- CC_OrbLightningBolt: damage along the corridor between orbs
+ClassDiagnostics
+```
+
+`OrbShared` holds everything both lightning spells need, so a change to chain
+ordering, orb matching, hostility or damage application happens once. The two
+spells differ only in what they do per hop: `OrbLightning` strikes a 3 m radius
+around each orb, `OrbBolt` damages the 1.5 m corridor between consecutive orbs
+and draws a `PlayBeamEffect` beam along it.
+
 The class owns the orb spells through a level-1 selector, exactly like vanilla
 classes:
 

@@ -154,6 +154,207 @@ class OrbFireTests(unittest.TestCase):
             for line in self.harness.prints()
         ))
 
+    # ---------------------------------------------------- fire trail fallbacks
+    # createFire tries several engine APIs in order. The default harness stubs a
+    # working Ext.Level path, so these exercise the alternatives the code will
+    # fall back to on a build where the primary route is unavailable.
+
+    def logs(self) -> str:
+        return " ".join(self.harness.prints())
+
+    def fire_trail(self) -> None:
+        self.harness.fire_listener("TurnStarted", "orb")
+
+    def test_fire_uses_ext_surface_when_available(self) -> None:
+        self.harness.run('''
+            H.surface_calls = {}
+            Ext.Surface = {
+                CreateSurface = function(pos, surface, intensity, radius, source, duration)
+                    H.surface_calls[#H.surface_calls + 1] = {
+                        pos[1], pos[2], pos[3], surface, radius,
+                    }
+                    return true
+                end,
+            }
+        ''')
+        self.fire_trail()
+        calls = self.harness.run("local out = {} for i, c in ipairs(H.surface_calls) do "
+                                 "out[i] = { c[4], c[5] } end return out")
+        self.assertTrue(calls, "Ext.Surface.CreateSurface was never called")
+        surface, radius = str(calls[0][0]), float(calls[0][1])
+        self.assertEqual(surface, "SurfaceFire")
+        self.assertAlmostEqual(radius, 1.0)
+        self.assertTrue(any(
+            "fire trail via Ext.Surface" in line for line in self.harness.prints()
+        ))
+
+    def test_fire_falls_through_a_failing_ext_surface(self) -> None:
+        self.harness.run('''
+            Ext.Surface = { CreateSurface = function() error("unsupported") end }
+        ''')
+        self.fire_trail()
+        self.assertTrue(self.harness.osi_called("CreateSurface"))
+
+    def test_fire_uses_osi_create_surface_first(self) -> None:
+        self.harness.clear_osi_calls()
+        self.fire_trail()
+        calls = self.harness.osi_calls("CreateSurface")
+        self.assertTrue(calls)
+        # Preferred Osiris shape: (surface, radius, source guid, x, y, z, 10).
+        args = calls[0]["args"]
+        self.assertEqual(str(args[0]), "SurfaceFire")
+        self.assertAlmostEqual(float(args[1]), 1.0)
+        self.assertEqual(len(args), 7)
+
+    def test_fire_falls_back_to_create_surface_at_position(self) -> None:
+        # Osi is a lazy proxy, so the call must fail rather than be removed.
+        self.harness.run('''
+            H.osi_results["CreateSurface"] = function() error("unsupported") end
+            H.osi_results["CreateSurfaceAtPosition"] = true
+            Ext.Level = nil
+            Ext.Surface = nil
+        ''')
+        self.fire_trail()
+        self.assertTrue(any(
+            "fire trail via CreateSurfaceAtPosition" in line
+            for line in self.harness.prints()
+        ))
+
+    def test_fire_reports_a_missing_surface_when_every_path_fails(self) -> None:
+        self.harness.run('''
+            Osi.CreateSurface = function() error("nope") end
+            Osi.CreateSurfaceAtPosition = function() error("nope") end
+            Ext.Surface = { CreateSurface = function() return nil end }
+            Ext.Level = { CreateSurfaceAction = function() return nil end }
+        ''')
+        self.fire_trail()
+        self.assertFalse(self.harness.osi_called("CreateSurface"))
+
+    def test_fire_trail_ignores_orb_without_position(self) -> None:
+        self.harness.run('H.positions["nopos"] = nil')
+        self.harness.fire_listener("TurnStarted", "nopos")
+        self.assertFalse(self.harness.osi_called("CreateSurface"))
+
+    def test_ignite_missing_target_is_logged_and_skipped(self) -> None:
+        entity = self.harness.to_lua({
+            "SpellCastEvent": {
+                "Hit": {"SpellId": "CC_IgniteOrb", "Source": "caster"},
+            }
+        })
+        self.harness.fire_entity_oncreate(entity)
+        self.assertFalse(self.harness.osi_called("ApplyStatus"))
+
+    def test_fire_uses_the_ext_level_surface_action(self) -> None:
+        # Build an Ext.Level chain that succeeds: the action type, the position
+        # fields, the SurfaceType enum scan and execution.
+        self.harness.run('''
+            H.levels = {}
+            Ext.Enums = {
+                SurfaceType = { Fire = "Fire" },
+                SurfaceActionType = { CreateSurface = "CreateSurface" },
+            }
+            Ext.Level = {
+                CreateSurfaceAction = function(kind)
+                    H.levels[#H.levels + 1] = { kind = kind }
+                    return H.levels[#H.levels]
+                end,
+                ExecuteSurfaceAction = function(action)
+                    action.executed = action.SurfaceType
+                    return true
+                end,
+            }
+            H.osi_results["CreateSurface"] = function() error("unsupported") end
+            Ext.Surface = nil
+        ''')
+        self.fire_trail()
+        levels = self.harness.run(
+            "local out = {} for i, l in ipairs(H.levels) do "
+            "out[i] = { tostring(l.kind), tostring(l.executed) } end return out"
+        )
+        self.assertTrue(levels)
+        self.assertEqual(str(levels[0][1]), "Fire")
+        logs = self.logs()
+        self.assertIn("SurfaceType enum candidate: Fire=Fire", logs)
+        self.assertIn("fire trail Ext.Level", logs)
+
+    def test_ext_level_action_failure_is_logged(self) -> None:
+        self.harness.run('''
+            Ext.Level = { CreateSurfaceAction = function() return nil end }
+            Ext.Surface = nil
+            H.osi_results["CreateSurface"] = function() error("unsupported") end
+        ''')
+        self.fire_trail()
+        self.assertIn("CreateSurfaceAction", self.logs())
+
+    def test_ignite_target_path_applies_status_and_swaps_charge(self) -> None:
+        self.harness.fire_listener("UsingSpellOnTarget", "caster", "orb", "CC_IgniteOrb")
+        applies = self.harness.osi_calls("ApplyStatus")
+        self.assertTrue(applies)
+        self.assertEqual(str(applies[0]["args"][1]), "CC_ORB_ABLAZE")
+        self.assertTrue(any(
+            "ignite UsingSpellOnTarget: caster=caster target=orb" in line
+            for line in self.harness.prints()
+        ))
+
+    def test_ignite_casted_spell_is_skipped_after_the_exact_target(self) -> None:
+        self.harness.fire_listener("UsingSpellOnTarget", "caster", "orb", "CC_IgniteOrb")
+        self.harness.fire_listener("CastedSpell", "caster", "CC_IgniteOrb", "Target", "", 1)
+        self.assertIn("ignite CastedSpell skipped", self.logs())
+
+    def test_ignite_falls_back_to_inflicter_when_source_is_missing(self) -> None:
+        entity = self.harness.to_lua({
+            "SpellCastEvent": {
+                "Hit": {
+                    "SpellId": "CC_IgniteOrb",
+                    "Target": "orb",
+                    "Inflicter": "inflicter",
+                },
+            }
+        })
+        self.harness.fire_entity_oncreate(entity)
+        self.assertTrue(any(
+            "source=inflicter" in line for line in self.harness.prints()
+        ))
+
+    def test_second_wall_cast_while_pending_is_rejected(self) -> None:
+        self.cast_wall()
+        # State is still pending until the completion timer runs.
+        pending = self.harness.run(
+            "return OW.OrbFire ~= nil"
+        )
+        self.assertTrue(pending)
+        self.start_charge()
+        self.finish_charge()
+        self.harness.run("OW.Config.DEBUG = false")
+        try:
+            self.harness.fire_timers()
+        finally:
+            self.harness.run("OW.Config.DEBUG = true")
+
+    def test_wall_state_without_a_target_pair_is_logged(self) -> None:
+        self.cast_wall()
+        self.harness.add_entity("caster-handle", {"Uuid": {"EntityUuid": "orb"}})
+        entity = self.harness.to_lua({
+            "SpellCastState": {
+                "SpellId": {"Prototype": "CC_OrbFireWall"},
+                "Caster": "caster-handle",
+                "Targets": [],
+            },
+        })
+        self.harness.fire_entity_oncreate(entity)
+        self.assertIn("wall positional targets: missing target pair", self.logs())
+
+    def test_charge_without_positions_is_logged(self) -> None:
+        self.harness.run('H.positions["orb"] = nil')
+        self.harness.fire_listener(
+            "UsingSpellAtPosition", "orb", 1, 2, 3,
+            "CC_BallCharge_Ignite", "Rush", "Fire", 9,
+        )
+        self.assertIn("charge wall: missing positions", self.logs())
+
+    def test_api_inventory_reports_enum_tables(self) -> None:
+        self.assertIn("API inventory: SurfaceActionType=", self.logs())
+
     def start_charge(self, caster: str = "orb", action: int = 42) -> None:
         self.harness.fire_listener(
             "UsingSpellAtPosition", caster, 14, 21, 35,

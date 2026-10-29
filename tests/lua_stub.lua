@@ -138,6 +138,12 @@ Ext = {
         ModuleLoad = channel("ModuleLoad"),
         LevelGameplayStarted = channel("LevelGameplayStarted"),
     },
+    -- Enum tables the game exposes; the real build reports SurfaceType and
+    -- SurfaceActionType as tables.
+    Enums = {
+        SurfaceType = { Fire = "Fire" },
+        SurfaceActionType = { CreateSurface = "CreateSurface" },
+    },
     Level = {
         CreateSurfaceAction = function(actionType)
             return { ActionType = actionType }
