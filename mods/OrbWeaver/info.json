@@ -1,0 +1,15 @@
+{
+  "Mods": [
+    {
+      "Name": "Orbweaver",
+      "Author": "Shawn",
+      "Description": "The Orbweaver class and its arcane orb spells. Requires DOS2Combat. Summon orbs, ignite them so Charge leaves a fire wall, and chain lightning between them.",
+      "Version": "0.1.0",
+      "UUID": "7cc8bd70-8e2b-5236-b2ac-d8568e346055",
+      "Folder": "OrbWeaver",
+      "Dependencies": [
+        "def5f99a-c4e3-45f7-bf08-c2ddac3283c9"
+      ]
+    }
+  ]
+}

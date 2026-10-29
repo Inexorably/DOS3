@@ -28,13 +28,13 @@ class ManifestTests(unittest.TestCase):
                 self.assertEqual(meta.get("UUID"), entry["UUID"])
                 self.assertEqual(meta.get("Name"), entry["Name"])
 
-    def test_custom_classes_requires_dos2combat(self):
-        info = load_info(MODS / "CustomClasses")
+    def test_orbweaver_requires_dos2combat(self):
+        info = load_info(MODS / "OrbWeaver")
         self.assertIn(
             "def5f99a-c4e3-45f7-bf08-c2ddac3283c9",
             info["Mods"][0]["Dependencies"],
         )
-        meta = read(MODS / "CustomClasses/Mods/CustomClasses/meta.lsx")
+        meta = read(MODS / "OrbWeaver/Mods/OrbWeaver/meta.lsx")
         self.assertIn("DOS2Combat", meta)
         self.assertIn("def5f99a-c4e3-45f7-bf08-c2ddac3283c9", meta)
 

@@ -23,8 +23,13 @@ ORB_VFX = (
 @unittest.skipUnless(HAVE_LUPA, "lupa is not installed")
 class OrbLightningTests(unittest.TestCase):
     def setUp(self) -> None:
-        self.harness = LuaModHarness("CustomClasses")
-        for module in ("Server/Utils.lua", "Server/Config.lua", "Server/OrbLightning.lua"):
+        self.harness = LuaModHarness("OrbWeaver")
+        for module in (
+            "Server/Utils.lua",
+            "Server/Config.lua",
+            "Server/OrbShared.lua",
+            "Server/OrbLightning.lua",
+        ):
             self.harness.load(module)
         self.orb_guids: list[str] = []
         self.health_guids: list[str] = []
@@ -370,12 +375,12 @@ class OrbLightningTests(unittest.TestCase):
 
 class OrbLightningStatsTests(unittest.TestCase):
     def setUp(self) -> None:
-        data = MODS / "CustomClasses/Public/CustomClasses/Stats/Generated/Data"
+        data = MODS / "OrbWeaver/Public/OrbWeaver/Stats/Generated/Data"
         self.spells = parse_stats(data / "Spells.txt")
         self.spell = self.spells["CC_OrbChainLightning"]
         self.config = read(
             MODS
-            / "CustomClasses/Mods/CustomClasses/ScriptExtender/Lua/Server/Config.lua"
+            / "OrbWeaver/Mods/OrbWeaver/ScriptExtender/Lua/Server/Config.lua"
         )
 
     def test_player_targets_only_orbs(self) -> None:

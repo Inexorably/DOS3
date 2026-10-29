@@ -1,0 +1,25 @@
+-- OrbWeaver: summoned orb character stats.
+-- Every orb root uses these stats; the root template supplies the visual,
+-- name, and icon. The Black Hole visual comes from the root template, and the
+-- root bakes the 0.222 scale so the model does not shrink after spawn.
+
+new entry "CC_Ball"
+type "Character"
+using "_Summons"
+data "Level" "1"
+data "Strength" "10"
+data "Dexterity" "10"
+data "Constitution" "10"
+data "Intelligence" "10"
+data "Wisdom" "10"
+data "Charisma" "10"
+data "Armor" "10"
+data "Vitality" "1"
+data "Weight" "0.1"
+data "GameSize" "Tiny"
+data "Flags" "Floating;InvulnerableAndInteractive"
+data "PersonalStatusImmunities" "SILENCED;BLEEDING;GAPING_WOUND;CHEST_TRAUMA;SHOCKED;BURNING;SG_Condition;CRIPPLED;WILD_MAGIC_BURNING"
+data "ActionResources" "ActionPoint:2;BonusActionPoint:1;Movement:0"
+data "DefaultBoosts" "BlockRegainHP(Undead;Construct;Living);StatusImmunity(SG_Blinded);StatusImmunity(SG_Charmed);StatusImmunity(SG_Condition);StatusImmunity(SG_Cursed);StatusImmunity(SG_DifficultTerrain);StatusImmunity(SG_Disease);StatusImmunity(SG_Exhausted);StatusImmunity(SG_Fleeing);StatusImmunity(SG_Frightened);StatusImmunity(SG_Incapacitated);StatusImmunity(SG_Paralyzed);StatusImmunity(SG_Petrified);StatusImmunity(SG_Poisoned);StatusImmunity(SG_Polymorph);StatusImmunity(SG_Possessed);StatusImmunity(SG_Prone);StatusImmunity(SG_Restrained);StatusImmunity(SG_Sleeping);StatusImmunity(SG_Sleeping_Magical);StatusImmunity(SG_Stunned);StatusImmunity(SG_Surface);StatusImmunity(SG_Unconscious)"
+data "Passives" "DarknessRules;ShortResting"
+data "DifficultyStatuses" "STATUS_EASY:PLAYER_BONUSES_EASYMODE"

@@ -28,7 +28,7 @@ ORB_CREATED = "00000000-0000-0000-0000-0000000000{index:02d}"
 @unittest.skipUnless(HAVE_LUPA, "lupa is not installed")
 class OrbPolishTests(unittest.TestCase):
     def setUp(self) -> None:
-        self.harness = LuaModHarness("CustomClasses")
+        self.harness = LuaModHarness("OrbWeaver")
         for module in ("Server/Config.lua", "Server/OrbPolish.lua"):
             self.harness.load(module)
         self.harness.run(ENTITY_FACTORY)

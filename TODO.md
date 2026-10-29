@@ -458,7 +458,72 @@ Known DOS2 visual references for the current test spells:
 - [ ] Verify the hotbar spell and `!respec` command open the native respec UI
       in-game, including multiplayer caster routing.
 
-## Custom Classes
+## OrbWeaver
+
+- [x] Add player-cast **Orb Triangulation**: target an orb as the triangle's
+      vertex; the two nearest orbs form the opposite side, and a projectile is
+      fired from the vertex through that side's midpoint. 6 Lightning damage to
+      enemies within 1.5 m of the median, at most once per cast. Requires three
+      orbs, costs 2 AP, and lands an impact burst at the far end and on each
+      victim.
+- [x] Extend the triangulation beam past the halfway point: it now continues
+      along the median to `ORB_TRIANGULATION_RANGE` (25 m) instead of stopping at
+      the midpoint of the opposite side, which is why enemies ~10 m away were
+      missed.
+- [x] Replace the stepped projectile with a visible beam: `PlayBeamEffect` from
+      the targeted orb to an invisible helper anchor created at the far end, so
+      the whole 25 m line is drawn instead of a few discrete orb frames.
+- [x] Draw the whole line: one beam fades out before a distant anchor, so the
+      shot is now a chain of beams (5 m each by default) between consecutive
+      invisible helper anchors.
+- [x] Fix a double hit: `CastedSpell` arrived over a second after
+      `UsingSpellOnTarget`, outlived the 1.5 s suppression window and ran the
+      whole cast again, so every enemy on the line took damage twice. The
+      target-less `CastedSpell` fallback was removed entirely: this cast resolves
+      only from `UsingSpellOnTarget`.
+- [x] Remove the substitute animations from this spell. A broken beam now logs
+      `error: could not draw the beam` and deals no damage instead of quietly
+      playing a stepped chromatic orb projectile.
+- [x] Shorten the beam segments to 2.5 m (was 5 m) and read every anchor's
+      position back, since `Osi.CreateAt` can return a GUID without placing
+      anything and the beam then silently ends short.
+- [ ] Verify Orb Triangulation in-game: grants from the class list, the beam is
+      visible from the orb along the full 25 m, enemies up to 25 m along the
+      median take damage exactly once, enemies beside it do not, and two orbs log
+      "need 3 orbs". Log lines to check: `beam drawn ... 10 segment(s) over
+      25.0 m` and no `beam only reaches` / `has no position` warning.
+
+- [x] Add player-cast **Orb Lightning Bolt**: orb-only targeting, the same 8 m
+      bounce order and once-per-orb rule as chain lightning, 8 Lightning damage
+      per segment to enemies within 1.5 m of the line between consecutive orbs,
+      lightning-beam VFX between orbs and an impact burst at each end. Shared
+      orb logic moved to `Server/OrbShared.lua` so both spells use one source.
+- [ ] Verify Orb Lightning Bolt in-game: the bolt grants from the class spell
+      list, the beam draws between orbs, enemies between orbs take 8 damage,
+      enemies beside the corridor take none, and a single orb deals nothing.
+      First test showed damage landing twice when the enemy stood near the
+      middle orb of a triangle; enemies are now hit at most once per cast
+      (`repeat(s) skipped` in the log). Re-check on a triangle.
+
+- [x] Add a new base class, `CC_Orbweaver` (Orbweaver), that owns the orb
+      spells. Generated `ClassDescriptions.lsf`, `Progressions.lsf` (levels
+      1-12, ability improvements at 4/8/12), and a `CLASS_ORBWEAVER` tag
+      resource. Intelligence-based, 8 base HP / 5 per level.
+- [x] Stop granting the orb spells to every party member: `GRANT_TEST_CANTRIP`
+      now defaults to false and the class progression unlocks the spells at
+      level 1. The test grant remains as an opt-in escape hatch.
+- [x] Diagnose class visibility by reading published class mods
+      (`deggertsen/bg3-class-surgebinder`, `snikkidoodle/bg3-alchemist-class`).
+      Class resources must reuse the plain vanilla file names; `_merged` is only
+      the vanilla name for `RootTemplates`. Also added
+      `ProgressionDescriptions`, the per-class `AbilityDistributionPreset`, a
+      vanilla class tag alongside `CLASS_ORBWEAVER`, skill list + `SelectSkills`
+      selector, and default skills.
+- [ ] Verify the class is now selectable in character creation, that it offers
+      two skills from the class list, that level 1 unlocks the three orb spells,
+      that leveling 1-12 grants the ability improvements, and that all 12
+      vanilla classes are still selectable (the `_merged` files must merge, not
+      replace). Also confirm existing Orbweaver saves still load.
 
 - [x] Add player-cast **Orb Chain Lightning**: targets `CC_ORB` orbs only,
       strikes enemies within 3 m of each struck orb for 2 Lightning damage,
