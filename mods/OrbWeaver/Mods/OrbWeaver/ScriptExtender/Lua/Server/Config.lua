@@ -13,8 +13,7 @@ OW.Config = {
     GRANT_TEST_CANTRIP = false,
     TEST_CANTRIP = "CC_SummonBall_Azure",
     TEST_CANTRIPS = { "CC_SummonBall_Azure", "CC_IgniteOrb", "CC_OrbChainLightning",
-        "CC_OrbLightningBolt", "CC_OrbCloseTriangle", "CC_OrbSwap",
-        "CC_OrbConvergence", "CC_OrbCircuit" },
+        "CC_OrbLightningBolt" },
 
     -- Class that owns the orb spells. Must match the ClassDescriptions Name
     -- in scripts/generate-orbweaver-assets.py.
@@ -35,16 +34,4 @@ OW.Config = {
     ORB_BOLT_DAMAGE = 8,
     ORB_BOLT_CORRIDOR_RADIUS = 1.5,
     ORB_BOLT_STEP_MS = 150,
-
-    -- Positioning proof-of-concepts (docs/ORB_SPELL_CONCEPTS.md). Kept in one
-    -- block so the whole experiment can be tuned or removed together.
-    ORB_CLOSE_TRIANGLE_DAMAGE = 4,
-    ORB_CLOSE_TRIANGLE_CORRIDOR_RADIUS = 1.5,
-    ORB_CLOSE_TRIANGLE_STEP_MS = 120,
-
-    ORB_CONVERGENCE_DAMAGE = 3,
-    ORB_CONVERGENCE_RADIUS = 3.0,
-    ORB_CONVERGENCE_SPREAD = 0.6,
-
-    ORB_CIRCUIT_DAMAGE = 5,
 }
