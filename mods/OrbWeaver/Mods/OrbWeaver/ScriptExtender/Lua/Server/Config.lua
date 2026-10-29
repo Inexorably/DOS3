@@ -13,7 +13,7 @@ OW.Config = {
     GRANT_TEST_CANTRIP = false,
     TEST_CANTRIP = "CC_SummonBall_Azure",
     TEST_CANTRIPS = { "CC_SummonBall_Azure", "CC_IgniteOrb", "CC_OrbChainLightning",
-        "CC_OrbLightningBolt" },
+        "CC_OrbLightningBolt", "CC_OrbTriangulation" },
 
     -- Class that owns the orb spells. Must match the ClassDescriptions Name
     -- in scripts/generate-orbweaver-assets.py.
@@ -34,4 +34,23 @@ OW.Config = {
     ORB_BOLT_DAMAGE = 8,
     ORB_BOLT_CORRIDOR_RADIUS = 1.5,
     ORB_BOLT_STEP_MS = 150,
+
+    -- Orb Triangulation. The targeted orb is the vertex; the two nearest orbs
+    -- form the opposite side, and the projectile travels the median to that
+    -- side's midpoint. Damage applies to enemies along the median.
+    ORB_TRIANGULATION_DAMAGE = 6,
+    ORB_TRIANGULATION_CORRIDOR_RADIUS = 1.5,
+    -- How far the beam reaches from the targeted orb, measured along the median.
+    -- The shot continues past the midpoint of the opposite side, so this is a
+    -- real range rather than "up to the middle of the triangle".
+    ORB_TRIANGULATION_RANGE = 25.0,
+    -- The beam itself is the animation: how long to wait before damage lands,
+    -- and how long the beam stays visible (the endpoint anchor is deleted then).
+    ORB_TRIANGULATION_BEAM_MS = 300,
+    ORB_TRIANGULATION_BEAM_LIFETIME_MS = 1500,
+    -- A beam instance fades over its own length, so the line is a chain of short
+    -- beams rather than one long one. 2.5 m keeps every instance crisp; the cap
+    -- bounds the anchor count (16 x 2.5 m = 40 m of coverage).
+    ORB_TRIANGULATION_BEAM_SEGMENT_M = 2.5,
+    ORB_TRIANGULATION_MAX_BEAM_SEGMENTS = 16,
 }

@@ -278,6 +278,7 @@ OrbPolish
 OrbFire
 OrbLightning   -- CC_OrbChainLightning: damage around each struck orb
 OrbBolt        -- CC_OrbLightningBolt: damage along the corridor between orbs
+OrbTriangulation -- CC_OrbTriangulation: damage along a triangle's median
 ClassDiagnostics
 ```
 
@@ -285,7 +286,34 @@ ClassDiagnostics
 ordering, orb matching, hostility or damage application happens once. The two
 spells differ only in what they do per hop: `OrbLightning` strikes a 3 m radius
 around each orb, `OrbBolt` damages the 1.5 m corridor between consecutive orbs
-and draws a `PlayBeamEffect` beam along it.
+and draws a `PlayBeamEffect` beam along it, and `OrbTriangulation` fires a beam
+from the targeted orb through the midpoint of the other two and onward to
+`ORB_TRIANGULATION_RANGE` (25 m), damaging the 1.5 m corridor along that line.
+
+The triangulation cast resolves **only** from `UsingSpellOnTarget`, the event that
+carries the targeted orb and is confirmed to fire for this spell. A target-less
+`CastedSpell` fallback used to sit beside it; it re-ran casts that had already
+resolved (every enemy took damage twice, because `CastedSpell` arrived more than a
+second later) and it would have masked the target event breaking rather than
+reporting it. It has been removed.
+
+`OrbTriangulation` draws its shot with `PlayBeamEffect` (the lightning energy
+beam) from the targeted orb to invisible `Helper_Invisible_H` items created along
+the line. One beam fades out over its own length, so the line is drawn as a chain
+of short beams, each no longer than `ORB_TRIANGULATION_BEAM_SEGMENT_M` (2.5 m) and
+capped by `ORB_TRIANGULATION_MAX_BEAM_SEGMENTS` (16); every anchor is deleted after
+`ORB_TRIANGULATION_BEAM_LIFETIME_MS` (1.5 s). Each anchor's position is read back
+because `Osi.CreateAt` can return a GUID without placing anything, which would
+otherwise end the beam early with no symptom in the log; the chain stops at the
+first anchor that has no position and the shortfall is logged.
+
+The beam does **not** stop at the first enemy it crosses: the whole line is drawn
+first, and damage resolves once along the full corridor. Damage resolves after
+`ORB_TRIANGULATION_BEAM_MS` (300 ms) so the beam is seen before anything is hit. There are deliberately **no substitute effects**: when the beam cannot be drawn,
+the cast logs `error: could not draw the beam ...; no damage applied` and does
+nothing. A stand-in animation would hide a broken beam behind something that
+appears to work. A custom projectile-type stat is not an option either, because it
+previously failed with `result=MissingAnimations`.
 
 The class owns the orb spells through a level-1 selector, exactly like vanilla
 classes:

@@ -460,6 +460,39 @@ Known DOS2 visual references for the current test spells:
 
 ## OrbWeaver
 
+- [x] Add player-cast **Orb Triangulation**: target an orb as the triangle's
+      vertex; the two nearest orbs form the opposite side, and a projectile is
+      fired from the vertex through that side's midpoint. 6 Lightning damage to
+      enemies within 1.5 m of the median, at most once per cast. Requires three
+      orbs, costs 2 AP, and lands an impact burst at the far end and on each
+      victim.
+- [x] Extend the triangulation beam past the halfway point: it now continues
+      along the median to `ORB_TRIANGULATION_RANGE` (25 m) instead of stopping at
+      the midpoint of the opposite side, which is why enemies ~10 m away were
+      missed.
+- [x] Replace the stepped projectile with a visible beam: `PlayBeamEffect` from
+      the targeted orb to an invisible helper anchor created at the far end, so
+      the whole 25 m line is drawn instead of a few discrete orb frames.
+- [x] Draw the whole line: one beam fades out before a distant anchor, so the
+      shot is now a chain of beams (5 m each by default) between consecutive
+      invisible helper anchors.
+- [x] Fix a double hit: `CastedSpell` arrived over a second after
+      `UsingSpellOnTarget`, outlived the 1.5 s suppression window and ran the
+      whole cast again, so every enemy on the line took damage twice. The
+      target-less `CastedSpell` fallback was removed entirely: this cast resolves
+      only from `UsingSpellOnTarget`.
+- [x] Remove the substitute animations from this spell. A broken beam now logs
+      `error: could not draw the beam` and deals no damage instead of quietly
+      playing a stepped chromatic orb projectile.
+- [x] Shorten the beam segments to 2.5 m (was 5 m) and read every anchor's
+      position back, since `Osi.CreateAt` can return a GUID without placing
+      anything and the beam then silently ends short.
+- [ ] Verify Orb Triangulation in-game: grants from the class list, the beam is
+      visible from the orb along the full 25 m, enemies up to 25 m along the
+      median take damage exactly once, enemies beside it do not, and two orbs log
+      "need 3 orbs". Log lines to check: `beam drawn ... 10 segment(s) over
+      25.0 m` and no `beam only reaches` / `has no position` warning.
+
 - [x] Add player-cast **Orb Lightning Bolt**: orb-only targeting, the same 8 m
       bounce order and once-per-orb rule as chain lightning, 8 Lightning damage
       per segment to enemies within 1.5 m of the line between consecutive orbs,

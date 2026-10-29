@@ -153,7 +153,7 @@ class OrbWeaverAssetTests(unittest.TestCase):
         self.assertIn(self.mod.handle("CC_SummonBall_Azure/name"), spells)
 
         loca = load_script("generate-armor-passives").read_loca(self.mod.LOCA)
-        self.assertEqual(len(loca), 27)
+        self.assertEqual(len(loca), 29)
         values = dict(loca).values()
         self.assertIn("Summon Azure Orb", values)
         self.assertIn("Orb Chain Lightning", values)

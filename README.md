@@ -11,7 +11,7 @@ champions, higher enemy health, and convenient respec access.
 | Enemy Randomization | `mods/EnemyRandomization` | Required | Random enemy buffs, themed champions, summoning variants, and generated champion loot |
 | Enemy Health Multiplier | `mods/EnemyHealth` | Not required | Doubles base enemy health on Tactician by overriding the native difficulty boost |
 | Respec Anywhere | `mods/RespecAnywhere` | Required | Grants a hotbar Respec spell that opens Withers' native respec UI, plus a console command |
-| OrbWeaver | `mods/OrbWeaver` | Required for class testing | The Orbweaver class and its arcane orb spells: Summon Azure Orb, Ignite Orb, Orb Chain Lightning, Orb Lightning Bolt |
+| OrbWeaver | `mods/OrbWeaver` | Required for class testing | The Orbweaver class and its arcane orb spells: Summon Azure Orb, Ignite Orb, Orb Chain Lightning, Orb Lightning Bolt, Orb Triangulation |
 
 The mods can be used independently. Enemy Randomization is designed to work
 alongside DOS2 Combat Overhaul, and Enemy Health uses the native Tactician
@@ -492,7 +492,8 @@ a mod convention — it is only the vanilla name for `RootTemplates/_merged`.
 - The class carries an existing vanilla class tag alongside its own
   `CLASS_ORBWEAVER` tag, as working class mods do.
 - Level 1 unlocks the class spell list: **Summon Azure Orb**, **Ignite Orb**,
-  **Orb Chain Lightning**, and **Orb Lightning Bolt**, and offers two skills
+  **Orb Chain Lightning**, **Orb Lightning Bolt**, and **Orb Triangulation**,
+  and offers two skills
   from the class skill list
   (Arcana, Deception, History, Insight, Investigation, Perception, Persuasion,
   Religion).
@@ -552,6 +553,13 @@ a mod convention — it is only the vanilla name for `RootTemplates/_merged`.
   cast** even though neighbouring corridors share an orb. It needs at least
   **two** orbs, costs **2 AP**, and draws a lightning beam between each pair
   with an impact burst at both ends.
+- **Orb Triangulation** targets one orb as the vertex of a triangle. The other
+  two (nearest) orbs form the opposite side, and a beam is fired from the
+  vertex through that side's **midpoint** ? the triangle's median ? continuing
+  on to **25 m**, shown as a lightning energy beam from the orb along the whole
+  line (drawn as a chain of short segments, because a single beam fades out over
+  its own length). The beam crosses the whole span regardless of what it hits. Enemies within **1.5 m** of that line take **6 Lightning** damage.
+  Needs **three** orbs and costs **2 AP**.
 - **Orb Chain Lightning** is cast by the player and can only target a
   `CC_ORB` orb. It costs **2 AP** and deals **2 Lightning** damage to enemies
   within **3 m** of the struck orb. If another orb is within **8 m**, the bolt
@@ -567,6 +575,7 @@ CC_SummonBall_Azure   Summon Azure Orb cantrip
 CC_IgniteOrb          set an orb ablaze and leave a fire trail
 CC_OrbChainLightning  player-cast lightning that chains between orbs
 CC_OrbLightningBolt   player-cast bolt that zaps the gap between orbs
+CC_OrbTriangulation   fires along the median of three orbs
 CC_BallCharge         orb Charge action
 CC_Ball               orb character stats shared by every orb root
 ```
