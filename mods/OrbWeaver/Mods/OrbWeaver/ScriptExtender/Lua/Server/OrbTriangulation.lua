@@ -18,20 +18,9 @@ local T = OW.OrbTriangulation
 local S = OW.OrbShared
 local SPELL = "CC_OrbTriangulation"
 
--- The beam now does the visual work: PlayBeamEffect from the targeted orb to an
--- anchor at the far end, using the lightning energy-beam effect. The stepped
--- Chromatic Orb projectile remains only as a fallback when no anchor can be
--- created, plus its impact burst at the far end and on each victim.
-local PROJECTILE_VFX = "VFX_Projectiles_Damage_Lightning_ChromaticOrb_Projectile_01_"
-    .. "1de5faa6-2728-10fe-a062-5954a64ceb53"
+-- Impact burst at the far end of the line and on each victim.
 local IMPACT_VFX = "VFX_Projectiles_Damage_Lightning_ChromaticOrb_Impact_01_"
     .. "4486e906-2b40-d92a-f7ff-915cf6fc7450"
-
--- Which casters resolve casts through UsingSpellOnTarget (with the orb the last
--- cast fired from), so the target-less CastedSpell event cannot repeat a cast
--- that was already handled.
-local TARGET_PATH = {}
-local LAST_ORB = {}
 
 local function log(fmt, ...)
     S.log("orb triangulation: " .. fmt, ...)
@@ -207,60 +196,36 @@ local function drawBeam(vertex, endPoint, lifetimeMs)
         drawnDistance = length * (index / #points)
     end
 
-    if Ext and Ext.Timer and Ext.Timer.WaitFor then
-        Ext.Timer.WaitFor(lifetimeMs, cleanup)
-    end
+    Ext.Timer.WaitFor(lifetimeMs, cleanup)
     return cleanup, drawn, drawnDistance, length
 end
 
 -- Fires the beam, then resolves damage when it has played. The beam is visible
 -- for BEAM_MS before anything is hit, so the order reads correctly on screen.
+-- Returns false when the beam could not be drawn; there is no substitute effect,
+-- because a stand-in would hide a broken beam behind something that "works".
 local function animateAndStrike(caster, vertex, endPoint)
     local beamMs = S.setting("ORB_TRIANGULATION_BEAM_MS", 300)
     local lifetime = S.setting("ORB_TRIANGULATION_BEAM_LIFETIME_MS", 1500)
     local length = math.sqrt(S.distanceSq(vertex, endPoint))
 
-    local function arrive()
+    local cleanup, segments, drawnDistance = drawBeam(vertex, endPoint, lifetime)
+    if not cleanup then
+        log("error: could not draw the beam from %s; no damage applied", vertex.key)
+        return false
+    end
+    log("beam drawn from %s to (%.1f,%.1f,%.1f), %d segment(s) over %.1f m",
+        vertex.key, endPoint.x, endPoint.y, endPoint.z, segments, length)
+    if drawnDistance < length - 0.5 then
+        log("warning: beam only reaches %.1f m of %.1f m", drawnDistance, length)
+    end
+
+    Ext.Timer.WaitFor(beamMs, function()
         S.playEffectAt(endPoint.x, endPoint.y, endPoint.z, IMPACT_VFX)
         local hits = strikeMedian(caster, vertex, endPoint)
         log("%d hit(s) along the median (%.1f m)", hits, length)
-    end
-
-    local cleanup, segments, drawnDistance = drawBeam(vertex, endPoint, lifetime)
-    if cleanup then
-        log("beam drawn from %s to (%.1f,%.1f,%.1f), %d segment(s) over %.1f m",
-            vertex.key, endPoint.x, endPoint.y, endPoint.z, segments, length)
-        if drawnDistance < length - 0.5 then
-            log("warning: beam only reaches %.1f m of %.1f m",
-                drawnDistance, length)
-        end
-    else
-        -- No anchor available: keep the projectile visible along the path so the
-        -- spell still looks like it came from the orb.
-        log("beam unavailable; using a stepped projectile")
-        local stepDistance = S.setting("ORB_TRIANGULATION_STEP_DISTANCE", 2.0)
-        local maxSteps = S.setting("ORB_TRIANGULATION_MAX_STEPS", 16)
-        local steps = math.ceil(length / math.max(0.5, stepDistance))
-        steps = math.max(1, math.min(maxSteps, steps))
-        S.playEffectAt(vertex.x, vertex.y, vertex.z, PROJECTILE_VFX)
-        if Ext and Ext.Timer and Ext.Timer.WaitFor then
-            for index = 1, steps - 1 do
-                local t = index / steps
-                local x = vertex.x + (endPoint.x - vertex.x) * t
-                local y = vertex.y + (endPoint.y - vertex.y) * t
-                local z = (vertex.z or 0) + ((endPoint.z or 0) - (vertex.z or 0)) * t
-                Ext.Timer.WaitFor(index * 60, function()
-                    S.playEffectAt(x, y, z, PROJECTILE_VFX)
-                end)
-            end
-        end
-    end
-
-    if Ext and Ext.Timer and Ext.Timer.WaitFor then
-        Ext.Timer.WaitFor(beamMs, arrive)
-    else
-        arrive()
-    end
+    end)
+    return true
 end
 
 function T.Resolve(caster, target)
@@ -292,46 +257,23 @@ function T.Resolve(caster, target)
         log("warning: opposite side is already %.2f m away, beam clamps at the midpoint",
             midLength)
     end
-    animateAndStrike(caster, vertex, endPoint)
-    return true, vertex.key
+    if not animateAndStrike(caster, vertex, endPoint) then return false end
+    return true
 end
 
 local function onTargetCast(caster, target, spell)
     if tostring(spell or "") ~= SPELL then return end
-    local key = tostring(caster or "")
-    log("cast on %s by %s", tostring(target), key)
-    local ok, vertexKey = T.Resolve(caster, target)
-    if ok then
-        -- Remember that this caster's casts arrive through the target event, and
-        -- which orb the last one fired from. The CastedSpell fallback below is
-        -- only for builds that never deliver the target event.
-        TARGET_PATH[key] = true
-        LAST_ORB[key] = vertexKey
-    end
+    log("cast on %s by %s", tostring(target), tostring(caster))
+    T.Resolve(caster, target)
 end
 
-local function onCastedSpell(caster, spell)
-    if tostring(spell or "") ~= SPELL then return end
-    local key = tostring(caster or "")
-    if TARGET_PATH[key] then
-        -- Suppress by content, not by a timer: the CastedSpell for one cast has
-        -- been seen arriving well over a second after UsingSpellOnTarget, which
-        -- outlived a 1.5 s window and ran the whole cast a second time (every
-        -- enemy on the line took damage twice).
-        log("cast already resolved on %s via the target event; ignoring CastedSpell",
-            tostring(LAST_ORB[key]))
-        return
-    end
-    -- Fallback for builds that do not deliver UsingSpellOnTarget.
-    local orb = S.nearestOrb(caster)
-    log("CastedSpell fallback orb=%s", tostring(orb))
-    if orb then T.Resolve(caster, orb) end
-end
-
+-- Only UsingSpellOnTarget resolves this cast: it is the event that carries the
+-- targeted orb, and it is confirmed to fire for this spell. A target-less
+-- CastedSpell fallback used to sit here; it re-ran casts that had already
+-- resolved (every enemy took damage twice) and would have masked the target
+-- event breaking instead of reporting it.
 if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
-    local okTarget = pcall(Ext.Osiris.RegisterListener, "UsingSpellOnTarget", 6,
+    local ok = pcall(Ext.Osiris.RegisterListener, "UsingSpellOnTarget", 6,
         "after", onTargetCast)
-    local okCasted = pcall(Ext.Osiris.RegisterListener, "CastedSpell", 5,
-        "after", onCastedSpell)
-    log("listeners: target=%s casted=%s", tostring(okTarget), tostring(okCasted))
+    if not ok then log("error: could not register UsingSpellOnTarget") end
 end

@@ -290,12 +290,12 @@ and draws a `PlayBeamEffect` beam along it, and `OrbTriangulation` fires a beam
 from the targeted orb through the midpoint of the other two and onward to
 `ORB_TRIANGULATION_RANGE` (25 m), damaging the 1.5 m corridor along that line.
 
-The triangulation cast resolves from `UsingSpellOnTarget`, which carries the
-target orb. `CastedSpell` is a fallback only for builds that never deliver the
-target event: it has no target of its own, and in a real fight it arrived more
-than a second after the target event, so a short suppression window let the whole
-cast run twice. Suppression is therefore content-based (this caster resolves casts
-through the target event) rather than time-based.
+The triangulation cast resolves **only** from `UsingSpellOnTarget`, the event that
+carries the targeted orb and is confirmed to fire for this spell. A target-less
+`CastedSpell` fallback used to sit beside it; it re-ran casts that had already
+resolved (every enemy took damage twice, because `CastedSpell` arrived more than a
+second later) and it would have masked the target event breaking rather than
+reporting it. It has been removed.
 
 `OrbTriangulation` draws its shot with `PlayBeamEffect` (the lightning energy
 beam) from the targeted orb to invisible `Helper_Invisible_H` items created along
@@ -309,10 +309,11 @@ first anchor that has no position and the shortfall is logged.
 
 The beam does **not** stop at the first enemy it crosses: the whole line is drawn
 first, and damage resolves once along the full corridor. Damage resolves after
-`ORB_TRIANGULATION_BEAM_MS` (300 ms) so the beam is seen before anything is hit. If the anchor item cannot be created, the spell falls
-back to the stepped `PlayEffectAtPosition` projectile (one frame per 2 m, capped at
-16) — a custom projectile-type stat is not an option because it previously failed
-with `result=MissingAnimations`.
+`ORB_TRIANGULATION_BEAM_MS` (300 ms) so the beam is seen before anything is hit. There are deliberately **no substitute effects**: when the beam cannot be drawn,
+the cast logs `error: could not draw the beam ...; no damage applied` and does
+nothing. A stand-in animation would hide a broken beam behind something that
+appears to work. A custom projectile-type stat is not an option either, because it
+previously failed with `result=MissingAnimations`.
 
 The class owns the orb spells through a level-1 selector, exactly like vanilla
 classes:

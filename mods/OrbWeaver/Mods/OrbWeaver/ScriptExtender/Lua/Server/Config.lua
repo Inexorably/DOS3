@@ -53,7 +53,4 @@ OW.Config = {
     -- bounds the anchor count (16 x 2.5 m = 40 m of coverage).
     ORB_TRIANGULATION_BEAM_SEGMENT_M = 2.5,
     ORB_TRIANGULATION_MAX_BEAM_SEGMENTS = 16,
-    -- Fallback only, used when no endpoint anchor can be created.
-    ORB_TRIANGULATION_STEP_DISTANCE = 2.0,
-    ORB_TRIANGULATION_MAX_STEPS = 16,
 }

@@ -501,11 +501,12 @@ orb triangulation: 2 hit(s) along the median (25.0 m)
 The second `CastedSpell`-driven cast ran **more than 1.5 s** after the target
 event, so the window had expired and every enemy on the line took damage twice.
 
-Rule: **do not dedupe Osiris events with a short timer.** `UsingSpellOnTarget`
-and `CastedSpell` for one cast are not adjacent in time and their gap varies with
-animations and combat pacing. Remember that the caster's casts arrive through the
-target event (and treat `CastedSpell` as a fallback only for builds where it
-never fires), or key the dedupe on the resolved target itself.
+Rule: when an event carries the data you need, use **only** that event. Do not add
+a second, target-less event path to "cover" a build that might not deliver the
+first one: `UsingSpellOnTarget` is confirmed to fire for
+`CC_OrbTriangulation`, so `CastedSpell` was not needed at all, and keeping it only
+created a way to run the cast twice. A speculative fallback is also a mechanism
+that hides the primary path breaking instead of reporting it.
 
 ## Osi actions return nothing, so pcall status is the only failure signal
 

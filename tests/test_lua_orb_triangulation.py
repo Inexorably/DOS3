@@ -15,10 +15,6 @@ except ImportError:  # pragma: no cover
     HAVE_LUPA = False
 
 
-PROJECTILE_VFX = (
-    "VFX_Projectiles_Damage_Lightning_ChromaticOrb_Projectile_01_"
-    "1de5faa6-2728-10fe-a062-5954a64ceb53"
-)
 IMPACT_VFX = (
     "VFX_Projectiles_Damage_Lightning_ChromaticOrb_Impact_01_"
     "4486e906-2b40-d92a-f7ff-915cf6fc7450"
@@ -369,19 +365,29 @@ class OrbTriangulationTests(unittest.TestCase):
         # Three anchors were placed before the third beam was rejected; all of
         # them must be removed so a failed cast cannot leak helper items.
         self.assertEqual(deleted, ["anchor1", "anchor2", "anchor3"])
-        self.assertIn("beam unavailable", self.logs())
 
-    def test_stepped_projectile_is_used_when_no_anchor_is_possible(self) -> None:
+    def test_a_failed_beam_reports_an_error_and_deals_no_damage(self) -> None:
+        # A broken beam must fail loudly. A stand-in effect (the old stepped
+        # chromatic orb projectile) would have hidden it and still dealt damage.
         self.triangle()
-        self.harness.run('H.osi_results["CreateAt"] = function() return nil end')
+        self.add_enemy("median", 3, 3)
+        self.harness.run(
+            'H.osi_results["PlayBeamEffect"] = function() error("beam rejected") end'
+        )
         self.cast("b", run_timers=False)
-        effects = [
-            call["args"] for call in self.harness.osi_calls("PlayEffectAtPosition")
-            if str(call["args"][0]) == PROJECTILE_VFX
-        ]
-        self.assertTrue(effects, "fallback projectile never drawn")
-        self.assertEqual(effects[0], [PROJECTILE_VFX, 0, 0, 0])
-        self.assertIn("beam unavailable", self.logs())
+        self.harness.fire_timers()
+        self.assertEqual(self.damaged_targets(), [])
+        self.assertIn("could not draw the beam", self.logs())
+
+    def test_no_substitute_effect_is_played_when_the_beam_fails(self) -> None:
+        self.triangle()
+        self.harness.run(
+            'H.osi_results["CreateAt"] = function() return nil end'
+        )
+        self.cast("b", run_timers=False)
+        self.harness.fire_timers()
+        played = [c["args"][0] for c in self.harness.osi_calls("PlayEffectAtPosition")]
+        self.assertEqual(played, [], "the beam is the only animation")
 
     def test_damage_waits_for_the_beam_to_play(self) -> None:
         self.triangle()
@@ -405,69 +411,33 @@ class OrbTriangulationTests(unittest.TestCase):
         self.assertAlmostEqual(float(end[0][2]), 17.68, places=1)
         self.assertIn([IMPACT_VFX, 3, 3, 1], impacts)
 
-    def test_works_without_timers(self) -> None:
+    def test_casted_spell_does_not_resolve_the_cast_a_second_time(self) -> None:
+        # Regression: a target-less CastedSpell fallback used to re-run a cast that
+        # UsingSpellOnTarget had already resolved, so every enemy on the line took
+        # damage twice. CastedSpell is no longer a code path at all.
         self.triangle()
         self.add_enemy("median", 3, 3)
-        self.harness.run("Ext.Timer = nil")
         self.cast("b", run_timers=False)
+        self.harness.fire_listener("CastedSpell", "caster", "CC_OrbTriangulation",
+                                   "Target", "Lightning", 7)
+        self.harness.fire_timers()
         self.assertEqual(self.damaged_targets(), ["median"])
+        self.assertEqual(len(self.harness.osi_calls("PlayBeamEffect")), 10,
+                         "a second beam must never be drawn")
 
-    def test_casted_spell_fallback_uses_nearest_orb(self) -> None:
+    def test_casted_spell_alone_never_deals_damage(self) -> None:
         self.triangle()
         self.add_enemy("median", 3, 3)
         self.harness.run('H.positions["caster"] = { 1, 1, 0 }')
         self.harness.fire_listener("CastedSpell", "caster", "CC_OrbTriangulation",
                                    "Target", "Lightning", 6)
         self.harness.fire_timers()
-        self.assertEqual(self.damaged_targets(), ["median"])
-
-    def test_target_event_suppresses_casted_spell_fallback(self) -> None:
-        self.triangle()
-        self.add_enemy("median", 3, 3)
-        self.cast("b", run_timers=False)
-        self.harness.fire_listener("CastedSpell", "caster", "CC_OrbTriangulation",
-                                   "Target", "Lightning", 7)
-        self.harness.fire_timers()
-        self.assertEqual(len(self.damaged_targets()), 1)
-
-    def test_casted_spell_is_suppressed_even_after_a_long_delay(self) -> None:
-        # Regression: a real fight delivered CastedSpell well over a second
-        # after UsingSpellOnTarget, which outlived a 1.5 s suppression window and
-        # ran the entire cast a second time - every enemy on the line took
-        # damage twice. Suppression must not depend on elapsed time.
-        self.triangle()
-        self.add_enemy("median", 3, 3)
-        self.cast("b", run_timers=False)
-        # The target-path markers have no timer now, so nothing can expire.
-        self.assertEqual(self.harness.timers(), 2)
-        self.harness.fire_listener("CastedSpell", "caster", "CC_OrbTriangulation",
-                                   "Target", "Lightning", 7)
-        self.harness.fire_timers()
-        self.assertEqual(self.damaged_targets(), ["median"])
-        self.assertEqual(
-            len(self.harness.osi_calls("PlayBeamEffect")), 10,
-            "the duplicate cast must not draw a second beam",
-        )
-        self.assertIn("ignoring CastedSpell", self.logs())
-
-    def test_casted_spell_fallback_still_runs_when_the_target_path_never_fires(
-        self,
-    ) -> None:
-        # Builds that do not deliver UsingSpellOnTarget must keep working, and
-        # each cast must still resolve (the fallback cannot be a one-shot).
-        self.triangle()
-        self.add_enemy("median", 3, 3)
-        self.harness.run('H.positions["caster"] = { 1, 1, 0 }')
-        for _ in range(2):
-            self.harness.fire_listener("CastedSpell", "caster", "CC_OrbTriangulation",
-                                       "Target", "Lightning", 6)
-            self.harness.fire_timers()
-        self.assertEqual(self.damaged_targets(), ["median", "median"])
+        self.assertEqual(self.damaged_targets(), [])
 
     def test_default_cast_queues_beam_arrival_and_lifetime(self) -> None:
         self.triangle()
         self.cast("b", run_timers=False)
-        # beam arrival and anchor lifetime; no dedupe timer any more.
+        # beam arrival and anchor lifetime.
         self.assertEqual(self.harness.timers(), 2)
         self.harness.fire_timers()
 

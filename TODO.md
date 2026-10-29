@@ -464,8 +464,8 @@ Known DOS2 visual references for the current test spells:
       vertex; the two nearest orbs form the opposite side, and a projectile is
       fired from the vertex through that side's midpoint. 6 Lightning damage to
       enemies within 1.5 m of the median, at most once per cast. Requires three
-      orbs, costs 2 AP, uses the Chromatic Orb lightning projectile VFX stepped
-      along the path with an impact at the midpoint.
+      orbs, costs 2 AP, and lands an impact burst at the far end and on each
+      victim.
 - [x] Extend the triangulation beam past the halfway point: it now continues
       along the median to `ORB_TRIANGULATION_RANGE` (25 m) instead of stopping at
       the midpoint of the opposite side, which is why enemies ~10 m away were
@@ -479,7 +479,11 @@ Known DOS2 visual references for the current test spells:
 - [x] Fix a double hit: `CastedSpell` arrived over a second after
       `UsingSpellOnTarget`, outlived the 1.5 s suppression window and ran the
       whole cast again, so every enemy on the line took damage twice. The
-      fallback is now suppressed by content, not by elapsed time.
+      target-less `CastedSpell` fallback was removed entirely: this cast resolves
+      only from `UsingSpellOnTarget`.
+- [x] Remove the substitute animations from this spell. A broken beam now logs
+      `error: could not draw the beam` and deals no damage instead of quietly
+      playing a stepped chromatic orb projectile.
 - [x] Shorten the beam segments to 2.5 m (was 5 m) and read every anchor's
       position back, since `Osi.CreateAt` can return a GUID without placing
       anything and the beam then silently ends short.
