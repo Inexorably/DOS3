@@ -281,6 +281,13 @@ OrbBolt        -- CC_OrbLightningBolt: damage along the corridor between orbs
 ClassDiagnostics
 ```
 
+`Server/OrbPositioning.lua` holds the positioning proof-of-concepts
+(`CC_OrbCloseTriangle`, `CC_OrbSwap`, `CC_OrbConvergence`, `CC_OrbCircuit`) and
+`Server/OrbGeometry.lua` holds their maths: polygon area, point-in-polygon, an
+orb adjacency graph, cycle finding, and the ten-argument teleport wrapper.
+Those modules are experiments from `ORB_SPELL_CONCEPTS.md` and can be removed as
+a unit.
+
 `OrbShared` holds everything both lightning spells need, so a change to chain
 ordering, orb matching, hostility or damage application happens once. The two
 spells differ only in what they do per hop: `OrbLightning` strikes a 3 m radius

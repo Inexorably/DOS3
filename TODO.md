@@ -460,6 +460,13 @@ Known DOS2 visual references for the current test spells:
 
 ## OrbWeaver
 
+- [x] Implement four positioning proof-of-concepts from
+      `docs/ORB_SPELL_CONCEPTS.md`: Close the Triangle, Orb Swap, Orb
+      Convergence, Orb Circuit. Shared maths in `Server/OrbGeometry.lua`.
+- [ ] Play-test the PoCs: which of the four is worth keeping, whether Orb Swap
+      is too fiddly to aim, whether Convergence collides orbs oddly, and whether
+      Circuit's loop detection finds loops the player can actually see.
+
 - [x] Add player-cast **Orb Lightning Bolt**: orb-only targeting, the same 8 m
       bounce order and once-per-orb rule as chain lightning, 8 Lightning damage
       per segment to enemies within 1.5 m of the line between consecutive orbs,
