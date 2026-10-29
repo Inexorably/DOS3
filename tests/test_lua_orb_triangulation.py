@@ -144,12 +144,35 @@ class OrbTriangulationTests(unittest.TestCase):
         self.cast("b")
         self.assertEqual(self.damaged_targets(), ["inside"])
 
-    def test_enemy_past_the_midpoint_is_untouched(self) -> None:
+    def test_beam_continues_past_the_midpoint(self) -> None:
+        # The median from B(0,0) through M(5,5) keeps going: (8,8) is 11.3 m out.
         self.triangle()
-        # On the median line but beyond M(5,5).
         self.add_enemy("beyond", 8, 8)
         self.cast("b")
-        self.assertEqual(self.damaged_targets(), [])
+        self.assertEqual(self.damaged_targets(), ["beyond"])
+
+    def test_beam_reaches_the_configured_range(self) -> None:
+        # 25 m along the 45 degree median is (17.68, 17.68).
+        self.triangle()
+        self.add_enemy("far", 17, 17)
+        self.add_enemy("too_far", 25, 25)  # ~35 m out
+        self.cast("b")
+        self.assertEqual(self.damaged_targets(), ["far"])
+
+    def test_range_is_configurable(self) -> None:
+        self.triangle()
+        self.harness.run("OW.Config.ORB_TRIANGULATION_RANGE = 8")
+        self.add_enemy("in_range", 5, 5)
+        self.add_enemy("out_of_range", 12, 12)
+        self.cast("b")
+        self.assertEqual(self.damaged_targets(), ["in_range"])
+
+    def test_short_range_logs_a_clamp_warning(self) -> None:
+        # Opposite side midpoint is 7.07 m away; a 5 m range clamps it.
+        self.triangle()
+        self.harness.run("OW.Config.ORB_TRIANGULATION_RANGE = 5")
+        self.cast("b")
+        self.assertIn("beam clamps at the midpoint", self.logs())
 
     def test_nearest_two_orbs_form_the_opposite_side(self) -> None:
         # B close to a and c; a far orb is present but must be ignored.
@@ -243,7 +266,7 @@ class OrbTriangulationTests(unittest.TestCase):
         self.harness.fire_timers()
         self.assertEqual(self.damaged_targets(), ["median"])
 
-    def test_impact_plays_at_the_midpoint_and_on_victims(self) -> None:
+    def test_impact_plays_at_the_beam_end_and_on_victims(self) -> None:
         self.triangle()
         self.add_enemy("median", 3, 3, 1)
         self.cast("b")
@@ -251,7 +274,10 @@ class OrbTriangulationTests(unittest.TestCase):
             call["args"] for call in self.harness.osi_calls("PlayEffectAtPosition")
             if str(call["args"][0]) == IMPACT_VFX
         ]
-        self.assertIn([IMPACT_VFX, 5, 5, 0], impacts)
+        # The 25 m beam end lies on the 45 degree median.
+        end = [args for args in impacts if abs(float(args[1]) - 17.68) < 0.2]
+        self.assertTrue(end, f"no impact near the beam end: {impacts}")
+        self.assertAlmostEqual(float(end[0][2]), 17.68, places=1)
         self.assertIn([IMPACT_VFX, 3, 3, 1], impacts)
 
     def test_works_without_timers(self) -> None:
@@ -279,12 +305,20 @@ class OrbTriangulationTests(unittest.TestCase):
         self.harness.fire_timers()
         self.assertEqual(len(self.damaged_targets()), 1)
 
-    def test_step_count_is_configurable(self) -> None:
+    def test_step_count_scales_with_distance(self) -> None:
         self.triangle()
-        self.harness.run("OW.Config.ORB_TRIANGULATION_STEPS = 2")
+        # 25 m beam at 2 m per frame = 13 frames: 12 staggered, 1 arrival, plus
+        # the cast-cleanup timer.
         self.cast("b", run_timers=False)
-        # One staggered frame, the arrival, and the cast-cleanup timer.
-        self.assertEqual(self.harness.timers(), 3)
+        self.assertEqual(self.harness.timers(), 14)
+        self.harness.fire_timers()
+
+    def test_step_count_is_capped(self) -> None:
+        self.triangle()
+        self.harness.run("OW.Config.ORB_TRIANGULATION_MAX_STEPS = 3")
+        self.cast("b", run_timers=False)
+        # 2 staggered frames, arrival, cleanup.
+        self.assertEqual(self.harness.timers(), 4)
         self.harness.fire_timers()
 
 
@@ -324,6 +358,11 @@ class OrbTriangulationStatsTests(unittest.TestCase):
     def test_corridor_radius_matches_server_config(self) -> None:
         radius = float(self.config_number("ORB_TRIANGULATION_CORRIDOR_RADIUS"))
         self.assertIn(f"Distance({radius:g})", self.spell["DescriptionParams"])
+
+    def test_range_matches_server_config(self) -> None:
+        reach = float(self.config_number("ORB_TRIANGULATION_RANGE"))
+        self.assertEqual(reach, 25.0)
+        self.assertIn(f"Distance({reach:g})", self.spell["DescriptionParams"])
 
     def test_is_granted_by_the_class_spell_list(self) -> None:
         spell_list = read(MODS / "OrbWeaver/Public/OrbWeaver/Lists/SpellLists.lsx")

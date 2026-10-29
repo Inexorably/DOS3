@@ -40,6 +40,13 @@ OW.Config = {
     -- side's midpoint. Damage applies to enemies along the median.
     ORB_TRIANGULATION_DAMAGE = 6,
     ORB_TRIANGULATION_CORRIDOR_RADIUS = 1.5,
-    ORB_TRIANGULATION_STEPS = 6,
+    -- How far the beam reaches from the targeted orb, measured along the median.
+    -- The shot continues past the midpoint of the opposite side, so this is a
+    -- real range rather than "up to the middle of the triangle".
+    ORB_TRIANGULATION_RANGE = 25.0,
+    -- Travel frame spacing: one projectile frame per this many metres, capped by
+    -- MAX_STEPS so a long beam does not queue a timer per metre.
+    ORB_TRIANGULATION_STEP_DISTANCE = 2.0,
+    ORB_TRIANGULATION_MAX_STEPS = 16,
     ORB_TRIANGULATION_STEP_MS = 60,
 }

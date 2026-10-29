@@ -2,7 +2,8 @@
 --
 -- The player targets one orb, which becomes the vertex B. The other two orbs
 -- form the opposite side AC, and the bolt is fired from B through the midpoint
--- of AC - the triangle's median. Enemies along that line take damage.
+-- of AC - the triangle's median - continuing out to ORB_TRIANGULATION_RANGE
+-- (25 m by default). Enemies along that line take damage.
 --
 -- Geometry: with exactly three orbs the roles are unambiguous. With more, the
 -- two orbs nearest B form the side AC so the shot always uses the tightest
@@ -58,11 +59,30 @@ function T.BaseSide(orbs, vertex)
     return others[1].orb, others[2].orb
 end
 
--- Damage everything between the vertex and the midpoint of the opposite side.
+-- Endpoint of the beam: the midpoint of the opposite side, pushed further along
+-- the same direction so the shot has real reach. Without this the line always
+-- ended exactly at the midpoint, which is only a few metres from the vertex.
+-- Returns the midpoint too, so callers can tell whether the extension happened.
+local function beamEndPoint(vertex, first, second, range)
+    local mid = midpoint(first, second)
+    local dx, dy, dz = mid.x - vertex.x, mid.y - vertex.y, (mid.z or 0) - (vertex.z or 0)
+    local length = math.sqrt(dx * dx + dy * dy + dz * dz)
+    if length <= 0 then
+        return mid, mid, length
+    end
+    local scale = range / length
+    return {
+        x = vertex.x + dx * scale,
+        y = vertex.y + dy * scale,
+        z = (vertex.z or 0) + dz * scale,
+    }, mid, length
+end
+
+-- Damage everything between the vertex and the far end of the beam.
 local function strikeMedian(caster, vertex, endPoint)
     local damage = S.setting("ORB_TRIANGULATION_DAMAGE", 6)
     local radius = S.setting("ORB_TRIANGULATION_CORRIDOR_RADIUS", 1.5)
-    local label = string.format("orb triangulation: %s->midpoint", vertex.key)
+    local label = string.format("orb triangulation: %s->beam", vertex.key)
 
     local damaged = 0
     for _, enemy in ipairs(S.enemiesAlongSegment(caster, vertex, endPoint, radius, label)) do
@@ -78,13 +98,20 @@ end
 -- The travel is visual: damage lands when the bolt arrives, so a hit cannot
 -- happen before the projectile is seen reaching the target.
 local function animateAndStrike(caster, vertex, endPoint)
-    local steps = math.max(1, math.floor(S.setting("ORB_TRIANGULATION_STEPS", 6)))
+    -- Steps scale with the beam length so a long shot does not teleport in a few
+    -- huge jumps. One frame roughly every STEP_DISTANCE metres, clamped so a
+    -- 25 m beam does not queue dozens of timers.
+    local stepDistance = S.setting("ORB_TRIANGULATION_STEP_DISTANCE", 2.0)
+    local maxSteps = S.setting("ORB_TRIANGULATION_MAX_STEPS", 16)
+    local length = math.sqrt(S.distanceSq(vertex, endPoint))
+    local steps = math.ceil(length / math.max(0.5, stepDistance))
+    steps = math.max(1, math.min(maxSteps, steps))
     local stepMs = S.setting("ORB_TRIANGULATION_STEP_MS", 60)
 
     local function arrive()
         S.playEffectAt(endPoint.x, endPoint.y, endPoint.z, IMPACT_VFX)
         local hits = strikeMedian(caster, vertex, endPoint)
-        log("%d hit(s) along the median", hits)
+        log("%d hit(s) along the median (%.1f m, %d step(s))", hits, length, steps)
     end
 
     if not (Ext and Ext.Timer and Ext.Timer.WaitFor) then
@@ -130,9 +157,14 @@ function T.Resolve(caster, target)
         return false
     end
 
-    local endPoint = midpoint(first, second)
-    log("median %s -> midpoint(%s,%s) length=%.2f", vertex.key, first.key, second.key,
-        math.sqrt(S.distanceSq(vertex, endPoint)))
+    local range = S.setting("ORB_TRIANGULATION_RANGE", 25.0)
+    local endPoint, mid, midLength = beamEndPoint(vertex, first, second, range)
+    log("median %s -> midpoint(%s,%s) %.2f m, beam extends to %.2f m",
+        vertex.key, first.key, second.key, midLength, range)
+    if midLength >= range then
+        log("warning: opposite side is already %.2f m away, beam clamps at the midpoint",
+            midLength)
+    end
     animateAndStrike(caster, vertex, endPoint)
     return true
 end

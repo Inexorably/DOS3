@@ -107,6 +107,7 @@ BOLT_DAMAGE = 8
 BOLT_CORRIDOR_RADIUS = 1.5
 TRIANGULATION_DAMAGE = 6
 TRIANGULATION_CORRIDOR_RADIUS = 1.5
+TRIANGULATION_RANGE = 25
 CHAIN_LIGHTNING_ANIMATION = (
     "3ff87abf-1ea1-4c32-aadf-c822d74c7dc0,,;,,;cd5e5d4a-38e1-4d4d-b346-3fbc1e4c3c90,,;"
     "141f48d9-9615-496a-8737-9240f0dba60d,,;d8925ce4-d6d9-400c-92f5-ad772ef7f178,,;,,;"
@@ -825,7 +826,7 @@ data "Requirements" ""
 data "TargetRadius" "18"
 data "DisplayName" "{handle('CC_OrbTriangulation/name')}"
 data "Description" "{handle('CC_OrbTriangulation/desc')}"
-data "DescriptionParams" "Distance({TRIANGULATION_CORRIDOR_RADIUS});DealDamage({TRIANGULATION_DAMAGE},Lightning)"
+data "DescriptionParams" "Distance({TRIANGULATION_RANGE});Distance({TRIANGULATION_CORRIDOR_RADIUS});DealDamage({TRIANGULATION_DAMAGE},Lightning)"
 data "TooltipDamageList" "DealDamage({TRIANGULATION_DAMAGE},Lightning)"
 data "Icon" "Spell_Evocation_LightningBolt"
 data "UseCosts" "ActionPoint:2"
@@ -1003,7 +1004,7 @@ def write_loca() -> None:
         (handle("CC_OrbTriangulation/name"), "Orb Triangulation"),
         (
             handle("CC_OrbTriangulation/desc"),
-            f"Target an arcane orb to fire a bolt along the triangle's median: from that orb through the midpoint of the other two orbs. Enemies within {TRIANGULATION_CORRIDOR_RADIUS} m of that line take {TRIANGULATION_DAMAGE} Lightning damage. Needs three orbs. Costs 2 AP.",
+            f"Target an arcane orb to fire a bolt along the triangle's median: from that orb through the midpoint of the other two orbs and onward, out to {TRIANGULATION_RANGE} m. Enemies within {TRIANGULATION_CORRIDOR_RADIUS} m of that line take {TRIANGULATION_DAMAGE} Lightning damage. Needs three orbs. Costs 2 AP.",
         ),
         (handle("CC_ORB/name"), "Arcane Orb"),
         (handle("CC_ORB_CHARGE/name"), "Charge Grant"),
