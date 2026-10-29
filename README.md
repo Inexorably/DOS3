@@ -561,13 +561,12 @@ a mod convention — it is only the vanilla name for `RootTemplates/_merged`.
   its own length). The beam crosses the whole span regardless of what it hits. Enemies within **1.5 m** of that line take **6 Lightning** damage.
   Needs **three** orbs and costs **2 AP**.
 - **Orb Stone Wall** targets one orb and raises a wall of stone between it and
-  every other orb within **8 m** of the previous orb, chaining from orb to orb
-  (so the walk may run **A->B->C**, **B->A->C**, **C->B->A**, ...). It is the
-  real **Wall of Stone**: proper stone pillars with collision and line-of-sight
-  blocking, each set to **5 hit points** (vanilla pillars have 30). Charging any
-  orb that is part of the wall collapses it; charging an orb that is *not* on the
-  wall leaves it standing, so a wall raised through A and C survives B charging.
-  Costs **2 AP**.
+  every other orb within **8 m** of the previous orb, chaining orb to orb (so the
+  walk may run **A->B->C**, **B->A->C**, **C->B->A**, ...). Pillars are the real
+  Wall of Stone pillars, placed every 2 m along that line, each with **5 hit
+  points**. Charging any orb that is part of the wall collapses it; charging an
+  orb that is *not* on the wall leaves it standing, so a wall raised through A and
+  C survives B charging. Costs **2 AP**.
 - **Orb Chain Lightning** is cast by the player and can only target a
   `CC_ORB` orb. It costs **2 AP** and deals **2 Lightning** damage to enemies
   within **3 m** of the struck orb. If another orb is within **8 m**, the bolt

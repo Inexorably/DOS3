@@ -876,19 +876,6 @@ data "CastEffect" "{CHAIN_LIGHTNING_PREPARE_EFFECT}"
 data "CastTextEvent" "Cast"
 data "AIFlags" "CanNotUse"
 
--- Internal wall cast: the vanilla Wall of Stone spell, so the engine builds real
--- stone pillars (model, collision, line-of-sight blocking) between two orbs. It is
--- invisible and free; the player pays for CC_OrbStoneWall instead.
-new entry "CC_OrbStoneWallCast"
-type "SpellData"
-using "Wall_WallOfStone"
-data "Level" "0"
-data "UseCosts" ""
-data "Cooldown" ""
-data "SpellFlags" "IsSpell;Invisible"
-data "SpellAnimation" "{SPHERE_CAST_ANIMATION}"
-data "AIFlags" "CanNotUse"
-
 new entry "CC_ORB_CHARGE"
 type "StatusData"
 data "DisplayName" "{handle('CC_ORB_CHARGE/name')}"

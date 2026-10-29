@@ -316,27 +316,26 @@ nothing. A stand-in animation would hide a broken beam behind something that
 appears to work. A custom projectile-type stat is not an option either, because it
 previously failed with `result=MissingAnimations`.
 
-`OrbStoneWall` targets one orb and walks the orbs with the same breadth-first,
-nearest-first ordering the lightning chain uses (`OrbShared.chainOrder`), bounded
-by `ORB_STONE_WALL_LINK_RADIUS` (8 m), so the wall may run A->B->C, B->A->C,
-C->B->A and so on. A wall is raised between **each consecutive pair** of orbs.
+`OrbStoneWall` is a **standalone** spell: it casts nothing else. It targets one
+orb and walks the orbs with the same breadth-first, nearest-first ordering the
+lightning chain uses (`OrbShared.chainOrder`), bounded by
+`ORB_STONE_WALL_LINK_RADIUS` (8 m), so the wall may run A->B->C, B->A->C,
+C->B->A and so on.
 
-The wall is the vanilla **Wall of Stone** spell: `Osi.UseSpell` casts the internal
-`CC_OrbStoneWallCast` (`using "Wall_WallOfStone"`) with the two orbs as its
-endpoints, exactly the way `OrbFire` casts Wall of Fire. That is deliberate - the
-engine builds real stone pillars with the correct model, collision and
-line-of-sight blocking. Spawning an object by root template was tried first and
-gave a **ruined map prop** (`OBJ_Destr_Wall_Stone`), which looks like a crumbling
-wall rather than a wall of stone. `UseSpell` leaves `SpellCastState` positions
-unset, so each segment's endpoints are injected before the cast executes, the same
-workaround the fire wall needs.
+Pillars are placed directly with `Osi.CreateAt`, one every
+`ORB_STONE_WALL_PILLAR_SPACING` metres along the polyline through those orbs. The
+template is the vanilla **Wall of Stone** pillar object (`OBJ_Wall_Of_Stone`,
+`d13587f4-a1f4-4833-bd1e-da1c7951d680`; 30 vitality, Armor 15, vulnerable to Force
+and Thunder), so the wall looks like the real spell's wall. Do **not** use
+`OBJ_Destr_Wall_Stone` - that is a crumbling/ruined map prop. Each pillar is then
+set to `ORB_STONE_WALL_PILLAR_HP` (5) with `Osi.SetHitpoints`, because the stat
+ships with 30. `CreateAt` can return a GUID without placing anything, so each
+pillar's position is read back and an unplaced pillar is deleted and excluded.
 
-Segments are cast one at a time: `CastedSpell` for one segment collects the
-pillars the engine created and starts the next. Pillars are found by matching
-`ORB_STONE_WALL_PILLAR_STAT_MATCH` against their stat id within
-`ORB_STONE_WALL_PILLAR_MATCH_RADIUS` of the segment, which keeps enemies standing
-on the line out of the wall, then each is set to `ORB_STONE_WALL_PILLAR_HP` (5)
-with `Osi.SetHitpoints` (vanilla pillars are 30).
+Casting the real `Wall_WallOfStone` spell through `Osi.UseSpell` was implemented
+first and abandoned for two reasons: it added a second **Wall of Stone** entry to
+the combat log, and `UseSpell` leaves the wall's positional fields unset so the
+cast produced no pillars. The single spell stays the only combat-log entry.
 
 The wall records its **node orbs**. Charging collapses the wall only when the
 charged orb is one of those nodes, which is why a wall raised through A and C

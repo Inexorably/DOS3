@@ -61,10 +61,8 @@ OW.Config = {
     -- Charging an orb that is part of the wall collapses it; charging an orb that
     -- is not leaves it standing.
     ORB_STONE_WALL_LINK_RADIUS = 8.0,
+    -- Pillars are the Wall of Stone pillar object, one every PILLAR_SPACING
+    -- metres along the chain, each set to PILLAR_HP hit points.
+    ORB_STONE_WALL_PILLAR_SPACING = 2.0,
     ORB_STONE_WALL_PILLAR_HP = 5,
-    -- The wall is the vanilla Wall of Stone spell, so the engine decides the
-    -- pillar count and spacing. Pillars are found afterwards by matching these
-    -- substrings against their stat id, within MATCH_RADIUS of the segment.
-    ORB_STONE_WALL_PILLAR_STAT_MATCH = { "wall", "pillar" },
-    ORB_STONE_WALL_PILLAR_MATCH_RADIUS = 2.5,
 }
