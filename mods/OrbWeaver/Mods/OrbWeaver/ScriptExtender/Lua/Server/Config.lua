@@ -44,9 +44,11 @@ OW.Config = {
     -- The shot continues past the midpoint of the opposite side, so this is a
     -- real range rather than "up to the middle of the triangle".
     ORB_TRIANGULATION_RANGE = 25.0,
-    -- Travel frame spacing: one projectile frame per this many metres, capped by
-    -- MAX_STEPS so a long beam does not queue a timer per metre.
+    -- The beam itself is the animation: how long to wait before damage lands,
+    -- and how long the beam stays visible (the endpoint anchor is deleted then).
+    ORB_TRIANGULATION_BEAM_MS = 300,
+    ORB_TRIANGULATION_BEAM_LIFETIME_MS = 1500,
+    -- Fallback only, used when no endpoint anchor can be created.
     ORB_TRIANGULATION_STEP_DISTANCE = 2.0,
     ORB_TRIANGULATION_MAX_STEPS = 16,
-    ORB_TRIANGULATION_STEP_MS = 60,
 }

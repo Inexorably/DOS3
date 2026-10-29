@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import math
 import unittest
 
 from .lua_harness import LuaModHarness
@@ -21,6 +22,10 @@ PROJECTILE_VFX = (
 IMPACT_VFX = (
     "VFX_Projectiles_Damage_Lightning_ChromaticOrb_Impact_01_"
     "4486e906-2b40-d92a-f7ff-915cf6fc7450"
+)
+BEAM_VFX = (
+    "VFX_Spells_Cast_Damage_Lightning_ProjectileBeam_Beam_01_"
+    "c0db7d06-e1a2-d3a1-6baf-6f85cf3155c6"
 )
 
 
@@ -55,6 +60,16 @@ class OrbTriangulationTests(unittest.TestCase):
             end
             H.osi_results["PlayEffectAtPosition"] = function() return true end
             H.osi_results["PlayBeamEffect"] = function() return true end
+            H.anchor_count = 0
+            H.osi_results["CreateAt"] = function(template, x, y, z, temporary, spawn, event)
+                assert(template == "0a0c1e0f-60a9-493f-a98b-d761187c7d38")
+                assert(temporary == 1 and spawn == 0 and event == "")
+                H.anchor_count = H.anchor_count + 1
+                local guid = "anchor" .. H.anchor_count
+                H.positions[guid] = { x, y, z }
+                return guid
+            end
+            H.osi_results["RequestDelete"] = function() return true end
             H.osi_results["ApplyDamage"] = function(target, damage, damageType)
                 H.osi_calls[#H.osi_calls + 1] = {
                     name = "Damage", args = { target, damage, damageType },
@@ -247,22 +262,55 @@ class OrbTriangulationTests(unittest.TestCase):
         self.cast("b")
         self.assertEqual(self.damaged_targets(), [])
 
-    def test_projectile_is_animated_from_the_vertex(self) -> None:
+    def test_beam_is_drawn_from_the_targeted_orb(self) -> None:
         self.triangle()
+        self.cast("b", run_timers=False)
+        beams = self.harness.osi_calls("PlayBeamEffect")
+        self.assertEqual(len(beams), 1)
+        source, anchor, vfx = beams[0]["args"][0:3]
+        self.assertEqual(str(source), "b")
+        self.assertEqual(str(vfx), BEAM_VFX)
+        # The anchor sits at the far end of the 25 m median, not on the orb:
+        # b=(0,0) fires toward the midpoint (5,5) and travels the full 25 m.
+        coords = [
+            float(v)
+            for v in str(
+                self.harness.run(f"return table.concat(H.positions['{anchor}'], ',')")
+            ).split(",")
+        ]
+        expected = 12.5 * math.sqrt(2.0)
+        self.assertAlmostEqual(coords[0], expected, places=4)
+        self.assertAlmostEqual(coords[1], expected, places=4)
+        self.assertAlmostEqual(coords[2], 0.0, places=4)
+
+    def test_beam_anchor_is_deleted_after_its_lifetime(self) -> None:
+        self.triangle()
+        self.cast("b", run_timers=False)
+        self.assertFalse(self.harness.osi_called("RequestDelete"),
+                         "anchor must outlive the beam")
+        self.harness.fire_timers()
+        self.assertEqual(
+            [call["args"] for call in self.harness.osi_calls("RequestDelete")],
+            [["anchor1"]],
+        )
+
+    def test_stepped_projectile_is_used_when_no_anchor_is_possible(self) -> None:
+        self.triangle()
+        self.harness.run('H.osi_results["CreateAt"] = function() return nil end')
         self.cast("b", run_timers=False)
         effects = [
             call["args"] for call in self.harness.osi_calls("PlayEffectAtPosition")
             if str(call["args"][0]) == PROJECTILE_VFX
         ]
-        self.assertTrue(effects)
-        # First frame sits on the targeted orb itself.
+        self.assertTrue(effects, "fallback projectile never drawn")
         self.assertEqual(effects[0], [PROJECTILE_VFX, 0, 0, 0])
+        self.assertIn("beam unavailable", self.logs())
 
-    def test_damage_waits_for_the_projectile_to_arrive(self) -> None:
+    def test_damage_waits_for_the_beam_to_play(self) -> None:
         self.triangle()
         self.add_enemy("median", 3, 3)
         self.cast("b", run_timers=False)
-        self.assertEqual(self.damages(), [], "damage must not land before travel")
+        self.assertEqual(self.damages(), [], "damage must not land before the beam")
         self.harness.fire_timers()
         self.assertEqual(self.damaged_targets(), ["median"])
 
@@ -305,21 +353,21 @@ class OrbTriangulationTests(unittest.TestCase):
         self.harness.fire_timers()
         self.assertEqual(len(self.damaged_targets()), 1)
 
-    def test_step_count_scales_with_distance(self) -> None:
+    def test_default_cast_queues_beam_arrival_lifetime_and_cleanup(self) -> None:
         self.triangle()
-        # 25 m beam at 2 m per frame = 13 frames: 12 staggered, 1 arrival, plus
-        # the cast-cleanup timer.
         self.cast("b", run_timers=False)
-        self.assertEqual(self.harness.timers(), 14)
+        # beam arrival, anchor lifetime, cast-cleanup.
+        self.assertEqual(self.harness.timers(), 3)
         self.harness.fire_timers()
 
-    def test_step_count_is_capped(self) -> None:
+    def test_beam_timing_is_configurable(self) -> None:
         self.triangle()
-        self.harness.run("OW.Config.ORB_TRIANGULATION_MAX_STEPS = 3")
+        self.harness.run("OW.Config.ORB_TRIANGULATION_BEAM_MS = 50")
         self.cast("b", run_timers=False)
-        # 2 staggered frames, arrival, cleanup.
-        self.assertEqual(self.harness.timers(), 4)
-        self.harness.fire_timers()
+        delays = self.harness.run(
+            "local o = {} for i, t in ipairs(H.timers) do o[i] = t.ms end return o"
+        )
+        self.assertIn(50.0, [float(d) for d in delays])
 
 
 class OrbTriangulationStatsTests(unittest.TestCase):

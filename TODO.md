@@ -470,8 +470,11 @@ Known DOS2 visual references for the current test spells:
       along the median to `ORB_TRIANGULATION_RANGE` (25 m) instead of stopping at
       the midpoint of the opposite side, which is why enemies ~10 m away were
       missed.
-- [ ] Verify Orb Triangulation in-game: grants from the class list, the
-      projectile visibly travels the full 25 m, enemies up to 25 m along the
+- [x] Replace the stepped projectile with a visible beam: `PlayBeamEffect` from
+      the targeted orb to an invisible helper anchor created at the far end, so
+      the whole 25 m line is drawn instead of a few discrete orb frames.
+- [ ] Verify Orb Triangulation in-game: grants from the class list, the beam is
+      visible from the orb along the full 25 m, enemies up to 25 m along the
       median take damage, enemies beside it do not, and two orbs log
       "need 3 orbs".
 

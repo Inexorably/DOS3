@@ -286,15 +286,18 @@ ClassDiagnostics
 ordering, orb matching, hostility or damage application happens once. The two
 spells differ only in what they do per hop: `OrbLightning` strikes a 3 m radius
 around each orb, `OrbBolt` damages the 1.5 m corridor between consecutive orbs
-and draws a `PlayBeamEffect` beam along it, and `OrbTriangulation` fires a
-projectile from the targeted orb through the midpoint of the other two and onward
-to `ORB_TRIANGULATION_RANGE` (25 m), damaging the 1.5 m corridor along that line.
+and draws a `PlayBeamEffect` beam along it, and `OrbTriangulation` fires a beam
+from the targeted orb through the midpoint of the other two and onward to
+`ORB_TRIANGULATION_RANGE` (25 m), damaging the 1.5 m corridor along that line.
 
-`OrbTriangulation` animates with `PlayEffectAtPosition` stepped along the path
-rather than a `Projectile` spell stat: a custom projectile-type stat previously
-failed with `result=MissingAnimations`, while position effects are proven here.
-The step count scales with distance (one frame per 2 m, capped at 16) so a 25 m
-beam does not jump in a handful of large hops.
+`OrbTriangulation` draws its shot with `PlayBeamEffect` (the lightning energy
+beam) from the targeted orb to an invisible `Helper_Invisible_H` item created at
+the beam's end point, which is deleted after `ORB_TRIANGULATION_BEAM_LIFETIME_MS`
+(1.5 s). Damage resolves after `ORB_TRIANGULATION_BEAM_MS` (300 ms) so the beam is
+seen before anything is hit. If the anchor item cannot be created, the spell falls
+back to the stepped `PlayEffectAtPosition` projectile (one frame per 2 m, capped at
+16) — a custom projectile-type stat is not an option because it previously failed
+with `result=MissingAnimations`.
 
 The class owns the orb spells through a level-1 selector, exactly like vanilla
 classes:

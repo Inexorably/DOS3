@@ -18,11 +18,10 @@ local T = OW.OrbTriangulation
 local S = OW.OrbShared
 local SPELL = "CC_OrbTriangulation"
 
--- Traveling orb from the Chromatic Orb lightning family, played once per step
--- along the median, plus its impact at the far end and on each victim. A
--- stepped effect is used instead of a Projectile spell cast: the last attempt at
--- a custom projectile-type stat failed with result=MissingAnimations, whereas
--- PlayEffectAtPosition is proven in this build.
+-- The beam now does the visual work: PlayBeamEffect from the targeted orb to an
+-- anchor at the far end, using the lightning energy-beam effect. The stepped
+-- Chromatic Orb projectile remains only as a fallback when no anchor can be
+-- created, plus its impact burst at the far end and on each victim.
 local PROJECTILE_VFX = "VFX_Projectiles_Damage_Lightning_ChromaticOrb_Projectile_01_"
     .. "1de5faa6-2728-10fe-a062-5954a64ceb53"
 local IMPACT_VFX = "VFX_Projectiles_Damage_Lightning_ChromaticOrb_Impact_01_"
@@ -94,46 +93,94 @@ local function strikeMedian(caster, vertex, endPoint)
     return damaged
 end
 
--- Walks the projectile from the vertex to the midpoint, then resolves damage.
--- The travel is visual: damage lands when the bolt arrives, so a hit cannot
--- happen before the projectile is seen reaching the target.
+-- Beam VFX: the lightning "energy beam", the same one the orb-to-orb spells use.
+-- PlayBeamEffect needs an entity at each end, so the far end is an invisible
+-- helper item created at the beam's end point (the same approach the wall cast
+-- uses for its endpoints) and deleted once the beam has played out.
+local BEAM_VFX = "VFX_Spells_Cast_Damage_Lightning_ProjectileBeam_Beam_01_"
+    .. "c0db7d06-e1a2-d3a1-6baf-6f85cf3155c6"
+local ENDPOINT_TEMPLATE = "0a0c1e0f-60a9-493f-a98b-d761187c7d38" -- Helper_Invisible_H
+
+-- Creates an invisible anchor at a position. Returns nil when the build cannot
+-- create it, in which case the caller falls back to a position effect.
+local function createAnchor(x, y, z)
+    if not (Osi and Osi.CreateAt) then return nil end
+    local ok, guid = pcall(Osi.CreateAt, ENDPOINT_TEMPLATE, x, y, z, 1, 0, "")
+    if not ok or not guid then
+        log("beam anchor failed: %s", tostring(guid))
+        return nil
+    end
+    return guid
+end
+
+local function deleteAnchor(guid)
+    if not guid or not (Osi and Osi.RequestDelete) then return end
+    local ok, err = pcall(Osi.RequestDelete, guid)
+    if not ok then log("beam anchor cleanup failed: %s", tostring(err)) end
+end
+
+-- Draws the beam from the targeted orb along the median to `endPoint`.
+-- Returns a cleanup function, or nil when no entity anchor could be made.
+local function drawBeam(vertex, endPoint, lifetimeMs)
+    local anchor = createAnchor(endPoint.x, endPoint.y, endPoint.z)
+    if not anchor then return nil end
+    local ok = S.playBeam(vertex.guid, anchor, BEAM_VFX)
+    if not ok then
+        deleteAnchor(anchor)
+        return nil
+    end
+    local function cleanup() deleteAnchor(anchor) end
+    if Ext and Ext.Timer and Ext.Timer.WaitFor then
+        Ext.Timer.WaitFor(lifetimeMs, cleanup)
+        return cleanup, anchor
+    end
+    return cleanup, anchor
+end
+
+-- Fires the beam, then resolves damage when it has played. The beam is visible
+-- for BEAM_MS before anything is hit, so the order reads correctly on screen.
 local function animateAndStrike(caster, vertex, endPoint)
-    -- Steps scale with the beam length so a long shot does not teleport in a few
-    -- huge jumps. One frame roughly every STEP_DISTANCE metres, clamped so a
-    -- 25 m beam does not queue dozens of timers.
-    local stepDistance = S.setting("ORB_TRIANGULATION_STEP_DISTANCE", 2.0)
-    local maxSteps = S.setting("ORB_TRIANGULATION_MAX_STEPS", 16)
+    local beamMs = S.setting("ORB_TRIANGULATION_BEAM_MS", 300)
+    local lifetime = S.setting("ORB_TRIANGULATION_BEAM_LIFETIME_MS", 1500)
     local length = math.sqrt(S.distanceSq(vertex, endPoint))
-    local steps = math.ceil(length / math.max(0.5, stepDistance))
-    steps = math.max(1, math.min(maxSteps, steps))
-    local stepMs = S.setting("ORB_TRIANGULATION_STEP_MS", 60)
 
     local function arrive()
         S.playEffectAt(endPoint.x, endPoint.y, endPoint.z, IMPACT_VFX)
         local hits = strikeMedian(caster, vertex, endPoint)
-        log("%d hit(s) along the median (%.1f m, %d step(s))", hits, length, steps)
+        log("%d hit(s) along the median (%.1f m)", hits, length)
     end
 
-    if not (Ext and Ext.Timer and Ext.Timer.WaitFor) then
+    local cleanup = drawBeam(vertex, endPoint, lifetime)
+    if cleanup then
+        log("beam drawn from %s to (%.1f,%.1f,%.1f), length %.1f m",
+            vertex.key, endPoint.x, endPoint.y, endPoint.z, length)
+    else
+        -- No anchor available: keep the projectile visible along the path so the
+        -- spell still looks like it came from the orb.
+        log("beam unavailable; using a stepped projectile")
+        local stepDistance = S.setting("ORB_TRIANGULATION_STEP_DISTANCE", 2.0)
+        local maxSteps = S.setting("ORB_TRIANGULATION_MAX_STEPS", 16)
+        local steps = math.ceil(length / math.max(0.5, stepDistance))
+        steps = math.max(1, math.min(maxSteps, steps))
         S.playEffectAt(vertex.x, vertex.y, vertex.z, PROJECTILE_VFX)
-        arrive()
-        return
-    end
-
-    for index = 0, steps - 1 do
-        local t = index / steps
-        local x = vertex.x + (endPoint.x - vertex.x) * t
-        local y = vertex.y + (endPoint.y - vertex.y) * t
-        local z = (vertex.z or 0) + ((endPoint.z or 0) - (vertex.z or 0)) * t
-        if index == 0 then
-            S.playEffectAt(x, y, z, PROJECTILE_VFX)
-        else
-            Ext.Timer.WaitFor(index * stepMs, function()
-                S.playEffectAt(x, y, z, PROJECTILE_VFX)
-            end)
+        if Ext and Ext.Timer and Ext.Timer.WaitFor then
+            for index = 1, steps - 1 do
+                local t = index / steps
+                local x = vertex.x + (endPoint.x - vertex.x) * t
+                local y = vertex.y + (endPoint.y - vertex.y) * t
+                local z = (vertex.z or 0) + ((endPoint.z or 0) - (vertex.z or 0)) * t
+                Ext.Timer.WaitFor(index * 60, function()
+                    S.playEffectAt(x, y, z, PROJECTILE_VFX)
+                end)
+            end
         end
     end
-    Ext.Timer.WaitFor(steps * stepMs, arrive)
+
+    if Ext and Ext.Timer and Ext.Timer.WaitFor then
+        Ext.Timer.WaitFor(beamMs, arrive)
+    else
+        arrive()
+    end
 end
 
 function T.Resolve(caster, target)

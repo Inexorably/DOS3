@@ -554,12 +554,11 @@ a mod convention — it is only the vanilla name for `RootTemplates/_merged`.
   **two** orbs, costs **2 AP**, and draws a lightning beam between each pair
   with an impact burst at both ends.
 - **Orb Triangulation** targets one orb as the vertex of a triangle. The other
-  two (nearest) orbs form the opposite side, and a projectile is fired from the
+  two (nearest) orbs form the opposite side, and a beam is fired from the
   vertex through that side's **midpoint** ? the triangle's median ? continuing
-  on to **25 m**. Enemies within **1.5 m** of that line take **6 Lightning**
-  damage. Needs **three** orbs, costs **2 AP**, and uses the Chromatic Orb
-  lightning projectile and impact effects, stepped along the path so the shot
-  visibly travels before it lands.
+  on to **25 m**, shown as a lightning energy beam from the orb along the whole
+  line. Enemies within **1.5 m** of that line take **6 Lightning** damage.
+  Needs **three** orbs and costs **2 AP**.
 - **Orb Chain Lightning** is cast by the player and can only target a
   `CC_ORB` orb. It costs **2 AP** and deals **2 Lightning** damage to enemies
   within **3 m** of the struck orb. If another orb is within **8 m**, the bolt
