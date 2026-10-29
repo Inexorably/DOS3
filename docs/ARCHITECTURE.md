@@ -278,6 +278,7 @@ OrbPolish
 OrbFire
 OrbLightning   -- CC_OrbChainLightning: damage around each struck orb
 OrbBolt        -- CC_OrbLightningBolt: damage along the corridor between orbs
+OrbTriangulation -- CC_OrbTriangulation: damage along a triangle's median
 ClassDiagnostics
 ```
 
@@ -285,7 +286,13 @@ ClassDiagnostics
 ordering, orb matching, hostility or damage application happens once. The two
 spells differ only in what they do per hop: `OrbLightning` strikes a 3 m radius
 around each orb, `OrbBolt` damages the 1.5 m corridor between consecutive orbs
-and draws a `PlayBeamEffect` beam along it.
+and draws a `PlayBeamEffect` beam along it, and `OrbTriangulation` fires a
+projectile from the targeted orb through the midpoint of the other two, damaging
+the 1.5 m corridor along that median.
+
+`OrbTriangulation` animates with `PlayEffectAtPosition` stepped along the path
+rather than a `Projectile` spell stat: a custom projectile-type stat previously
+failed with `result=MissingAnimations`, while position effects are proven here.
 
 The class owns the orb spells through a level-1 selector, exactly like vanilla
 classes:

@@ -72,7 +72,7 @@ ABILITY_IMPROVEMENT_LEVELS = (4, 8, 12)
 
 # Every spell the class owns at level 1.
 CLASS_SPELLS = ("CC_SummonBall_Azure", "CC_IgniteOrb", "CC_OrbChainLightning",
-                "CC_OrbLightningBolt")
+                "CC_OrbLightningBolt", "CC_OrbTriangulation")
 
 # Class skills offered at character creation. Arcana/Investigation/History fit an
 # Intelligence caster; the class picks two.
@@ -105,6 +105,8 @@ WALL_DAMAGE = 2
 CHAIN_LIGHTNING_DAMAGE = 2
 BOLT_DAMAGE = 8
 BOLT_CORRIDOR_RADIUS = 1.5
+TRIANGULATION_DAMAGE = 6
+TRIANGULATION_CORRIDOR_RADIUS = 1.5
 CHAIN_LIGHTNING_ANIMATION = (
     "3ff87abf-1ea1-4c32-aadf-c822d74c7dc0,,;,,;cd5e5d4a-38e1-4d4d-b346-3fbc1e4c3c90,,;"
     "141f48d9-9615-496a-8737-9240f0dba60d,,;d8925ce4-d6d9-400c-92f5-ad772ef7f178,,;,,;"
@@ -803,6 +805,39 @@ data "CastEffect" "{CHAIN_LIGHTNING_PREPARE_EFFECT}"
 data "CastTextEvent" "Cast"
 data "AIFlags" "CanNotUse"
 
+new entry "CC_OrbTriangulation"
+type "SpellData"
+using "Target_MageHand"
+data "SpellType" "Target"
+data "Level" "0"
+data "Cooldown" ""
+data "RechargeValues" ""
+data "AICooldown" ""
+data "SpellRoll" ""
+data "WeaponTypes" ""
+data "SpellProperties" ""
+data "SpellSuccess" ""
+data "SpellFail" ""
+data "TargetConditions" "HasStatus('CC_ORB') and not Self()"
+data "RequirementConditions" ""
+data "RequirementEvents" ""
+data "Requirements" ""
+data "TargetRadius" "18"
+data "DisplayName" "{handle('CC_OrbTriangulation/name')}"
+data "Description" "{handle('CC_OrbTriangulation/desc')}"
+data "DescriptionParams" "Distance({TRIANGULATION_CORRIDOR_RADIUS});DealDamage({TRIANGULATION_DAMAGE},Lightning)"
+data "TooltipDamageList" "DealDamage({TRIANGULATION_DAMAGE},Lightning)"
+data "Icon" "Spell_Evocation_LightningBolt"
+data "UseCosts" "ActionPoint:2"
+-- Target_MageHand inherits CannotTargetCharacter/CannotTargetItems. Remove
+-- those flags so the orb character itself can be selected.
+data "SpellFlags" "IsSpell;HasVerbalComponent;HasSomaticComponent;HasHighGroundRangeExtension"
+data "SpellAnimation" "{CHAIN_LIGHTNING_ANIMATION}"
+data "PrepareEffect" "{CHAIN_LIGHTNING_PREPARE_EFFECT}"
+data "CastEffect" "{CHAIN_LIGHTNING_PREPARE_EFFECT}"
+data "CastTextEvent" "Cast"
+data "AIFlags" "CanNotUse"
+
 new entry "CC_ORB_CHARGE"
 type "StatusData"
 data "DisplayName" "{handle('CC_ORB_CHARGE/name')}"
@@ -964,6 +999,11 @@ def write_loca() -> None:
         (
             handle("CC_OrbLightningBolt/desc"),
             f"Unleash a lightning bolt from an arcane orb to another orb within 8 m, dealing {BOLT_DAMAGE} Lightning damage to enemies caught between them. The bolt bounces on to further orbs, each struck once per cast. Needs at least two orbs. Costs 2 AP.",
+        ),
+        (handle("CC_OrbTriangulation/name"), "Orb Triangulation"),
+        (
+            handle("CC_OrbTriangulation/desc"),
+            f"Target an arcane orb to fire a bolt along the triangle's median: from that orb through the midpoint of the other two orbs. Enemies within {TRIANGULATION_CORRIDOR_RADIUS} m of that line take {TRIANGULATION_DAMAGE} Lightning damage. Needs three orbs. Costs 2 AP.",
         ),
         (handle("CC_ORB/name"), "Arcane Orb"),
         (handle("CC_ORB_CHARGE/name"), "Charge Grant"),

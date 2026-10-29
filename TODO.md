@@ -460,6 +460,16 @@ Known DOS2 visual references for the current test spells:
 
 ## OrbWeaver
 
+- [x] Add player-cast **Orb Triangulation**: target an orb as the triangle's
+      vertex; the two nearest orbs form the opposite side, and a projectile is
+      fired from the vertex through that side's midpoint. 6 Lightning damage to
+      enemies within 1.5 m of the median, at most once per cast. Requires three
+      orbs, costs 2 AP, uses the Chromatic Orb lightning projectile VFX stepped
+      along the path with an impact at the midpoint.
+- [ ] Verify Orb Triangulation in-game: grants from the class list, the
+      projectile visibly travels from the targeted orb, enemies on the median
+      take damage, enemies beside it do not, and two orbs log "need 3 orbs".
+
 - [x] Add player-cast **Orb Lightning Bolt**: orb-only targeting, the same 8 m
       bounce order and once-per-orb rule as chain lightning, 8 Lightning damage
       per segment to enemies within 1.5 m of the line between consecutive orbs,

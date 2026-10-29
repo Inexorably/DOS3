@@ -13,7 +13,7 @@ OW.Config = {
     GRANT_TEST_CANTRIP = false,
     TEST_CANTRIP = "CC_SummonBall_Azure",
     TEST_CANTRIPS = { "CC_SummonBall_Azure", "CC_IgniteOrb", "CC_OrbChainLightning",
-        "CC_OrbLightningBolt" },
+        "CC_OrbLightningBolt", "CC_OrbTriangulation" },
 
     -- Class that owns the orb spells. Must match the ClassDescriptions Name
     -- in scripts/generate-orbweaver-assets.py.
@@ -34,4 +34,12 @@ OW.Config = {
     ORB_BOLT_DAMAGE = 8,
     ORB_BOLT_CORRIDOR_RADIUS = 1.5,
     ORB_BOLT_STEP_MS = 150,
+
+    -- Orb Triangulation. The targeted orb is the vertex; the two nearest orbs
+    -- form the opposite side, and the projectile travels the median to that
+    -- side's midpoint. Damage applies to enemies along the median.
+    ORB_TRIANGULATION_DAMAGE = 6,
+    ORB_TRIANGULATION_CORRIDOR_RADIUS = 1.5,
+    ORB_TRIANGULATION_STEPS = 6,
+    ORB_TRIANGULATION_STEP_MS = 60,
 }
