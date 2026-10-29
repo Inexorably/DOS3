@@ -466,13 +466,13 @@ Known DOS2 visual references for the current test spells:
       line, 5 HP each (set at runtime with `Osi.SetHitpoints`). Charging an orb
       that is on the wall collapses it; charging an orb that is not on the wall
       leaves it standing.
-- [ ] Verify Orb Stone Wall in-game: the spell appears for the class, the wall
-      segments look like a stone wall (not scrolls - the old template was the Wall
-      of Stone *scroll*), each segment dies to **5** damage, a three-orb chain
-      builds one continuous wall, charging a wall orb collapses every segment, and
-      charging an off-wall orb leaves the wall intact. Log lines:
-      `wall raised through a->b->c: N pillar(s)`, `collapsed (charged orb ...)`,
-      `not part of any wall`. The combat log must show **one** Orb Stone Wall cast.
+- [ ] Verify Orb Stone Wall in-game: the spell appears for the class, the wall is
+      built from the Wall of Stone wall art and does not crash, each segment dies
+      to **5** damage, a three-orb chain builds one continuous wall, charging a
+      wall orb collapses every segment, and charging an off-wall orb leaves the
+      wall intact. Log lines: `wall raised through a->b->c: N pillar(s)`,
+      `collapsed (charged orb ...)`, `not part of any wall`. The combat log must
+      show **one** Orb Stone Wall cast.
 - [ ] Optional: try the Wall of Stone spell's own wall art
       (`VFX_Static_Wall_Spell_Stone_A_*`) via
       `ORB_STONE_WALL_PILLAR_TEMPLATE`. Those are visual-only, so they cannot take

@@ -26,20 +26,28 @@ local SPELL = "CC_OrbStoneWall"
 
 -- Wall segment template, overridable from Config.lua.
 --
--- The default is PUZ_NAT_Sandstone_Wall_Breakable_A: a real stone wall segment
--- with hit points, so the wall both looks like stone and can be destroyed.
+-- The default is the **Wall of Stone** wall art the vanilla spell builds:
+--   VFX_Static_Wall_Spell_Stone_A_LowMiddle_A   92ace281-af3a-46e5-bf8c-5caddaef8402
+-- Its siblings, if a different row/edge is wanted:
+--   LowLeft    64989fe4-88bf-414d-b457-aa64ce7b2382
+--   LowRight   7fd526c6-61a0-48c9-8890-724713e3afce
+--   HighLeft   12daecf2-d13f-4b61-ae70-728336c6c7dd   (stats OBJ_Wall_Of_Stone)
+--   HighMiddle 8dd86988-275e-4fc1-8aa0-8cd312b425a7
+--   HighRight  85fdc495-3d38-4514-9452-00fba79ade93
 --
--- Do NOT use these:
+-- Templates that must NOT be used here:
 --   d13587f4-a1f4-4833-bd1e-da1c7951d680  OBJ_Wall_Of_Stone's RootTemplate, which
 --                                        is actually the Wall of Stone *scroll*
---                                        (it spawns scrolls), and
+--                                        (spawning it produces scrolls), and
+--   5412686b-2854-4970-b428-07e30f9dae01  PUZ_NAT_Sandstone_Wall_Breakable_A:
+--                                        its ParentTemplateId does not exist in
+--                                        the retail template set, and creating it
+--                                        crashed the game outright, and
 --   f0b8705f-bc6f-44a2-b6f7-521f4524e179  OBJ_Destr_Wall_Stone, a crumbling/
---                                        ruined map prop.
---
--- The Wall of Stone spell's own wall art is the VFX_Static_Wall_Spell_Stone_A_
--- {Low,High}{Left,Middle,Right}_A family, but those are visual-only templates with
--- no hit points, so a wall built from them could not be damaged.
-local DEFAULT_PILLAR_TEMPLATE = "5412686b-2854-4970-b428-07e30f9dae01"
+--                                        ruined prop (what the first version
+--                                        spawned; kept only as a known-safe
+--                                        alternative in Config.lua).
+local DEFAULT_PILLAR_TEMPLATE = "92ace281-af3a-46e5-bf8c-5caddaef8402"
 
 local function pillarTemplate()
     return S.setting("ORB_STONE_WALL_PILLAR_TEMPLATE", DEFAULT_PILLAR_TEMPLATE)

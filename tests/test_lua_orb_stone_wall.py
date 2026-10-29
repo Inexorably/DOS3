@@ -16,13 +16,15 @@ try:
 except ImportError:  # pragma: no cover - depends on the environment
     HAVE_LUPA = False
 
-# PUZ_NAT_Sandstone_Wall_Breakable_A: a destructible stone wall segment.
-PILLAR_TEMPLATE = "5412686b-2854-4970-b428-07e30f9dae01"
+# VFX_Static_Wall_Spell_Stone_A_LowMiddle_A: the Wall of Stone wall art.
+PILLAR_TEMPLATE = "92ace281-af3a-46e5-bf8c-5caddaef8402"
 
 # The Wall of Stone scroll (what OBJ_Wall_Of_Stone's RootTemplate actually points
-# at) and the crumbling ruined prop (OBJ_Destr_Wall_Stone).
+# at), the crumbling ruined prop (OBJ_Destr_Wall_Stone), and the shared-dev
+# sandstone wall whose parent does not exist in retail (crashed the game).
 SCROLL_TEMPLATE = "d13587f4-a1f4-4833-bd1e-da1c7951d680"
 RUINED_TEMPLATE = "f0b8705f-bc6f-44a2-b6f7-521f4524e179"
+CRASHING_TEMPLATE = "5412686b-2854-4970-b428-07e30f9dae01"
 
 
 @unittest.skipUnless(HAVE_LUPA, "lupa is not installed")
@@ -337,7 +339,7 @@ class OrbStoneWallStatsTests(unittest.TestCase):
         self.assertNotIn("CastedSpell", code)
         self.assertIn("Osi.CreateAt", code)
 
-    def test_pillars_use_a_real_destructible_stone_wall(self) -> None:
+    def test_pillars_use_the_wall_of_stone_wall_art(self) -> None:
         self.assertIn(PILLAR_TEMPLATE, self.module)
         self.assertIn(PILLAR_TEMPLATE, self.config)
 
@@ -346,6 +348,13 @@ class OrbStoneWallStatsTests(unittest.TestCase):
         # spawning it produced scrolls rather than pillars.
         code = re.sub(r"--[^\n]*", "", self.module)
         self.assertNotIn(SCROLL_TEMPLATE, code)
+
+    def test_never_spawns_the_template_that_crashed(self) -> None:
+        # Its ParentTemplateId is absent from the retail template set; creating it
+        # crashed the game.
+        code = re.sub(r"--[^\n]*", "", self.module)
+        self.assertNotIn(CRASHING_TEMPLATE, code)
+        self.assertNotIn(CRASHING_TEMPLATE, self.config)
 
     def test_never_spawns_the_crumbling_ruined_prop(self) -> None:
         code = re.sub(r"--[^\n]*", "", self.module)
