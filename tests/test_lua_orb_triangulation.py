@@ -262,20 +262,30 @@ class OrbTriangulationTests(unittest.TestCase):
         self.cast("b")
         self.assertEqual(self.damaged_targets(), [])
 
-    def test_beam_is_drawn_from_the_targeted_orb(self) -> None:
+    def test_beam_starts_at_the_targeted_orb(self) -> None:
         self.triangle()
         self.cast("b", run_timers=False)
         beams = self.harness.osi_calls("PlayBeamEffect")
-        self.assertEqual(len(beams), 1)
-        source, anchor, vfx = beams[0]["args"][0:3]
-        self.assertEqual(str(source), "b")
-        self.assertEqual(str(vfx), BEAM_VFX)
-        # The anchor sits at the far end of the 25 m median, not on the orb:
-        # b=(0,0) fires toward the midpoint (5,5) and travels the full 25 m.
+        self.assertTrue(beams)
+        self.assertEqual(str(beams[0]["args"][0]), "b")
+        self.assertEqual(str(beams[0]["args"][2]), BEAM_VFX)
+
+    def test_beam_is_split_into_segments_that_reach_the_end(self) -> None:
+        self.triangle()
+        self.cast("b", run_timers=False)
+        beams = self.harness.osi_calls("PlayBeamEffect")
+        # 25 m at 5 m per beam = 5 beams, chained anchor to anchor.
+        self.assertEqual(len(beams), 5)
+        for previous, current in zip(beams, beams[1:], strict=False):
+            self.assertEqual(str(current["args"][0]), str(previous["args"][1]))
+
+        # The last anchor is the far end of the 25 m median: b=(0,0) fires
+        # toward the midpoint (5,5) and travels the full 25 m.
+        last = str(beams[-1]["args"][1])
         coords = [
             float(v)
             for v in str(
-                self.harness.run(f"return table.concat(H.positions['{anchor}'], ',')")
+                self.harness.run(f"return table.concat(H.positions['{last}'], ',')")
             ).split(",")
         ]
         expected = 12.5 * math.sqrt(2.0)
@@ -283,16 +293,45 @@ class OrbTriangulationTests(unittest.TestCase):
         self.assertAlmostEqual(coords[1], expected, places=4)
         self.assertAlmostEqual(coords[2], 0.0, places=4)
 
-    def test_beam_anchor_is_deleted_after_its_lifetime(self) -> None:
+    def test_beam_segments_are_configurable(self) -> None:
+        self.triangle()
+        self.harness.run("OW.Config.ORB_TRIANGULATION_BEAM_SEGMENT_M = 25.0")
+        self.cast("b", run_timers=False)
+        self.assertEqual(len(self.harness.osi_calls("PlayBeamEffect")), 1)
+
+    def test_beam_segment_count_is_capped(self) -> None:
+        self.triangle()
+        self.harness.run("OW.Config.ORB_TRIANGULATION_MAX_BEAM_SEGMENTS = 2")
+        self.cast("b", run_timers=False)
+        self.assertEqual(len(self.harness.osi_calls("PlayBeamEffect")), 2)
+
+    def test_beam_anchors_are_deleted_after_their_lifetime(self) -> None:
         self.triangle()
         self.cast("b", run_timers=False)
         self.assertFalse(self.harness.osi_called("RequestDelete"),
-                         "anchor must outlive the beam")
+                         "anchors must outlive the beam")
         self.harness.fire_timers()
-        self.assertEqual(
-            [call["args"] for call in self.harness.osi_calls("RequestDelete")],
-            [["anchor1"]],
+        deleted = [call["args"][0] for call in self.harness.osi_calls("RequestDelete")]
+        self.assertEqual(deleted, ["anchor1", "anchor2", "anchor3", "anchor4", "anchor5"])
+
+    def test_partial_anchors_are_cleaned_up_when_a_beam_fails(self) -> None:
+        self.triangle()
+        # Osi actions return nothing, so a failing beam surfaces as an error.
+        self.harness.run(
+            'local n = 0\n'
+            'local ok = H.osi_results["PlayBeamEffect"]\n'
+            'H.osi_results["PlayBeamEffect"] = function(...)\n'
+            '  n = n + 1\n'
+            '  if n > 2 then error("beam rejected") end\n'
+            '  return ok(...)\n'
+            'end'
         )
+        self.cast("b", run_timers=False)
+        deleted = [call["args"][0] for call in self.harness.osi_calls("RequestDelete")]
+        # Three anchors were placed before the third beam was rejected; all of
+        # them must be removed so a failed cast cannot leak helper items.
+        self.assertEqual(deleted, ["anchor1", "anchor2", "anchor3"])
+        self.assertIn("beam unavailable", self.logs())
 
     def test_stepped_projectile_is_used_when_no_anchor_is_possible(self) -> None:
         self.triangle()
@@ -353,11 +392,45 @@ class OrbTriangulationTests(unittest.TestCase):
         self.harness.fire_timers()
         self.assertEqual(len(self.damaged_targets()), 1)
 
-    def test_default_cast_queues_beam_arrival_lifetime_and_cleanup(self) -> None:
+    def test_casted_spell_is_suppressed_even_after_a_long_delay(self) -> None:
+        # Regression: a real fight delivered CastedSpell well over a second
+        # after UsingSpellOnTarget, which outlived a 1.5 s suppression window and
+        # ran the entire cast a second time - every enemy on the line took
+        # damage twice. Suppression must not depend on elapsed time.
+        self.triangle()
+        self.add_enemy("median", 3, 3)
+        self.cast("b", run_timers=False)
+        # The target-path markers have no timer now, so nothing can expire.
+        self.assertEqual(self.harness.timers(), 2)
+        self.harness.fire_listener("CastedSpell", "caster", "CC_OrbTriangulation",
+                                   "Target", "Lightning", 7)
+        self.harness.fire_timers()
+        self.assertEqual(self.damaged_targets(), ["median"])
+        self.assertEqual(
+            len(self.harness.osi_calls("PlayBeamEffect")), 5,
+            "the duplicate cast must not draw a second beam",
+        )
+        self.assertIn("ignoring CastedSpell", self.logs())
+
+    def test_casted_spell_fallback_still_runs_when_the_target_path_never_fires(
+        self,
+    ) -> None:
+        # Builds that do not deliver UsingSpellOnTarget must keep working, and
+        # each cast must still resolve (the fallback cannot be a one-shot).
+        self.triangle()
+        self.add_enemy("median", 3, 3)
+        self.harness.run('H.positions["caster"] = { 1, 1, 0 }')
+        for _ in range(2):
+            self.harness.fire_listener("CastedSpell", "caster", "CC_OrbTriangulation",
+                                       "Target", "Lightning", 6)
+            self.harness.fire_timers()
+        self.assertEqual(self.damaged_targets(), ["median", "median"])
+
+    def test_default_cast_queues_beam_arrival_and_lifetime(self) -> None:
         self.triangle()
         self.cast("b", run_timers=False)
-        # beam arrival, anchor lifetime, cast-cleanup.
-        self.assertEqual(self.harness.timers(), 3)
+        # beam arrival and anchor lifetime; no dedupe timer any more.
+        self.assertEqual(self.harness.timers(), 2)
         self.harness.fire_timers()
 
     def test_beam_timing_is_configurable(self) -> None:

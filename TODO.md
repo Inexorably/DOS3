@@ -473,9 +473,16 @@ Known DOS2 visual references for the current test spells:
 - [x] Replace the stepped projectile with a visible beam: `PlayBeamEffect` from
       the targeted orb to an invisible helper anchor created at the far end, so
       the whole 25 m line is drawn instead of a few discrete orb frames.
+- [x] Draw the whole line: one beam fades out before a distant anchor, so the
+      shot is now a chain of beams (5 m each by default) between consecutive
+      invisible helper anchors.
+- [x] Fix a double hit: `CastedSpell` arrived over a second after
+      `UsingSpellOnTarget`, outlived the 1.5 s suppression window and ran the
+      whole cast again, so every enemy on the line took damage twice. The
+      fallback is now suppressed by content, not by elapsed time.
 - [ ] Verify Orb Triangulation in-game: grants from the class list, the beam is
       visible from the orb along the full 25 m, enemies up to 25 m along the
-      median take damage, enemies beside it do not, and two orbs log
+      median take damage exactly once, enemies beside it do not, and two orbs log
       "need 3 orbs".
 
 - [x] Add player-cast **Orb Lightning Bolt**: orb-only targeting, the same 8 m

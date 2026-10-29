@@ -48,6 +48,10 @@ OW.Config = {
     -- and how long the beam stays visible (the endpoint anchor is deleted then).
     ORB_TRIANGULATION_BEAM_MS = 300,
     ORB_TRIANGULATION_BEAM_LIFETIME_MS = 1500,
+    -- The beam effect fades out well before a distant end point, so the line is
+    -- drawn as a chain of beams no longer than this, capped in count.
+    ORB_TRIANGULATION_BEAM_SEGMENT_M = 5.0,
+    ORB_TRIANGULATION_MAX_BEAM_SEGMENTS = 12,
     -- Fallback only, used when no endpoint anchor can be created.
     ORB_TRIANGULATION_STEP_DISTANCE = 2.0,
     ORB_TRIANGULATION_MAX_STEPS = 16,

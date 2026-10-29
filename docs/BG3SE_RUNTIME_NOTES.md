@@ -480,6 +480,52 @@ the vanilla source named by `ICON_SOURCE`.
 Both sizes ship: `Assets/ClassIcons/<Name>.DDS` and
 `AssetsLowRes/ClassIcons/<Name>.DDS`.
 
+## CastedSpell can arrive long after UsingSpellOnTarget (2026-10-28 20:19 run)
+
+`Orb Triangulation` deals its damage on a timer *and* had a `CastedSpell`
+fallback. The fallback was suppressed with a 1.5 s marker set by
+`UsingSpellOnTarget`. Log evidence:
+
+```text
+orb triangulation: cast on CC_Ball_Azure_b9107a5d-... by Elves_Female_High_Player_...
+orb triangulation: beam drawn from b9107a5d-... to (-38.1,-5.0,-377.2), length 25.0 m
+orb triangulation: b9107a5d-...->beam: in range=2 hostile=2
+orb triangulation: 2 hit(s) along the median (25.0 m)
+[DOS2C] SpellCastEvent: caster=Entity (020000010000461d) spell=CC_OrbTriangulation
+[DOS2C] cooldown applied: CC_OrbTriangulation for 1 turns
+orb triangulation: CastedSpell fallback orb=b9107a5d-...
+orb triangulation: beam drawn from b9107a5d-...
+orb triangulation: 2 hit(s) along the median (25.0 m)
+```
+
+The second `CastedSpell`-driven cast ran **more than 1.5 s** after the target
+event, so the window had expired and every enemy on the line took damage twice.
+
+Rule: **do not dedupe Osiris events with a short timer.** `UsingSpellOnTarget`
+and `CastedSpell` for one cast are not adjacent in time and their gap varies with
+animations and combat pacing. Remember that the caster's casts arrive through the
+target event (and treat `CastedSpell` as a fallback only for builds where it
+never fires), or key the dedupe on the resolved target itself.
+
+## Osi actions return nothing, so pcall status is the only failure signal
+
+`pcall(Osi.SomeAction, ...)` returns `true, nil` even when the action produced no
+effect; `Osi` actions have no return value. Helpers like `playBeam` therefore
+return the **pcall status**, and a failing action can only be detected when it
+raises. Unit tests must `error(...)` from the stub rather than return `false`,
+otherwise the failure path is never exercised.
+
+## Beam VFX fade out before a distant anchor (2026-10-28 20:19 run)
+
+`VFX_Spells_Cast_Damage_Lightning_ProjectileBeam_Beam_01` drawn with
+`Osi.PlayBeamEffect` from an orb to an anchor 25 m away stayed visually short: the
+effect only stretches so far and fades out. The line is now drawn as a **chain of
+beams**, one per segment (`ORB_TRIANGULATION_BEAM_SEGMENT_M`, 5 m by default),
+each between consecutive invisible `Helper_Invisible_H` anchors
+(`ORB_TRIANGULATION_MAX_BEAM_SEGMENTS` caps the count at 12). Every anchor is
+deleted after `ORB_TRIANGULATION_BEAM_LIFETIME_MS`; a failed segment cleans up the
+anchors already placed so a rejected cast cannot leak helper items.
+
 ## Maintenance rule
 
 Whenever a runtime-only API/arity/enum is discovered:

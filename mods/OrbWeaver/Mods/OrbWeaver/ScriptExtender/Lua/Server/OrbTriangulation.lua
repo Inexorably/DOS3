@@ -27,7 +27,11 @@ local PROJECTILE_VFX = "VFX_Projectiles_Damage_Lightning_ChromaticOrb_Projectile
 local IMPACT_VFX = "VFX_Projectiles_Damage_Lightning_ChromaticOrb_Impact_01_"
     .. "4486e906-2b40-d92a-f7ff-915cf6fc7450"
 
-local RECENT_TARGET = {}
+-- Which casters resolve casts through UsingSpellOnTarget (with the orb the last
+-- cast fired from), so the target-less CastedSpell event cannot repeat a cast
+-- that was already handled.
+local TARGET_PATH = {}
+local LAST_ORB = {}
 
 local function log(fmt, ...)
     S.log("orb triangulation: " .. fmt, ...)
@@ -119,22 +123,67 @@ local function deleteAnchor(guid)
     if not ok then log("beam anchor cleanup failed: %s", tostring(err)) end
 end
 
--- Draws the beam from the targeted orb along the median to `endPoint`.
--- Returns a cleanup function, or nil when no entity anchor could be made.
-local function drawBeam(vertex, endPoint, lifetimeMs)
-    local anchor = createAnchor(endPoint.x, endPoint.y, endPoint.z)
-    if not anchor then return nil end
-    local ok = S.playBeam(vertex.guid, anchor, BEAM_VFX)
-    if not ok then
-        deleteAnchor(anchor)
-        return nil
+-- Points from the orb to the beam end, no segment longer than `segmentMetres`.
+-- The beam effect only stretches so far: a single instance drawn to a distant
+-- anchor fades out well before the 25 m end, so the line is drawn as a chain of
+-- shorter beams instead of one very long one.
+local function beamSegments(vertex, endPoint, segmentMetres, maxSegments)
+    local dx = endPoint.x - vertex.x
+    local dy = endPoint.y - vertex.y
+    local dz = (endPoint.z or 0) - (vertex.z or 0)
+    local length = math.sqrt(dx * dx + dy * dy + dz * dz)
+    local count = math.max(1, math.ceil(length / math.max(0.5, segmentMetres)))
+    count = math.min(count, math.max(1, maxSegments))
+
+    local points = {}
+    for index = 1, count - 1 do
+        local t = index / count
+        points[#points + 1] = {
+            x = vertex.x + dx * t,
+            y = vertex.y + dy * t,
+            z = (vertex.z or 0) + dz * t,
+        }
     end
-    local function cleanup() deleteAnchor(anchor) end
+    points[#points + 1] = { x = endPoint.x, y = endPoint.y, z = endPoint.z }
+    return points, length
+end
+
+-- Draws the beam from the targeted orb along the median to `endPoint`, one
+-- beam per segment so the whole line is visible.
+-- Returns a cleanup function and the number of segments, or nil when no entity
+-- anchor could be made at all.
+local function drawBeam(vertex, endPoint, lifetimeMs)
+    local segmentMetres = S.setting("ORB_TRIANGULATION_BEAM_SEGMENT_M", 5.0)
+    local maxSegments = S.setting("ORB_TRIANGULATION_MAX_BEAM_SEGMENTS", 12)
+    local points, length = beamSegments(vertex, endPoint, segmentMetres, maxSegments)
+
+    local anchors = {}
+    local function cleanup()
+        for _, guid in ipairs(anchors) do deleteAnchor(guid) end
+        anchors = {}
+    end
+
+    -- The orb is the first entity; every point on the line becomes an anchor, so
+    -- each beam runs anchor-to-anchor with the last one ending at the beam end.
+    local previous = vertex.guid
+    for _, point in ipairs(points) do
+        local anchor = createAnchor(point.x, point.y, point.z)
+        if not anchor then
+            cleanup()
+            return nil
+        end
+        anchors[#anchors + 1] = anchor
+        if not S.playBeam(previous, anchor, BEAM_VFX) then
+            cleanup()
+            return nil
+        end
+        previous = anchor
+    end
+
     if Ext and Ext.Timer and Ext.Timer.WaitFor then
         Ext.Timer.WaitFor(lifetimeMs, cleanup)
-        return cleanup, anchor
     end
-    return cleanup, anchor
+    return cleanup, #anchors, length
 end
 
 -- Fires the beam, then resolves damage when it has played. The beam is visible
@@ -150,10 +199,10 @@ local function animateAndStrike(caster, vertex, endPoint)
         log("%d hit(s) along the median (%.1f m)", hits, length)
     end
 
-    local cleanup = drawBeam(vertex, endPoint, lifetime)
+    local cleanup, segments = drawBeam(vertex, endPoint, lifetime)
     if cleanup then
-        log("beam drawn from %s to (%.1f,%.1f,%.1f), length %.1f m",
-            vertex.key, endPoint.x, endPoint.y, endPoint.z, length)
+        log("beam drawn from %s to (%.1f,%.1f,%.1f), %d segment(s) over %.1f m",
+            vertex.key, endPoint.x, endPoint.y, endPoint.z, segments, length)
     else
         -- No anchor available: keep the projectile visible along the path so the
         -- spell still looks like it came from the orb.
@@ -213,27 +262,33 @@ function T.Resolve(caster, target)
             midLength)
     end
     animateAndStrike(caster, vertex, endPoint)
-    return true
+    return true, vertex.key
 end
 
 local function onTargetCast(caster, target, spell)
     if tostring(spell or "") ~= SPELL then return end
-    log("cast on %s by %s", tostring(target), tostring(caster))
-    if T.Resolve(caster, target) then
-        RECENT_TARGET[tostring(caster or "")] = true
-        if Ext and Ext.Timer and Ext.Timer.WaitFor then
-            Ext.Timer.WaitFor(1500, function()
-                RECENT_TARGET[tostring(caster or "")] = nil
-            end)
-        end
+    local key = tostring(caster or "")
+    log("cast on %s by %s", tostring(target), key)
+    local ok, vertexKey = T.Resolve(caster, target)
+    if ok then
+        -- Remember that this caster's casts arrive through the target event, and
+        -- which orb the last one fired from. The CastedSpell fallback below is
+        -- only for builds that never deliver the target event.
+        TARGET_PATH[key] = true
+        LAST_ORB[key] = vertexKey
     end
 end
 
 local function onCastedSpell(caster, spell)
     if tostring(spell or "") ~= SPELL then return end
     local key = tostring(caster or "")
-    if RECENT_TARGET[key] then
-        log("target already resolved for %s", key)
+    if TARGET_PATH[key] then
+        -- Suppress by content, not by a timer: the CastedSpell for one cast has
+        -- been seen arriving well over a second after UsingSpellOnTarget, which
+        -- outlived a 1.5 s window and ran the whole cast a second time (every
+        -- enemy on the line took damage twice).
+        log("cast already resolved on %s via the target event; ignoring CastedSpell",
+            tostring(LAST_ORB[key]))
         return
     end
     -- Fallback for builds that do not deliver UsingSpellOnTarget.

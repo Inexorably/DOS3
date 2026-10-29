@@ -290,11 +290,20 @@ and draws a `PlayBeamEffect` beam along it, and `OrbTriangulation` fires a beam
 from the targeted orb through the midpoint of the other two and onward to
 `ORB_TRIANGULATION_RANGE` (25 m), damaging the 1.5 m corridor along that line.
 
+The triangulation cast resolves from `UsingSpellOnTarget`, which carries the
+target orb. `CastedSpell` is a fallback only for builds that never deliver the
+target event: it has no target of its own, and in a real fight it arrived more
+than a second after the target event, so a short suppression window let the whole
+cast run twice. Suppression is therefore content-based (this caster resolves casts
+through the target event) rather than time-based.
+
 `OrbTriangulation` draws its shot with `PlayBeamEffect` (the lightning energy
-beam) from the targeted orb to an invisible `Helper_Invisible_H` item created at
-the beam's end point, which is deleted after `ORB_TRIANGULATION_BEAM_LIFETIME_MS`
-(1.5 s). Damage resolves after `ORB_TRIANGULATION_BEAM_MS` (300 ms) so the beam is
-seen before anything is hit. If the anchor item cannot be created, the spell falls
+beam) from the targeted orb to invisible `Helper_Invisible_H` items created along
+the line. One beam fades out before a distant end point, so the line is drawn as a
+chain of beams no longer than `ORB_TRIANGULATION_BEAM_SEGMENT_M` (5 m), capped by
+`ORB_TRIANGULATION_MAX_BEAM_SEGMENTS` (12); every anchor is deleted after
+`ORB_TRIANGULATION_BEAM_LIFETIME_MS` (1.5 s). Damage resolves after
+`ORB_TRIANGULATION_BEAM_MS` (300 ms) so the beam is seen before anything is hit. If the anchor item cannot be created, the spell falls
 back to the stepped `PlayEffectAtPosition` projectile (one frame per 2 m, capped at
 16) — a custom projectile-type stat is not an option because it previously failed
 with `result=MissingAnimations`.
