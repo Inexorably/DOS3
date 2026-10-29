@@ -50,6 +50,10 @@ class OrbStoneWallTests(unittest.TestCase):
                 return guid
             end
             H.osi_results["RequestDelete"] = function() return true end
+            H.hitpoints = {}
+            H.osi_results["SetHitpoints"] = function(guid, hp)
+                H.hitpoints[#H.hitpoints + 1] = { guid = guid, hp = hp }
+            end
             """
         )
 
@@ -126,6 +130,33 @@ class OrbStoneWallTests(unittest.TestCase):
         self.add_orb("b", 40, 0)
         self.cast("a")
         self.assertEqual(self.wall(), "0")
+
+    def test_every_pillar_is_set_to_five_hit_points(self) -> None:
+        self.line()
+        self.cast("a")
+        calls = self.harness.run("return #H.hitpoints") 
+        self.assertEqual(int(calls), self.raised())
+        values = self.harness.run(
+            "local o = {} for i, e in ipairs(H.hitpoints) do o[i] = e.hp end return o"
+        )
+        self.assertEqual({int(v) for v in values}, {5})
+
+    def test_pillar_hit_points_are_configurable(self) -> None:
+        self.line()
+        self.harness.run("OW.Config.ORB_STONE_WALL_PILLAR_HP = 9")
+        self.cast("a")
+        values = self.harness.run(
+            "local o = {} for i, e in ipairs(H.hitpoints) do o[i] = e.hp end return o"
+        )
+        self.assertEqual({int(v) for v in values}, {9})
+
+    def test_a_rejected_hit_point_change_is_reported(self) -> None:
+        self.line()
+        self.harness.run(
+            'H.osi_results["SetHitpoints"] = function() error("no such call") end'
+        )
+        self.cast("a")
+        self.assertIn("could not set pillar", self.logs())
 
     def test_raises_pillars_along_the_whole_line(self) -> None:
         self.line()
@@ -284,19 +315,13 @@ class OrbStoneWallStatsTests(unittest.TestCase):
         self.assertIn("STONE_WALL_PILLAR_HP = 5", self.generator)
         self.assertIn("STONE_WALL_LINK_RADIUS = 8", self.generator)
 
-    def test_pillars_are_five_hp(self) -> None:
-        self.assertIn(
-            'data "Vitality" "{STONE_WALL_PILLAR_HP}"', str(self.generator)
-        )
-        self.assertEqual(self.spells["CC_OrbWallStone"]["Vitality"], "5")
+    def test_no_object_stat_is_generated_for_pillars(self) -> None:
+        # Pillars spawn by root template, so an Object stat would never be
+        # applied; keeping one would only look like it set the hit points.
         spells_txt = read(
             MODS / "OrbWeaver/Public/OrbWeaver/Stats/Generated/Data/Spells.txt"
         )
-        self.assertIn(
-            'new entry "CC_OrbWallStone"\ntype "Object"\n'
-            'using "OBJ_Destr_Wall_Stone"',
-            spells_txt,
-        )
+        self.assertNotIn("CC_OrbWallStone", spells_txt)
 
     def test_is_granted_by_the_class_spell_list(self) -> None:
         lists = read(MODS / "OrbWeaver/Public/OrbWeaver/Lists/SpellLists.lsx")

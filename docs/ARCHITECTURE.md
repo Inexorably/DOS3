@@ -321,8 +321,11 @@ nearest-first ordering the lightning chain uses (`OrbShared.chainOrder`), bounde
 by `ORB_STONE_WALL_LINK_RADIUS` (8 m), so the wall may run A->B->C, B->A->C,
 C->B->A and so on. Pillars are placed every
 `ORB_STONE_WALL_PILLAR_SPACING` metres along the resulting polyline with
-`Osi.CreateAt` on the vanilla `OBJ_Destr_Wall_Stone` root template; each pillar is
-`ORB_STONE_WALL_PILLAR_HP` (5) hit points via the `CC_OrbWallStone` object stat.
+`Osi.CreateAt` on the vanilla `OBJ_Destr_Wall_Stone` root template, then each
+pillar is set to `ORB_STONE_WALL_PILLAR_HP` (5) with `Osi.SetHitpoints`. The hit
+points are applied at runtime rather than through an Object stat: `CreateAt`
+spawns by **root template**, so a stat entry is never applied and would only look
+like it was setting them (the template's own vitality is 22).
 `Osi.CreateAt` can return a GUID without placing anything, so each pillar's
 position is read back and an unplaced pillar is deleted and excluded.
 

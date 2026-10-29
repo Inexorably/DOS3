@@ -109,8 +109,10 @@ TRIANGULATION_DAMAGE = 6
 TRIANGULATION_CORRIDOR_RADIUS = 1.5
 TRIANGULATION_RANGE = 25
 STONE_WALL_LINK_RADIUS = 8
-STONE_WALL_PILLAR_HP = 5
 STONE_WALL_PILLAR_SPACING = 2
+# Pillar hit points are applied at runtime (Osi.SetHitpoints); spawning by
+# root template means an Object stat would never be used.
+STONE_WALL_PILLAR_HP = 5
 CHAIN_LIGHTNING_ANIMATION = (
     "3ff87abf-1ea1-4c32-aadf-c822d74c7dc0,,;,,;cd5e5d4a-38e1-4d4d-b346-3fbc1e4c3c90,,;"
     "141f48d9-9615-496a-8737-9240f0dba60d,,;d8925ce4-d6d9-400c-92f5-ad772ef7f178,,;,,;"
@@ -842,11 +844,6 @@ data "CastEffect" "{CHAIN_LIGHTNING_PREPARE_EFFECT}"
 data "CastTextEvent" "Cast"
 data "AIFlags" "CanNotUse"
 
-new entry "CC_OrbWallStone"
-type "Object"
-using "OBJ_Destr_Wall_Stone"
-data "Vitality" "{STONE_WALL_PILLAR_HP}"
-
 new entry "CC_OrbStoneWall"
 type "SpellData"
 using "Target_MageHand"
@@ -867,7 +864,7 @@ data "Requirements" ""
 data "TargetRadius" "18"
 data "DisplayName" "{handle('CC_OrbStoneWall/name')}"
 data "Description" "{handle('CC_OrbStoneWall/desc')}"
-data "DescriptionParams" "Distance({STONE_WALL_LINK_RADIUS});DealDamage({STONE_WALL_PILLAR_HP},None)"
+data "DescriptionParams" "Distance({STONE_WALL_LINK_RADIUS})"
 data "Icon" "Spell_Conjuration_WallOfStone"
 data "UseCosts" "ActionPoint:2"
 -- Target_MageHand inherits CannotTargetCharacter/CannotTargetItems. Remove

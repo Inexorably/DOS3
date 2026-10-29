@@ -66,6 +66,20 @@ function T.pillarPoints(nodes, spacing)
     return points
 end
 
+-- Spawned pillars take the root template's vitality (22), so the wall's hit
+-- point budget is applied explicitly. No Object stat is used for this: CreateAt
+-- spawns by root template GUID, so a stat entry would never be applied and would
+-- only look like it was doing something.
+local function applyHitpoints(guid, hp)
+    local ok, err = pcall(Osi.SetHitpoints, guid, hp)
+    if not ok then
+        log("error: could not set pillar %s to %d hit points: %s",
+            tostring(guid), hp, tostring(err))
+        return false
+    end
+    return true
+end
+
 local function createPillar(point)
     if not (Osi and Osi.CreateAt) then return nil end
     local ok, guid = pcall(Osi.CreateAt, PILLAR_TEMPLATE,
@@ -83,6 +97,7 @@ local function createPillar(point)
         pcall(Osi.RequestDelete, guid)
         return nil
     end
+    applyHitpoints(guid, S.setting("ORB_STONE_WALL_PILLAR_HP", 5))
     return guid
 end
 
