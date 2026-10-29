@@ -8,7 +8,7 @@ experimental.
 Last updated from:
 - `Extender Runtime 2026-10-28 02-00-11.log`
 - `Osiris Runtime 2026-10-28 02-00-47.log`
-- CustomClasses package `254882e72fa2be0ec94b6ea35ed8fc8b`
+- OrbWeaver package `254882e72fa2be0ec94b6ea35ed8fc8b` (formerly packaged as `CustomClasses`)
 
 ## Osiris API discoveries
 
@@ -246,7 +246,7 @@ Separately, `CC_OrbFireWall` had `Lifetime 3`, which explains ash quickly
 replacing the fire. It is now `Lifetime 10`; the custom line status is
 `CC_ORB_FIRE_LINE` and deals 2 Fire damage per tick.
 
-## CustomClasses wall status
+## OrbWeaver wall status
 
 The copied wall spell is:
 
@@ -382,6 +382,170 @@ Confirmed working in `Extender Runtime 2026-10-28 04-38-32.log`:
 
 `DOS2Combat/Server/Surfaces.lua` still calls `Osi.DealDamage` inside `pcall`, so
 its surface tick damage is a silent no-op in this build. Tracked in #10.
+
+## Custom class resources: reuse the vanilla file names
+
+A new base class did not appear in character creation. Two mistakes, both found
+by reading published class mods rather than the tutorial alone.
+
+**1. Do not rename class resources to `_merged`.** `_merged` is not a mod
+convention — it is literally the vanilla file name for `RootTemplates`
+(`Public/Shared/RootTemplates/_merged.lsx`), which is why the orb root uses it.
+The engine identifies a resource by its sub-path under `Public/<Module>/`, so a
+class mod's files must be named exactly like the vanilla ones.
+`ClassDescriptions/_merged.lsf` is a resource the engine never looks up, so the
+class silently never appears.
+
+Reference implementations, both openly readable on GitHub:
+
+- `deggertsen/bg3-class-surgebinder` (class + subclasses):
+  ```text
+  Public/Surgebinder/ClassDescriptions/ClassDescriptions.lsx
+  Public/Surgebinder/Progressions/Progressions.lsx
+  Public/Surgebinder/Progressions/ProgressionDescriptions.lsx
+  Public/Surgebinder/CharacterCreationPresets/AbilityDistributionPresets.lsx
+  Public/Surgebinder/DefaultValues/{Abilities,Passives,Skills}.lsx
+  Public/Surgebinder/Lists/{AbilityLists,SkillLists}.lsx
+  Public/Surgebinder/Tags/<uuid>.lsx
+  ```
+- `snikkidoodle/bg3-alchemist-class` (class with fewer files — shows the minimum):
+  ```text
+  Public/Alchemist_Class_Homebrew/ClassDescriptions/ClassDescriptions.lsx
+  Public/Alchemist_Class_Homebrew/Progressions/Progressions.lsx
+  Public/Alchemist_Class_Homebrew/Lists/{SkillLists,SpellLists}.lsx
+  Public/Alchemist_Class_Homebrew/Stats/...
+  ```
+
+So `ClassDescriptions` + `Progressions` are the hard minimum; presets,
+defaults, and extra lists add character-creation polish.
+
+**2. Attach a vanilla class tag as well as your own.** Both reference mods list
+an existing vanilla class tag (Alchemist uses Wizard's
+`6fe3ae27-dc6c-4fc9-9245-710c790c396c`) alongside their custom tag. A custom
+class tag only needs the `Code` and `CharacterSheet` categories; `Class` is not
+used by either working mod.
+
+Also confirmed: a *subclass* is just another `ClassDescription` node with
+`ParentGuid` pointing at a base class UUID and its own `ProgressionTableUUID`,
+so subclasses are not fundamentally simpler — they still need a
+`ClassDescriptions` entry and a progression table.
+
+## Class spells are granted by a selector, not by Boosts
+
+A new class appeared in character creation but started play with none of its
+spells. The progression granted them with:
+
+```text
+Boosts = UnlockSpell(CC_SummonBall_Azure);UnlockSpell(CC_IgniteOrb);...
+```
+
+Zero of the 286 vanilla `Progression` rows use `UnlockSpell` inside `Boosts`, and
+the engine silently ignores it there. Vanilla grants class spells through
+selectors pointing at a `SpellList`:
+
+```text
+Selectors = AddSpells(34c3321d-75ab-4b50-a44d-cbac8705a360,,,,AlwaysPrepared)
+```
+
+Fix: ship `Public/<Mod>/Lists/SpellLists.lsx` with a `SpellList` node holding the
+spell names, and reference its UUID from a level-1 `AddSpells(<uuid>,,,,AlwaysPrepared)`
+selector. `SelectSpells`/`AddSpells` both exist; `AddSpells` grants without a
+pick list, which suits a fixed class list.
+
+## GUI textures need a DX10 header (and are BC7 in vanilla)
+
+The class-select icon did not appear. Vanilla
+`Public/Game/GUI/Assets/ClassIcons/<ClassName>.DDS` files use a **DX10 extended
+header** with `dxgiFormat = 98` (`DXGI_FORMAT_BC7_UNORM`); the engine's GUI
+texture loader ignored the legacy DXT5 fourcc header that Pillow writes.
+
+Diagnose a DDS by reading offsets:
+
+```text
+0-3    "DDS "
+12-19  height, width (uint32 LE)
+28-31  mipMapCount (vanilla class icons use 1)
+84-87  fourCC ("DXT5" legacy, or "DX10")
+128+   DXT10 header: dxgiFormat, resourceDimension, miscFlag, arraySize, miscFlags2
+```
+
+Rewriting the header to DX10 with `dxgiFormat = 77` (`BC3_UNORM`) still did not
+produce a visible icon: every vanilla class icon is **BC7** (`dxgiFormat = 98`),
+and the loader appears to require it. Pillow cannot encode BC7, so this repo
+copies a vanilla icon **byte-for-byte** to
+`Assets/ClassIcons/<ClassName>.DDS` and `AssetsLowRes/ClassIcons/<ClassName>.DDS`.
+Recolouring would need a BC7 encoder (e.g. texconv); the icon art is therefore
+the vanilla source named by `ICON_SOURCE`.
+
+Both sizes ship: `Assets/ClassIcons/<Name>.DDS` and
+`AssetsLowRes/ClassIcons/<Name>.DDS`.
+
+## CastedSpell can arrive long after UsingSpellOnTarget (2026-10-28 20:19 run)
+
+`Orb Triangulation` deals its damage on a timer *and* had a `CastedSpell`
+fallback. The fallback was suppressed with a 1.5 s marker set by
+`UsingSpellOnTarget`. Log evidence:
+
+```text
+orb triangulation: cast on CC_Ball_Azure_b9107a5d-... by Elves_Female_High_Player_...
+orb triangulation: beam drawn from b9107a5d-... to (-38.1,-5.0,-377.2), length 25.0 m
+orb triangulation: b9107a5d-...->beam: in range=2 hostile=2
+orb triangulation: 2 hit(s) along the median (25.0 m)
+[DOS2C] SpellCastEvent: caster=Entity (020000010000461d) spell=CC_OrbTriangulation
+[DOS2C] cooldown applied: CC_OrbTriangulation for 1 turns
+orb triangulation: CastedSpell fallback orb=b9107a5d-...
+orb triangulation: beam drawn from b9107a5d-...
+orb triangulation: 2 hit(s) along the median (25.0 m)
+```
+
+The second `CastedSpell`-driven cast ran **more than 1.5 s** after the target
+event, so the window had expired and every enemy on the line took damage twice.
+
+Rule: when an event carries the data you need, use **only** that event. Do not add
+a second, target-less event path to "cover" a build that might not deliver the
+first one: `UsingSpellOnTarget` is confirmed to fire for
+`CC_OrbTriangulation`, so `CastedSpell` was not needed at all, and keeping it only
+created a way to run the cast twice. A speculative fallback is also a mechanism
+that hides the primary path breaking instead of reporting it.
+
+## Osi actions return nothing, so pcall status is the only failure signal
+
+`pcall(Osi.SomeAction, ...)` returns `true, nil` even when the action produced no
+effect; `Osi` actions have no return value. Helpers like `playBeam` therefore
+return the **pcall status**, and a failing action can only be detected when it
+raises. Unit tests must `error(...)` from the stub rather than return `false`,
+otherwise the failure path is never exercised.
+
+## Beam VFX fade out before a distant anchor (2026-10-28 20:19 run)
+
+`VFX_Spells_Cast_Damage_Lightning_ProjectileBeam_Beam_01` drawn with
+`Osi.PlayBeamEffect` from an orb to an anchor 25 m away stayed visually short: the
+effect only stretches so far and fades out. The line is now drawn as a **chain of
+beams**, one per segment (`ORB_TRIANGULATION_BEAM_SEGMENT_M`, 5 m by default),
+each between consecutive invisible `Helper_Invisible_H` anchors
+(`ORB_TRIANGULATION_MAX_BEAM_SEGMENTS` caps the count at 12). Every anchor is
+deleted after `ORB_TRIANGULATION_BEAM_LIFETIME_MS`; a failed segment cleans up the
+anchors already placed so a rejected cast cannot leak helper items.
+
+## Osi.CreateAt can succeed without placing anything (2026-10-28 20:40 run)
+
+`Osi.CreateAt` returns a GUID even when the engine will not place the helper
+(`Helper_Invisible_H`) where asked - inside geometry, for instance. `pcall`
+succeeds, `Osi.PlayBeamEffect` from that GUID succeeds, and the beam simply does
+not render, so a long beam silently ends short with nothing in the log.
+
+Always **read the position back** after creating a positional anchor:
+
+```lua
+local x, y, z = Osi.GetPosition(anchor)   -- nil when the item is not in the world
+```
+
+`OrbTriangulation.drawBeam` does this for every segment anchor, stops the chain
+when an anchor has no position, and logs either
+`segment N anchor <guid> has no position; beam ends M segment(s) in` or
+`segment N anchor landed X m from where it was asked to be`, plus
+`warning: beam only reaches X m of Y m`. Treat a missing position as a hard stop,
+not as a zero position.
 
 ## Maintenance rule
 

@@ -35,7 +35,7 @@ def png_bytes(colour: tuple[int, int, int, int], size: tuple[int, int] = (2, 2))
 @unittest.skipUnless(HAVE_PIL, "pillow is not installed")
 class RecolorTests(unittest.TestCase):
     def setUp(self) -> None:
-        self.mod = load_script("recolor-cc-orb-textures")
+        self.mod = load_script("recolor-orbweaver-textures")
 
     def test_skip(self) -> None:
         self.assertTrue(HAVE_PIL)
@@ -65,7 +65,7 @@ class RecolorMainTests(unittest.TestCase):
     def setUp(self) -> None:
         self._tmp = tempfile.TemporaryDirectory()
         self.root = Path(self._tmp.name)
-        self.mod = load_script("recolor-cc-orb-textures")
+        self.mod = load_script("recolor-orbweaver-textures")
         self.mod.SRC = self.root / "source"
         self.mod.OUT = self.root / "out"
         self.mod.SRC.mkdir(parents=True)
