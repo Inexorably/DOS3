@@ -233,9 +233,12 @@ local function onCastState(entity)
                         segment.a.key, segment.b.key)
                     return
                 end
-                target.Position = { x = segment.a.x, y = segment.a.y, z = segment.a.z }
-                target.Target2.Position = { x = segment.b.x, y = segment.b.y, z = segment.b.z }
-                cast.CastEndPosition = { x = segment.b.x, y = segment.b.y, z = segment.b.z }
+                -- These must be array-like {x, y, z}. A hashtable is rejected with
+                -- "Param 3 must be an array-like table", which silently leaves the
+                -- wall with no endpoints and nothing gets built.
+                target.Position = { segment.a.x, segment.a.y, segment.a.z }
+                target.Target2.Position = { segment.b.x, segment.b.y, segment.b.z }
+                cast.CastEndPosition = { segment.b.x, segment.b.y, segment.b.z }
                 log("segment %s->%s positions applied", segment.a.key, segment.b.key)
                 return
             end

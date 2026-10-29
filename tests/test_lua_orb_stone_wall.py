@@ -185,8 +185,10 @@ class OrbStoneWallTests(unittest.TestCase):
             "Ext.Entity.Get = function() return { Uuid = { EntityUuid = 'caster' } } end\n"
             "for _, h in ipairs(H.entity_oncreate) do h.fn({ SpellCastState = H.cast }) end\n"
             "local t = H.cast.Targets[1]\n"
-            "return t.Position.x .. ',' .. t.Target2.Position.x .. ','"
-            ".. H.cast.CastEndPosition.x"
+            "assert(type(t.Position) == 'table', 'position must be set')\n"
+            "assert(t.Position[1] ~= nil, 'position must be array-like')\n"
+            "return t.Position[1] .. ',' .. t.Target2.Position[1] .. ','"
+            ".. H.cast.CastEndPosition[1]"
         ))
         self.assertEqual([float(v) for v in emitted.split(",")], [0.0, 6.0, 6.0])
 

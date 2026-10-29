@@ -547,6 +547,25 @@ when an anchor has no position, and logs either
 `warning: beam only reaches X m of Y m`. Treat a missing position as a hard stop,
 not as a zero position.
 
+## SpellCastState positions must be array-like tables (2026-10-29 17:49 run)
+
+Injecting wall endpoints into `SpellCastState` failed with:
+
+```text
+orb stone wall: segment position injection failed:
+  OrbStoneWall.lua:236: Param 3 must be an array-like table, not a hashtable
+orb stone wall: segment ... raised 0 pillar(s)
+```
+
+`Target.Position`, `Target.Target2.Position` and `CastEndPosition` take `{x, y, z}`
+**indexed 1..3**, not `{x=, y=, z=}`. A hashtable is rejected, the field stays
+unset, and `Osi.UseSpell` for a `Wall` spell then builds nothing at all - the cast
+reports success and no wall appears, so the failure is easy to misread as the
+spell or asset being wrong.
+
+`OrbFire` already used the array form (`startPosition = { oldX, oldY, oldZ }`);
+match it.
+
 ## Maintenance rule
 
 Whenever a runtime-only API/arity/enum is discovered:
