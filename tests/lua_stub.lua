@@ -16,6 +16,7 @@ H.components = H.components or {}
 H.stats = H.stats or {}
 H.stats_by_type = H.stats_by_type or {}
 H.net_messages = H.net_messages or {}
+H.server_messages = H.server_messages or {}
 H.locas = H.locas or {}
 H.imgui_windows = H.imgui_windows or {}
 
@@ -126,7 +127,10 @@ Ext = {
         BroadcastMessage = function(channel_name, payload, ...)
             record(H.net_messages, { channel = channel_name, payload = payload })
         end,
-        PostMessageToServer = function(...) return true end,
+        PostMessageToServer = function(channel_name, payload)
+            record(H.server_messages, { channel = channel_name, payload = payload })
+            return true
+        end,
         PostMessageToUser = function(...) return true end,
     },
     Events = {
@@ -167,6 +171,13 @@ Ext = {
                 self.text = (self.text and (self.text .. "|") or "") .. tostring(value)
             end
             function window:SetPos(pos) self.pos = pos end
+            function window:AddSeparator() end
+            function window:AddButton(label)
+                local button = { label = label }
+                self.buttons = self.buttons or {}
+                self.buttons[#self.buttons + 1] = button
+                return button
+            end
             function window:Destroy() self.destroyed = true end
             H.imgui_windows[#H.imgui_windows + 1] = window
             return window

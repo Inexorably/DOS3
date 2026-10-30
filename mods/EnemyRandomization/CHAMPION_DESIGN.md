@@ -441,10 +441,24 @@ regeneration (champion regeneration needs the loot generator's
 - The first non-boss enemy scanned in a combat rolls `REINFORCE_CHANCE` once
   for that combat (keyed by `CombatGetGuidFor`, stored in PersistentVars), so
   reloads never roll a combat twice. A boss does not use up the roll.
-- A hit picks a random wave from `Server/GeneratedWaves.lua`. Race matching
-  (`REINFORCE_MATCH_RACE`, off by default) would limit the pick to waves whose
-  `races` include the enemy's race; it was turned off because single-race
-  fights kept repeating the same few waves.
+- With `REINFORCE_PICK` (default on) a hit pauses the combat with Osiris
+  `PauseCombat(combat)` (the call story scripts use for scripted beats), and
+  broadcasts `REINFORCE_OFFER_COUNT` distinct random waves on `ENR_WaveOffer`.
+  `Client/WavePick.lua` shows an IMGUI window with one Pick button per wave
+  and posts the choice on `ENR_WavePick`. The server accepts only a wave that
+  was offered, spawns it, calls `ResumeCombat`, and broadcasts
+  `ENR_WaveOfferClosed` so every client closes the window. Messages are plain
+  tab-separated text, so no JSON is needed.
+- Safety nets so a fight never stays frozen: no pick within
+  `REINFORCE_PICK_TIMEOUT_MS` (60 s) picks an offered wave at random; open
+  offers are kept in PersistentVars and resolved at random on
+  `SessionLoaded`; a combat key that is not an Osiris GUID is never paused.
+  `!enemyrandom_pick <1-3>` picks from the console.
+- Without `REINFORCE_PICK` a hit picks a random wave from
+  `Server/GeneratedWaves.lua`. Race matching (`REINFORCE_MATCH_RACE`, off by
+  default) would limit that pick to waves whose `races` include the enemy's
+  race; it was turned off because single-race fights kept repeating the same
+  few waves.
 - It spawns `1..REINFORCE_MAX` members (solo waves such as the Spectator
   always spawn one) from the template for the enemy's `EocLevel`, clamped to
   1-20. They are placed like Mirror clones, in a `REINFORCE_SPAWN_OFFSET`

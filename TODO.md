@@ -471,6 +471,16 @@ Known DOS2 visual references for the current test spells:
       Randomizer skips them; and they drop native loot and XP.
 - [ ] Replace the random `1..REINFORCE_MAX` wave size with the planned
       argument once it is defined.
+- [x] Add the wave pick: combat start pauses the fight with `PauseCombat`,
+      the host picks 1 of 3 waves in an IMGUI window (`Client/WavePick.lua`),
+      and the pick spawns that wave and resumes. A 60 s timeout or a reload
+      picks at random.
+- [ ] Verify the wave pick in game: `PauseCombat` from a mod actually holds
+      turns (log `reinforce PauseCombat(<guid>): ok`); the window appears with
+      three waves and working Pick buttons; the pick spawns that wave and
+      `ResumeCombat` restarts turns; the timeout and `!enemyrandom_pick` work;
+      and in multiplayer only one pick is accepted (every client currently
+      sees the window).
 
 
 ## Summon economy

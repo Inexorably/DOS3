@@ -474,6 +474,75 @@ local function spawnVariant(guid, variant, rarity, condition)
     return false
 end
 
+-- Reinforcement offer rewards: a catalog variant carried by a spawned
+-- reinforcement and dropped on its death. Saved so a reload keeps them.
+local function rewardCarriers()
+    PersistentVars = PersistentVars or {}
+    PersistentVars.ENR_RewardCarriers = PersistentVars.ENR_RewardCarriers or {}
+    return PersistentVars.ENR_RewardCarriers
+end
+
+-- Readable item type from a catalog base name: "WPN_Greatsword_REF" ->
+-- "Greatsword", "ARM_Boots_Leather" -> "Boots".
+local ITEM_TYPES = {
+    { "Greatsword", "Greatsword" }, { "Longsword", "Longsword" }, { "Shortsword", "Shortsword" },
+    { "Scimitar", "Scimitar" }, { "Rapier", "Rapier" }, { "Dagger", "Dagger" }, { "Sickle", "Sickle" },
+    { "Greataxe", "Greataxe" }, { "Battleaxe", "Battleaxe" }, { "Handaxe", "Handaxe" },
+    { "Greatclub", "Greatclub" }, { "Club", "Club" }, { "Maul", "Maul" }, { "Warhammer", "Warhammer" },
+    { "LightHammer", "Light Hammer" }, { "WarPick", "War Pick" }, { "Warpick", "War Pick" },
+    { "Morningstar", "Morningstar" }, { "Flail", "Flail" }, { "Mace", "Mace" },
+    { "Halberd", "Halberd" }, { "Glaive", "Glaive" }, { "Pike", "Pike" }, { "Trident", "Trident" },
+    { "Spear", "Spear" }, { "Javelin", "Javelin" }, { "Quarterstaff", "Quarterstaff" }, { "Staff", "Staff" },
+    { "Scythe", "Scythe" }, { "Whip", "Whip" },
+    { "HandCrossbow", "Hand Crossbow" }, { "HeavyCrossbow", "Heavy Crossbow" },
+    { "LightCrossbow", "Light Crossbow" }, { "Crossbow", "Crossbow" }, { "Longbow", "Longbow" },
+    { "Shortbow", "Shortbow" }, { "Sling", "Sling" }, { "Shield", "Shield" },
+    { "Boots", "Boots" }, { "Gloves", "Gloves" }, { "Bracers", "Bracers" }, { "Helmet", "Helmet" },
+    { "Hat", "Hat" }, { "Circlet", "Circlet" }, { "Cloak", "Cloak" }, { "Cape", "Cloak" },
+    { "Amulet", "Amulet" }, { "Ring", "Ring" }, { "Robe", "Robe" },
+    { "HalfPlate", "Half Plate" }, { "BreastPlate", "Breastplate" }, { "Breastplate", "Breastplate" },
+    { "ChainMail", "Chain Mail" }, { "ChainShirt", "Chain Shirt" }, { "SplintMail", "Splint Armour" },
+    { "ScaleMail", "Scale Mail" }, { "RingMail", "Ring Mail" }, { "Plate", "Plate Armour" },
+    { "StuddedLeather", "Studded Leather" }, { "Leather", "Leather Armour" }, { "Hide", "Hide Armour" },
+    { "Padded", "Padded Armour" }, { "Camp", "Clothes" },
+}
+
+function L.ItemType(name)
+    local text = tostring(name or "")
+    for _, entry in ipairs(ITEM_TYPES) do
+        if text:find(entry[1], 1, true) then return entry[2] end
+    end
+    if text:match("^WPN_") then return "Weapon" end
+    if text:match("^ARM_") then return "Armour" end
+    return "Item"
+end
+
+local RARITY_NAMES = { Uncommon = "Uncommon", Rare = "Rare", VeryRare = "Very Rare", Legendary = "Legendary" }
+
+-- A reward of `rarity` at the current level band: the catalog variant plus a
+-- label such as "Very Rare Greatsword", or nil when the catalog has none.
+function L.PickReward(rarity)
+    local variant = pickVariant(rarity, currentLevelBand())
+    if not variant then return nil end
+    return {
+        template = variant.template, fallback_template = variant.fallback_template,
+        stats = variant.stats, name = variant.name, rarity = rarity,
+        label = (RARITY_NAMES[rarity] or tostring(rarity)) .. " " .. L.ItemType(variant.name),
+    }
+end
+
+-- `guid` drops `reward` (from L.PickReward) when it dies.
+function L.AssignReward(guid, reward)
+    if not (guid and reward) then return end
+    local id = tostring(guid):match("(%x+%-%x+%-%x+%-%x+%-%x+)$") or tostring(guid)
+    rewardCarriers()[id] = reward
+    log("loot reward %s assigned to %s", tostring(reward.label), id)
+end
+
+function L.IsRewardCarrier(guid)
+    return rewardCarriers()[tostring(guid)] ~= nil
+end
+
 local function onDied(entity)
     local guid = guidOf(entity)
     if not guid or lootRolled[guid] then return end
@@ -482,8 +551,22 @@ local function onDied(entity)
         return
     end
 
+    -- An offer reward drops whether or not the carrier is a champion.
+    local reward = rewardCarriers()[guid]
+    if reward then
+        rewardCarriers()[guid] = nil
+        log("loot reward drop: %s -> %s", tostring(reward.label), guid)
+        spawnVariant(guid, reward, reward.rarity, "reward")
+    end
+
     local conditions = championStatuses(guid)
-    if #conditions == 0 then return end
+    if #conditions == 0 then
+        if reward then
+            lootRolled[guid] = true
+            if Osi and Osi.ApplyStatus then pcall(Osi.ApplyStatus, guid, "ENR_LOOT_ROLLED", -1, 1) end
+        end
+        return
+    end
 
     -- Mark before rolling so a duplicate DiedEvent cannot duplicate loot.
     lootRolled[guid] = true
@@ -574,9 +657,10 @@ local function scanDeadChampions()
             local hpOk, hp = pcall(function() return entity.Health.Hp end)
             if hpOk and tonumber(hp) and tonumber(hp) <= 0 then
                 local conditions = championStatuses(guid)
-                if #conditions > 0 then
+                if #conditions > 0 or rewardCarriers()[guid] then
                     found = found + 1
-                    log("loot dead champion poll: %s champions=%d", guid, #conditions)
+                    log("loot dead champion poll: %s champions=%d reward=%s", guid, #conditions,
+                        tostring(rewardCarriers()[guid] ~= nil))
                     local done, err = pcall(onDied, entity)
                     if not done then log("loot dead poll error: %s", tostring(err)) end
                 end
