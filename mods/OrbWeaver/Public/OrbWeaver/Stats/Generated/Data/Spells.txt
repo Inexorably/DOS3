@@ -218,6 +218,82 @@ data "CastEffect" "abf8542a-6c39-49ad-bc94-86c4585a5948"
 data "CastTextEvent" "Cast"
 data "AIFlags" "CanNotUse"
 
+-- Enlarge and Reduce are overridden so the size change also moves AC and
+-- Strength: Enlarge adds SIZE_FIELD_AC / SIZE_FIELD_STRENGTH, Reduce removes the
+-- same amounts. Everything else is copied from the vanilla status so the size
+-- scaling, weight class, and weapon damage behave exactly as before. Status
+-- overrides are name-keyed, so these apply to vanilla Enlarge/Reduce too.
+new entry "ENLARGE"
+type "StatusData"
+data "StatusType" "BOOST"
+data "DisplayName" "ha4ed2ee8g07cfg453bgbfabg88c053bf3f46;1"
+data "Description" "hd38e31531b985d57b67d7e29683c854a"
+data "DescriptionParams" "DealDamage(1d4,Piercing)"
+data "Icon" "Spell_Transmutation_Enlarge"
+data "SoundLoop" "MAG_Status_EnlargeSelf_Loop"
+data "SoundStop" "MAG_Status_EnlargeSelf_End"
+data "StackId" "SIZE"
+data "Boosts" "Advantage(Ability, Strength); Advantage(SavingThrow, Strength);CharacterWeaponDamage(1d4);ObjectSize(+1);ScaleMultiplier(1.33);CharacterUnarmedDamage(1d4);CarryCapacityMultiplier(1.25);AC(2);Ability(Strength, 2)"
+data "Passives" "EnlargeWeightMedium;EnlargeWeightLarge"
+data "StatusGroups" "SG_RemoveOnRespec"
+data "StatusEffect" "ead75c6a-806e-4db7-8d51-f06beca00fe2"
+
+new entry "REDUCE"
+type "StatusData"
+data "StatusType" "BOOST"
+data "DisplayName" "hc5971c8bg6827g4728g9411gf36616ac9f96;2"
+data "Description" "h10eea8a7461b58b4a901a57697cb168e"
+data "DescriptionParams" "DealDamage(1d4,Piercing)"
+data "Icon" "Spell_Transmutation_Reduce"
+data "SoundStart" "Alchemy_Condition_OilOfDiminution_Shrink"
+data "SoundLoop" "Misc_Status_Reduce_MO"
+data "SoundStop" "Misc_Status_Reduce_MO_Stop"
+data "StackId" "SIZE"
+data "Boosts" "Disadvantage(Ability, Strength); Disadvantage(SavingThrow, Strength);ObjectSize(-1);WeightCategory(-1);ScaleMultiplier(0.67);CharacterWeaponDamage(-1d4);CarryCapacityMultiplier(0.75);AC(-2);Ability(Strength, -2)"
+data "StatusGroups" "SG_RemoveOnRespec"
+data "StatusEffect" "63ac2820-3c0d-4305-b269-f6df70cf45b7"
+
+-- Orb Size Field: an Enlarge/Reduce built the way the vanilla spell is. The
+-- container offers the two variants, and each child applies one of the statuses
+-- above. The server Lua does the geometry: the three orbs must form a compact
+-- triangle and every character inside it is resized.
+new entry "CC_OrbSizeField"
+type "SpellData"
+using "Target_EnlargeReduce"
+data "Level" "0"
+data "SpellRoll" ""
+data "ContainerSpells" "CC_OrbSizeFieldEnlarge;CC_OrbSizeFieldReduce"
+data "TargetConditions" "HasStatus('CC_ORB') and not Self()"
+data "TargetRadius" "18"
+data "Icon" "Spell_Transmutation_EnlargeReduce"
+data "DisplayName" "h6252f275ce0a5a6b969688136fdec79f"
+data "Description" "hb93869e028275f5983e49d0b854b2995"
+data "DescriptionParams" "Distance(8)"
+data "TooltipAttackSave" ""
+data "UseCosts" "ActionPoint:2"
+data "SpellFlags" "HasVerbalComponent;HasSomaticComponent;IsSpell;HasHighGroundRangeExtension;IsLinkedSpellContainer"
+data "AIFlags" "CanNotUse"
+
+new entry "CC_OrbSizeFieldEnlarge"
+type "SpellData"
+using "CC_OrbSizeField"
+data "SpellContainerID" "CC_OrbSizeField"
+data "SpellSuccess" "ApplyStatus(ENLARGE,100,10)"
+data "TooltipStatusApply" "ApplyStatus(ENLARGE,100,10)"
+data "Icon" "Spell_Transmutation_Enlarge"
+data "DisplayName" "hd791f4472a5053e8b31593c2bee0a614"
+data "Description" "h0284d10de2cc5836b853085a4ddf6339"
+
+new entry "CC_OrbSizeFieldReduce"
+type "SpellData"
+using "CC_OrbSizeField"
+data "SpellContainerID" "CC_OrbSizeField"
+data "SpellSuccess" "ApplyStatus(REDUCE,100,10)"
+data "TooltipStatusApply" "ApplyStatus(REDUCE,100,10)"
+data "Icon" "Spell_Transmutation_Reduce"
+data "DisplayName" "haf2a01e4abf85084b1b0dc487b348c1b"
+data "Description" "h8e60fdd449f85122849f87b7bbbca38a"
+
 -- Wall pieces must have exactly 5 MAX hit points. Writing the Health component at
 -- runtime crashed the game (spawned objects have no replication channel), and
 -- Osi.SetHitpoints only moves current HP, so the cap has to come from the stat.

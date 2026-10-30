@@ -72,7 +72,8 @@ ABILITY_IMPROVEMENT_LEVELS = (4, 8, 12)
 
 # Every spell the class owns at level 1.
 CLASS_SPELLS = ("CC_SummonBall_Azure", "CC_IgniteOrb", "CC_OrbChainLightning",
-                "CC_OrbLightningBolt", "CC_OrbTriangulation", "CC_OrbStoneWall")
+                "CC_OrbLightningBolt", "CC_OrbTriangulation", "CC_OrbStoneWall",
+                "CC_OrbSizeField")
 
 # Class skills offered at character creation. Arcana/Investigation/History fit an
 # Intelligence caster; the class picks two.
@@ -109,6 +110,12 @@ TRIANGULATION_DAMAGE = 6
 TRIANGULATION_CORRIDOR_RADIUS = 1.5
 TRIANGULATION_RANGE = 25
 STONE_WALL_LINK_RADIUS = 8
+# How much AC and Strength the overridden Enlarge and Reduce statuses grant
+# and remove.
+SIZE_FIELD_AC = 2
+SIZE_FIELD_STRENGTH = 2
+SIZE_FIELD_RADIUS = 8
+SIZE_FIELD_DURATION = 10
 STONE_WALL_PILLAR_SPACING = 2
 # Pillar hit points are applied at runtime (Osi.SetHitpoints); spawning by
 # root template means an Object stat would never be used.
@@ -876,6 +883,82 @@ data "CastEffect" "{CHAIN_LIGHTNING_PREPARE_EFFECT}"
 data "CastTextEvent" "Cast"
 data "AIFlags" "CanNotUse"
 
+-- Enlarge and Reduce are overridden so the size change also moves AC and
+-- Strength: Enlarge adds SIZE_FIELD_AC / SIZE_FIELD_STRENGTH, Reduce removes the
+-- same amounts. Everything else is copied from the vanilla status so the size
+-- scaling, weight class, and weapon damage behave exactly as before. Status
+-- overrides are name-keyed, so these apply to vanilla Enlarge/Reduce too.
+new entry "ENLARGE"
+type "StatusData"
+data "StatusType" "BOOST"
+data "DisplayName" "ha4ed2ee8g07cfg453bgbfabg88c053bf3f46;1"
+data "Description" "{handle('ENLARGE/desc')}"
+data "DescriptionParams" "DealDamage(1d4,Piercing)"
+data "Icon" "Spell_Transmutation_Enlarge"
+data "SoundLoop" "MAG_Status_EnlargeSelf_Loop"
+data "SoundStop" "MAG_Status_EnlargeSelf_End"
+data "StackId" "SIZE"
+data "Boosts" "Advantage(Ability, Strength); Advantage(SavingThrow, Strength);CharacterWeaponDamage(1d4);ObjectSize(+1);ScaleMultiplier(1.33);CharacterUnarmedDamage(1d4);CarryCapacityMultiplier(1.25);AC({SIZE_FIELD_AC});Ability(Strength, {SIZE_FIELD_STRENGTH})"
+data "Passives" "EnlargeWeightMedium;EnlargeWeightLarge"
+data "StatusGroups" "SG_RemoveOnRespec"
+data "StatusEffect" "ead75c6a-806e-4db7-8d51-f06beca00fe2"
+
+new entry "REDUCE"
+type "StatusData"
+data "StatusType" "BOOST"
+data "DisplayName" "hc5971c8bg6827g4728g9411gf36616ac9f96;2"
+data "Description" "{handle('REDUCE/desc')}"
+data "DescriptionParams" "DealDamage(1d4,Piercing)"
+data "Icon" "Spell_Transmutation_Reduce"
+data "SoundStart" "Alchemy_Condition_OilOfDiminution_Shrink"
+data "SoundLoop" "Misc_Status_Reduce_MO"
+data "SoundStop" "Misc_Status_Reduce_MO_Stop"
+data "StackId" "SIZE"
+data "Boosts" "Disadvantage(Ability, Strength); Disadvantage(SavingThrow, Strength);ObjectSize(-1);WeightCategory(-1);ScaleMultiplier(0.67);CharacterWeaponDamage(-1d4);CarryCapacityMultiplier(0.75);AC(-{SIZE_FIELD_AC});Ability(Strength, -{SIZE_FIELD_STRENGTH})"
+data "StatusGroups" "SG_RemoveOnRespec"
+data "StatusEffect" "63ac2820-3c0d-4305-b269-f6df70cf45b7"
+
+-- Orb Size Field: an Enlarge/Reduce built the way the vanilla spell is. The
+-- container offers the two variants, and each child applies one of the statuses
+-- above. The server Lua does the geometry: the three orbs must form a compact
+-- triangle and every character inside it is resized.
+new entry "CC_OrbSizeField"
+type "SpellData"
+using "Target_EnlargeReduce"
+data "Level" "0"
+data "SpellRoll" ""
+data "ContainerSpells" "CC_OrbSizeFieldEnlarge;CC_OrbSizeFieldReduce"
+data "TargetConditions" "HasStatus('CC_ORB') and not Self()"
+data "TargetRadius" "18"
+data "Icon" "Spell_Transmutation_EnlargeReduce"
+data "DisplayName" "{handle('CC_OrbSizeField/name')}"
+data "Description" "{handle('CC_OrbSizeField/desc')}"
+data "DescriptionParams" "Distance({SIZE_FIELD_RADIUS})"
+data "TooltipAttackSave" ""
+data "UseCosts" "ActionPoint:2"
+data "SpellFlags" "HasVerbalComponent;HasSomaticComponent;IsSpell;HasHighGroundRangeExtension;IsLinkedSpellContainer"
+data "AIFlags" "CanNotUse"
+
+new entry "CC_OrbSizeFieldEnlarge"
+type "SpellData"
+using "CC_OrbSizeField"
+data "SpellContainerID" "CC_OrbSizeField"
+data "SpellSuccess" "ApplyStatus(ENLARGE,100,{SIZE_FIELD_DURATION})"
+data "TooltipStatusApply" "ApplyStatus(ENLARGE,100,{SIZE_FIELD_DURATION})"
+data "Icon" "Spell_Transmutation_Enlarge"
+data "DisplayName" "{handle('CC_OrbSizeFieldEnlarge/name')}"
+data "Description" "{handle('CC_OrbSizeFieldEnlarge/desc')}"
+
+new entry "CC_OrbSizeFieldReduce"
+type "SpellData"
+using "CC_OrbSizeField"
+data "SpellContainerID" "CC_OrbSizeField"
+data "SpellSuccess" "ApplyStatus(REDUCE,100,{SIZE_FIELD_DURATION})"
+data "TooltipStatusApply" "ApplyStatus(REDUCE,100,{SIZE_FIELD_DURATION})"
+data "Icon" "Spell_Transmutation_Reduce"
+data "DisplayName" "{handle('CC_OrbSizeFieldReduce/name')}"
+data "Description" "{handle('CC_OrbSizeFieldReduce/desc')}"
+
 -- Wall pieces must have exactly 5 MAX hit points. Writing the Health component at
 -- runtime crashed the game (spawned objects have no replication channel), and
 -- Osi.SetHitpoints only moves current HP, so the cap has to come from the stat.
@@ -1063,6 +1146,29 @@ def write_loca() -> None:
         (
             handle("CC_OrbLightningBolt/desc"),
             f"Unleash a lightning bolt from an arcane orb to another orb within 8 m, dealing {BOLT_DAMAGE} Lightning damage to enemies caught between them. The bolt bounces on to further orbs, each struck once per cast. Needs at least two orbs. Costs 2 AP.",
+        ),
+        (
+            handle("ENLARGE/desc"),
+            f"You are enlarged: +{SIZE_FIELD_AC} AC, +{SIZE_FIELD_STRENGTH} Strength, and your weapon attacks deal an extra 1d4 damage.",
+        ),
+        (
+            handle("REDUCE/desc"),
+            f"You are reduced: -{SIZE_FIELD_AC} AC, -{SIZE_FIELD_STRENGTH} Strength, and your weapon attacks deal 1d4 less damage.",
+        ),
+        (handle("CC_OrbSizeField/name"), "Orb Size Field"),
+        (
+            handle("CC_OrbSizeField/desc"),
+            f"Target an orb. When you have exactly three orbs, all within {SIZE_FIELD_RADIUS} m of each other, every character inside the triangle they form is enlarged or reduced. Costs 2 AP.",
+        ),
+        (handle("CC_OrbSizeFieldEnlarge/name"), "Orb Size Field: Enlarge"),
+        (
+            handle("CC_OrbSizeFieldEnlarge/desc"),
+            f"Enlarge every character inside the triangle of orbs: +{SIZE_FIELD_AC} AC, +{SIZE_FIELD_STRENGTH} Strength, and larger size.",
+        ),
+        (handle("CC_OrbSizeFieldReduce/name"), "Orb Size Field: Reduce"),
+        (
+            handle("CC_OrbSizeFieldReduce/desc"),
+            f"Reduce every character inside the triangle of orbs: -{SIZE_FIELD_AC} AC, -{SIZE_FIELD_STRENGTH} Strength, and smaller size.",
         ),
         (handle("CC_OrbStoneWall/name"), "Orb Stone Wall"),
         (
