@@ -111,6 +111,31 @@ class RandomizerTests(unittest.TestCase):
         self.assertFalse(self.harness.run('return ER.Randomizer.ApplyTo("summon1")'))
         self.assertEqual(self.applied_statuses("summon1"), set())
 
+    def test_prop_stats_are_never_buffed(self) -> None:
+        # Wall pieces use OBJ_Wall_Of_Stone. They were buffed like enemies and
+        # champion-scaled, which is why the wall showed 30 and 45 hit points.
+        self.make_enemy("wall1", health=30)
+        self.harness.run(
+            'H.entities["wall1"].Data = { StatsId = "OBJ_Wall_Of_Stone" }'
+        )
+        self.assertFalse(self.harness.run('return ER.Randomizer.ApplyTo("wall1")'))
+        self.assertEqual(self.applied_statuses("wall1"), set())
+        self.assertEqual(
+            self.harness.run('return H.entities["wall1"].Health.MaxHp'), 30,
+            "a prop must not be made a champion",
+        )
+
+    def test_the_stat_exclusion_list_is_configurable(self) -> None:
+        stats = self.harness.run(
+            "return table.concat(ER.Config.NEVER_BUFF_STATS, ',')"
+        )
+        self.assertEqual(str(stats), "OBJ_Wall_Of_Stone")
+
+    def test_an_entity_without_a_stat_component_is_not_excluded(self) -> None:
+        self.make_enemy("nostats", health=30)
+        self.harness.run('H.entities["nostats"].Data = nil')
+        self.assertTrue(self.harness.run('return ER.Randomizer.ApplyTo("nostats")'))
+
     def test_out_of_combat_entities_are_skipped(self) -> None:
         self.make_enemy("idle1", inCombat=False)
         self.assertFalse(self.harness.run('return ER.Randomizer.ApplyTo("idle1")'))

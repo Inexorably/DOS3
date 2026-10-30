@@ -547,6 +547,48 @@ when an anchor has no position, and logs either
 `warning: beam only reaches X m of Y m`. Treat a missing position as a hard stop,
 not as a zero position.
 
+## SpellCastState positions must be array-like tables (2026-10-29 17:49 run)
+
+Injecting wall endpoints into `SpellCastState` failed with:
+
+```text
+orb stone wall: segment position injection failed:
+  OrbStoneWall.lua:236: Param 3 must be an array-like table, not a hashtable
+orb stone wall: segment ... raised 0 pillar(s)
+```
+
+`Target.Position`, `Target.Target2.Position` and `CastEndPosition` take `{x, y, z}`
+**indexed 1..3**, not `{x=, y=, z=}`. A hashtable is rejected, the field stays
+unset, and `Osi.UseSpell` for a `Wall` spell then builds nothing at all - the cast
+reports success and no wall appears, so the failure is easy to misread as the
+spell or asset being wrong.
+
+`OrbFire` already used the array form (`startPosition = { oldX, oldY, oldZ }`);
+match it.
+
+## Never write Health on a spawned object (2026-10-30 01:18 run)
+
+Setting `entity.Health.MaxHp` / `Health.Hp` and calling `entity:Replicate("Health")`
+on a wall piece created with `Osi.CreateAt` **crashed the game the moment the spell
+was cast**. Objects have no replication channel for Health, and the crash is
+native, so neither `pcall` nor a guard on the component can catch it. The wall
+itself had already been created successfully per the log:
+
+```text
+[OW] orb stone wall: wall raised through <a>-><b>-><c>: 9 pillar(s) at 5 HP each
+```
+
+The same caution applies to `Osi.ApplyStatus` on a spawned object: it is used
+throughout this repo but only ever on characters. OrbWeaver briefly tagged its wall
+pieces with a marker status, which was removed in favour of identifying props by
+`entity.Data.StatsId` - no native mutation of a fresh object at all.
+
+`entity:Replicate` in EnemyRandomization is safe only because it runs on real
+characters. To give a spawned object a hit-point cap, change the **stat** its
+template references (`data "Vitality" ...`); stat overrides are name-keyed, so
+redefining the inherited stat is what applies the cap. `Osi.SetHitpoints` remains
+safe and only moves current HP.
+
 ## Maintenance rule
 
 Whenever a runtime-only API/arity/enum is discovered:

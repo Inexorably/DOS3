@@ -460,6 +460,36 @@ Known DOS2 visual references for the current test spells:
 
 ## OrbWeaver
 
+- [x] Add player-cast **Orb Stone Wall**: target an orb and raise a wall of stone
+      through it and every other orb within 8 m of the previous orb, chaining
+      orb-to-orb (A->B->C, B->A->C, C->B->A, ...). Pillars every 2 m along the
+      line, 5 HP each (set at runtime with `Osi.SetHitpoints`). Charging an orb
+      that is on the wall collapses it; charging an orb that is not on the wall
+      leaves it standing.
+- [x] Wall segments now touch (spacing 2 m -> 1 m), and EnemyRandomization skips
+      them by stat id (`NEVER_BUFF_STATS`). A marker status was used first, but
+      applying a status to a spawned object is a native call that crashed the game,
+      so props are identified by `entity.Data.StatsId` instead.
+- [x] Fix a crash on cast: writing the `Health` component and calling
+      `entity:Replicate("Health")` on a spawned object killed the game. The 5-point
+      maximum now comes from an `OBJ_Wall_Of_Stone` stat override (`Vitality 5`);
+      `Osi.SetHitpoints` is used only for current HP.
+- [ ] Verify Orb Stone Wall in-game: the spell appears for the class, the pieces
+      form a continuous wall with no gaps, every segment shows **5/5** HP and dies
+      to 5 damage, no segment has random buffs or champion auras, charging a wall
+      orb collapses every segment, and charging an off-wall orb leaves the wall
+      intact.
+- [ ] Verify Orb Stone Wall in-game: the spell appears for the class, the pieces
+      form a continuous wall with no gaps, every segment shows **5/5** HP and
+      dies to 5 damage, no segment has random buffs or champion auras, charging a
+      wall orb collapses every segment, and charging an off-wall orb leaves the
+      wall intact. Log lines: `wall raised through a->b->c: N pillar(s)`,
+      `collapsed (charged orb ...)`, `not part of any wall`. The combat log must
+      show **one** Orb Stone Wall cast.
+- [ ] Optional: try the Wall of Stone spell's own wall art
+      (`VFX_Static_Wall_Spell_Stone_A_*`) via
+      `ORB_STONE_WALL_PILLAR_TEMPLATE`. Those are visual-only, so they cannot take
+      damage; use only if the look matters more than the 5 HP.
 - [x] Add player-cast **Orb Triangulation**: target an orb as the triangle's
       vertex; the two nearest orbs form the opposite side, and a projectile is
       fired from the vertex through that side's midpoint. 6 Lightning damage to

@@ -13,7 +13,7 @@ OW.Config = {
     GRANT_TEST_CANTRIP = false,
     TEST_CANTRIP = "CC_SummonBall_Azure",
     TEST_CANTRIPS = { "CC_SummonBall_Azure", "CC_IgniteOrb", "CC_OrbChainLightning",
-        "CC_OrbLightningBolt", "CC_OrbTriangulation" },
+        "CC_OrbLightningBolt", "CC_OrbTriangulation", "CC_OrbStoneWall" },
 
     -- Class that owns the orb spells. Must match the ClassDescriptions Name
     -- in scripts/generate-orbweaver-assets.py.
@@ -53,4 +53,22 @@ OW.Config = {
     -- bounds the anchor count (16 x 2.5 m = 40 m of coverage).
     ORB_TRIANGULATION_BEAM_SEGMENT_M = 2.5,
     ORB_TRIANGULATION_MAX_BEAM_SEGMENTS = 16,
+
+    -- Orb Stone Wall. The targeted orb is the first node; every other orb within
+    -- LINK_RADIUS of the previous node joins the chain, nearest first, so the
+    -- wall may run A->B->C, B->A->C, C->B->A and so on. Pillars are raised every
+    -- PILLAR_SPACING metres along that polyline and each has PILLAR_HP hit points.
+    -- Charging an orb that is part of the wall collapses it; charging an orb that
+    -- is not leaves it standing.
+    ORB_STONE_WALL_LINK_RADIUS = 8.0,
+    -- Pillars are the Wall of Stone pillar object, one every PILLAR_SPACING
+    -- metres along the chain, each set to PILLAR_HP hit points.
+    -- 1 m, so consecutive pieces touch instead of leaving gaps between them.
+    ORB_STONE_WALL_PILLAR_SPACING = 1.0,
+    ORB_STONE_WALL_PILLAR_HP = 5,
+    -- Root template of one wall segment. Default is the Wall of Stone wall art
+    -- (VFX_Static_Wall_Spell_Stone_A_LowMiddle_A); see OrbStoneWall.lua for the
+    -- other five pieces in that family and for the templates that must not be
+    -- used. Known-safe crumbling alternative: f0b8705f-bc6f-44a2-b6f7-521f4524e179.
+    ORB_STONE_WALL_PILLAR_TEMPLATE = "92ace281-af3a-46e5-bf8c-5caddaef8402",
 }

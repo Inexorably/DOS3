@@ -11,7 +11,7 @@ champions, higher enemy health, and convenient respec access.
 | Enemy Randomization | `mods/EnemyRandomization` | Required | Random enemy buffs, themed champions, summoning variants, and generated champion loot |
 | Enemy Health Multiplier | `mods/EnemyHealth` | Not required | Doubles base enemy health on Tactician by overriding the native difficulty boost |
 | Respec Anywhere | `mods/RespecAnywhere` | Required | Grants a hotbar Respec spell that opens Withers' native respec UI, plus a console command |
-| OrbWeaver | `mods/OrbWeaver` | Required for class testing | The Orbweaver class and its arcane orb spells: Summon Azure Orb, Ignite Orb, Orb Chain Lightning, Orb Lightning Bolt, Orb Triangulation |
+| OrbWeaver | `mods/OrbWeaver` | Required for class testing | The Orbweaver class and its arcane orb spells: Summon Azure Orb, Ignite Orb, Orb Chain Lightning, Orb Lightning Bolt, Orb Triangulation, Orb Stone Wall |
 
 The mods can be used independently. Enemy Randomization is designed to work
 alongside DOS2 Combat Overhaul, and Enemy Health uses the native Tactician
@@ -560,6 +560,16 @@ a mod convention — it is only the vanilla name for `RootTemplates/_merged`.
   line (drawn as a chain of short segments, because a single beam fades out over
   its own length). The beam crosses the whole span regardless of what it hits. Enemies within **1.5 m** of that line take **6 Lightning** damage.
   Needs **three** orbs and costs **2 AP**.
+- **Orb Stone Wall** targets one orb and raises a wall of stone between it and
+  every other orb within **8 m** of the previous orb, chaining orb to orb (so the
+  walk may run **A->B->C**, **B->A->C**, **C->B->A**, ...). Wall of Stone wall
+  segments are placed every 1 m along that line - close enough to touch - and each
+  has exactly **5 hit points** (vanilla Wall of Stone pillars have 30; this mod
+  lowers that stat, so vanilla walls are 5 HP too while it is loaded). Wall
+  segments are not combatants: the enemy randomizer skips them by stat id, so they
+  never receive random buffs or champion promotions. Charging any orb that is part of the wall collapses it; charging an
+  orb that is *not* on the wall leaves it standing, so a wall raised through A and
+  C survives B charging. Costs **2 AP**.
 - **Orb Chain Lightning** is cast by the player and can only target a
   `CC_ORB` orb. It costs **2 AP** and deals **2 Lightning** damage to enemies
   within **3 m** of the struck orb. If another orb is within **8 m**, the bolt

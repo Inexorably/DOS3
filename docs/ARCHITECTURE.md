@@ -279,6 +279,7 @@ OrbFire
 OrbLightning   -- CC_OrbChainLightning: damage around each struck orb
 OrbBolt        -- CC_OrbLightningBolt: damage along the corridor between orbs
 OrbTriangulation -- CC_OrbTriangulation: damage along a triangle's median
+OrbStoneWall    -- CC_OrbStoneWall: a stone wall chained through orbs; charge collapses it
 ClassDiagnostics
 ```
 
@@ -314,6 +315,42 @@ the cast logs `error: could not draw the beam ...; no damage applied` and does
 nothing. A stand-in animation would hide a broken beam behind something that
 appears to work. A custom projectile-type stat is not an option either, because it
 previously failed with `result=MissingAnimations`.
+
+`OrbStoneWall` is a **standalone** spell: it casts nothing else. It targets one
+orb and walks the orbs with the same breadth-first, nearest-first ordering the
+lightning chain uses (`OrbShared.chainOrder`), bounded by
+`ORB_STONE_WALL_LINK_RADIUS` (8 m), so the wall may run A->B->C, B->A->C,
+C->B->A and so on.
+
+Pillars are placed directly with `Osi.CreateAt`, one every
+`ORB_STONE_WALL_PILLAR_SPACING` metres along the polyline through those orbs. The
+spacing is **1 m**, because the Wall of Stone pieces are about a metre wide and 2 m
+left visible gaps between them.
+
+The 5-point **maximum** hit points come from the piece's stat, not a runtime
+write. `Osi.SetHitpoints` only moves *current* HP, and writing the `Health`
+component (or calling `entity:Replicate("Health")`) on a spawned object **crashed
+the game** - objects have no replication channel for Health. The Wall of Stone art
+templates inherit `Stats = OBJ_Wall_Of_Stone` (Vitality 30), so the generator
+redefines that stat with `Vitality 5`. Side effect: vanilla Wall of Stone pillars
+are also 5 HP in a save with this mod loaded. `Osi.SetHitpoints(guid, 5)` is still
+called to set current HP, and to report a failure if the call is rejected.
+
+Wall pieces are not combatants, but the engine puts them in the combat component
+set, so EnemyRandomization adopted them: they were buffed and, given
+`CHAMPION_HP_MULTIPLIER` 1.5, showed 30 and 45 hit points. It therefore skips any
+entity whose stat id appears in `Config.NEVER_BUFF_STATS` (which lists
+`OBJ_Wall_Of_Stone`) before either the buff or champion layer runs.
+
+Exclusion is by **stat id**, not by a marker status: applying a status to a spawned
+object is a native call that is not safe (it crashed here), and reading
+`entity.Data.StatsId` is what EnemyRandomization already does elsewhere.
+
+The wall records its **node orbs**. Charging collapses the wall only when the
+charged orb is one of those nodes, which is why a wall raised through A and C
+survives B charging even though B stands between them. Charge detection is the
+`UsingSpellAtPosition` event for `CC_BallCharge` / `CC_BallCharge_Ignite`, the
+same event the fire wall uses.
 
 The class owns the orb spells through a level-1 selector, exactly like vanilla
 classes:
