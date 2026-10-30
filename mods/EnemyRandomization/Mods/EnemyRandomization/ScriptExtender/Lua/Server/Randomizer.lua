@@ -241,8 +241,11 @@ local function applyChampionHp(guid)
         tostring(guid), maxHp, newMax, hp, newHp)
 end
 
-local function grantChampionEffects(guid, champion)
-    applyChampionHp(guid)
+-- opts.skipHp/skipSpells let Mirror.lua copy a champion onto a clone without
+-- rescaling copied health or granting summon abilities.
+local function grantChampionEffects(guid, champion, opts)
+    opts = opts or {}
+    if not opts.skipHp then applyChampionHp(guid) end
     if Osi and Osi.ApplyStatus then
         for _, status in ipairs(champion.statuses or {}) do
             local ok = pcall(Osi.ApplyStatus, guid, status, -1, 1)
@@ -261,7 +264,7 @@ local function grantChampionEffects(guid, champion)
     if DOS2C and DOS2C.Armor and DOS2C.Armor.ForceNoDodge then
         pcall(DOS2C.Armor.ForceNoDodge, guid)
     end
-    if not (Osi and Osi.AddSpell) then return end
+    if opts.skipSpells or not (Osi and Osi.AddSpell) then return end
     for _, spell in ipairs(champion.spells or {}) do
         local ok, result = pcall(Osi.AddSpell, guid, spell, 0, 1)
         if not ok then
@@ -358,6 +361,18 @@ local function fillChampionConditions(guid, required, cache, exclude)
     end
 end
 
+-- Champion of Mirrors only works on enemies Mirror.lua may clone, so bosses
+-- and excluded enemies never roll it.
+local function championExclusions(guid, entity, bossLike)
+    local exclude = {}
+    if C.MIRROR_CHAMPION then
+        local canMirror = ER.Mirror and ER.Mirror.CanMirror
+            and ER.Mirror.CanMirror(guid, entity)
+        if bossLike or not canMirror then exclude[C.MIRROR_CHAMPION] = true end
+    end
+    return exclude
+end
+
 local function applyChampion(guid, isBoss, entity)
     if not (C.CHAMPIONS and #C.CHAMPIONS > 0) then return false end
 
@@ -378,7 +393,7 @@ local function applyChampion(guid, isBoss, entity)
     if hasStatus(guid, C.CHAMPION_MARKER) or #existing > 0 then
         pcall(Osi.ApplyStatus, guid, C.CHAMPION_MARKER, -1, 1)
         championCache[guid] = {}
-        local exclude = {}
+        local exclude = championExclusions(guid, entity, tier or isBoss)
         for _, entry in ipairs(existing) do
             championCache[guid][#championCache[guid] + 1] = entry.status
             exclude[entry.status] = true
@@ -399,7 +414,8 @@ local function applyChampion(guid, isBoss, entity)
         return false
     end
 
-    local champion = pickChampion()
+    local exclude = championExclusions(guid, entity, tier or isBoss)
+    local champion = pickChampion(exclude)
     if not champion then return false end
     local applied = Osi and Osi.ApplyStatus
         and pcall(Osi.ApplyStatus, guid, champion.status, -1, 1)
@@ -409,7 +425,7 @@ local function applyChampion(guid, isBoss, entity)
     end
 
     championCache[guid] = { champion.status }
-    local exclude = { [champion.status] = true }
+    exclude[champion.status] = true
     grantChampionEffects(guid, champion)
     fillChampionConditions(guid, required, championCache[guid], exclude)
     log("champion %s -> %s tier=%s conditions=%d/%d",
@@ -438,6 +454,15 @@ local function applyOne(entity, party)
     if not inCombat(entity, guid) then return false end
     if isExcludedProp(entity) then return false end
     if isParty(entity, guid, party) or isSummon(entity) then
+        buffed[guid] = true
+        return false
+    end
+    -- Mirror clones receive a copy of their original's rolls from Mirror.lua
+    -- and must never roll their own buffs, champions, or mirrors.
+    -- Reinforcements spawn plain at their wave level and are skipped too.
+    if (ER.Mirror and ER.Mirror.IsClone and ER.Mirror.IsClone(guid))
+        or hasStatus(guid, C.MIRROR_CLONE_MARKER)
+        or (ER.Reinforce and ER.Reinforce.IsReinforcement and ER.Reinforce.IsReinforcement(guid)) then
         buffed[guid] = true
         return false
     end
@@ -487,7 +512,20 @@ local function applyOne(entity, party)
 
     -- Champion layer is independent so existing saves that already have a
     -- regular-buff marker can still roll/adopt a champion.
-    if applyChampion(guid, entityIsBoss(entity), entity) then applied = true end
+    local isBoss = entityIsBoss(entity)
+    if applyChampion(guid, isBoss, entity) then applied = true end
+
+    -- Mirror runs after every roll so the clone copies the finished enemy.
+    if ER.Mirror and ER.Mirror.Consider then
+        local ok, err = pcall(ER.Mirror.Consider, guid, entity,
+            isBoss or bossTierFor(guid, entity) ~= nil)
+        if not ok then log("mirror error: %s", tostring(err)) end
+    end
+    if ER.Reinforce and ER.Reinforce.Consider then
+        local ok, err = pcall(ER.Reinforce.Consider, guid, entity,
+            isBoss or bossTierFor(guid, entity) ~= nil)
+        if not ok then log("reinforce error: %s", tostring(err)) end
+    end
 
     -- Barkskin and other random AC buffs can be applied after the initial
     -- armor pass. Reapply the no-dodge suppression after all status grants.
@@ -532,6 +570,14 @@ end
 
 function R.GetChampionStatuses(guid)
     return championCache[guid]
+end
+
+function R.SetChampionStatuses(guid, statuses)
+    championCache[guid] = statuses
+end
+
+function R.GrantChampionEffects(guid, champion, opts)
+    grantChampionEffects(guid, champion, opts)
 end
 
 function R.ResetChampionMarkers()

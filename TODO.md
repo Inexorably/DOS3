@@ -367,6 +367,9 @@ Known DOS2 visual references for the current test spells:
 - [ ] AP economy remains 4 start / 6 max / +4 per turn.
 - [ ] Verify BG3 Extra Attack is a free follow-up, allowing three weapon
       attacks with the standard 4 AP turn, and remains once per turn.
+- [ ] Drinking a potion (and other consumables) costs 1 AP instead of a bonus
+      action; `patched ... N item use costs` in the log reports N > 0. If N is
+      0, item use costs are not on `Object.UseCosts` in this build.
 - [ ] No repeated Script Extender log spam during a session.
 - [ ] Existing saves can be loaded without component/persistence errors.
 
@@ -383,15 +386,15 @@ Known DOS2 visual references for the current test spells:
       `loot stats branch: ...`, and no `TemplateAddTo failed`.
 
 - [x] Add **Champion of the Horde**: grants Animate Dead, Fungal Infestation,
-      Animate Dead: Zombie Battalion and a custom **Summon Horde** spell that
-      raises four zombies in one cast for **2 AP** with the highest `AIWeight` in
-      the mod, plus the native **Rejuvenating Miasma** (`ANIMATEDEAD_ZONE`) aura.
-- [ ] Verify Champion of the Horde in-game: the champion appears, Summon Horde
-      raises exactly **four** zombies (not one), it costs 2 AP, the AI prefers it
-      over the vanilla necromancy spells, all three vanilla spells are in the
-      spellbook, and Rejuvenating Miasma persists for the fight. Log lines:
-      `champion spell grant: ENR_Summon_ZombieHorde ... has=true`, then four
-      summons from one cast.
+      Animate Dead: Zombie Battalion, plus the native **Rejuvenating Miasma**
+      (`ANIMATEDEAD_ZONE`) aura.
+- [x] Remove the custom **Summon Horde** spell: its 15,584-character
+      `SpellProperties` hung the game at load (bisected: the same build with
+      the spell cut to 3,914 characters loads). A test now caps generated stat
+      lines at 8,000 characters.
+- [ ] Verify the load no longer hangs with the full build, and Champion of the
+      Horde in game: the champion appears, all three vanilla spells are in the
+      spellbook, and Rejuvenating Miasma persists for the fight.
 
 - [x] Rename the `Champion of Ogres` condition display name to **It's Ogre**.
 - [x] Implement the summoning champion roster: Dinosaurs, Spiders, Goblins,
@@ -442,6 +445,42 @@ Known DOS2 visual references for the current test spells:
 - [x] Stopped scaling summoned-enemy ability scores by level; generated
       templates preserve the source Ability values and scale HP/armor only.
 - [ ] Verify summon skills cost 4 AP and still enforce the five-turn cooldown.
+- [x] Add the Mirror modifier (`Server/Mirror.lua`): spawns a full-strength
+      clone of non-boss enemies, copying buffs, champion statuses/passives,
+      and HP without champion summon spells.
+- [x] Turn Mirror into Champion of Mirrors (`ENR_CHAMPION_MIRRORS`): only
+      enemies that roll this champion are cloned, and bosses or excluded
+      enemies never roll it. The per-enemy `MIRROR_CHANCE` and
+      `!enemyrandom_mirror` are removed.
+- [ ] Verify Champion of Mirrors in game: the status shows its name,
+      description, and the `Spell_Illusion_MirrorImage` icon (unverified
+      icon name); exactly one clone spawns; the clone is not shown as a
+      champion and drops no champion loot.
+- [ ] Verify mirror clones in game: `Osi.GetTemplate`/`CreateAt` spawn the
+      right creature at a standable spot, the clone joins the current combat
+      on the original's side, copied statuses/HP stick, it drops native loot
+      and XP, and save/reload neither spawns a second clone nor rolls the clone.
+- [x] Exclude story NPCs from mirrors: `scripts/generate-enr-story-characters.py`
+      writes `Server/GeneratedStoryCharacters.lua` (269 placed characters on
+      story death/kill lines plus 111 dummy/placeholder/cinematic/vocal
+      stand-ins), and `Mirror.Consider` skips any GUID in it.
+- [ ] Verify the story exclusion in game: a catalogued character (e.g. a
+      Grove-defence or Goblin-camp named enemy) never mirrors while generic
+      enemies in the same fight still do, and check fights that end by
+      surrender/talk-down for clones that stay hostile. The death-line match is
+      textual, so add misses to `MIRROR_EXCLUDE` or the generator pattern.
+- [x] Add reinforcement waves (`Server/Reinforce.lua`,
+      `scripts/generate-enr-waves.py`): one roll per combat spawns
+      `1..REINFORCE_MAX` members of a race-matched wave from per-level
+      templates. `!enemyrandom_reinforce <0-1> [max]` sets chance and size.
+- [ ] Verify reinforcements in game: the inherited per-level templates spawn
+      with the source visuals, equipment, and name; their level and HP match
+      the triggering enemy's level; `CombatGetGuidFor` gives one roll per
+      combat (and reload does not roll again); they join the fight hostile;
+      the ring placement does not drop them into walls or chasms; the
+      Randomizer skips them; and they drop native loot and XP.
+- [ ] Replace the random `1..REINFORCE_MAX` wave size with the planned
+      argument once it is defined.
 
 
 ## Summon economy

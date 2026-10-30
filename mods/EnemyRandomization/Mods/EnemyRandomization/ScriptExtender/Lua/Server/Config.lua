@@ -16,6 +16,31 @@ ER.Config = {
     CHAMPION_HP_MULTIPLIER = 1.5,
     CHAMPION_HP_MARKER = "ENR_CHAMPION_HP_SCALED",
 
+    -- Champion of Mirrors: an enemy with this champion status gets a
+    -- full-strength copy (same template, buffs, other champion statuses, and
+    -- HP; champion summon abilities are stripped). The roll marker persists
+    -- on the original so save/reload cannot spawn a second clone; the clone
+    -- marker stops the copy from rolling anything itself.
+    MIRROR_CHAMPION = "ENR_CHAMPION_MIRRORS",
+    MIRROR_MARKER = "ENR_MIRROR_ROLLED",
+    MIRROR_CLONE_MARKER = "ENR_MIRROR_CLONE",
+    -- Spawn offset from the original, in metres.
+    MIRROR_SPAWN_OFFSET = 1.5,
+    -- Lowercase name/StatsId aliases that are never mirrored, in addition to
+    -- every BOSS_TIERS alias, boss-flagged combatant, and GUID in
+    -- GeneratedStoryCharacters.lua.
+    MIRROR_EXCLUDE = {},
+
+    -- Reinforcement waves: one roll per combat, spawning 1..REINFORCE_MAX
+    -- members of a GeneratedWaves.lua wave at the triggering enemy's level.
+    REINFORCE_CHANCE = 1.0, -- set to 1.0 for first-encounter testing
+    REINFORCE_MAX = 4,
+    -- Prefer a wave whose races include the triggering enemy's race. Off:
+    -- every combat picks from all waves.
+    REINFORCE_MATCH_RACE = false,
+    -- Spawn ring radius around the triggering enemy, in metres.
+    REINFORCE_SPAWN_OFFSET = 1.5,
+
     -- Summon economy: generated summons start and regenerate with 3 AP, not
     -- the normal 4 AP combatant turn. They also spawn with BG3's lethargic
     -- status so their first turn is a setup/wait turn.
