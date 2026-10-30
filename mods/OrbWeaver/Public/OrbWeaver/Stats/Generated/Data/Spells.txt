@@ -244,15 +244,6 @@ data "PsychicResistance" "Immune"
 data "RadiantResistance" "None"
 data "ThunderResistance" "Vulnerable"
 
--- Marks a wall segment so EnemyRandomization never buffs it as a combatant.
-new entry "CC_ORB_WALL_PIECE"
-type "StatusData"
-data "StatusType" "BOOST"
-data "DisplayName" "h69aec94a69495ad286c2841e697571ff"
-data "Description" "h5e678f773a925220a8843cc2339bc329"
-data "StackId" "CC_ORB_WALL_PIECE"
-data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"
-
 new entry "CC_ORB_CHARGE"
 type "StatusData"
 data "DisplayName" "h7cec9bf2ae7a554094f06805a9535bd0"

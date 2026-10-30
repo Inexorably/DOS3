@@ -566,7 +566,8 @@ a mod convention — it is only the vanilla name for `RootTemplates/_merged`.
   segments are placed every 1 m along that line - close enough to touch - and each
   has exactly **5 hit points** (vanilla Wall of Stone pillars have 30; this mod
   lowers that stat, so vanilla walls are 5 HP too while it is loaded). Wall
-  segments are not combatants: the enemy randomizer never buffs or promotes them. Charging any orb that is part of the wall collapses it; charging an
+  segments are not combatants: the enemy randomizer skips them by stat id, so they
+  never receive random buffs or champion promotions. Charging any orb that is part of the wall collapses it; charging an
   orb that is *not* on the wall leaves it standing, so a wall raised through A and
   C survives B charging. Costs **2 AP**.
 - **Orb Chain Lightning** is cast by the player and can only target a

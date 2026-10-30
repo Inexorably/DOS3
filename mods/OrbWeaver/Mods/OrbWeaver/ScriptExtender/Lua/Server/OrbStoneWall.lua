@@ -53,10 +53,6 @@ local function pillarTemplate()
     return S.setting("ORB_STONE_WALL_PILLAR_TEMPLATE", DEFAULT_PILLAR_TEMPLATE)
 end
 
--- Marker status on every wall segment. EnemyRandomization reads this list and
--- skips anything carrying it, so the wall is never buffed like a combatant.
-local PIECE_STATUS = "CC_ORB_WALL_PIECE"
-
 -- Charge spells an orb can cast once the player spends its charge.
 local CHARGE_SPELLS = {
     CC_BallCharge = true,
@@ -122,19 +118,6 @@ local function setHitpoints(guid, hp)
     return true
 end
 
--- Tags the piece so EnemyRandomization leaves it alone. Objects spawned mid-fight
--- otherwise look like combatants and get buffed, which is what produced walls
--- with 30 and 45 hit points.
-local function markAsPiece(guid)
-    if not (Osi and Osi.ApplyStatus) then return false end
-    local ok, err = pcall(Osi.ApplyStatus, guid, PIECE_STATUS, -1, 1)
-    if not ok then
-        log("error: could not mark pillar %s: %s", tostring(guid), tostring(err))
-        return false
-    end
-    return true
-end
-
 local function createPillar(point)
     if not (Osi and Osi.CreateAt) then return nil end
     local ok, guid = pcall(Osi.CreateAt, pillarTemplate(),
@@ -152,7 +135,6 @@ local function createPillar(point)
         pcall(Osi.RequestDelete, guid)
         return nil
     end
-    markAsPiece(guid)
     setHitpoints(guid, pillarHp())
     return guid
 end

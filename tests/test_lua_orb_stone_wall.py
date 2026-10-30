@@ -194,32 +194,15 @@ class OrbStoneWallTests(unittest.TestCase):
         ]
         self.assertEqual(set(values), {9})
 
-    def test_every_pillar_is_marked_as_a_wall_piece(self) -> None:
-        # EnemyRandomization skips anything with this status; without it the wall
-        # was buffed like an enemy and ended up with 30 and 45 hit points.
+    def test_no_status_is_applied_to_wall_pieces(self) -> None:
+        # Applying a status to a spawned object is a native call that is not safe;
+        # EnemyRandomization identifies props by stat id instead.
         self.line()
         self.cast("a")
-        marks = [
+        statuses = [
             str(c["args"][1]) for c in self.harness.osi_calls("ApplyStatus")
         ]
-        self.assertEqual(set(marks), {"CC_ORB_WALL_PIECE"})
-        self.assertEqual(len(marks), self.raised())
-
-    def test_the_marker_is_applied_before_hit_points_are_capped(self) -> None:
-        self.line()
-        self.cast("a")
-        order = [
-            (str(c["name"]), str(c["args"][1]))
-            for c in self.harness.osi_calls()
-            if str(c["name"]) in ("ApplyStatus", "SetHitpoints")
-        ]
-        first_mark = next(
-            i for i, (n, _) in enumerate(order) if n == "ApplyStatus"
-        )
-        first_hp = next(
-            i for i, (n, _) in enumerate(order) if n == "SetHitpoints"
-        )
-        self.assertLess(first_mark, first_hp)
+        self.assertEqual(statuses, [])
 
     def test_the_module_never_writes_the_health_component(self) -> None:
         # Writing Health (or calling Replicate) on a spawned object crashed the
@@ -239,16 +222,6 @@ class OrbStoneWallTests(unittest.TestCase):
         self.assertEqual(
             len(self.harness.osi_calls("SetHitpoints")), self.raised()
         )
-
-    def test_a_failed_marker_is_reported(self) -> None:
-        self.line()
-        self.harness.run(
-            'H.osi_results["ApplyStatus"] = function() error("no such call") end'
-        )
-        self.cast("a")
-        self.assertIn("could not mark pillar", self.logs())
-        # The wall is still raised; only the marker failed.
-        self.assertEqual(self.wall_count(), 1)
 
     def test_a_rejected_hit_point_change_is_reported(self) -> None:
         self.line()
@@ -430,9 +403,20 @@ class OrbStoneWallStatsTests(unittest.TestCase):
             'new entry "OBJ_Wall_Of_Stone"', self.spells_txt
         )
 
-    def test_wall_piece_marker_status_exists(self) -> None:
-        self.assertIn('new entry "CC_ORB_WALL_PIECE"', self.spells_txt)
-        self.assertIn("CC_ORB_WALL_PIECE", self.module)
+    def test_the_pillar_stat_is_defined_exactly_once(self) -> None:
+        # A duplicated block silently produced two definitions, and the engine
+        # takes them in file order, so the wrong one can win.
+        self.assertEqual(
+            self.spells_txt.count('new entry "OBJ_Wall_Of_Stone"'), 1
+        )
+        self.assertEqual(
+            self.generator.count('new entry "OBJ_Wall_Of_Stone"'), 1
+        )
+
+    def test_no_wall_piece_marker_status_is_generated(self) -> None:
+        # It was never safe to apply, so it must not exist as dead content.
+        self.assertNotIn('new entry "CC_ORB_WALL_PIECE"', self.spells_txt)
+        self.assertNotIn("CC_ORB_WALL_PIECE", self.module)
         self.assertIn("STONE_WALL_PILLAR_HP = 5", self.generator)
 
     def test_uses_the_vanilla_wall_of_stone_icon(self) -> None:

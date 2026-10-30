@@ -417,10 +417,15 @@ local function applyChampion(guid, isBoss, entity)
 end
 
 -- Props are not combatants even when the engine puts them in the combat
--- component set, so they must never be buffed or made champions.
-local function isExcludedProp(guid)
-    for _, status in ipairs(C.NEVER_BUFF_STATUSES or {}) do
-        if hasStatus(guid, status) then return true end
+-- component set, so they must never be buffed or made champions. Identified by
+-- stat id: applying a marker status to a spawned object is a native call that is
+-- not safe (it crashed the game from OrbWeaver's wall spell).
+local function isExcludedProp(entity)
+    local ok, statsId = pcall(function() return entity.Data.StatsId end)
+    if not ok or not statsId then return false end
+    local id = tostring(statsId)
+    for _, excluded in ipairs(C.NEVER_BUFF_STATS or {}) do
+        if id == excluded then return true end
     end
     return false
 end
@@ -429,7 +434,7 @@ local function applyOne(entity, party)
     local guid = guidOf(entity)
     if not guid then return false end
     if not inCombat(entity, guid) then return false end
-    if isExcludedProp(guid) then return false end
+    if isExcludedProp(entity) then return false end
     if isParty(entity, guid, party) or isSummon(entity) then
         buffed[guid] = true
         return false

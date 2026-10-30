@@ -336,38 +336,15 @@ redefines that stat with `Vitality 5`. Side effect: vanilla Wall of Stone pillar
 are also 5 HP in a save with this mod loaded. `Osi.SetHitpoints(guid, 5)` is still
 called to set current HP, and to report a failure if the call is rejected.
 
-Each piece also gets the `CC_ORB_WALL_PIECE` marker status. Wall pieces are objects
-the engine puts in the combat component set, so EnemyRandomization adopted them as
-combatants: they were buffed and, given `CHAMPION_HP_MULTIPLIER` 1.5, showed 30 and
-45 hit points. EnemyRandomization now skips any entity carrying a status in
-`Config.NEVER_BUFF_STATUSES` (which lists `CC_ORB_WALL_PIECE`) before either the
-buff or champion layer runs.
-`CreateAt` can return a GUID without placing anything, so each pillar's position
-is read back and an unplaced pillar is deleted and excluded.
+Wall pieces are not combatants, but the engine puts them in the combat component
+set, so EnemyRandomization adopted them: they were buffed and, given
+`CHAMPION_HP_MULTIPLIER` 1.5, showed 30 and 45 hit points. It therefore skips any
+entity whose stat id appears in `Config.NEVER_BUFF_STATS` (which lists
+`OBJ_Wall_Of_Stone`) before either the buff or champion layer runs.
 
-The template is `ORB_STONE_WALL_PILLAR_TEMPLATE`, default
-`VFX_Static_Wall_Spell_Stone_A_LowMiddle_A` - the **Wall of Stone** wall art the
-vanilla spell builds. That family has six pieces
-(`Low|High` x `Left|Middle|Right`); the GUIDs are listed in `OrbStoneWall.lua`.
-Templates that must **not** be used:
-
-- `d13587f4-a1f4-4833-bd1e-da1c7951d680` is `OBJ_Wall_Of_Stone`'s `RootTemplate`,
-  but it is the **Wall of Stone scroll** template, so spawning it produces
-  scrolls. There is no pillar object stat at all: the spell's pillars come from the
-  engine-side `ItemWall "WallOfStone"` definition, alive only during a wall cast.
-- `5412686b-2854-4970-b428-07e30f9dae01` (`PUZ_NAT_Sandstone_Wall_Breakable_A`)
-  has a `ParentTemplateId` that is absent from the retail template set; creating
-  it **crashed the game** the moment the spell was cast. Anything taken from
-  `SharedDev` root templates needs its parent chain checked in
-  `Public/Shared/RootTemplates` first.
-- `f0b8705f-bc6f-44a2-b6f7-521f4524e179` (`OBJ_Destr_Wall_Stone`) is a crumbling
-  ruined prop; it works but looks wrong. Kept documented as a known-safe
-  alternative.
-
-Casting the real `Wall_WallOfStone` spell through `Osi.UseSpell` was implemented
-and abandoned: it added a second **Wall of Stone** entry to the combat log, and
-`UseSpell` leaves the wall's positional fields unset so the cast produced no
-pillars. This spell casts nothing; the pillars are the only thing it creates.
+Exclusion is by **stat id**, not by a marker status: applying a status to a spawned
+object is a native call that is not safe (it crashed here), and reading
+`entity.Data.StatsId` is what EnemyRandomization already does elsewhere.
 
 The wall records its **node orbs**. Charging collapses the wall only when the
 charged orb is one of those nodes, which is why a wall raised through A and C

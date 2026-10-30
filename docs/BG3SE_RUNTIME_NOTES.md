@@ -578,6 +578,11 @@ itself had already been created successfully per the log:
 [OW] orb stone wall: wall raised through <a>-><b>-><c>: 9 pillar(s) at 5 HP each
 ```
 
+The same caution applies to `Osi.ApplyStatus` on a spawned object: it is used
+throughout this repo but only ever on characters. OrbWeaver briefly tagged its wall
+pieces with a marker status, which was removed in favour of identifying props by
+`entity.Data.StatsId` - no native mutation of a fresh object at all.
+
 `entity:Replicate` in EnemyRandomization is safe only because it runs on real
 characters. To give a spawned object a hit-point cap, change the **stat** its
 template references (`data "Vitality" ...`); stat overrides are name-keyed, so
