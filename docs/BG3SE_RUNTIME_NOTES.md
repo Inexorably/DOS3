@@ -589,6 +589,30 @@ template references (`data "Vitality" ...`); stat overrides are name-keyed, so
 redefining the inherited stat is what applies the cap. `Osi.SetHitpoints` remains
 safe and only moves current HP.
 
+## The IsInCombat component is stale after a save reload (2026-10-30 04:05 run)
+
+Reloading a save inside a running game leaves `IsInCombat` component instances on
+level enemies: EnemyRandomization detected presence with
+`if entity.IsInCombat then return true end` and therefore treated the whole level
+as being in combat the moment the map finished streaming back in. Every enemy got
+its random buff and a champion roll on a save that was made out of combat, then
+re-rolled a *different* champion on the next reload:
+
+```text
+[ENR] champion ENR_CHAMPION_LIGHTNING -> 07f1512b-...      (first combat)
+[ENR] champion ENR_CHAMPION_RESILIENCE -> 07f1512b-...     (same enemy, after reload)
+```
+
+The giveaway is ordering: the buffs land while the level is still streaming in
+(`CC_Ball_Azure_...` "bedroll granted" lines come *after* the champion grants) and
+with no combat start beforehand. A fresh game launch never shows this, which is
+why it only appeared after the player had fought and then reloaded.
+
+`Osi.IsInCombat(guid)` (already the only signal used by `StatsPatcher.lua` and
+`Cooldowns.lua`) reports the truth. Treat the engine query as the authority and
+use the component only when Osiris cannot answer; the mod logs the first three
+disagreements as `ignoring stale IsInCombat on <guid>`.
+
 ## Maintenance rule
 
 Whenever a runtime-only API/arity/enum is discovered:

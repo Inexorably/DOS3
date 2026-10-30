@@ -78,13 +78,29 @@ local function partySet()
     return set
 end
 
+-- The IsInCombat entity component is not a reliable "is in a fight" test. When a
+-- save is reloaded inside a running game the engine re-creates the component on
+-- level enemies as the map streams back in, so testing it for presence buffed
+-- and re-rolled every enemy in the level the moment the save finished loading.
+-- The engine's own combat query is the authority; the component is only used
+-- when Osiris cannot answer at all.
+local combatSkewLogged = 0
+local COMBAT_SKEW_LOG_LIMIT = 3
+
 local function inCombat(entity, guid)
-    if entity and entity.IsInCombat then return true end
-    if Osi and Osi.IsInCombat then
+    local component = entity ~= nil and entity.IsInCombat ~= nil and entity.IsInCombat
+    if guid and Osi and Osi.IsInCombat then
         local ok, result = pcall(Osi.IsInCombat, guid)
-        return ok and (result == 1 or result == true)
+        if ok and (result == 0 or result == 1 or result == true or result == false) then
+            local fighting = result == 1 or result == true
+            if not fighting and component and combatSkewLogged < COMBAT_SKEW_LOG_LIMIT then
+                combatSkewLogged = combatSkewLogged + 1
+                log("ignoring stale IsInCombat on %s: the engine reports no combat", tostring(guid))
+            end
+            return fighting
+        end
     end
-    return false
+    return component and true or false
 end
 
 local function isSummon(entity)

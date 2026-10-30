@@ -141,6 +141,30 @@ class RandomizerTests(unittest.TestCase):
         self.assertFalse(self.harness.run('return ER.Randomizer.ApplyTo("idle1")'))
         self.assertEqual(self.applied_statuses("idle1"), set())
 
+    def test_stale_in_combat_component_does_not_buff(self) -> None:
+        # Reloading a save inside a running game left the IsInCombat component on
+        # level enemies as the map streamed back in, so every enemy in the level
+        # was buffed and re-rolled the moment the save finished loading.
+        self.make_enemy("stale1", health=100)
+        self.harness.set_osi_result("IsInCombat", 0)
+        self.assertFalse(self.harness.run('return ER.Randomizer.ApplyTo("stale1")'))
+        self.assertEqual(self.applied_statuses("stale1"), set())
+        self.assertEqual(
+            self.harness.run('return H.entities["stale1"].Health.MaxHp'), 100,
+            "a stale component must not make the enemy a champion",
+        )
+        self.assertIn(
+            "stale IsInCombat",
+            " ".join(self.harness.prints()),
+            "the disagreement between the component and the engine should be logged",
+        )
+
+    def test_the_engine_combat_query_wins_over_the_component(self) -> None:
+        self.make_enemy("fighting1", health=100, inCombat=False)
+        self.harness.set_osi_result("IsInCombat", 1)
+        self.assertTrue(self.harness.run('return ER.Randomizer.ApplyTo("fighting1")'))
+        self.assertTrue(self.applied_statuses("fighting1"))
+
     def test_missing_entity_returns_false(self) -> None:
         self.assertFalse(self.harness.run('return ER.Randomizer.ApplyTo("nobody")'))
 
