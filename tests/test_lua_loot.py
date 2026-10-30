@@ -148,6 +148,34 @@ class LootTests(unittest.TestCase):
         self.harness.fire_entity_oncreate(entity)
         self.assertIn("loot item ready", self.logs())
 
+    def test_item_type_reads_catalog_base_names(self) -> None:
+        cases = {
+            "WPN_Greatsword_REF": "Greatsword",
+            "WPN_HandCrossbow_REF": "Hand Crossbow",
+            "WPN_Ogre_Greatclub_A": "Greatclub",
+            "WPN_Quarterstaff_REF": "Quarterstaff",
+            "ARM_Boots_Leather": "Boots",
+            "ARM_Camp_Body_Gale": "Clothes",
+            "WPN_Unknown_Thing": "Weapon",
+        }
+        for name, expected in cases.items():
+            with self.subTest(name=name):
+                self.assertEqual(self.harness.run(f'return ER.Loot.ItemType("{name}")'), expected)
+
+    def test_reward_carrier_drops_its_reward_on_death(self) -> None:
+        reward = self.harness.run(
+            'local r = ER.Loot.PickReward("Rare") ER.Loot.AssignReward("carrier-1", r) return r.label'
+        )
+        self.assertTrue(reward.startswith("Rare "))
+        self.assertTrue(self.harness.run('return ER.Loot.IsRewardCarrier("carrier-1")'))
+        # The carrier is not a champion; its reward drops anyway.
+        self.character("carrier-1", health=0, died=True, level=5)
+        entity = self.harness.raw('return H.entities["carrier-1"]')
+        self.harness.fire_entity_oncreate(entity)
+        self.assertFalse(self.harness.run('return ER.Loot.IsRewardCarrier("carrier-1")'))
+        self.assertTrue(self.harness.osi_called("TemplateAddTo"))
+        self.assertIn("loot reward drop:", self.logs())
+
     def test_died_event_rolls_loot_for_champions(self) -> None:
         champion = self.harness.run("return ER.Config.CHAMPIONS[1].status")
         self.character("dead-1", health=0, died=True, level=5)

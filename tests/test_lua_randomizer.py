@@ -54,6 +54,8 @@ class RandomizerTests(unittest.TestCase):
         ):
             self.harness.load(module)
         self.harness.run(ENTITY_FACTORY)
+        # Champions are off by default; these tests cover the champion layer.
+        self.harness.run("ER.Config.CHAMPIONS_ENABLED = true")
 
     def make_enemy(self, guid: str, **options) -> None:
         table = self.harness.to_lua(options)
@@ -66,6 +68,21 @@ class RandomizerTests(unittest.TestCase):
             for call in self.harness.osi_calls("ApplyStatus")
             if call["args"].__class__ is list and call["args"][0] == guid
         }
+
+    def test_champions_off_gives_nobody_a_champion(self) -> None:
+        self.harness.run("ER.Config.CHAMPIONS_ENABLED = false")
+        self.make_enemy("grunt", health=100)
+        self.make_enemy("boss", displayName="Minthara", health=200)
+        self.harness.run('ER.Randomizer.ApplyTo("grunt") ER.Randomizer.ApplyTo("boss")')
+        statuses = {
+            str(call["args"][1])
+            for call in self.harness.osi_calls("ApplyStatus")
+            if isinstance(call["args"], list)
+        }
+        champions = set(self.harness.run(
+            "local out = {} for _, e in ipairs(ER.Config.CHAMPIONS) do out[#out + 1] = e.status end return out"
+        ))
+        self.assertEqual(statuses & champions, set())
 
     def test_enemy_gets_regular_buff_and_champion(self) -> None:
         self.make_enemy("enemy1", health=100)

@@ -9,6 +9,10 @@ ER.Config = {
     BUFF_CHANCE = 1.0,
 
     -- Champion layer. The DOS2 mod uses roughly a 1-in-8 champion chance.
+    -- Off: no enemy (bosses included) rolls or re-applies a champion, and
+    -- Champion of Mirrors does not clone. Champions are to return as
+    -- offerings, chosen alongside reinforcement waves.
+    CHAMPIONS_ENABLED = false,
     CHAMPION_CHANCE = 1.0, -- set to 1.0 for first-encounter testing
     CONTAINER_LOOT_CHANCE = 0.05,
     CHAMPION_EXTRA_BUFFS = 1,
@@ -42,16 +46,36 @@ ER.Config = {
     -- normalised). The tier is rolled first and the wave is then chosen
     -- from waves that can reach it, so solo waves (Legendary only) do not
     -- inflate the Legendary rate.
-    REINFORCE_TIER_WEIGHTS = { 30, 30, 20, 15, 5 },
+    REINFORCE_TIER_WEIGHTS = { 20, 30, 25, 15, 10 },
     -- Chance per tier that a card is a split wave: its enemies divided
     -- between two different waves, each part described by that wave's
     -- flavour for the part's size.
     REINFORCE_SPLIT_CHANCE = { 0.0, 0.15, 0.30, 0.45, 0.60 },
+    -- Each card's tier count is a budget of slots, each a reinforcement or a
+    -- champion (0 to count-1 champions, uniformly; at least one
+    -- reinforcement). Champions are placed on the fight's enemies or the
+    -- card's reinforcements when it is picked. Works while CHAMPIONS_ENABLED
+    -- (random champions) is off.
+    REINFORCE_CHAMPION_OFFERS = true,
+    -- Boons per tier, Common to Legendary: random buffs (the enemy buff
+    -- pool) for different random party members, removed when the fight ends.
+    -- From REINFORCE_CHAMPION_BOON_TIER up, one boon is a champion's effects
+    -- (not Mirrors or a summoning champion).
+    REINFORCE_BOON_COUNTS = { 0, 0, 1, 2, 3 },
+    REINFORCE_CHAMPION_BOON_TIER = 5,
+    -- Reward rarity per tier (champion loot catalog rarities). A spawned
+    -- reinforcement of the card carries it and drops it on death.
+    REINFORCE_REWARD_RARITY = { "Uncommon", "Uncommon", "Rare", "VeryRare", "Legendary" },
     -- Prefer a wave whose races include the triggering enemy's race. Off:
     -- every combat picks from all waves.
     REINFORCE_MATCH_RACE = false,
     -- Spawn ring radius around the triggering enemy, in metres.
-    REINFORCE_SPAWN_OFFSET = 1.5,
+    REINFORCE_SPAWN_OFFSET = 2.0,
+    -- Deal wave members round-robin to enemies in the fight (same faction,
+    -- within REINFORCE_ANCHOR_RANGE metres of the trigger) instead of
+    -- spawning them all around the trigger.
+    REINFORCE_SPREAD = true,
+    REINFORCE_ANCHOR_RANGE = 30,
     -- Pause the combat and let the host pick one of REINFORCE_OFFER_COUNT
     -- waves. No pick within REINFORCE_PICK_TIMEOUT_MS picks one at random.
     REINFORCE_PICK = true,
