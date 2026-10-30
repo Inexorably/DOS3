@@ -97,6 +97,112 @@ class ArmorSyncTests(unittest.TestCase):
         self.harness.fire_timers()
         self.assertTrue(self.harness.prints())
 
+    def count_refreshes(self) -> None:
+        self.harness.run(
+            """
+            refresh_counts = {}
+            local original = DOS2C.Armor.Refresh
+            DOS2C.Armor.Refresh = function(handle, quiet)
+                local key = tostring(handle)
+                refresh_counts[key] = (refresh_counts[key] or 0) + 1
+                return original(handle, quiet)
+            end
+            """
+        )
+
+    def refreshes(self) -> dict[str, int]:
+        counts = self.harness.run(
+            "local out = refresh_counts; refresh_counts = {}; return out"
+        )
+        return dict(counts or {})
+
+    def test_poll_refreshes_each_character_once_then_only_changed_ones(self) -> None:
+        # The 2 s poll used to refresh every character twice (poll + Broadcast)
+        # on every tick. It refreshes each character once on its first pass,
+        # then only a character whose armor inputs changed, and sends the
+        # payload only when it differs from the last one sent.
+        self.harness.run('make_sync_character("char-2", 14)')
+        self.harness.set_component("ActionResources", ["char-1", "char-2", "item-holder"])
+        self.count_refreshes()
+
+        self.harness.run("DOS2C.ArmorSync.StartPolling()")
+        self.assertEqual(self.refreshes(), {"char-1": 1, "char-2": 1})
+        sent = len(self.harness.net_messages())
+        self.assertEqual(sent, 1)
+
+        self.assertEqual(self.harness.fire_timers(), 1)
+        self.assertEqual(self.refreshes(), {})
+        self.assertEqual(len(self.harness.net_messages()), sent)
+
+        # The entity list can come back in another order: same payload, no resend.
+        self.harness.set_component("ActionResources", ["item-holder", "char-2", "char-1"])
+        self.harness.fire_timers()
+        self.assertEqual(self.refreshes(), {})
+        self.assertEqual(len(self.harness.net_messages()), sent)
+
+        self.harness.run('H.entities["char-2"].Armor.ArmorClass = 20')
+        self.harness.fire_timers()
+        self.assertEqual(self.refreshes(), {"char-2": 1})
+        messages = self.harness.net_messages()
+        self.assertEqual(len(messages), sent + 1)
+        payload = self.harness.run("return H.net_messages[#H.net_messages].payload")
+        self.assertIn("char-2|55", payload)
+
+    def test_poll_refreshes_on_each_armor_input_change(self) -> None:
+        # Every input the AC breakdown reads moves the character's key:
+        # equipped gear, Dexterity, statuses (container or Osiris), passives.
+        self.harness.run(
+            """
+            local entity = H.entities["char-1"]
+            entity.Stats = { AbilityModifiers = { 0, 1 } }
+            entity.Passives = { Passives = { "Alert" } }
+            H.entities["gear-1"] = { Data = { StatsId = "ARM_Leather" }, Armor = { ArmorClass = 11 } }
+            H.entities["equip-1"] = { Equipment = { Slots = { Breast = "gear-1" } } }
+            entity.InventoryMember = { Equipment = "equip-1" }
+            """
+        )
+        self.count_refreshes()
+        self.harness.run("DOS2C.ArmorSync.StartPolling()")
+        self.refreshes()
+        changes = [
+            'H.entities["gear-1"].Data.StatsId = "ARM_Studded"',
+            'H.entities["equip-1"].Equipment.Slots.Gloves = "gear-1"',
+            'H.entities["char-1"].Stats.AbilityModifiers[2] = 3',
+            'H.entities["char-1"].Passives.Passives[2] = "Tough"',
+            'Osi.ApplyStatus("char-1", "SHIELD_OF_FAITH", 6)',
+            'H.entities["char-1"].StatusContainer = { Statuses = { { StatusId = "BLESS" } } }',
+            'H.osi_results.GetArmorClass = 17',
+        ]
+        for change in changes:
+            with self.subTest(change=change):
+                self.harness.run(change)
+                self.harness.fire_timers()
+                self.assertEqual(self.refreshes(), {"char-1": 1})
+                self.harness.fire_timers()
+                self.assertEqual(self.refreshes(), {})
+
+    def test_forced_broadcast_still_refreshes_every_character(self) -> None:
+        # Load and TurnStarted keep the full refresh + resend.
+        self.count_refreshes()
+        self.harness.run("DOS2C.ArmorSync.StartPolling()")
+        self.refreshes()
+        self.harness.fire_listener("TurnStarted", "char-1")
+        self.assertEqual(self.refreshes().get("char-1"), 2)  # Armor.lua's own + the sync's
+        self.harness.run("DOS2C.ArmorSync.Broadcast(true)")
+        self.assertEqual(self.refreshes(), {"char-1": 1})
+
+    def test_poll_refreshes_a_character_whose_cache_was_replaced(self) -> None:
+        # A manual set or a cache reset must not stick past the next poll.
+        self.count_refreshes()
+        self.harness.run("DOS2C.ArmorSync.StartPolling()")
+        self.refreshes()
+        self.harness.run('DOS2C.Armor.Set("char-1", 5)')
+        self.harness.fire_timers()
+        self.assertEqual(self.refreshes(), {"char-1": 1})
+        self.harness.run("DOS2C.Armor.ResetAll()")
+        self.harness.fire_timers()
+        self.assertEqual(self.refreshes(), {"char-1": 1})
+
     def test_start_polling_is_idempotent(self) -> None:
         self.harness.run("DOS2C.ArmorSync.StartPolling()")
         self.harness.run("DOS2C.ArmorSync.StartPolling()")
