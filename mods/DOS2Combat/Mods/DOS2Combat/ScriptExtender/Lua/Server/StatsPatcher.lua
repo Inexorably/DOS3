@@ -1274,6 +1274,26 @@ local function patchPassiveDamage(name, stat)
     return changed
 end
 
+-- Item use costs (drinking potions, eating, applying coatings, ...) live on
+-- Object stats rather than spells. With no bonus-action pool, convert any
+-- BonusActionPoint cost to a normal action.
+local function patchObject(stat)
+    if not DOS2C.Config.REMOVE_BONUS_ACTIONS then return false end
+    local costs = U.SafeGet(stat, "UseCosts")
+    if type(costs) ~= "string" or not costs:find("BonusActionPoint", 1, true) then
+        return false
+    end
+    local parts = {}
+    local hasAP = false
+    for _, token in ipairs(U.SplitCosts(costs)) do
+        local name = token:match("^([^:]+)")
+        if name == "ActionPoint" then hasAP = true end
+        if name ~= "BonusActionPoint" then parts[#parts + 1] = token end
+    end
+    if not hasAP then table.insert(parts, 1, "ActionPoint:1") end
+    return U.SafeSet(stat, "UseCosts", table.concat(parts, ";"))
+end
+
 local function eachStat(statType, handler)
     local ok, names = pcall(Ext.Stats.GetStats, statType)
     if not ok or type(names) ~= "table" then return 0 end
@@ -1620,6 +1640,9 @@ function S.PatchAll(runtime)
     local nPassives = eachStat("PassiveData", function(name, stat)
         return patchPassiveDamage(name, stat)
     end)
+    local nObjects = eachStat("Object", function(_, stat)
+        return patchObject(stat)
+    end)
 
     collectTooltipRiders()
     local nSpells = eachStat("SpellData", function(name, stat)
@@ -1628,7 +1651,7 @@ function S.PatchAll(runtime)
 
     if runtime then
         -- Stats changes made after module load must be replicated to clients.
-        for _, statType in ipairs({ "Character", "SpellData", "Weapon", "Armor", "StatusData", "PassiveData" }) do
+        for _, statType in ipairs({ "Character", "SpellData", "Weapon", "Armor", "StatusData", "PassiveData", "Object" }) do
             local ok, names = pcall(Ext.Stats.GetStats, statType)
             if ok and type(names) == "table" then
                 for _, name in ipairs(names) do
@@ -1667,8 +1690,8 @@ function S.PatchAll(runtime)
     local concentrationCount = 0
     for _ in pairs(concentrationRemoved) do concentrationCount = concentrationCount + 1 end
     S.Patched = true
-    U.Log("patched %d characters, %d spells, %d weapons, %d armor, %d statuses, %d passives; concentration removed from %d spells",
-        nCharacters, nSpells, nWeapons, nArmor, nStatuses, nPassives, concentrationCount)
+    U.Log("patched %d characters, %d spells, %d weapons, %d armor, %d statuses, %d passives, %d item use costs; concentration removed from %d spells",
+        nCharacters, nSpells, nWeapons, nArmor, nStatuses, nPassives, nObjects, concentrationCount)
 end
 
 if Ext.Events and Ext.Events.StatsLoaded then

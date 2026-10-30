@@ -41,6 +41,7 @@ ROOT_DIR = MOD / 'Public/EnemyRandomization/RootTemplates'
 ROOT_XML = ROOT_DIR / 'ENR_Champions.lsx'
 ROOT_LSF = ROOT_DIR / '_merged.lsf'
 LOOT_ROOT_XML = ROOT / '.analysis/enr_loot_roots.lsx'
+WAVE_ROOT_XML = ROOT / '.analysis/enr_wave_roots.lsx'
 LOCA = MOD / 'Localization/English/EnemyRandomization.loca'
 GENERATED_LUA = MOD / 'Mods/EnemyRandomization/ScriptExtender/Lua/Server/GeneratedData.lua'
 NS = uuid.UUID('6ba7b810-9dad-11d1-80b4-00c04fd430c8')
@@ -226,7 +227,6 @@ NATIVE_LEVELS = {
     'OwlbearCub': 1,
     'Bulette': 5,
     'HookHorror': 4,
-    'ZombieHorde': 4,
 }
 
 def summon(key, name, stats, source, icon, target_radius=18, count=1,
@@ -412,35 +412,25 @@ CHAMPIONS = [
         ],
     },
     {
-        # One spell raises the whole horde: `count` makes the generator emit four
-        # Summon functors with separate stacks. It costs 2 AP (the other summons
-        # cost 4) and carries the highest AIWeight in the mod so the AI opens with
-        # it rather than picking one of the vanilla necromancy spells below.
+        # The custom Summon Horde spell (four zombies per cast) was removed: its
+        # 4 x 20 level-branch SpellProperties line was 15,584 characters and hung
+        # the game at load. The horde now comes from vanilla necromancy only.
         'key': 'HORDE',
         'name': 'Champion of the Horde',
         'icon': 'Spell_Necromancy_AnimateDead',
-        'summons': [
-            summon(
-                'ZombieHorde', 'Zombie Horde',
-                'AnimateDead_Zombie__Horde', 'Undead_Zombie_Melee_AnimateDead_Swarm',
-                'Spell_Necromancy_AnimateDead',
-                count=4, use_costs='ActionPoint:2', ai_weight=1000,
-            ),
-        ],
-        # Vanilla necromancy on top of the horde, plus the horde spell itself.
+        'summons': [],
         'spells': [
             'Target_AnimateDead',
             'Target_FungalInfestation',
             'Target_AnimateDead_Zombie_4',
-            'ENR_Summon_ZombieHorde',
         ],
         # Rejuvenating Miasma is the native ANIMATEDEAD_ZONE aura.
         'statuses': ['ANIMATEDEAD_ZONE'],
         'passives': [],
         'summary': (
             'This champion raises a horde: it knows Animate Dead, Fungal '
-            'Infestation, Animate Dead: Zombie Battalion and Summon Horde, and is '
-            'wreathed in Rejuvenating Miasma.'
+            'Infestation and Animate Dead: Zombie Battalion, and is wreathed in '
+            'Rejuvenating Miasma.'
         ),
     },
 ]
@@ -583,6 +573,18 @@ NON_SUMMON_CHAMPIONS = [
         'passives': [],
         'spells': ['Zone_Sunbeam'],
         'summary': 'This champion resists radiant damage, is blessed, and knows Sunbeam.',
+    },
+    # Mirror.lua spawns a full-strength clone of an enemy with this status, so
+    # it grants nothing itself. Randomizer never gives it to bosses or to
+    # enemies Mirror excludes.
+    {
+        'key': 'MIRRORS',
+        'name': 'Champion of Mirrors',
+        'icon': 'Spell_Illusion_MirrorImage',
+        'statuses': [],
+        'passives': [],
+        'spells': [],
+        'summary': 'This champion fights alongside a mirror image of itself.',
     },
 ]
 
@@ -795,11 +797,14 @@ def build_root_templates(stats_by_tag):
     # Merge the separately generated loot root templates. The loot generator
     # writes a temporary XML because it is much faster to merge XML than to
     # repeatedly convert LSF resources.
-    if LOOT_ROOT_XML.exists():
-        loot_root = ET.parse(LOOT_ROOT_XML).getroot()
-        loot_children = loot_root.find('.//node[@id="Templates"]/children')
-        if loot_children is not None:
-            for child in list(loot_children):
+    # Reinforcement wave templates from generate-enr-waves.py are merged the
+    # same way.
+    for extra_xml in (LOOT_ROOT_XML, WAVE_ROOT_XML):
+        if not extra_xml.exists():
+            continue
+        extra_children = ET.parse(extra_xml).getroot().find('.//node[@id="Templates"]/children')
+        if extra_children is not None:
+            for child in list(extra_children):
                 children.append(copy.deepcopy(child))
 
     ROOT_DIR.mkdir(parents=True, exist_ok=True)

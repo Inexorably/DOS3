@@ -25,3 +25,23 @@ data "DisplayName" "Summon Economy"
 data "Description" "This summon uses the reduced summon AP economy."
 data "StackId" "ENR_SUMMON_ECONOMY"
 data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"
+
+-- Marks enemies that already rolled for a mirror clone, so save/reload never
+-- spawns a second clone.
+new entry "ENR_MIRROR_ROLLED"
+type "StatusData"
+data "StatusType" "BOOST"
+data "DisplayName" "Mirror Rolled"
+data "Description" "This enemy has already rolled for a mirror clone."
+data "StackId" "ENR_MIRROR_ROLLED"
+data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"
+
+-- Marks mirror clones. Clones copy their original's rolls and never roll
+-- buffs, champions, or mirrors of their own.
+new entry "ENR_MIRROR_CLONE"
+type "StatusData"
+data "StatusType" "BOOST"
+data "DisplayName" "Mirrored"
+data "Description" "This enemy is a mirror image of another."
+data "StackId" "ENR_MIRROR_CLONE"
+data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"
