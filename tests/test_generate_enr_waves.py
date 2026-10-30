@@ -148,7 +148,8 @@ class WaveGeneratorTests(WaveFixture):
         lua = self.mod.render_lua(groups)
         self.assertIn("ER.GeneratedWaves = {", lua)
         self.assertIn(f'races = {{ ["{RACE}"] = true }}', lua)
-        self.assertIn('{ source = "Goblin_Grunt", native = 4, templates = {', lua)
+        # Without english.xml the display name falls back to the template name.
+        self.assertIn('{ source = "Goblin_Grunt", display = "Goblin Grunt", native = 4, templates = {', lua)
 
     def test_every_wave_has_exactly_one_icon_entry(self) -> None:
         mod = load_script("generate-enr-waves")
