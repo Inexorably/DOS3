@@ -375,6 +375,17 @@ Known DOS2 visual references for the current test spells:
 
 ## Enemy Randomization
 
+- [x] Stop a save reload from treating the whole level as in combat: the
+      `IsInCombat` component is re-created while the map streams in, so
+      `inCombat()` now trusts `Osi.IsInCombat` and only falls back to the
+      component when Osiris cannot answer.
+- [x] Stop a reloaded enemy from rolling a second buff and champion:
+      `Osi.HasStatus` could not see the `ENR_*` markers, so `hasStatus` also
+      reads the ECS `StatusContainer` and every roll is recorded in
+      `PersistentVars.ENR_Rolls`.
+- [ ] Verify in game: fight, load a save mid-session, and confirm no enemy is
+      buffed or championed before combat starts, that the enemy keeps the same
+      champion across the reload, and that its health is not scaled twice.
 - [x] Add **Champion of the Horde**: grants Animate Dead, Fungal Infestation,
       Animate Dead: Zombie Battalion, plus the native **Rejuvenating Miasma**
       (`ANIMATEDEAD_ZONE`) aura.
@@ -471,6 +482,16 @@ Known DOS2 visual references for the current test spells:
       Randomizer skips them; and they drop native loot and XP.
 - [ ] Replace the random `1..REINFORCE_MAX` wave size with the planned
       argument once it is defined.
+- [x] Add the wave pick: combat start pauses the fight with `PauseCombat`,
+      the host picks 1 of 3 waves in an IMGUI window (`Client/WavePick.lua`),
+      and the pick spawns that wave and resumes. A 60 s timeout or a reload
+      picks at random.
+- [ ] Verify the wave pick in game: `PauseCombat` from a mod actually holds
+      turns (log `reinforce PauseCombat(<guid>): ok`); the window appears with
+      three waves and working Pick buttons; the pick spawns that wave and
+      `ResumeCombat` restarts turns; the timeout and `!enemyrandom_pick` work;
+      and in multiplayer only one pick is accepted (every client currently
+      sees the window).
 
 
 ## Summon economy

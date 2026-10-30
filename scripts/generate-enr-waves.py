@@ -28,6 +28,20 @@ generator documents the placed-character extraction into .analysis/lsx):
     $D -g bg3 -a extract-package -s "$DATA/Shared.pak" -d "$OUT/lsx" \\
         --use-regex -x 'Public/[^/]+/Races/Races\\.lsx$'
 
+Member display names come from .analysis/english.xml (optional; without it
+the template name is shown):
+
+    $D -g bg3 -a extract-package -s "$DATA/Localization/English.pak" \\
+        -d "$PWD/.analysis/pak" --use-regex -x '.*english\\.loca$'
+    $D -g bg3 -a convert-loca -s "$PWD/.analysis/pak/Localization/English/english.loca" \\
+        -d "$PWD/.analysis/english.xml"
+
+WAVE_ICONS names are checked against the icon atlases when they are
+extracted (optional):
+
+    $D -g bg3 -a extract-package -s "$DATA/Shared.pak" -d "$PWD/.analysis/icons" \\
+        --use-regex -x 'Public/[^/]+/GUI/Icons_.*\\.lsx$'
+
 Outputs:
     Public/EnemyRandomization/Stats/Generated/Data/EnemyRandomizationWaves.txt
     Public/EnemyRandomization/RootTemplates/_merged.lsf (ENR_Wave_* nodes replaced)
@@ -356,6 +370,106 @@ WAVES = [
     ("death_knight", "a Death Knight", True, [("DeathKnight_Weak", 10)]),
 ]
 
+# Card icon per wave: a name from the game's icon atlases (Public/*/GUI/
+# Icons_*.lsx). Hand-picked, because keyword matching misfired (for example
+# Action_DarkUrge for shadow blights). Order of preference: the creature's own
+# ability icon; a thematic stand-in (status, body part, trophy, faction gear);
+# otherwise an arbitrary spell icon, marked "no match".
+WAVE_ICONS = {
+    # Creature ability icons.
+    "duergar": "Action_Monster_Duergar_DuergarEnlarge",
+    "duergar_squad": "Action_Monster_Duergar_MindSpike",
+    "spider": "Action_Spider_Giant_PoisonousBite",
+    "phase_spider_matriarch": "Action_Spider_Giant_Web",
+    "mephit": "Action_Monster_MudMephit_DeathBurst_Chosen",
+    "magma_mephit": "Action_WildMagic_Mephit",
+    "bhaal_cultist": "Action_Monster_ReaperOBhaal_MurderPrayer",
+    "hell_boar": "Action_Boar_Charge",
+    "intellect_devourer": "Spell_IntellectDevourer_DevourIntellect",
+    "mind_flayer": "Action_Mag_Illithid_MindTax",
+    "hook_horror": "Action_HookHorror_Hook",
+    "minotaur": "Action_Monster_Minotaur_Jump",
+    "bulette": "Action_Monster_Bulette_Bite",
+    "deep_rothe": "Action_DeepRothe_Gore",
+    "wolf": "Action_DireWolfPack_Howl",
+    "bear": "Action_Bear_Claws",
+    "imp": "Action_Imp_Claws",
+    "cambion": "Action_Monster_Cambion_FireRay",
+    "shadow": "Action_ShadowStrike",
+    "shadow_raven": "Action_Raven_BadOmen",
+    "kuotoa": "Action_Monster_KuoToa_Net",
+    "displacer_beast": "Action_Monster_DisplacerBeast_Tentacle",
+    "vampire_spawn": "Action_VampireBite",
+    "vampire_rat": "Action_Rat_PlagueBite",
+    "cranium_rat": "Action_Rat_PlagueBite",
+    "dinosaur": "Action_Monster_Dilophosaurus_Pounce",
+    "myrmidon": "Action_ElementalWildShape_Myrmidon_Fire",
+    "elemental": "Action_Monster_ElementalLava_Slam",
+    "absolute_soldier": "Action_AbsolutePower",
+    "myconid": "Action_Glut_BlackSporeCloud",
+    # Thematic stand-ins.
+    "goblin": "statIcons_GOB_GoblinPriest_Chains",
+    "goblin_raiders": "Item_DEC_Goblins_Camp_DrumStick_A",
+    "goblin_warband": "Item_GOB_GoblinKing_Warhammer",
+    "drow": "Item_ARM_Boots_Leather_Drow",
+    "githyanki": "Item_ARM_HalfPlate_Githyanki",
+    "githyanki_elite": "Generated_ARM_HalfPlate_Githyanki_B",
+    "gishra": "statIcons_GishArcaneCharge",
+    "skeleton": "Spell_Necromancy_AnimateDead_Skeleton",
+    "armoured_skeleton": "Action_Mag_CommandUndead_Halt",
+    "wyrmway_skeleton": "Spell_Necromancy_AnimateDead",
+    "gnoll": "Status_Gnoll_PackTactics",
+    "worg": "Item_LOOT_Alchemy_Worg_Fang_A",
+    "white_worg": "Item_LOOT_Alchemy_Worg_Fang_A",
+    "animated_armor": "statIcons_MageAnimated",
+    "spectator": "statIcons_EyeOfTheBeholder",
+    "bugbear": "statIcons_BugbearAssassin_Sneaking",
+    "harpy": "Item_AlchemyIngredient_HarpyFeather",
+    "owlbear": "statIcons_OwlbearsRage",
+    "gremishka": "Item_ALCH_Extract_GremishkaTail",
+    "ogre": "Item_DEC_GEN_StuffedHead_Ogre_Poor_A",
+    "ochre_jelly": "Item_ALCH_Extract_OchreJellySlime",
+    "bandit": "Item_ARM_Bandit",
+    "shadow_blight": "Spell_Necromancy_Blight",
+    "shadow_vine": "Spell_Transmutation_ThornWhip",
+    "shambling_mound": "PassiveFeature_Land_Swamp",
+    "shadow_mastiff": "Action_Monk_ShadowStep",
+    "crawling_claw": "Action_Quasit_Claws",
+    "nightmare_nurse": "Spell_Surgeon_GrapplingArm",
+    "meazel": "Action_Mag_Garrote",
+    "merregon": "Item_MerregonMask",
+    "gelatinous_cube": "Action_Monk_IceCube",
+    "bane_cultist": "Spell_Enchantment_Bane",
+    "umberlee_cultist": "Generated_MAG_Umberlee_Robe_A_Magic",
+    "sharran": "statIcons_SharsEmbrace",
+    "flaming_fist": "Item_ARM_Helmet_Metal_FlamingFist_A",
+    "counting_house": "Item_LOW_CountingHouse_BankPass",
+    "guild_thug": "Item_TOOL_GEN_ThievesTools_A_Closed_A",
+    "zhentarim": "Generated_MAG_Zhentarim_CloakOfDisguise_Cloak_Magic",
+    "steel_watcher": "PassiveFeature_SteelWatcher_ImmutableForm",
+    "doppelganger": "PassiveFeature_Shapechanger",
+    "werewolf": "Action_AspectOfTheWolf",
+    "drider": "Action_Spider_Giant_Web",
+    "grease": "Spell_Conjuration_Grease",
+    "death_knight": "Item_WPN_HUM_Shield_DeathKnight",
+    # No match in the atlases: arbitrary spell icons.
+    "redcap": "Spell_Evocation_SearingSmite",
+    "sahuagin": "Spell_Conjuration_IceKnife",
+    "kobold": "Spell_Conjuration_FlamingSphere",
+    "hobgoblin": "Spell_Evocation_Thunderwave",
+    "mimic": "Spell_Conjuration_MageHand",
+    "meenlock": "Spell_Conjuration_HungerOfHadar",
+    "cloaker": "Spell_Conjuration_ArmsOfHadar",
+}
+
+
+def load_icon_names() -> set[str]:
+    """Atlas icon names, or an empty set when the atlases were not extracted."""
+    names: set[str] = set()
+    for path in (ROOT / ".analysis" / "icons").glob("Public/*/GUI/Icons_*.lsx"):
+        names.update(re.findall(r'id="MapKey" type="FixedString" value="([^"]+)"', path.read_text(errors="ignore")))
+    return names
+
 
 def _champions():
     path = ROOT / "scripts" / "generate-enr-champions.py"
@@ -376,7 +490,10 @@ def _ordered(paths: list[Path], module_index: int) -> list[Path]:
 
 
 def load_root_templates() -> dict[str, dict]:
-    """Return character root templates keyed by MapKey."""
+    """Return character root templates keyed by MapKey.
+
+    TranslatedString attributes such as DisplayName keep their loca handle.
+    """
     base = _waves_dir() / "lsx" / "Public"
     files = list(base.glob("*/RootTemplates/_merged.lsx"))
     out: dict[str, dict] = {}
@@ -384,10 +501,18 @@ def load_root_templates() -> dict[str, dict]:
         for go in ET.parse(path).getroot().iter("node"):
             if go.get("id") != "GameObjects":
                 continue
-            attrs = {a.get("id"): a.get("value") or "" for a in go.findall("attribute")}
+            attrs = {a.get("id"): a.get("value") or a.get("handle") or "" for a in go.findall("attribute")}
             if attrs.get("MapKey"):
                 out[attrs["MapKey"]] = attrs
     return out
+
+
+def load_loca() -> dict[str, str]:
+    """English loca handle -> text, or {} when english.xml was not extracted."""
+    path = ROOT / ".analysis" / "english.xml"
+    if not path.exists():
+        return {}
+    return {c.get("contentuid") or "": c.text or "" for c in ET.parse(path).getroot().iter("content")}
 
 
 def load_races() -> dict[str, str]:
@@ -469,8 +594,9 @@ def _int(value: str | None, default: int) -> int:
         return default
 
 
-def build(templates, races, stats, levels, level_band):
+def build(templates, races, stats, levels, level_band, loca=None):
     """Return (groups, root nodes, stat lines) for every wave."""
+    loca = loca or {}
     groups, nodes = [], []
     lines = [
         "-- Enemy Randomization reinforcement waves.",
@@ -478,7 +604,7 @@ def build(templates, races, stats, levels, level_band):
         "",
     ]
     for key, display, solo, members in WAVES:
-        group = {"key": key, "name": display, "solo": solo, "races": set(), "members": []}
+        group = {"key": key, "name": display, "solo": solo, "races": set(), "members": [], "icon": ""}
         for name, fallback in members:
             source = pick_source(templates, name, levels)
             stats_name = inherited(templates, source, "Stats")
@@ -495,7 +621,12 @@ def build(templates, races, stats, levels, level_band):
                 "armor": _int(data.get("Armor"), 10),
                 "abilities": [],
             }
-            member = {"source": name, "native": native, "templates": []}
+            # The in-game name, so the pick window says "Apostate Defender"
+            # rather than "SHA Skeleton Melee".
+            shown = loca.get(inherited(templates, source, "DisplayName")) or name.replace("_", " ")
+            member = {"source": name, "native": native, "display": shown, "templates": []}
+            # The first member's portrait icon stands for the wave on its card.
+            group["icon"] = WAVE_ICONS.get(key) or group["icon"] or inherited(templates, source, "Icon")
             for level in LEVELS:
                 tag = "%s%s_L%d" % (NAME_PREFIX, name, level)
                 guid = template_guid(tag)
@@ -542,15 +673,16 @@ def render_lua(groups) -> str:
     for group in groups:
         lines.append("    {")
         # Lua has no \uXXXX escape, so names are written as raw UTF-8.
-        lines.append("        key = %s, name = %s, solo = %s," % (
+        lines.append("        key = %s, name = %s, solo = %s, icon = %s," % (
             json.dumps(group["key"]), json.dumps(group["name"], ensure_ascii=False),
-            "true" if group["solo"] else "false"))
+            "true" if group["solo"] else "false", json.dumps(group["icon"], ensure_ascii=False)))
         lines.append("        races = { %s }," % ", ".join(
             "[%s] = true" % json.dumps(r) for r in sorted(group["races"])))
         lines.append("        members = {")
         for member in group["members"]:
-            lines.append("            { source = %s, native = %d, templates = {" % (
-                json.dumps(member["source"]), member["native"]))
+            lines.append("            { source = %s, display = %s, native = %d, templates = {" % (
+                json.dumps(member["source"]), json.dumps(member["display"], ensure_ascii=False),
+                member["native"]))
             for guid in member["templates"]:
                 lines.append("                %s," % json.dumps(guid))
             lines.append("            } },")
@@ -600,7 +732,13 @@ def main() -> None:
         return
     templates = load_root_templates()
     groups, nodes, lines = build(
-        templates, load_races(), load_character_stats(), placed_levels(), _champions().level_band)
+        templates, load_races(), load_character_stats(), placed_levels(), _champions().level_band,
+        loca=load_loca())
+    icons = load_icon_names()
+    if icons:
+        unknown = sorted(f"{g['key']}={g['icon']}" for g in groups if g["icon"] not in icons)
+        if unknown:
+            raise SystemExit("wave icons missing from the game atlases: " + ", ".join(unknown))
     STATS_OUT.write_text("\n".join(lines), encoding="utf-8")
     LUA_OUT.write_text(render_lua(groups), encoding="utf-8")
     write_root_templates(nodes)
