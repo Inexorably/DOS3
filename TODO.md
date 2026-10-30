@@ -375,6 +375,17 @@ Known DOS2 visual references for the current test spells:
 
 ## Enemy Randomization
 
+- [x] Stop a save reload from treating the whole level as in combat: the
+      `IsInCombat` component is re-created while the map streams in, so
+      `inCombat()` now trusts `Osi.IsInCombat` and only falls back to the
+      component when Osiris cannot answer.
+- [x] Stop a reloaded enemy from rolling a second buff and champion:
+      `Osi.HasStatus` could not see the `ENR_*` markers, so `hasStatus` also
+      reads the ECS `StatusContainer` and every roll is recorded in
+      `PersistentVars.ENR_Rolls`.
+- [ ] Verify in game: fight, load a save mid-session, and confirm no enemy is
+      buffed or championed before combat starts, that the enemy keeps the same
+      champion across the reload, and that its health is not scaled twice.
 - [x] Add **Champion of the Horde**: grants Animate Dead, Fungal Infestation,
       Animate Dead: Zombie Battalion, plus the native **Rejuvenating Miasma**
       (`ANIMATEDEAD_ZONE`) aura.
