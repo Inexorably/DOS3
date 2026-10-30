@@ -29,6 +29,7 @@ class OrbTeslaLinkTests(unittest.TestCase):
         ):
             self.harness.load(module)
         self.orb_guids: list[str] = []
+        self.enemy_guids: list[str] = []
         self.harness.run(
             """
             H.positions = {}
@@ -36,6 +37,17 @@ class OrbTeslaLinkTests(unittest.TestCase):
                 local pos = H.positions[guid]
                 if pos then return table.unpack(pos) end
             end
+            H.enemies = {}
+            H.osi_results["IsEnemy"] = function(caster, target)
+                return H.enemies[target] and 1 or 0
+            end
+            H.osi_results["ApplyDamage"] = function(target, damage, damageType)
+                H.osi_calls[#H.osi_calls + 1] = {
+                    name = "Damage", args = { target, damage, damageType },
+                }
+                return true
+            end
+            H.osi_results["PlayEffectAtPosition"] = function() return true end
             H.statuses = {}
             H.osi_results["HasStatus"] = function(guid, status)
                 return H.statuses[guid] and H.statuses[guid][status] and 1 or 0
@@ -67,6 +79,24 @@ class OrbTeslaLinkTests(unittest.TestCase):
         self.orb_guids.append(orb)
         self.harness.set_component("Data", self.orb_guids)
         self.harness.run(f'H.positions["{orb}"] = {{ 0, 0, 0 }}')
+
+    def add_enemy(self, guid: str, x: float, y: float, hp: int = 40) -> None:
+        self.harness.add_entity(guid, {
+            "Uuid": {"EntityUuid": guid},
+            "Health": {"Hp": hp, "MaxHp": 40},
+        })
+        self.enemy_guids.append(guid)
+        self.harness.set_component("Health", self.enemy_guids)
+        self.harness.run(
+            f'H.positions["{guid}"] = {{ {x}, {y}, 0 }}; H.enemies["{guid}"] = true'
+        )
+
+    def damages(self) -> list[list[object]]:
+        return [call["args"] for call in self.harness.osi_calls("Damage")]
+
+    def remove_orb(self, orb: str) -> None:
+        self.orb_guids.remove(orb)
+        self.harness.set_component("Data", self.orb_guids)
 
     def cast(self, orb: str, caster: str = "caster") -> None:
         self.harness.fire_listener("UsingSpellOnTarget", caster, orb,
@@ -146,14 +176,54 @@ class OrbTeslaLinkTests(unittest.TestCase):
         self.assertTrue(self.has("caster", "CC_TESLA_LINK_OWNER"))
         self.assertEqual(self.link_count(), 1)
 
-    def test_a_link_that_vanished_is_cleared_on_activate(self) -> None:
+    def test_a_link_whose_orb_vanished_is_cleared_on_activate(self) -> None:
         self.mark_orb("orb1")
         self.cast("orb1")
-        self.harness.run('H.statuses["orb1"]["CC_TESLA_LINK"] = nil')
+        self.remove_orb("orb1")
         self.harness.fire_listener("CastedSpell", "caster", "CC_ActivateTeslaLink",
                                    "Shout", "Lightning", 5)
         self.assertEqual(self.link_count(), 0)
-        self.assertFalse(self.has("caster", "CC_TESLA_LINK_OWNER"))
+        self.assertIn("orb gone", self.logs())
+
+    def test_activate_deals_damage_to_enemies_near_the_orb(self) -> None:
+        # The reported bug: the skill cast but did nothing, because the damage sat
+        # in the spell stat and the engine cannot target an orb with it.
+        self.mark_orb("orb1")
+        self.add_enemy("goblin", 1, 0)
+        self.cast("orb1")
+        self.harness.fire_listener("CastedSpell", "caster", "CC_ActivateTeslaLink",
+                                   "Shout", "Lightning", 5)
+        self.assertEqual([str(args[0]) for args in self.damages()], ["goblin"])
+        self.assertEqual(str(self.damages()[0][1]), "8")
+        self.assertEqual(str(self.damages()[0][2]).lower(), "lightning")
+        self.assertIn("zapped 1", self.logs())
+
+    def test_activate_spares_enemies_out_of_range(self) -> None:
+        self.mark_orb("orb1")
+        self.add_enemy("far", 20, 0)
+        self.cast("orb1")
+        self.harness.fire_listener("CastedSpell", "caster", "CC_ActivateTeslaLink",
+                                   "Shout", "Lightning", 5)
+        self.assertEqual(self.damages(), [])
+        self.assertIn("zapped 0", self.logs())
+
+    def test_activate_keeps_the_link_alive(self) -> None:
+        self.mark_orb("orb1")
+        self.cast("orb1")
+        self.harness.fire_listener("CastedSpell", "caster", "CC_ActivateTeslaLink",
+                                   "Shout", "Lightning", 5)
+        self.assertEqual(self.link_count(), 1)
+
+    def test_activate_matches_the_caster_despite_guid_format(self) -> None:
+        # UsingSpellOnTarget reports "Name_<uuid>" while CastedSpell can report the
+        # bare uuid; comparing raw strings dropped the link the moment it was used.
+        self.mark_orb("orb1")
+        self.add_enemy("goblin", 1, 0)
+        self.cast("orb1", caster="player_11111111-2222-3333-4444-555555555555")
+        self.harness.fire_listener("CastedSpell",
+                                   "11111111-2222-3333-4444-555555555555",
+                                   "CC_ActivateTeslaLink", "Shout", "Lightning", 5)
+        self.assertEqual([str(args[0]) for args in self.damages()], ["goblin"])
 
     def test_activating_with_no_link_drops_the_owner_marker(self) -> None:
         self.harness.run('H.statuses["caster"] = { CC_TESLA_LINK_OWNER = true }')
@@ -170,14 +240,13 @@ class OrbTeslaLinkTests(unittest.TestCase):
         self.assertEqual(self.link_count(), 1)
 
     # -------------------------------------------------------------------- turns
-    def test_an_expired_link_is_cleared_on_turn_start(self) -> None:
+    def test_a_link_whose_orb_vanished_is_cleared_on_turn_start(self) -> None:
         self.mark_orb("orb1")
         self.cast("orb1")
-        self.harness.run('H.statuses["orb1"]["CC_TESLA_LINK"] = nil')
+        self.remove_orb("orb1")
         self.harness.fire_listener("TurnStarted", "caster")
         self.assertEqual(self.link_count(), 0)
-        self.assertFalse(self.has("caster", "CC_TESLA_LINK_OWNER"))
-        self.assertIn("link expired", self.logs())
+        self.assertIn("orb gone", self.logs())
 
     def test_a_live_link_survives_a_turn_start(self) -> None:
         self.mark_orb("orb1")
@@ -256,17 +325,30 @@ class OrbTeslaLinkStatsTests(unittest.TestCase):
         self.assertEqual(activate["UseCosts"], "ActionPoint:1")
         self.assertEqual(activate["Cooldown"], "OncePerTurn")
 
-    def test_activate_only_works_on_a_linked_orb(self) -> None:
-        self.assertIn(
-            "HasStatus('CC_TESLA_LINK',context.Target,context.Source)",
-            self.spells["CC_ActivateTeslaLink"]["TargetConditions"],
-        )
+    def test_activate_requires_a_link(self) -> None:
+        conditions = self.spells["CC_ActivateTeslaLink"]["TargetConditions"]
+        self.assertIn("CC_TESLA_LINK", conditions)
+
+    def test_activate_does_no_damage_in_the_stat(self) -> None:
+        # The link is on an orb, which the engine cannot target, so a stat
+        # DealDamage never lands. OrbTeslaLink.lua applies it instead; keeping it
+        # here too would double the damage if it ever did fire.
+        spell = self.spells["CC_ActivateTeslaLink"]
+        self.assertNotIn("DealDamage", spell["SpellProperties"])
 
     def test_activate_damage_matches_the_config(self) -> None:
         damage = self.config_number("TESLA_LINK_DAMAGE")
-        spell = self.spells["CC_ActivateTeslaLink"]
-        self.assertEqual(spell["DamageType"], "Lightning")
-        self.assertIn(f"DealDamage({damage},Lightning", spell["SpellProperties"])
+        module = read(
+            MODS
+            / "OrbWeaver/Mods/OrbWeaver/ScriptExtender/Lua/Server/OrbTeslaLink.lua"
+        )
+        self.assertIn('S.setting("TESLA_LINK_DAMAGE", 8)', module)
+        self.assertIn('"Lightning"', module)
+        generated = re.search(r"TESLA_LINK_DAMAGE = (\d+)", self.generator)
+        self.assertIsNotNone(generated)
+        assert generated is not None
+        self.assertEqual(self.config_number("TESLA_LINK_DAMAGE"), generated.group(1))
+        self.assertEqual(damage, generated.group(1))
         generated = re.search(r"TESLA_LINK_DAMAGE = (\d+)", self.generator)
         self.assertIsNotNone(generated)
         assert generated is not None

@@ -22,6 +22,9 @@ local S = OW.OrbShared
 local SPELL = "CC_OrbTeslaLink"
 local LINK = "CC_TESLA_LINK"
 local ACTIVATE = "CC_ActivateTeslaLink"
+-- Proven lightning impact, shared with Orb Chain Lightning.
+local ZAP_VFX = "VFX_Spells_Cast_Damage_Lightning_Generic_Impact_01_"
+    .. "938b5aad-4bf6-7298-9019-95d42e535c84"
 
 -- Owner marker: grants Activate Tesla Link to whoever applied the link.
 local OWNER = "CC_TESLA_LINK_OWNER"
@@ -40,6 +43,17 @@ local function hasStatus(guid, status)
     if not (Osi and Osi.HasStatus) then return false end
     local ok, result = pcall(Osi.HasStatus, guid, status)
     return ok and (result == 1 or result == true)
+end
+
+-- Osiris and Ext.Entity disagree about GUID format: UsingSpellOnTarget reports
+-- "Elves_Female_High_Player_<uuid>" while CastedSpell can report the bare uuid.
+-- Compare the trailing uuid the way OrbShared.keyOf does, or the link looks lost
+-- the moment it is used.
+local function sameEntity(a, b)
+    if not a or not b then return false end
+    local left, right = tostring(a), tostring(b)
+    if left == right then return true end
+    return S.keyOf(left) ~= nil and S.keyOf(left) == S.keyOf(right)
 end
 
 local function applyStatus(guid, status, duration)
@@ -109,7 +123,7 @@ function T.Resolve(caster, target)
 
     -- One link per caster: recasting moves the link rather than stacking.
     for otherKey, link in pairs(LINKS) do
-        if link.caster == casterKey and otherKey ~= key then
+        if sameEntity(link.caster, casterKey) and otherKey ~= key then
             T.clear(otherKey, "relinked by " .. casterKey)
         end
     end
@@ -120,34 +134,89 @@ function T.Resolve(caster, target)
         return false
     end
 
-    LINKS[key] = { orb = target, caster = casterKey }
+    LINKS[key] = { orb = target, caster = casterKey, x = orb.x, y = orb.y, z = orb.z }
     log("linked orb %s for %s", key, casterKey)
     return true
 end
 
--- Activate Tesla Link needs the link to still be on the orb. The engine checks
--- that with TargetConditions; this keeps the owner marker honest if the link was
--- removed some other way.
-local function onCastedSpell(caster, spell)
-    if tostring(spell or "") ~= ACTIVATE then return end
-    local casterKey = tostring(caster or "")
-    local kept = false
+-- Liveness is judged by whether the orb still exists, because Osi.HasStatus
+-- reports false for statuses on objects in this build.
+local function orbExists(guid)
+    local key = S.keyOf(guid)
+    if not key then return false end
+    for _, candidate in ipairs(S.collectOrbs()) do
+        if candidate.key == key then return true end
+    end
+    return false
+end
+
+-- Activate Tesla Link. Everything happens here rather than in the spell stat:
+-- the activate is a Shout modelled on Witch Bolt, whose target is a *character*,
+-- and the engine cannot target an orb with it - so a stat DealDamage would never
+-- land. The orb has no hit points worth taking anyway, so the zap goes to the
+-- enemies around the linked orb.
+--
+-- Liveness comes from the LINKS table, not Osi.HasStatus: that call returns false
+-- for statuses on objects in this build, which made every activate look lost.
+local function activate(caster, casterKey)
+    local matches = {}
     for key, link in pairs(LINKS) do
-        if link.caster == casterKey then
-            if hasStatus(link.orb, LINK) then
-                -- Keep the link alive across the cast, matching
-                -- SetStatusDuration in the spell stat.
-                applyStatus(link.orb, LINK, 2)
-                kept = true
-            else
-                T.clear(key, "orb lost the link")
-            end
+        if sameEntity(link.caster, casterKey) then
+            matches[#matches + 1] = { key = key, link = link }
         end
     end
-    if not kept then
+    if #matches == 0 then
+        -- Fall back to the only link in play: better a zap than a dead skill, and
+        -- the mismatch is logged so the key comparison can be seen failing.
+        local onlyKey, onlyLink = nil, nil
+        for key, link in pairs(LINKS) do
+            if onlyKey then
+                onlyKey = nil
+                break
+            end
+            onlyKey, onlyLink = key, link
+        end
+        if onlyKey then
+            log("activate: no link matched caster %s; using the only link %s (caster %s)",
+                casterKey, onlyKey, tostring(onlyLink.caster))
+            matches[1] = { key = onlyKey, link = onlyLink }
+        end
+    end
+
+    if #matches == 0 then
         dropOwner(casterKey)
         log("activate cast with no live link; owner marker dropped")
+        return false
     end
+
+    local damage = S.setting("TESLA_LINK_DAMAGE", 8)
+    local radius = S.setting("TESLA_LINK_RADIUS", 3.0)
+    local zapped = 0
+    for _, match in ipairs(matches) do
+        local orb = match.link
+        if not orbExists(orb.orb) then
+            T.clear(match.key, "orb gone")
+        else
+        local point = { x = orb.x, y = orb.y, z = orb.z }
+        -- The link is the engine's marker on the orb; refreshing it keeps the
+        -- visual alive and matches SetStatusDuration in the spell stat.
+        applyStatus(orb.orb, LINK, 2)
+        for _, enemy in ipairs(S.enemiesNear(caster, point, radius, "tesla link")) do
+            S.playEffectAt(enemy.x, enemy.y, enemy.z, ZAP_VFX)
+            if S.dealDamage(enemy.guid, damage, "Lightning", caster) then
+                zapped = zapped + 1
+            end
+        end
+        log("activate on %s: zapped %d enemy/enemies for %d Lightning within %.1f m",
+            match.key, zapped, damage, radius)
+        end
+    end
+    return zapped > 0
+end
+
+local function onCastedSpell(caster, spell)
+    if tostring(spell or "") ~= ACTIVATE then return end
+    activate(caster, tostring(caster or ""))
 end
 
 -- A turn boundary is when a link with an expired duration would vanish; drop the
@@ -157,8 +226,8 @@ local function onTurnStarted(character)
     local characterKey = tostring(character or "")
     if characterKey == "" then return end
     for key, link in pairs(LINKS) do
-        if link.caster == characterKey and not hasStatus(link.orb, LINK) then
-            T.clear(key, "link expired")
+        if sameEntity(link.caster, characterKey) and not orbExists(link.orb) then
+            T.clear(key, "orb gone")
         end
     end
 end

@@ -938,9 +938,13 @@ new entry "CC_ActivateTeslaLink"
 type "SpellData"
 using "Shout_WitchBolt_Activate"
 data "SpellType" "Shout"
-data "SpellProperties" "DealDamage({TESLA_LINK_DAMAGE},Lightning,Magical);SetStatusDuration(SELF,CC_TESLA_LINK,2)"
+-- The damage is applied by OrbTeslaLink.lua, not here. Witch Bolt's activate can
+-- get away with a stat DealDamage because its target is a character; this one is
+-- linked to an *orb*, which the engine cannot target, so a stat DealDamage never
+-- lands. Keeping it here as well would also double the damage if it ever did.
+data "SpellProperties" "SetStatusDuration(SELF,CC_TESLA_LINK,2)"
 data "AreaRadius" "30"
-data "TargetConditions" "HasStatus('CC_TESLA_LINK',context.Target,context.Source) and not Self()"
+data "TargetConditions" "HasStatus('CC_TESLA_LINK') or HasStatus('CC_TESLA_LINK_OWNER')"
 data "Cooldown" "OncePerTurn"
 data "UseCosts" "ActionPoint:1"
 data "Icon" "Spell_Evocation_ActivateWitchBolt"
