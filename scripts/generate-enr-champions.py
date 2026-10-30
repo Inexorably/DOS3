@@ -226,9 +226,11 @@ NATIVE_LEVELS = {
     'OwlbearCub': 1,
     'Bulette': 5,
     'HookHorror': 4,
+    'ZombieHorde': 4,
 }
 
-def summon(key, name, stats, source, icon, target_radius=18):
+def summon(key, name, stats, source, icon, target_radius=18, count=1,
+           use_costs='ActionPoint:4', ai_weight=100):
     return {
         'key': key,
         'name': name,
@@ -240,6 +242,12 @@ def summon(key, name, stats, source, icon, target_radius=18):
         'tag': key,
         'native_level': NATIVE_LEVELS.get(key, 1),
         'target_radius': target_radius,
+        # One spell can raise several creatures at once; each summon needs its own
+        # engine stack name, otherwise they share a stack and only one appears.
+        'count': count,
+        'use_costs': use_costs,
+        # AIWeight is how the combat AI ranks a spell against its other options.
+        'ai_weight': ai_weight,
     }
 
 
@@ -402,6 +410,38 @@ CHAMPIONS = [
             summon('OwlbearDad', 'Owlbear Dad', 'FOR_Owlbear_Daddy', 'Owlbear_Dad', 'Skill_Druid_WildShape_Owlbear'),
             summon('OwlbearCub', 'Owlbear Cub', 'Owlbear_Cub', 'Owlbear_Cub', 'Skill_Druid_WildShape_Owlbear'),
         ],
+    },
+    {
+        # One spell raises the whole horde: `count` makes the generator emit four
+        # Summon functors with separate stacks. It costs 2 AP (the other summons
+        # cost 4) and carries the highest AIWeight in the mod so the AI opens with
+        # it rather than picking one of the vanilla necromancy spells below.
+        'key': 'HORDE',
+        'name': 'Champion of the Horde',
+        'icon': 'Spell_Necromancy_AnimateDead',
+        'summons': [
+            summon(
+                'ZombieHorde', 'Zombie Horde',
+                'AnimateDead_Zombie__Horde', 'Undead_Zombie_Melee_AnimateDead_Swarm',
+                'Spell_Necromancy_AnimateDead',
+                count=4, use_costs='ActionPoint:2', ai_weight=1000,
+            ),
+        ],
+        # Vanilla necromancy on top of the horde, plus the horde spell itself.
+        'spells': [
+            'Target_AnimateDead',
+            'Target_FungalInfestation',
+            'Target_AnimateDead_Zombie_4',
+            'ENR_Summon_ZombieHorde',
+        ],
+        # Rejuvenating Miasma is the native ANIMATEDEAD_ZONE aura.
+        'statuses': ['ANIMATEDEAD_ZONE'],
+        'passives': [],
+        'summary': (
+            'This champion raises a horde: it knows Animate Dead, Fungal '
+            'Infestation, Animate Dead: Zombie Battalion and Summon Horde, and is '
+            'wreathed in Rejuvenating Miasma.'
+        ),
     },
 ]
 
@@ -789,9 +829,14 @@ def level_condition(level):
 
 def summon_properties(guids, item):
     branch = []
+    count = max(1, int(item.get('count', 1)))
     for level in LEVELS:
-        branch.append("GROUND:IF(%s):Summon(%s,-1,Projectile_AiHelper_Summon_Weak,,,'%s',UNSUMMON_ABLE)" % (
-            level_condition(level), guids[(item['tag'], level)], item['stack']))
+        for index in range(1, count + 1):
+            # A single spell can raise `count` creatures. Each needs a distinct
+            # stack name or the engine treats them as one stack and caps the rest.
+            stack = item['stack'] if count == 1 else '%s%d' % (item['stack'], index)
+            branch.append("GROUND:IF(%s):Summon(%s,-1,Projectile_AiHelper_Summon_Weak,,,'%s',UNSUMMON_ABLE)" % (
+                level_condition(level), guids[(item['tag'], level)], stack))
     return ';'.join(branch)
 
 
@@ -840,12 +885,12 @@ def build_stats_and_loca(guids, stats_by_tag):
                 'data "Level" "2"',
                 'data "SpellProperties" "%s"' % summon_properties(guids, item),
                 'data "CastTargetHitDelay" "500"',
-                'data "AIWeight" "100"',
+                'data "AIWeight" "%d"' % item.get('ai_weight', 100),
                 'data "TargetRadius" "%d"' % item.get('target_radius', 18),
                 'data "TargetConditions" "%s"' % summon_conditions(guids, item),
                 'data "SpellContainerID" ""',
                 'data "ContainerSpells" ""',
-                'data "UseCosts" "ActionPoint:4"',
+                'data "UseCosts" "%s"' % item.get('use_costs', 'ActionPoint:4'),
                 'data "Cooldown" "UntilRest"',
                 'data "SpellFlags" "IsEnemySpell"',
                 'data "Icon" "%s"' % item['icon'],

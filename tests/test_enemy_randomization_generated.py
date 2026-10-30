@@ -27,6 +27,10 @@ GENERATED_DATA = (
 
 
 class GeneratedEnemyRandomizationTests(unittest.TestCase):
+    generated: str
+    stats: dict[str, dict[str, str]]
+    native_levels: dict[str, int]
+
     @classmethod
     def setUpClass(cls):
         cls.generated = read(GENERATED_DATA)
@@ -67,10 +71,53 @@ class GeneratedEnemyRandomizationTests(unittest.TestCase):
         self.assertEqual(hp, sorted(hp))
 
     def test_summoning_champions_summons_cost_four_ap(self):
+        # Champion of the Horde is the documented exception: Summon Horde raises
+        # four zombies in one cast and costs 2 AP.
+        exceptions = {"ENR_Summon_ZombieHorde": "ActionPoint:2"}
         for name, data in self.stats.items():
             if name.startswith("ENR_Summon_"):
                 with self.subTest(spell=name):
-                    self.assertEqual(data.get("UseCosts"), "ActionPoint:4")
+                    expected = exceptions.get(name, "ActionPoint:4")
+                    self.assertEqual(data.get("UseCosts"), expected)
+
+    def test_summon_horde_raises_four_zombies_on_separate_stacks(self) -> None:
+        data = self.stats["ENR_Summon_ZombieHorde"]
+        properties = data.get("SpellProperties", "")
+        # One Summon functor per creature per level band.
+        self.assertEqual(properties.count("Summon("), 4 * 20)
+        for index in range(1, 5):
+            self.assertIn(f"'ENR_ZombieHordeStack{index}'", properties)
+
+    def test_summon_horde_has_the_highest_ai_weight(self) -> None:
+        horde = int(self.stats["ENR_Summon_ZombieHorde"].get("AIWeight", "0"))
+        self.assertEqual(horde, 1000)
+        others = {
+            int(data.get("AIWeight", "0"))
+            for name, data in self.stats.items()
+            if name.startswith("ENR_Summon_") and name != "ENR_Summon_ZombieHorde"
+        }
+        self.assertLess(max(others), horde)
+
+    def test_horde_champion_grants_its_spells_and_miasma(self) -> None:
+        champion = self.stats["ENR_CHAMPION_HORDE"]
+        self.assertEqual(champion.get("Icon"), "Spell_Necromancy_AnimateDead")
+
+        lua = read(
+            MODS
+            / "EnemyRandomization/Mods/EnemyRandomization/ScriptExtender/Lua/Server/GeneratedData.lua"
+        )
+        line = next(
+            entry for entry in lua.splitlines() if "ENR_CHAMPION_HORDE" in entry
+        )
+        for spell in (
+            "Target_AnimateDead",
+            "Target_FungalInfestation",
+            "Target_AnimateDead_Zombie_4",
+            "ENR_Summon_ZombieHorde",
+        ):
+            self.assertIn(f'"{spell}"', line)
+        # Rejuvenating Miasma is the native ANIMATEDEAD_ZONE status.
+        self.assertIn('"ANIMATEDEAD_ZONE"', line)
 
     def test_every_generated_summon_has_lethargic_passive(self):
         passive = self.stats.get("ENR_SummonLethargic")
