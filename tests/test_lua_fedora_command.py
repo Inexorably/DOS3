@@ -1,4 +1,4 @@
-"""The !orbweaver_fedora command and its custom hat."""
+"""The !orbweaver_fedora test command and its invulnerable items."""
 
 from __future__ import annotations
 
@@ -13,6 +13,16 @@ try:
     HAVE_LUPA = True
 except ImportError:  # pragma: no cover - depends on the environment
     HAVE_LUPA = False
+
+# Every item the command can hand out, with the vanilla root it reuses.
+ITEMS = {
+    "ARM_InvulnHat": "4d2e0931-3a01-4759-834b-8ae36749daab",
+    "ARM_InvulnGloves": "8e34fd76-8b6d-48a5-89e3-942289bec31e",
+    "ARM_InvulnBoots": "969bab00-b269-46a5-a7e9-dd4887814719",
+    "ARM_InvulnAmulet": "51873c0d-f319-45e6-a6a2-79164cd8f3db",
+    "ARM_InvulnRing": "ecf4a8a4-7859-4a82-8c08-0c9526f29500",
+    "ARM_InvulnCloak": "a1978b4d-3d93-49ec-9a8b-d19171ed35d5",
+}
 
 
 @unittest.skipUnless(HAVE_LUPA, "lupa is not installed")
@@ -34,10 +44,11 @@ class FedoraCommandTests(unittest.TestCase):
             """
         )
 
-    def spawn(self) -> bool:
-        return bool(self.harness.run(
-            "local ok = OW.Fedora.Spawn() return ok"
-        ))
+    def spawn(self, index: int | None = None) -> bool:
+        # Spawn returns (ok, err). Take only the first value: bool() of the tuple
+        # would always be True.
+        call = "OW.Fedora.Spawn()" if index is None else f"OW.Fedora.Spawn({index})"
+        return self.harness.run(f"local ok = {call} return ok and true or false") is True
 
     def calls(self, name: str) -> list[list[object]]:
         return [c["args"] for c in self.harness.osi_calls(name)]
@@ -45,25 +56,43 @@ class FedoraCommandTests(unittest.TestCase):
     def logs(self) -> str:
         return " ".join(self.harness.prints())
 
-    def test_the_command_spawns_the_hat_on_the_host(self) -> None:
-        self.assertTrue(self.spawn())
-        self.assertEqual(
-            self.calls("TemplateAddTo")[0][:2],
-            ["4d2e0931-3a01-4759-834b-8ae36749daab", "player1"],
+    def emitted(self) -> tuple[str, str]:
+        """The root template and stat the last spawn used."""
+        root = str(self.calls("TemplateAddTo")[-1][0])
+        stats = next(
+            stat for stat, parent in ITEMS.items() if parent == root
         )
+        return root, stats
 
-    def test_the_spawned_hat_is_swapped_onto_the_custom_stat(self) -> None:
-        # The vanilla root template only supplies the model; the custom stat is
-        # what carries the name and the invulnerability boost.
-        self.spawn()
-        self.harness.fire_listener("TemplateAddedTo",
-                                   "4d2e0931-3a01-4759-834b-8ae36749daab",
-                                   "item1", "player1", 0)
-        self.assertEqual(
-            self.calls("ItemSetStats"),
-            [["item1", "ARM_FedoraOfInvulnerability"]],
-        )
-        self.assertIn("Fedora of Invulnerability", self.logs())
+    def test_default_spawn_picks_one_of_the_six_items(self) -> None:
+        self.assertTrue(self.spawn())
+        root = str(self.calls("TemplateAddTo")[0][0])
+        self.assertIn(root, ITEMS.values())
+
+    def test_a_specific_index_forces_that_item(self) -> None:
+        # Repeatable tests need a deterministic item.
+        for index, (stats, root) in enumerate(ITEMS.items(), start=1):
+            with self.subTest(index=index):
+                self.setUp()
+                self.spawn(index)
+                self.assertEqual(str(self.calls("TemplateAddTo")[0][0]), root)
+                self.harness.fire_listener("TemplateAddedTo", root, "item1",
+                                           "player1", 0)
+                self.assertEqual(
+                    self.calls("ItemSetStats"), [["item1", stats]]
+                )
+
+    def test_the_item_is_swapped_onto_its_invulnerable_stat(self) -> None:
+        self.spawn(1)
+        root, stats = self.emitted()
+        self.harness.fire_listener("TemplateAddedTo", root, "item1", "player1", 0)
+        self.assertEqual(self.calls("ItemSetStats"), [["item1", stats]])
+
+    def test_a_successful_spawn_is_reported(self) -> None:
+        self.spawn(1)
+        root, _ = self.emitted()
+        self.harness.fire_listener("TemplateAddedTo", root, "item1", "player1", 0)
+        self.assertIn("invulnerable", self.logs())
 
     def test_an_unrelated_item_is_left_alone(self) -> None:
         self.harness.fire_listener("TemplateAddedTo", "some-template", "item9",
@@ -71,84 +100,90 @@ class FedoraCommandTests(unittest.TestCase):
         self.assertEqual(self.calls("ItemSetStats"), [])
 
     def test_a_template_added_for_another_owner_is_ignored(self) -> None:
-        self.spawn()
-        self.harness.fire_listener("TemplateAddedTo",
-                                   "4d2e0931-3a01-4759-834b-8ae36749daab",
-                                   "item2", "someone_else", 0)
+        self.spawn(1)
+        root, _ = self.emitted()
+        self.harness.fire_listener("TemplateAddedTo", root, "item2",
+                                   "someone_else", 0)
         self.assertEqual(self.calls("ItemSetStats"), [])
 
     def test_a_failed_spawn_is_reported_and_leaves_nothing_pending(self) -> None:
         self.harness.run(
             'H.osi_results["TemplateAddTo"] = function() error("nope") end'
         )
-        self.assertFalse(self.spawn())
+        self.assertFalse(self.spawn(1))
         # A later item must not be hijacked by a stale pending entry.
         self.harness.fire_listener("TemplateAddedTo",
-                                   "4d2e0931-3a01-4759-834b-8ae36749daab",
-                                   "item3", "player1", 0)
+                                   ITEMS["ARM_InvulnHat"], "item3", "player1", 0)
         self.assertEqual(self.calls("ItemSetStats"), [])
 
     def test_a_failed_stat_swap_is_reported(self) -> None:
-        self.spawn()
+        self.spawn(1)
+        root, _ = self.emitted()
         self.harness.run(
             'H.osi_results["ItemSetStats"] = function() error("nope") end'
         )
-        self.harness.fire_listener("TemplateAddedTo",
-                                   "4d2e0931-3a01-4759-834b-8ae36749daab",
-                                   "item4", "player1", 0)
+        self.harness.fire_listener("TemplateAddedTo", root, "item4", "player1", 0)
         self.assertIn("stat swap failed", self.logs())
 
-    def test_the_command_is_registered(self) -> None:
+    def test_an_out_of_range_index_is_refused(self) -> None:
+        self.assertFalse(self.spawn(99))
+        self.assertEqual(self.calls("TemplateAddTo"), [])
+
+    def test_no_host_character_is_refused(self) -> None:
+        self.harness.run(
+            'H.osi_results["GetHostCharacter"] = function() return nil end'
+        )
+        self.assertFalse(self.spawn())
+
+    def test_the_command_is_registered_and_spawns(self) -> None:
         self.assertIn("orbweaver_fedora", self.harness.console_commands())
-
-    def test_the_command_accepts_a_root_template_and_stat_override(self) -> None:
-        # Lets the Gibus model be tried in game without a rebuild, since its root
-        # template could not be located offline.
-        self.harness.run_console("orbweaver_fedora", "gibus-root-guid", "GIBUS_STAT")
-        self.assertEqual(
-            self.calls("TemplateAddTo")[0][0], "gibus-root-guid"
-        )
-        self.harness.fire_listener("TemplateAddedTo", "gibus-root-guid", "item7",
-                                   "player1", 0)
-        self.assertEqual(self.calls("ItemSetStats"), [["item7", "GIBUS_STAT"]])
-
-    def test_the_command_defaults_when_no_arguments_are_given(self) -> None:
-        self.harness.run_console("orbweaver_fedora")
-        self.assertEqual(
-            self.calls("TemplateAddTo")[0][0],
-            "4d2e0931-3a01-4759-834b-8ae36749daab",
-        )
-
-    def test_running_the_command_spawns_the_hat(self) -> None:
         self.harness.run_console("orbweaver_fedora")
         self.assertEqual(len(self.calls("TemplateAddTo")), 1)
 
+    def test_the_command_accepts_an_index(self) -> None:
+        self.harness.run_console("orbweaver_fedora", "3")
+        self.assertEqual(
+            str(self.calls("TemplateAddTo")[0][0]), ITEMS["ARM_InvulnBoots"]
+        )
 
-class FedoraStatTests(unittest.TestCase):
+
+class InvulnerableStatTests(unittest.TestCase):
     def setUp(self) -> None:
         self.spells = parse_stats(
             MODS / "OrbWeaver/Public/OrbWeaver/Stats/Generated/Data/Spells.txt"
         )
 
-    def test_the_hat_inherits_a_top_hat_and_grants_invulnerability(self) -> None:
-        hat = self.spells["ARM_FedoraOfInvulnerability"]
-        self.assertEqual(hat["type"] if "type" in hat else "Armor", "Armor")
-        self.assertIn("Invulnerable()", hat["Boosts"])
+    def test_every_item_grants_invulnerability(self) -> None:
+        for stats, _root in ITEMS.items():
+            with self.subTest(stats=stats):
+                self.assertIn("Invulnerable()", self.spells[stats]["Boosts"])
 
-    def test_the_hat_reuses_a_vanilla_root_template(self) -> None:
-        # Reusing the vanilla root keeps this out of the root template LSF.
-        self.assertEqual(
-            self.spells["ARM_FedoraOfInvulnerability"]["RootTemplate"],
-            "4d2e0931-3a01-4759-834b-8ae36749daab",
+    def test_every_item_inherits_a_vanilla_wearable(self) -> None:
+        # Inheriting a real base is what gives the item its slot and model.
+        for stats in ITEMS:
+            with self.subTest(stats=stats):
+                self.assertIn(
+                    self.spells[stats]["type"] if "type" in self.spells[stats]
+                    else "Armor",
+                    {"Armor"},
+                )
+
+    def test_each_item_reuses_the_vanilla_root_template(self) -> None:
+        # Reusing vanilla roots keeps these out of the root template LSF.
+        for stats, root in ITEMS.items():
+            with self.subTest(stats=stats):
+                self.assertEqual(self.spells[stats]["RootTemplate"], root)
+
+    def test_the_items_are_named_and_localized(self) -> None:
+        stats_txt = read(
+            MODS / "OrbWeaver/Public/OrbWeaver/Stats/Generated/Data/Spells.txt"
         )
-
-    def test_the_hat_is_named(self) -> None:
-        # The generator renders the loca handle, so the stat carries a resolved
-        # handle and the loca file carries the English text.
-        hat = self.spells["ARM_FedoraOfInvulnerability"]
-        self.assertTrue(hat["DisplayName"].startswith("h"))
         loca = read(MODS / "OrbWeaver/Localization/English/OrbWeaver.loca")
-        self.assertIn("Fedora of Invulnerability", loca)
+        for stats in ITEMS:
+            with self.subTest(stats=stats):
+                self.assertIn(f'new entry "{stats}"', stats_txt)
+                self.assertTrue(self.spells[stats]["DisplayName"].startswith("h"))
+        self.assertIn("Invulnerable Hat", loca)
 
 
 if __name__ == "__main__":

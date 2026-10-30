@@ -878,19 +878,62 @@ data "CastEffect" "{CHAIN_LIGHTNING_PREPARE_EFFECT}"
 data "CastTextEvent" "Cast"
 data "AIFlags" "CanNotUse"
 
--- Fedora of Invulnerability: a hat spawned by the !orbweaver_fedora command.
--- Inherits ARM_Hat, the top-hat model, and grants Invulnerable() while worn
--- (Boosts apply to the wearer while the item is equipped).
-new entry "ARM_FedoraOfInvulnerability"
+-- Test items for the !orbweaver_fedora command. Each inherits a vanilla
+-- wearable so the model and slot are real, and grants Invulnerable() while
+-- worn. The command hands out one at random.
+new entry "ARM_InvulnHat"
 type "Armor"
 using "ARM_Hat"
 data "RootTemplate" "4d2e0931-3a01-4759-834b-8ae36749daab"
-data "ArmorType" "Cloth"
 data "Boosts" "Invulnerable()"
 data "Rarity" "Legendary"
-data "DisplayName" "{handle('ARM_FedoraOfInvulnerability/name')}"
-data "Description" "{handle('ARM_FedoraOfInvulnerability/desc')}"
-data "Icon" "Item_ARM_Hat"
+data "DisplayName" "{handle('ARM_InvulnHat/name')}"
+data "Description" "{handle('ARM_InvulnHat/desc')}"
+
+new entry "ARM_InvulnGloves"
+type "Armor"
+using "ARM_Gloves_Leather"
+data "RootTemplate" "8e34fd76-8b6d-48a5-89e3-942289bec31e"
+data "Boosts" "Invulnerable()"
+data "Rarity" "Legendary"
+data "DisplayName" "{handle('ARM_InvulnGloves/name')}"
+data "Description" "{handle('ARM_InvulnGloves/desc')}"
+
+new entry "ARM_InvulnBoots"
+type "Armor"
+using "ARM_Boots_Leather"
+data "RootTemplate" "969bab00-b269-46a5-a7e9-dd4887814719"
+data "Boosts" "Invulnerable()"
+data "Rarity" "Legendary"
+data "DisplayName" "{handle('ARM_InvulnBoots/name')}"
+data "Description" "{handle('ARM_InvulnBoots/desc')}"
+
+new entry "ARM_InvulnAmulet"
+type "Armor"
+using "ARM_Amulet"
+data "RootTemplate" "51873c0d-f319-45e6-a6a2-79164cd8f3db"
+data "Boosts" "Invulnerable()"
+data "Rarity" "Legendary"
+data "DisplayName" "{handle('ARM_InvulnAmulet/name')}"
+data "Description" "{handle('ARM_InvulnAmulet/desc')}"
+
+new entry "ARM_InvulnRing"
+type "Armor"
+using "ARM_Ring"
+data "RootTemplate" "ecf4a8a4-7859-4a82-8c08-0c9526f29500"
+data "Boosts" "Invulnerable()"
+data "Rarity" "Legendary"
+data "DisplayName" "{handle('ARM_InvulnRing/name')}"
+data "Description" "{handle('ARM_InvulnRing/desc')}"
+
+new entry "ARM_InvulnCloak"
+type "Armor"
+using "ARM_Cloak"
+data "RootTemplate" "a1978b4d-3d93-49ec-9a8b-d19171ed35d5"
+data "Boosts" "Invulnerable()"
+data "Rarity" "Legendary"
+data "DisplayName" "{handle('ARM_InvulnCloak/name')}"
+data "Description" "{handle('ARM_InvulnCloak/desc')}"
 
 -- Tesla Link: a Witch Bolt variant that is bound to an arcane orb instead of an
 -- enemy. The orb has no hit points worth damaging, so the spell does no damage
@@ -1162,10 +1205,35 @@ def write_loca() -> None:
             handle("CC_OrbTeslaLink/desc"),
             f"Target an arcane orb to link it with lightning. The link grants Activate Tesla Link, which deals {TESLA_LINK_DAMAGE} Lightning damage to the linked orb's enemies on later turns. Costs 1 AP.",
         ),
-        (handle("ARM_FedoraOfInvulnerability/name"), "Fedora of Invulnerability"),
+        (handle("ARM_InvulnHat/name"), "Invulnerable Hat"),
         (
-            handle("ARM_FedoraOfInvulnerability/desc"),
-            "A hat that makes its wearer invulnerable. Spawned with !orbweaver_fedora.",
+            handle("ARM_InvulnHat/desc"),
+            "Test item: makes its wearer invulnerable while worn.",
+        ),
+        (handle("ARM_InvulnGloves/name"), "Invulnerable Gloves"),
+        (
+            handle("ARM_InvulnGloves/desc"),
+            "Test item: makes its wearer invulnerable while worn.",
+        ),
+        (handle("ARM_InvulnBoots/name"), "Invulnerable Boots"),
+        (
+            handle("ARM_InvulnBoots/desc"),
+            "Test item: makes its wearer invulnerable while worn.",
+        ),
+        (handle("ARM_InvulnAmulet/name"), "Invulnerable Amulet"),
+        (
+            handle("ARM_InvulnAmulet/desc"),
+            "Test item: makes its wearer invulnerable while worn.",
+        ),
+        (handle("ARM_InvulnRing/name"), "Invulnerable Ring"),
+        (
+            handle("ARM_InvulnRing/desc"),
+            "Test item: makes its wearer invulnerable while worn.",
+        ),
+        (handle("ARM_InvulnCloak/name"), "Invulnerable Cloak"),
+        (
+            handle("ARM_InvulnCloak/desc"),
+            "Test item: makes its wearer invulnerable while worn.",
         ),
         (handle("CC_TESLA_LINK_OWNER/name"), "Tesla Link Owner"),
         (
