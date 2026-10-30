@@ -319,27 +319,27 @@ end
 local function applyChampionHp(guid, live)
     local cfg = C
     local multiplier = tonumber(cfg.CHAMPION_HP_MULTIPLIER) or 1.0
-    if multiplier <= 1.0 then return end
+    if multiplier <= 1.0 then return false end
     local marker = cfg.CHAMPION_HP_MARKER or "ENR_CHAMPION_HP_SCALED"
     if hasStatus(guid, marker, live) then return true end
-    if not (Ext and Ext.Entity and Ext.Entity.Get) then return end
+    if not (Ext and Ext.Entity and Ext.Entity.Get) then return false end
 
     local ok, entity = pcall(Ext.Entity.Get, guid)
     if not ok or not entity then
         log("champion hp scale: entity unavailable for %s", tostring(guid))
-        return
+        return false
     end
     local hpOk, health = pcall(function() return entity.Health end)
     if not hpOk or not health then
         log("champion hp scale: no Health component for %s", tostring(guid))
-        return
+        return false
     end
 
     local maxHp = tonumber(health.MaxHp) or 0
     local hp = tonumber(health.Hp) or 0
     if maxHp <= 0 then
         log("champion hp scale: invalid MaxHp=%s for %s", tostring(health.MaxHp), tostring(guid))
-        return
+        return false
     end
     local newMax = math.max(1, math.floor(maxHp * multiplier + 0.5))
     local newHp = math.max(1, math.min(newMax, math.floor(hp * multiplier + 0.5)))
@@ -350,7 +350,7 @@ local function applyChampionHp(guid, live)
     end)
     if not writeOk then
         log("champion hp scale: health write failed for %s: %s", tostring(guid), tostring(writeErr))
-        return
+        return false
     end
     pcall(function() entity:Replicate("Health") end)
     if Osi and Osi.ApplyStatus then
