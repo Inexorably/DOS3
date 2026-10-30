@@ -372,6 +372,14 @@ Known DOS2 visual references for the current test spells:
 
 ## Enemy Randomization
 
+- [ ] **BLOCKER: game hangs at load before any Lua runs** after installing the
+      Champion of the Horde (EnemyRandomization) and Orb Tesla Link (OrbWeaver)
+      paks. Symptom, what was already ruled out, and the bisect order are in
+      `docs/BG3SE_RUNTIME_NOTES.md`. Both paks are currently installed from their
+      pre-change builds; the suspect paks are preserved as
+      `EnemyRandomization-champion-suspect.pak` and
+      `OrbWeaver-tesla-suspect.pak`.
+
 - [x] Add **Champion of the Horde**: grants Animate Dead, Fungal Infestation,
       Animate Dead: Zombie Battalion and a custom **Summon Horde** spell that
       raises four zombies in one cast for **2 AP** with the highest `AIWeight` in
