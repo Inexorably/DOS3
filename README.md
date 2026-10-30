@@ -11,7 +11,7 @@ champions, higher enemy health, and convenient respec access.
 | Enemy Randomization | `mods/EnemyRandomization` | Required | Random enemy buffs, themed champions, summoning variants, and generated champion loot |
 | Enemy Health Multiplier | `mods/EnemyHealth` | Not required | Doubles base enemy health on Tactician by overriding the native difficulty boost |
 | Respec Anywhere | `mods/RespecAnywhere` | Required | Grants a hotbar Respec spell that opens Withers' native respec UI, plus a console command |
-| OrbWeaver | `mods/OrbWeaver` | Required for class testing | The Orbweaver class and its arcane orb spells: Summon Azure Orb, Ignite Orb, Orb Chain Lightning, Orb Lightning Bolt, Orb Triangulation, Orb Stone Wall |
+| OrbWeaver | `mods/OrbWeaver` | Required for class testing | The Orbweaver class and its arcane orb spells: Summon Azure Orb, Ignite Orb, Orb Chain Lightning, Orb Lightning Bolt, Orb Triangulation, Orb Stone Wall, Orb Tesla Link |
 
 The mods can be used independently. Enemy Randomization is designed to work
 alongside DOS2 Combat Overhaul, and Enemy Health uses the native Tactician
@@ -570,6 +570,10 @@ a mod convention — it is only the vanilla name for `RootTemplates/_merged`.
   never receive random buffs or champion promotions. Charging any orb that is part of the wall collapses it; charging an
   orb that is *not* on the wall leaves it standing, so a wall raised through A and
   C survives B charging. Costs **2 AP**.
+- **Orb Tesla Link** targets an orb and links it with lightning, copying Witch
+  Bolt. The link grants **Activate Tesla Link** for later turns, which strikes the
+  linked orb for **8 Lightning** damage at **1 AP** with a **1 turn cooldown**, and
+  refreshes the link as it fires. Costs **1 AP**.
 - **Orb Chain Lightning** is cast by the player and can only target a
   `CC_ORB` orb. It costs **2 AP** and deals **2 Lightning** damage to enemies
   within **3 m** of the struck orb. If another orb is within **8 m**, the bolt

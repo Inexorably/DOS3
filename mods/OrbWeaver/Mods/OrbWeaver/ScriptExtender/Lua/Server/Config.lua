@@ -13,7 +13,8 @@ OW.Config = {
     GRANT_TEST_CANTRIP = false,
     TEST_CANTRIP = "CC_SummonBall_Azure",
     TEST_CANTRIPS = { "CC_SummonBall_Azure", "CC_IgniteOrb", "CC_OrbChainLightning",
-        "CC_OrbLightningBolt", "CC_OrbTriangulation", "CC_OrbStoneWall" },
+        "CC_OrbLightningBolt", "CC_OrbTriangulation", "CC_OrbStoneWall",
+        "CC_OrbTeslaLink" },
 
     -- Class that owns the orb spells. Must match the ClassDescriptions Name
     -- in scripts/generate-orbweaver-assets.py.
@@ -66,6 +67,11 @@ OW.Config = {
     -- 1 m, so consecutive pieces touch instead of leaving gaps between them.
     ORB_STONE_WALL_PILLAR_SPACING = 1.0,
     ORB_STONE_WALL_PILLAR_HP = 5,
+
+    -- Orb Tesla Link. The link only marks the orb; Activate Tesla Link applies the
+    -- damage on later turns. Damage mirrors TESLA_LINK_DAMAGE in
+    -- scripts/generate-orbweaver-assets.py and a test fails if they drift.
+    TESLA_LINK_DAMAGE = 8,
     -- Root template of one wall segment. Default is the Wall of Stone wall art
     -- (VFX_Static_Wall_Spell_Stone_A_LowMiddle_A); see OrbStoneWall.lua for the
     -- other five pieces in that family and for the templates that must not be

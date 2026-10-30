@@ -460,6 +460,17 @@ Known DOS2 visual references for the current test spells:
 
 ## OrbWeaver
 
+- [x] Add **Orb Tesla Link**: a Witch Bolt copy that links an orb and grants
+      **Activate Tesla Link** (1 AP, 1 turn cooldown, 8 Lightning) for later
+      turns.
+- [x] Raise **Charge** and **Ignite Charge** to **4 AP**.
+- [ ] Verify Orb Tesla Link in-game: the spell targets orbs only, the caster gains
+      Activate Tesla Link after linking, activating deals 8 Lightning and keeps the
+      link, the 1 turn cooldown applies, the skill disappears once the link is gone,
+      and recasting on a second orb moves the link. Log lines:
+      `orb tesla link: linked orb ... for ...`, `link on ... cleared (...)`.
+- [ ] Verify Charge at 4 AP in-game (both the plain and Ignite variants).
+
 - [x] Add player-cast **Orb Stone Wall**: target an orb and raise a wall of stone
       through it and every other orb within 8 m of the previous orb, chaining
       orb-to-orb (A->B->C, B->A->C, C->B->A, ...). Pillars every 2 m along the

@@ -280,6 +280,7 @@ OrbLightning   -- CC_OrbChainLightning: damage around each struck orb
 OrbBolt        -- CC_OrbLightningBolt: damage along the corridor between orbs
 OrbTriangulation -- CC_OrbTriangulation: damage along a triangle's median
 OrbStoneWall    -- CC_OrbStoneWall: a stone wall chained through orbs; charge collapses it
+OrbTeslaLink    -- CC_OrbTeslaLink: Witch Bolt bound to an orb; grants Activate Tesla Link
 ClassDiagnostics
 ```
 
@@ -351,6 +352,25 @@ charged orb is one of those nodes, which is why a wall raised through A and C
 survives B charging even though B stands between them. Charge detection is the
 `UsingSpellAtPosition` event for `CC_BallCharge` / `CC_BallCharge_Ignite`, the
 same event the fire wall uses.
+
+`OrbTeslaLink` is a copy of Witch Bolt rebound to an orb. Witch Bolt splits in
+two: `Projectile_WitchBolt` applies `WITCH_BOLT` to the target and
+`AI_HELPER_WITCHBOLT` to the caster, whose status is what unlocks
+`Shout_WitchBolt_Activate`. Here the caster is a player and the target is an orb,
+so the stat copy (`CC_OrbTeslaLink` applying `CC_TESLA_LINK`) cannot put the owner
+marker on the caster by itself; `OrbTeslaLink` applies `CC_TESLA_LINK_OWNER` to the
+caster from Lua. Both the link status and the owner marker `UnlockSpell` the
+Activate skill, so whichever side the engine honours, the skill appears exactly
+once.
+
+`CC_ActivateTeslaLink` is the Witch Bolt activate copy: 1 AP, `OncePerTurn`, damage
+on `DealDamage(8,Lightning)`, and it refreshes the link
+(`SetStatusDuration(SELF,CC_TESLA_LINK,2)`) so the chain survives its own cast. The
+damage lives there rather than on the link because an orb has no meaningful hit
+points. `OrbTeslaLink` also keeps the bookkeeping honest: a turn start or an
+activate with no live link on the orb drops the owner marker so the Activate skill
+cannot linger with nothing to target, and recasting moves a caster's link instead
+of stacking.
 
 The class owns the orb spells through a level-1 selector, exactly like vanilla
 classes:
