@@ -191,6 +191,31 @@ class RandomizerTests(unittest.TestCase):
         self.assertIn("removed retired buff OLD_BUFF", " ".join(self.harness.prints()))
         self.assertFalse(self.harness.run('return H.statuses["retired1|OLD_BUFF"] or false'))
 
+    def test_removed_buff_statuses_are_never_rolled(self) -> None:
+        self.make_enemy("retired2")
+        self.harness.run("ER.Config.REMOVED_BUFF_STATUSES = { OLD_BUFF = true }")
+        self.harness.run('ER.Config.BUFFS = { { status = "OLD_BUFF", weight = 1 } }')
+        self.harness.run('ER.Randomizer.ApplyTo("retired2")')
+        self.assertNotIn("OLD_BUFF", self.applied_statuses("retired2"))
+
+    def test_downed_status_wrappers_are_removed_from_existing_enemies(self) -> None:
+        # The ENR_Perm_* copies keep vanilla's DownedStatus, whose *_DOWNED
+        # status only removes the vanilla source, so the enemy never dies.
+        for status in (
+            "ENR_Perm_DEATH_WARD",
+            "ENR_Perm_RELENTLESS_RAGE",
+            "ENR_Perm_UNDEAD_FORTITUDE",
+        ):
+            with self.subTest(status=status):
+                guid = f"warded_{status}"
+                self.make_enemy(guid)
+                self.harness.run(f'H.statuses["{guid}|{status}"] = true')
+                self.harness.run(f'ER.Randomizer.ApplyTo("{guid}")')
+                self.assertFalse(self.harness.run(
+                    f'return H.statuses["{guid}|{status}"] or false'))
+                self.assertNotIn(f"adopted existing buff {status}",
+                                 " ".join(self.harness.prints()))
+
     def test_apply_all_scans_combatants(self) -> None:
         self.make_enemy("a1", health=50)
         self.make_enemy("a2", health=50)

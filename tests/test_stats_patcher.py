@@ -255,8 +255,7 @@ class StatsPatcherSmokeTests(unittest.TestCase):
             local status = {
                 OnApplyRoll = "not SavingThrow(Ability.Wisdom, 10)",
                 OnTickRoll = "SavingThrow(Ability.Constitution, 10)",
-                StatsFunctors = "ApplyStatus(SLEEP,100,2,,,,not SavingThrow(Ability.Constitution,10))",
-                Conditions = "not SavingThrow(Ability.Strength, 8) and not Self()",
+                OnApplyFunctors = "ApplyStatus(SLEEP,100,2,,,,not SavingThrow(Ability.Constitution,10))",
                 Boosts = "AbilityFailedSavingThrow(Ability.Wisdom)",
             }
             function status:Sync() end
@@ -278,12 +277,8 @@ class StatsPatcherSmokeTests(unittest.TestCase):
         self.assertEqual(lua.eval("status.OnApplyRoll"), "true")
         self.assertEqual(lua.eval("status.OnTickRoll"), "false")
         self.assertEqual(
-            lua.eval("status.StatsFunctors"),
+            lua.eval("status.OnApplyFunctors"),
             "ApplyStatus(SLEEP,100,2,,,,true)",
-        )
-        self.assertEqual(
-            lua.eval("status.Conditions"),
-            "true and not Self()",
         )
         self.assertEqual(
             lua.eval("status.Boosts"),
@@ -372,6 +367,64 @@ class StatsPatcherSmokeTests(unittest.TestCase):
         self.assertNotIn("LevelMapValue", flourish_tooltip)
         self.assertNotIn("SpellCastingAbilityModifier", piercing_tooltip)
         self.assertNotIn("SpellCastingAbilityModifier", flourish_tooltip)
+
+    def test_patch_reads_only_attributes_of_each_stat_type(self):
+        # BG3SE logs "has no attribute named" for every read of a field the
+        # stat type does not define, even inside pcall. These fields are not
+        # in Public/Shared/Stats/Generated/Structure/Modifiers.txt for the
+        # listed type.
+        missing = {
+            "StatusData": {"Roll", "StatsFunctors", "Conditions", "DefaultBoosts"},
+            "SpellData": {"Conditions"},
+            "Weapon": {"StatsFunctors"},
+            "PassiveData": {"DefaultBoosts"},
+            "Character": {"Boosts"},
+        }
+        lua = lua_runtime()
+        root = MODS / "DOS2Combat" / "Mods" / "DOS2Combat" / "ScriptExtender" / "Lua"
+        for relative in (
+            "Shared/ArmorFormula.lua",
+            "Server/Config.lua",
+            "Server/Util.lua",
+            "Server/StatsPatcher.lua",
+        ):
+            run_lua_file(lua, root / relative)
+
+        lua.execute(
+            """
+            _G.reads = {}
+            local names = {
+                StatusData = "S", SpellData = "P", Weapon = "W",
+                PassiveData = "A", Character = "C", Armor = "R",
+            }
+            local stats = {}
+            for kind, name in pairs(names) do
+                local data = {}
+                local stat = setmetatable({ Sync = function() end }, {
+                    __index = function(_, field)
+                        _G.reads[#_G.reads + 1] = kind .. "|" .. field
+                        return data[field]
+                    end,
+                    __newindex = function(_, field, value) data[field] = value end,
+                })
+                stats[name] = stat
+            end
+            Ext.Stats = {
+                GetStats = function(kind)
+                    if names[kind] then return { names[kind] } end
+                    return {}
+                end,
+                Get = function(name) return stats[name] end,
+            }
+            DOS2C.Stats.PatchAll(false)
+            """
+        )
+
+        reads = {str(value) for value in lua.eval("reads").values()}
+        for kind, fields in missing.items():
+            for field in fields:
+                with self.subTest(kind=kind, field=field):
+                    self.assertNotIn(f"{kind}|{field}", reads)
 
 
 if __name__ == "__main__":
