@@ -33,17 +33,120 @@ local function guidOf(entity)
     return nil
 end
 
-local function hasStatus(guid, status)
-    if not (Osi and Osi.HasStatus) then return false end
+-- Osi.HasStatus is not reliable in this build. After a save reload it reported
+-- "no" for ENR_* markers that were still on the entity, so every reload applied
+-- a second random buff, rescaled champion health again and rolled a new
+-- champion on top of the existing one. The ECS StatusContainer is the engine's
+-- own list: read it once per entity and treat either source as proof.
+local STATUS_SKEW_LOG_LIMIT = 6
+local statusSkewLogged = 0
+
+local function liveStatuses(entity)
+    local set = {}
+    if not entity then return set end
+    local ok, container = pcall(function() return entity.StatusContainer end)
+    if not ok or not container then return set end
+    local listOk, statuses = pcall(function() return container.Statuses end)
+    if not listOk or not statuses then return set end
+    pcall(function()
+        for _, status in ipairs(statuses) do
+            for _, field in ipairs({ "StatusId", "StackId" }) do
+                local fieldOk, value = pcall(function() return status[field] end)
+                if fieldOk and value ~= nil then
+                    local text = tostring(value)
+                    if text ~= "" then set[text] = true end
+                end
+            end
+        end
+    end)
+    return set
+end
+
+local function entityOf(guid)
+    if not (guid and Ext and Ext.Entity and Ext.Entity.Get) then return nil end
+    local ok, entity = pcall(Ext.Entity.Get, guid)
+    if ok then return entity end
+    return nil
+end
+
+local function osiHasStatus(guid, status)
+    if not (guid and Osi and Osi.HasStatus) then return false end
     local ok, result = pcall(Osi.HasStatus, guid, status)
     return ok and (result == 1 or result == true)
 end
 
-local function cleanupRemovedBuffs(guid)
+-- `live` is liveStatuses() for the entity; callers that already read it pass it
+-- in so the 80-odd buff candidates do not each hit the ECS.
+local function hasStatus(guid, status, live)
+    if status == nil then return false end
+    if live == nil then live = liveStatuses(entityOf(guid)) end
+    local present = live[status] == true
+    local osi = osiHasStatus(guid, status)
+    if present ~= osi and statusSkewLogged < STATUS_SKEW_LOG_LIMIT then
+        statusSkewLogged = statusSkewLogged + 1
+        log("status %s on %s: Osi.HasStatus=%s StatusContainer=%s",
+            tostring(status), tostring(guid), tostring(osi), tostring(present))
+    end
+    return present or osi
+end
+
+-- Diagnostic for the reload path: which randomization markers the engine still
+-- has on the entity when a roll happens.
+local function markerList(live)
+    local names = {}
+    for status in pairs(live or {}) do
+        if status:sub(1, 4) == "ENR_" then names[#names + 1] = status end
+    end
+    if #names == 0 then return "-" end
+    table.sort(names)
+    return table.concat(names, ",")
+end
+
+-- The hidden marker statuses are what should keep a saved enemy from rolling
+-- twice, but Osi.HasStatus could not see them after a reload. Mirror.lua already
+-- keeps its clone bookkeeping in PersistentVars, which the savegame stores, so
+-- the roll decision is recorded there as well: "<buff>|<champions>|<hp>" with
+-- "-" for a field that did not happen. The record is authoritative: a guid that
+-- already rolled adopts that roll instead of rolling a second one.
+local function rollRegistry()
+    PersistentVars = PersistentVars or {}
+    PersistentVars.ENR_Rolls = PersistentVars.ENR_Rolls or {}
+    return PersistentVars.ENR_Rolls
+end
+
+local function readRoll(guid)
+    local text = rollRegistry()[tostring(guid)]
+    if type(text) ~= "string" then return nil end
+    local buff, champions, hp = text:match("^([^|]*)|([^|]*)|([^|]*)$")
+    if buff == nil then return nil end
+    local list = {}
+    if champions ~= "-" then
+        for name in champions:gmatch("[^,]+") do list[#list + 1] = name end
+    end
+    return {
+        buff = buff ~= "-" and buff or nil,
+        champions = list,
+        hp = hp == "1",
+        rolled = true,
+    }
+end
+
+local function writeRoll(guid, buff, champions, hp)
+    local joined = "-"
+    if champions and #champions > 0 then joined = table.concat(champions, ",") end
+    rollRegistry()[tostring(guid)] = tostring(buff or "-") .. "|" .. joined
+        .. "|" .. (hp and "1" or "0")
+end
+
+local function forgetRoll(guid)
+    rollRegistry()[tostring(guid)] = nil
+end
+
+local function cleanupRemovedBuffs(guid, live)
     if not (Osi and Osi.RemoveStatus) then return false end
     local removed = false
     for status in pairs(C.REMOVED_BUFF_STATUSES or {}) do
-        if hasStatus(guid, status) then
+        if hasStatus(guid, status, live) then
             if pcall(Osi.RemoveStatus, guid, status) then
                 removed = true
                 log("removed retired buff %s -> %s", status, guid)
@@ -78,13 +181,29 @@ local function partySet()
     return set
 end
 
+-- The IsInCombat entity component is not a reliable "is in a fight" test. When a
+-- save is reloaded inside a running game the engine re-creates the component on
+-- level enemies as the map streams back in, so testing it for presence buffed
+-- and re-rolled every enemy in the level the moment the save finished loading.
+-- The engine's own combat query is the authority; the component is only used
+-- when Osiris cannot answer at all.
+local combatSkewLogged = 0
+local COMBAT_SKEW_LOG_LIMIT = 3
+
 local function inCombat(entity, guid)
-    if entity and entity.IsInCombat then return true end
-    if Osi and Osi.IsInCombat then
+    local component = entity ~= nil and entity.IsInCombat ~= nil and entity.IsInCombat
+    if guid and Osi and Osi.IsInCombat then
         local ok, result = pcall(Osi.IsInCombat, guid)
-        return ok and (result == 1 or result == true)
+        if ok and (result == 0 or result == 1 or result == true or result == false) then
+            local fighting = result == 1 or result == true
+            if not fighting and component and combatSkewLogged < COMBAT_SKEW_LOG_LIMIT then
+                combatSkewLogged = combatSkewLogged + 1
+                log("ignoring stale IsInCombat on %s: the engine reports no combat", tostring(guid))
+            end
+            return fighting
+        end
     end
-    return false
+    return component and true or false
 end
 
 local function isSummon(entity)
@@ -123,13 +242,13 @@ local function isPositiveStatus(status)
     return status ~= nil and not NEGATIVE_STATUSES[status]
 end
 
-local function pickBuff(guid)
+local function pickBuff(guid, live)
     local total = 0
     local available = {}
     local retired = C.REMOVED_BUFF_STATUSES or {}
     for _, entry in ipairs(C.BUFFS or {}) do
         if entry.status and isPositiveStatus(entry.status) and not retired[entry.status]
-            and not hasStatus(guid, entry.status) then
+            and not hasStatus(guid, entry.status, live) then
             local weight = tonumber(entry.weight) or 1
             if weight > 0 then
                 total = total + weight
@@ -197,30 +316,30 @@ local function pickChampion(exclude)
     return available[#available]
 end
 
-local function applyChampionHp(guid)
+local function applyChampionHp(guid, live)
     local cfg = C
     local multiplier = tonumber(cfg.CHAMPION_HP_MULTIPLIER) or 1.0
-    if multiplier <= 1.0 then return end
+    if multiplier <= 1.0 then return false end
     local marker = cfg.CHAMPION_HP_MARKER or "ENR_CHAMPION_HP_SCALED"
-    if hasStatus(guid, marker) then return end
-    if not (Ext and Ext.Entity and Ext.Entity.Get) then return end
+    if hasStatus(guid, marker, live) then return true end
+    if not (Ext and Ext.Entity and Ext.Entity.Get) then return false end
 
     local ok, entity = pcall(Ext.Entity.Get, guid)
     if not ok or not entity then
         log("champion hp scale: entity unavailable for %s", tostring(guid))
-        return
+        return false
     end
     local hpOk, health = pcall(function() return entity.Health end)
     if not hpOk or not health then
         log("champion hp scale: no Health component for %s", tostring(guid))
-        return
+        return false
     end
 
     local maxHp = tonumber(health.MaxHp) or 0
     local hp = tonumber(health.Hp) or 0
     if maxHp <= 0 then
         log("champion hp scale: invalid MaxHp=%s for %s", tostring(health.MaxHp), tostring(guid))
-        return
+        return false
     end
     local newMax = math.max(1, math.floor(maxHp * multiplier + 0.5))
     local newHp = math.max(1, math.min(newMax, math.floor(hp * multiplier + 0.5)))
@@ -231,7 +350,7 @@ local function applyChampionHp(guid)
     end)
     if not writeOk then
         log("champion hp scale: health write failed for %s: %s", tostring(guid), tostring(writeErr))
-        return
+        return false
     end
     pcall(function() entity:Replicate("Health") end)
     if Osi and Osi.ApplyStatus then
@@ -239,13 +358,16 @@ local function applyChampionHp(guid)
     end
     log("champion hp scaled: %s %d -> %d (current %d -> %d)",
         tostring(guid), maxHp, newMax, hp, newHp)
+    return true
 end
 
 -- opts.skipHp/skipSpells let Mirror.lua copy a champion onto a clone without
--- rescaling copied health or granting summon abilities.
+-- rescaling copied health or granting summon abilities. Returns true when the
+-- enemy is at champion health, so the roll record can say so.
 local function grantChampionEffects(guid, champion, opts)
     opts = opts or {}
-    if not opts.skipHp then applyChampionHp(guid) end
+    local hpScaled = false
+    if not opts.skipHp then hpScaled = applyChampionHp(guid, opts.live) end
     if Osi and Osi.ApplyStatus then
         for _, status in ipairs(champion.statuses or {}) do
             local ok = pcall(Osi.ApplyStatus, guid, status, -1, 1)
@@ -264,7 +386,7 @@ local function grantChampionEffects(guid, champion, opts)
     if DOS2C and DOS2C.Armor and DOS2C.Armor.ForceNoDodge then
         pcall(DOS2C.Armor.ForceNoDodge, guid)
     end
-    if opts.skipSpells or not (Osi and Osi.AddSpell) then return end
+    if opts.skipSpells or not (Osi and Osi.AddSpell) then return hpScaled end
     for _, spell in ipairs(champion.spells or {}) do
         local ok, result = pcall(Osi.AddSpell, guid, spell, 0, 1)
         if not ok then
@@ -278,6 +400,7 @@ local function grantChampionEffects(guid, champion, opts)
         log("champion spell grant: %s -> %s ok=%s result=%s has=%s",
             spell, guid, tostring(ok), tostring(result), tostring(has))
     end
+    return hpScaled
 end
 
 local function entityIsBoss(entity)
@@ -343,7 +466,7 @@ local function championTargetCount(guid, entity, isBoss)
     return 1, nil
 end
 
-local function fillChampionConditions(guid, required, cache, exclude)
+local function fillChampionConditions(guid, required, cache, exclude, live)
     while #cache < required do
         local entry = pickChampion(exclude)
         if not entry then break end
@@ -355,7 +478,7 @@ local function fillChampionConditions(guid, required, cache, exclude)
         end
         cache[#cache + 1] = entry.status
         exclude[entry.status] = true
-        grantChampionEffects(guid, entry)
+        grantChampionEffects(guid, entry, { live = live })
         log("boss extra champion %s -> %s (%d/%d)",
             entry.status, guid, #cache, required)
     end
@@ -373,37 +496,90 @@ local function championExclusions(guid, entity, bossLike)
     return exclude
 end
 
-local function applyChampion(guid, isBoss, entity)
+local function applyChampion(guid, isBoss, entity, live, roll)
+    if not C.CHAMPIONS_ENABLED then return false end
     if not (C.CHAMPIONS and #C.CHAMPIONS > 0) then return false end
+    if live == nil then live = liveStatuses(entity or entityOf(guid)) end
+    roll = roll or { buff = nil, champions = {}, hp = false }
 
     local required, tier = championTargetCount(guid, entity, isBoss)
     local existing = {}
     for _, entry in ipairs(C.CHAMPIONS) do
-        if entry.status and hasStatus(guid, entry.status) then
+        if entry.status and hasStatus(guid, entry.status, live) then
             existing[#existing + 1] = entry
         end
     end
 
-    -- A roll marker with no champion status means the roll failed. Bosses are
-    -- guaranteed champions, so they are allowed to recover from a failed roll.
-    if hasStatus(guid, C.CHAMPION_MARKER) and #existing == 0 and not (tier or isBoss) then
+    -- A saved roll that produced no champion is still a decision: rolling again
+    -- is what gave a reloaded enemy a second champion. Bosses are guaranteed
+    -- champions, so they are allowed to recover.
+    if roll.rolled and #roll.champions == 0 and not (tier or isBoss) then
+        pcall(Osi.ApplyStatus, guid, C.CHAMPION_MARKER, -1, 1)
         return false
     end
 
-    if hasStatus(guid, C.CHAMPION_MARKER) or #existing > 0 then
+    -- The saved roll wins over everything else: the champion statuses were
+    -- either stripped or are invisible to Osi.HasStatus, and rolling again
+    -- would leave the enemy with two champions and doubled health.
+    if #roll.champions > 0 then
+        pcall(Osi.ApplyStatus, guid, C.CHAMPION_MARKER, -1, 1)
+        if roll.hp then
+            pcall(Osi.ApplyStatus, guid, C.CHAMPION_HP_MARKER, -1, 1)
+        end
+        championCache[guid] = {}
+        local exclude = championExclusions(guid, entity, tier or isBoss)
+        for _, status in ipairs(roll.champions) do
+            if Osi and Osi.ApplyStatus then
+                pcall(Osi.ApplyStatus, guid, status, -1, 1)
+            end
+            championCache[guid][#championCache[guid] + 1] = status
+            exclude[status] = true
+            local entry = nil
+            for _, candidate in ipairs(C.CHAMPIONS) do
+                if candidate.status == status then
+                    entry = candidate
+                    break
+                end
+            end
+            if entry then
+                grantChampionEffects(guid, entry, { live = live, skipHp = roll.hp })
+            end
+        end
+        fillChampionConditions(guid, required, championCache[guid], exclude, live)
+        writeRoll(guid, roll.buff, championCache[guid], roll.hp)
+        log("champion adopted from saved roll %s -> %s (conditions=%d/%d hp=%s)",
+            guid, table.concat(championCache[guid], ","), #championCache[guid],
+            required, tostring(roll.hp))
+        return false
+    end
+
+    -- A roll marker with no champion status means the roll failed. Bosses are
+    -- guaranteed champions, so they are allowed to recover from a failed roll.
+    if hasStatus(guid, C.CHAMPION_MARKER, live) and #existing == 0 and not (tier or isBoss) then
+        return false
+    end
+
+    if hasStatus(guid, C.CHAMPION_MARKER, live) or #existing > 0 then
         pcall(Osi.ApplyStatus, guid, C.CHAMPION_MARKER, -1, 1)
         championCache[guid] = {}
         local exclude = championExclusions(guid, entity, tier or isBoss)
         for _, entry in ipairs(existing) do
+            pcall(Osi.ApplyStatus, guid, entry.status, -1, 1)
             championCache[guid][#championCache[guid] + 1] = entry.status
             exclude[entry.status] = true
-            grantChampionEffects(guid, entry)
+            grantChampionEffects(guid, entry, { live = live })
         end
-        fillChampionConditions(guid, required, championCache[guid], exclude)
+        fillChampionConditions(guid, required, championCache[guid], exclude, live)
+        writeRoll(guid, roll.buff, championCache[guid],
+            hasStatus(guid, C.CHAMPION_HP_MARKER, live))
         log("boss tier adopted: %s tier=%s conditions=%d/%d",
             guid, tostring(tier or "NONE"), #championCache[guid], required)
         return false
     end
+
+    -- Diagnostic for the reload path: if a saved enemy is rolling again, this
+    -- says which randomization markers the engine still has on it.
+    log("champion roll %s: live markers [%s]", guid, markerList(live))
 
     -- Persist the fact that this enemy was considered for a champion even when
     -- the roll fails, so save/reload cannot reroll it.
@@ -411,6 +587,7 @@ local function applyChampion(guid, isBoss, entity)
         pcall(Osi.ApplyStatus, guid, C.CHAMPION_MARKER, -1, 1)
     end
     if not (tier or isBoss) and math.random() > championChance() then
+        writeRoll(guid, roll.buff, {}, false)
         return false
     end
 
@@ -426,8 +603,9 @@ local function applyChampion(guid, isBoss, entity)
 
     championCache[guid] = { champion.status }
     exclude[champion.status] = true
-    grantChampionEffects(guid, champion)
-    fillChampionConditions(guid, required, championCache[guid], exclude)
+    local hpScaled = grantChampionEffects(guid, champion, { live = live })
+    fillChampionConditions(guid, required, championCache[guid], exclude, live)
+    writeRoll(guid, roll.buff, championCache[guid], hpScaled)
     log("champion %s -> %s tier=%s conditions=%d/%d",
         champion.status, guid, tostring(tier or "NONE"),
         #championCache[guid], required)
@@ -457,11 +635,12 @@ local function applyOne(entity, party)
         buffed[guid] = true
         return false
     end
+    local live = liveStatuses(entity)
     -- Mirror clones receive a copy of their original's rolls from Mirror.lua
     -- and must never roll their own buffs, champions, or mirrors.
     -- Reinforcements spawn plain at their wave level and are skipped too.
     if (ER.Mirror and ER.Mirror.IsClone and ER.Mirror.IsClone(guid))
-        or hasStatus(guid, C.MIRROR_CLONE_MARKER)
+        or hasStatus(guid, C.MIRROR_CLONE_MARKER, live)
         or (ER.Reinforce and ER.Reinforce.IsReinforcement and ER.Reinforce.IsReinforcement(guid)) then
         buffed[guid] = true
         return false
@@ -470,24 +649,37 @@ local function applyOne(entity, party)
     -- Clean up effects that were removed from the safe pool by an update.
     -- This is intentionally done before the in-memory `buffed` shortcut so
     -- existing saves do not retain an immortal enemy for the rest of a fight.
-    cleanupRemovedBuffs(guid)
+    cleanupRemovedBuffs(guid, live)
     if buffed[guid] then return false end
 
+    local roll = readRoll(guid) or { buff = nil, champions = {}, hp = false }
     local applied = false
 
     -- Regular buff layer.
-    if not hasStatus(guid, C.MARKER_STATUS) then
+    if not hasStatus(guid, C.MARKER_STATUS, live) then
         local adopted = false
         -- If a buff survived but the marker did not (older save or interrupted
         -- write), adopt the existing state instead of stacking a new buff.
         for _, entry in ipairs(C.BUFFS or {}) do
             if entry.status and not (C.REMOVED_BUFF_STATUSES or {})[entry.status]
-                and hasStatus(guid, entry.status) then
+                and hasStatus(guid, entry.status, live) then
                 pcall(Osi.ApplyStatus, guid, C.MARKER_STATUS, -1, 1)
                 adopted = true
+                roll.buff = entry.status
                 log("adopted existing buff %s for %s", entry.status, guid)
                 break
             end
+        end
+
+        -- The marker status itself can be invisible after a reload; the saved
+        -- roll then restores the buff instead of granting a second one.
+        if not adopted and roll.buff then
+            if Osi and Osi.ApplyStatus then
+                pcall(Osi.ApplyStatus, guid, C.MARKER_STATUS, -1, 1)
+                pcall(Osi.ApplyStatus, guid, roll.buff, -1, 1)
+            end
+            adopted = true
+            log("adopted saved buff %s for %s", roll.buff, guid)
         end
 
         if not adopted then
@@ -497,10 +689,11 @@ local function applyOne(entity, party)
                 pcall(Osi.ApplyStatus, guid, C.MARKER_STATUS, -1, 1)
             end
             if math.random() <= (tonumber(C.BUFF_CHANCE) or 1.0) then
-                local status = pickBuff(guid)
+                local status = pickBuff(guid, live)
                 if status and Osi and Osi.ApplyStatus then
                     if pcall(Osi.ApplyStatus, guid, status, -1, 1) then
                         applied = true
+                        roll.buff = status
                         log("random buff %s -> %s", status, guid)
                     else
                         log("buff apply failed %s -> %s", status, guid)
@@ -513,7 +706,7 @@ local function applyOne(entity, party)
     -- Champion layer is independent so existing saves that already have a
     -- regular-buff marker can still roll/adopt a champion.
     local isBoss = entityIsBoss(entity)
-    if applyChampion(guid, isBoss, entity) then applied = true end
+    if applyChampion(guid, isBoss, entity, live, roll) then applied = true end
 
     -- Mirror runs after every roll so the clone copies the finished enemy.
     if ER.Mirror and ER.Mirror.Consider then
@@ -580,6 +773,35 @@ function R.GrantChampionEffects(guid, champion, opts)
     grantChampionEffects(guid, champion, opts)
 end
 
+-- Party member GUIDs (bare UUIDs, no duplicates), for reinforcement boons.
+function R.PartyMembers()
+    local out, seen = {}, {}
+    for guid in pairs(partySet()) do
+        local id = tostring(guid):match("(%x+%-%x+%-%x+%-%x+%-%x+)$") or tostring(guid)
+        if not seen[id] then
+            seen[id] = true
+            out[#out + 1] = id
+        end
+    end
+    table.sort(out)
+    return out
+end
+
+-- Makes `guid` the champion `champion` (a Config.CHAMPIONS entry). Used by
+-- reinforcement offerings, so it works while random champions are off
+-- (CHAMPIONS_ENABLED). Returns true when the status applied.
+function R.ApplyChampionTo(guid, champion)
+    if not (guid and champion and champion.status and Osi and Osi.ApplyStatus) then return false end
+    local applied = pcall(Osi.ApplyStatus, guid, champion.status, -1, 1)
+    if not applied then return false end
+    pcall(Osi.ApplyStatus, guid, C.CHAMPION_MARKER, -1, 1)
+    championCache[guid] = championCache[guid] or {}
+    table.insert(championCache[guid], champion.status)
+    grantChampionEffects(guid, champion)
+    log("offered champion %s -> %s", champion.status, guid)
+    return true
+end
+
 function R.ResetChampionMarkers()
     local seen, count = {}, 0
     local function clear(entity)
@@ -591,6 +813,7 @@ function R.ResetChampionMarkers()
         if Osi and Osi.RemoveStatus then
             pcall(Osi.RemoveStatus, guid, C.CHAMPION_MARKER)
         end
+        forgetRoll(guid)
         buffed[guid] = nil
         count = count + 1
     end

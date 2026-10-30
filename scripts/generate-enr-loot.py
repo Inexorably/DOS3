@@ -343,6 +343,7 @@ def load_base_equipment():
             'type': stat['type'],
             'boosts': stat['data'].get('Boosts', ''),
             'passives': stat['data'].get('PassivesOnEquip', ''),
+            'status_on_equip': stat['data'].get('StatusOnEquip', ''),
         })
     bases.sort(key=lambda item: item['root_name'])
     return bases, version, stats
@@ -394,23 +395,21 @@ def main():
     if not spells:
         raise SystemExit('no eligible spells found')
 
-    # Shared condition wrapper/passive entries. A condition status is applied
-    # by the item passive and removed when the item is unequipped.
+    # Shared condition wrapper/passive entries. The item applies the status
+    # through StatusOnEquip, so the engine owns applying and removing it. An
+    # OnEquip passive with an OnUnequip remove event looped apply/remove every
+    # frame. The passive has no functors and only shows the condition in the
+    # item tooltip.
     condition_names = {}
     condition_lines = []
     for condition in conditions:
         native = statuses[condition]['data']
-        remove_events = native.get('RemoveEvents', '').strip()
-        if 'OnUnequip' not in remove_events:
-            remove_events = (remove_events + ';' if remove_events else '') + 'OnUnequip'
         status_name = 'ENR_LootStatus_' + slug(condition)
         passive_name = 'ENR_LootPassive_' + slug(condition)
         condition_names[condition] = (status_name, passive_name)
         passive_lines = [
             'new entry "%s"' % passive_name,
             'type "PassiveData"',
-            'data "StatsFunctorContext" "OnEquip;OnCreate"',
-            'data "StatsFunctors" "ApplyStatus(SELF,%s,100,-1)"' % status_name,
         ]
         for field in ('DisplayName', 'Description', 'DescriptionParams', 'Icon'):
             value = (native.get(field) or '').strip()
@@ -426,7 +425,6 @@ def main():
             'new entry "%s"' % status_name,
             'type "StatusData"',
             'using "%s"' % condition,
-            'data "RemoveEvents" "%s"' % remove_events,
         ] + condition_extra + [
             '',
         ] + passive_lines
@@ -502,7 +500,9 @@ def main():
                         )
 
                     passives = base['passives'] or ''
+                    on_equip = base.get('status_on_equip') or ''
                     for condition in chosen_conditions:
+                        on_equip = append_token(on_equip, condition_names[condition][0])
                         passives = append_token(passives, condition_names[condition][1])
 
                     item_lines += [
@@ -515,6 +515,8 @@ def main():
                     ]
                     if passives:
                         item_lines.append('data "PassivesOnEquip" "%s"' % passives)
+                    if on_equip:
+                        item_lines.append('data "StatusOnEquip" "%s"' % on_equip)
                     item_lines.append('')
 
                     node = copy.deepcopy(base['root_node'])

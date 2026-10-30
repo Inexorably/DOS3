@@ -45,7 +45,7 @@ data "Description" "hde7e396e1d8e5bf68d717089b4a8f575"
 data "TooltipDamageList" "DealDamage(1,Bludgeoning)"
 data "TooltipAttackSave" ""
 data "Icon" "Action_Boar_Charge"
-data "UseCosts" "ActionPoint:2"
+data "UseCosts" "ActionPoint:4"
 data "DamageType" "Bludgeoning"
 data "SpellFlags" "IsHarmful"
 
@@ -54,7 +54,7 @@ type "SpellData"
 using "CC_BallCharge"
 data "Level" "2"
 data "Cooldown" "OncePerTurn"
-data "UseCosts" "ActionPoint:2"
+data "UseCosts" "ActionPoint:4"
 data "DisplayName" "h198aecc27b7b56b9a986b0240287ea39"
 data "Description" "h41d805d4ba3f53d3b96552ab8418b670"
 data "SpellProperties" "GROUND:CreateSurface(1.5,1,Fire)"
@@ -293,6 +293,82 @@ data "TooltipStatusApply" "ApplyStatus(REDUCE,100,10)"
 data "Icon" "Spell_Transmutation_Reduce"
 data "DisplayName" "haf2a01e4abf85084b1b0dc487b348c1b"
 data "Description" "h8e60fdd449f85122849f87b7bbbca38a"
+-- Tesla Link: a Witch Bolt variant that is bound to an arcane orb instead of an
+-- enemy. The orb has no hit points worth damaging, so the spell does no damage
+-- itself; it marks the orb with TESLA_LINK and grants the owner the Activate
+-- skill, which is where the damage comes from on later turns.
+new entry "CC_OrbTeslaLink"
+type "SpellData"
+using "Projectile_WitchBolt"
+data "SpellType" "Projectile"
+data "Level" "0"
+data "Cooldown" ""
+data "RechargeValues" ""
+data "AICooldown" ""
+data "SpellRoll" ""
+data "SpellSuccess" ""
+data "SpellProperties" ""
+data "TooltipDamageList" ""
+data "TooltipAttackSave" ""
+data "TooltipStatusApply" "ApplyStatus(CC_TESLA_LINK,100,10)"
+data "DescriptionParams" "DealDamage(8,Lightning)"
+data "TargetConditions" "HasStatus('CC_ORB') and not Self() and not Dead()"
+data "CycleConditions" "HasStatus('CC_ORB') and not Dead()"
+data "Icon" "Spell_Evocation_WitchBolt"
+data "DisplayName" "h8f4f6ec1e2395735941a4bc04bf0792c"
+data "Description" "h458d2cf3c48b5a399668ca415abdefc7"
+data "UseCosts" "ActionPoint:4"
+data "SpellFlags" "HasVerbalComponent;HasSomaticComponent;IsSpell;HasHighGroundRangeExtension;RangeIgnoreVerticalThreshold"
+data "ConcentrationSpellID" ""
+data "MemoryCost" "0"
+
+new entry "CC_TESLA_LINK"
+type "StatusData"
+data "StatusType" "BOOST"
+data "DisplayName" "h0fec8249934e5d279491d926aa2ccde6"
+data "Description" "hf627b0d35fe554e28738057988fa392f"
+data "Icon" "Spell_Evocation_WitchBolt"
+data "StackId" "CC_TESLA_LINK"
+data "Boosts" "UnlockSpell(CC_ActivateTeslaLink)"
+data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"
+
+-- Held by the caster while its link exists; this is what grants the Activate
+-- skill. Witch Bolt's stat grants its equivalent to the caster automatically, but
+-- here the caster is a player and the link sits on an orb, so the server Lua moves
+-- this marker onto the caster instead.
+new entry "CC_TESLA_LINK_OWNER"
+type "StatusData"
+data "StatusType" "BOOST"
+data "DisplayName" "ha49b518be8495da4b64c18c5a481ba5d"
+data "Description" "h4fa23bc0284a5241a94e529a61ecf39c"
+data "Icon" "Spell_Evocation_ActivateWitchBolt"
+data "StackId" "CC_TESLA_LINK_OWNER"
+data "Boosts" "UnlockSpell(CC_ActivateTeslaLink)"
+data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"
+
+-- Activate Tesla Link: the follow-up Witch Bolt's "Activate" action. 1 AP with a
+-- 1 turn cooldown. It only works while the linked orb holds CC_TESLA_LINK, and it
+-- keeps that duration topped up so the link survives the cast.
+new entry "CC_ActivateTeslaLink"
+type "SpellData"
+using "Shout_WitchBolt_Activate"
+data "SpellType" "Shout"
+-- The damage is applied by OrbTeslaLink.lua, not here. Witch Bolt's activate can
+-- get away with a stat DealDamage because its target is a character; this one is
+-- linked to an *orb*, which the engine cannot target, so a stat DealDamage never
+-- lands. Keeping it here as well would also double the damage if it ever did.
+data "SpellProperties" "SetStatusDuration(SELF,CC_TESLA_LINK,2)"
+data "AreaRadius" "30"
+data "TargetConditions" "HasStatus('CC_TESLA_LINK') or HasStatus('CC_TESLA_LINK_OWNER')"
+data "Cooldown" "OncePerTurn"
+data "UseCosts" "ActionPoint:4"
+data "Icon" "Spell_Evocation_ActivateWitchBolt"
+data "DisplayName" "h9d5be2abaa1f59fda98458a7f2ec75a9"
+data "Description" "hd0ee23cfa12f5b93b97f70ec222207bf"
+data "DescriptionParams" "DealDamage(8,Lightning)"
+data "TooltipDamageList" "DealDamage(8,Lightning)"
+data "DamageType" "Lightning"
+data "FollowUpOriginalSpell" "CC_OrbTeslaLink"
 
 -- Wall pieces must have exactly 5 MAX hit points. Writing the Health component at
 -- runtime crashed the game (spawned objects have no replication channel), and

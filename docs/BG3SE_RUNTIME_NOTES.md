@@ -589,6 +589,72 @@ template references (`data "Vitality" ...`); stat overrides are name-keyed, so
 redefining the inherited stat is what applies the cap. `Osi.SetHitpoints` remains
 safe and only moves current HP.
 
+## The IsInCombat component is stale after a save reload (2026-10-30 04:05 run)
+
+Reloading a save inside a running game leaves `IsInCombat` component instances on
+level enemies: EnemyRandomization detected presence with
+`if entity.IsInCombat then return true end` and therefore treated the whole level
+as being in combat the moment the map finished streaming back in. Every enemy got
+its random buff and a champion roll on a save that was made out of combat, then
+re-rolled a *different* champion on the next reload:
+
+```text
+[ENR] champion ENR_CHAMPION_LIGHTNING -> 07f1512b-...      (first combat)
+[ENR] champion ENR_CHAMPION_RESILIENCE -> 07f1512b-...     (same enemy, after reload)
+```
+
+The giveaway is ordering: the buffs land while the level is still streaming in
+(`CC_Ball_Azure_...` "bedroll granted" lines come *after* the champion grants) and
+with no combat start beforehand. A fresh game launch never shows this, which is
+why it only appeared after the player had fought and then reloaded.
+
+`Osi.IsInCombat(guid)` (already the only signal used by `StatsPatcher.lua` and
+`Cooldowns.lua`) reports the truth. Treat the engine query as the authority and
+use the component only when Osiris cannot answer; the mod logs the first three
+disagreements as `ignoring stale IsInCombat on <guid>`.
+
+## Osi.HasStatus cannot see ENR_* markers after a reload (2026-10-30 18:19 run)
+
+Fixing the combat check was not enough: the same reload still rolled a second
+buff and a second champion on enemies that already had one, and scaled champion
+health twice.
+
+```text
+[ENR] champion ENR_CHAMPION_HELL -> 07f1512b-...          (before the reload)
+[ENR] random buff ENR_Perm_MULTIATTACKDEFENSE -> 07f1512b-...   (after it)
+[ENR] champion hp scaled: 07f1512b-... 17 -> 26
+[ENR] champion ENR_CHAMPION_DEATH -> 07f1512b-...          (second champion stacks)
+```
+
+The marker statuses exist as real stats (`ENR_CHAMPION_ROLLED`,
+`ENR_CHAMPION_HP_SCALED`, `ENR_RANDOMIZED`, `ENR_MIRROR_ROLLED` in
+`Stats/Generated/Data/EnemyRandomizationStatuses.txt`), were applied with
+`Osi.ApplyStatus(guid, marker, -1, 1)`, and are permanent `BOOST` statuses - but
+`Osi.HasStatus(guid, marker)` returned false for every one of them after the
+reload. So `applyOne` believed the enemy had never rolled, and the adoption
+branches that exist for exactly this case (`adopted existing buff`,
+`boss tier adopted`) could never fire - no such line appears in any log.
+
+`Osi.HasSpell` shows the same behaviour in the same log: `AddSpell` reports
+`ok=true` and `Osi.HasSpell` straight afterwards still says `has=false`.
+
+Two consequences, both applied in `Randomizer.lua`:
+
+- Read the statuses from the ECS instead. `entity.StatusContainer.Statuses`
+  entries expose `StatusId`/`StackId`; `Armor.lua` already reads that component
+  for AC statuses. `hasStatus` now treats either source as proof and logs the
+  first six disagreements as
+  `status <name> on <guid>: Osi.HasStatus=false StatusContainer=true`.
+- Never trust a status query for the roll decision alone. Rolls are recorded in
+  `PersistentVars.ENR_Rolls[guid]` as `"<buff>|<champions>|<hp>"` (`-` for a
+  field that did not happen), the same savegame-persistent store `Mirror.lua`
+  uses for clone bookkeeping. A guid with a record adopts that roll - it never
+  rolls again - and the record also carries whether health was already scaled,
+  because the health marker could be invisible too.
+
+`!enemyrandom_reset` clears the record along with the marker so it still forces a
+re-roll.
+
 ## Maintenance rule
 
 Whenever a runtime-only API/arity/enum is discovered:

@@ -73,7 +73,7 @@ ABILITY_IMPROVEMENT_LEVELS = (4, 8, 12)
 # Every spell the class owns at level 1.
 CLASS_SPELLS = ("CC_SummonBall_Azure", "CC_IgniteOrb", "CC_OrbChainLightning",
                 "CC_OrbLightningBolt", "CC_OrbTriangulation", "CC_OrbStoneWall",
-                "CC_OrbSizeField")
+                "CC_OrbSizeField", "CC_OrbTeslaLink")
 
 # Class skills offered at character creation. Arcana/Investigation/History fit an
 # Intelligence caster; the class picks two.
@@ -116,6 +116,7 @@ SIZE_FIELD_AC = 2
 SIZE_FIELD_STRENGTH = 2
 SIZE_FIELD_RADIUS = 8
 SIZE_FIELD_DURATION = 10
+TESLA_LINK_DAMAGE = 8
 STONE_WALL_PILLAR_SPACING = 2
 # Pillar hit points are applied at runtime (Osi.SetHitpoints); spawning by
 # root template means an Object stat would never be used.
@@ -710,7 +711,7 @@ data "Description" "{handle('CC_BallCharge/desc')}"
 data "TooltipDamageList" "DealDamage(1,Bludgeoning)"
 data "TooltipAttackSave" ""
 data "Icon" "Action_Boar_Charge"
-data "UseCosts" "ActionPoint:2"
+data "UseCosts" "ActionPoint:4"
 data "DamageType" "Bludgeoning"
 data "SpellFlags" "IsHarmful"
 
@@ -719,7 +720,7 @@ type "SpellData"
 using "CC_BallCharge"
 data "Level" "2"
 data "Cooldown" "OncePerTurn"
-data "UseCosts" "ActionPoint:2"
+data "UseCosts" "ActionPoint:4"
 data "DisplayName" "{handle('CC_BallCharge_Ignite/name')}"
 data "Description" "{handle('CC_BallCharge_Ignite/desc')}"
 data "SpellProperties" "GROUND:CreateSurface(1.5,1,Fire)"
@@ -958,6 +959,82 @@ data "TooltipStatusApply" "ApplyStatus(REDUCE,100,{SIZE_FIELD_DURATION})"
 data "Icon" "Spell_Transmutation_Reduce"
 data "DisplayName" "{handle('CC_OrbSizeFieldReduce/name')}"
 data "Description" "{handle('CC_OrbSizeFieldReduce/desc')}"
+-- Tesla Link: a Witch Bolt variant that is bound to an arcane orb instead of an
+-- enemy. The orb has no hit points worth damaging, so the spell does no damage
+-- itself; it marks the orb with TESLA_LINK and grants the owner the Activate
+-- skill, which is where the damage comes from on later turns.
+new entry "CC_OrbTeslaLink"
+type "SpellData"
+using "Projectile_WitchBolt"
+data "SpellType" "Projectile"
+data "Level" "0"
+data "Cooldown" ""
+data "RechargeValues" ""
+data "AICooldown" ""
+data "SpellRoll" ""
+data "SpellSuccess" ""
+data "SpellProperties" ""
+data "TooltipDamageList" ""
+data "TooltipAttackSave" ""
+data "TooltipStatusApply" "ApplyStatus(CC_TESLA_LINK,100,10)"
+data "DescriptionParams" "DealDamage({TESLA_LINK_DAMAGE},Lightning)"
+data "TargetConditions" "HasStatus('CC_ORB') and not Self() and not Dead()"
+data "CycleConditions" "HasStatus('CC_ORB') and not Dead()"
+data "Icon" "Spell_Evocation_WitchBolt"
+data "DisplayName" "{handle('CC_OrbTeslaLink/name')}"
+data "Description" "{handle('CC_OrbTeslaLink/desc')}"
+data "UseCosts" "ActionPoint:4"
+data "SpellFlags" "HasVerbalComponent;HasSomaticComponent;IsSpell;HasHighGroundRangeExtension;RangeIgnoreVerticalThreshold"
+data "ConcentrationSpellID" ""
+data "MemoryCost" "0"
+
+new entry "CC_TESLA_LINK"
+type "StatusData"
+data "StatusType" "BOOST"
+data "DisplayName" "{handle('CC_TESLA_LINK/name')}"
+data "Description" "{handle('CC_TESLA_LINK/desc')}"
+data "Icon" "Spell_Evocation_WitchBolt"
+data "StackId" "CC_TESLA_LINK"
+data "Boosts" "UnlockSpell(CC_ActivateTeslaLink)"
+data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"
+
+-- Held by the caster while its link exists; this is what grants the Activate
+-- skill. Witch Bolt's stat grants its equivalent to the caster automatically, but
+-- here the caster is a player and the link sits on an orb, so the server Lua moves
+-- this marker onto the caster instead.
+new entry "CC_TESLA_LINK_OWNER"
+type "StatusData"
+data "StatusType" "BOOST"
+data "DisplayName" "{handle('CC_TESLA_LINK_OWNER/name')}"
+data "Description" "{handle('CC_TESLA_LINK_OWNER/desc')}"
+data "Icon" "Spell_Evocation_ActivateWitchBolt"
+data "StackId" "CC_TESLA_LINK_OWNER"
+data "Boosts" "UnlockSpell(CC_ActivateTeslaLink)"
+data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"
+
+-- Activate Tesla Link: the follow-up Witch Bolt's "Activate" action. 1 AP with a
+-- 1 turn cooldown. It only works while the linked orb holds CC_TESLA_LINK, and it
+-- keeps that duration topped up so the link survives the cast.
+new entry "CC_ActivateTeslaLink"
+type "SpellData"
+using "Shout_WitchBolt_Activate"
+data "SpellType" "Shout"
+-- The damage is applied by OrbTeslaLink.lua, not here. Witch Bolt's activate can
+-- get away with a stat DealDamage because its target is a character; this one is
+-- linked to an *orb*, which the engine cannot target, so a stat DealDamage never
+-- lands. Keeping it here as well would also double the damage if it ever did.
+data "SpellProperties" "SetStatusDuration(SELF,CC_TESLA_LINK,2)"
+data "AreaRadius" "30"
+data "TargetConditions" "HasStatus('CC_TESLA_LINK') or HasStatus('CC_TESLA_LINK_OWNER')"
+data "Cooldown" "OncePerTurn"
+data "UseCosts" "ActionPoint:4"
+data "Icon" "Spell_Evocation_ActivateWitchBolt"
+data "DisplayName" "{handle('CC_ActivateTeslaLink/name')}"
+data "Description" "{handle('CC_ActivateTeslaLink/desc')}"
+data "DescriptionParams" "DealDamage({TESLA_LINK_DAMAGE},Lightning)"
+data "TooltipDamageList" "DealDamage({TESLA_LINK_DAMAGE},Lightning)"
+data "DamageType" "Lightning"
+data "FollowUpOriginalSpell" "CC_OrbTeslaLink"
 
 -- Wall pieces must have exactly 5 MAX hit points. Writing the Health component at
 -- runtime crashed the game (spawned objects have no replication channel), and
@@ -1169,6 +1246,26 @@ def write_loca() -> None:
         (
             handle("CC_OrbSizeFieldReduce/desc"),
             f"Reduce every character inside the triangle of orbs: -{SIZE_FIELD_AC} AC, -{SIZE_FIELD_STRENGTH} Strength, and smaller size.",
+        ),
+        (handle("CC_OrbTeslaLink/name"), "Orb Tesla Link"),
+        (
+            handle("CC_OrbTeslaLink/desc"),
+            f"Target an arcane orb to link it with lightning. The link grants Activate Tesla Link, which deals {TESLA_LINK_DAMAGE} Lightning damage to the linked orb's enemies on later turns. Costs 1 AP.",
+        ),
+        (handle("CC_TESLA_LINK_OWNER/name"), "Tesla Link Owner"),
+        (
+            handle("CC_TESLA_LINK_OWNER/desc"),
+            "Internal marker: you hold a Tesla Link and can activate it.",
+        ),
+        (handle("CC_TESLA_LINK/name"), "Tesla Link"),
+        (
+            handle("CC_TESLA_LINK/desc"),
+            "This orb is linked. Its owner can activate the link to strike with lightning.",
+        ),
+        (handle("CC_ActivateTeslaLink/name"), "Activate Tesla Link"),
+        (
+            handle("CC_ActivateTeslaLink/desc"),
+            f"Strike the linked orb with lightning for {TESLA_LINK_DAMAGE} Lightning damage. Costs 1 AP, once per turn.",
         ),
         (handle("CC_OrbStoneWall/name"), "Orb Stone Wall"),
         (
