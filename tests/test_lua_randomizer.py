@@ -67,6 +67,17 @@ class RandomizerTests(unittest.TestCase):
             if call["args"].__class__ is list and call["args"][0] == guid
         }
 
+    def champion_statuses(self) -> set[str]:
+        values = self.harness.run(
+            "local out = {} for _, entry in ipairs(ER.Config.CHAMPIONS) do "
+            "out[#out + 1] = entry.status end return out"
+        )
+        return {str(value) for value in values}
+
+    def champion_status(self, guid: str) -> str | None:
+        found = self.applied_statuses(guid) & self.champion_statuses()
+        return sorted(found)[0] if found else None
+
     def test_enemy_gets_regular_buff_and_champion(self) -> None:
         self.make_enemy("enemy1", health=100)
         self.assertTrue(self.harness.run('return ER.Randomizer.ApplyTo("enemy1")'))
@@ -164,6 +175,74 @@ class RandomizerTests(unittest.TestCase):
         self.harness.set_osi_result("IsInCombat", 1)
         self.assertTrue(self.harness.run('return ER.Randomizer.ApplyTo("fighting1")'))
         self.assertTrue(self.applied_statuses("fighting1"))
+
+    def test_saved_roll_is_adopted_instead_of_rerolled(self) -> None:
+        # A reload restores the enemy from the save with the in-memory
+        # bookkeeping gone. Osi.HasStatus no longer reported the ENR_* markers,
+        # so the enemy rolled a second buff and a second champion on top of the
+        # first one and its health was scaled twice.
+        self.make_enemy("reloaded", health=100)
+        self.harness.run('ER.Randomizer.ApplyTo("reloaded")')
+        champion = self.champion_status("reloaded")
+        self.assertIsNotNone(champion)
+        self.assertEqual(self.harness.run('return H.entities["reloaded"].Health.MaxHp'), 150)
+
+        self.harness.run("H.statuses = {}")
+        self.harness.fire_event("SessionLoaded", {})
+        self.harness.clear_osi_calls()
+
+        self.harness.run('ER.Randomizer.ApplyTo("reloaded")')
+        self.assertEqual(
+            self.applied_statuses("reloaded") & self.champion_statuses(), {champion},
+            "the reload must keep the champion that was already rolled",
+        )
+        self.assertEqual(
+            self.harness.run('return H.entities["reloaded"].Health.MaxHp'), 150,
+            "champion health must not be scaled a second time",
+        )
+        self.assertIn("adopted from saved roll", " ".join(self.harness.prints()))
+
+    def test_a_saved_roll_without_a_champion_does_not_roll_again(self) -> None:
+        self.make_enemy("nochampion", health=100)
+        self.harness.run("ER.Config.CHAMPION_CHANCE = 0.0")
+        self.harness.run('ER.Randomizer.ApplyTo("nochampion")')
+        self.assertIsNone(self.champion_status("nochampion"))
+
+        self.harness.run("H.statuses = {}")
+        self.harness.fire_event("SessionLoaded", {})
+        self.harness.run("ER.Config.CHAMPION_CHANCE = 1.0")
+        self.harness.clear_osi_calls()
+
+        self.harness.run('ER.Randomizer.ApplyTo("nochampion")')
+        self.assertIsNone(
+            self.champion_status("nochampion"),
+            "an enemy that already failed its roll must not become a champion on reload",
+        )
+
+    def test_markers_in_the_status_container_block_a_second_roll(self) -> None:
+        # Osi.HasStatus reported false for ENR_* markers that the engine still
+        # had on the entity. The ECS StatusContainer is the engine's own list.
+        self.make_enemy("container", health=100)
+        self.harness.run(
+            'H.entities["container"].StatusContainer = { Statuses = {'
+            ' { StatusId = "ENR_RANDOMIZED" },'
+            ' { StatusId = "ENR_CHAMPION_ROLLED" },'
+            ' { StatusId = "ENR_CHAMPION_HP_SCALED" },'
+            ' { StatusId = "ENR_CHAMPION_HELL" },'
+            "} }"
+        )
+        self.harness.set_osi_result("HasStatus", 0)
+        self.assertFalse(self.harness.run('return ER.Randomizer.ApplyTo("container")'))
+        self.assertEqual(
+            self.applied_statuses("container") & self.champion_statuses(),
+            {"ENR_CHAMPION_HELL"},
+            "the champion already on the entity must be adopted, not replaced",
+        )
+        self.assertEqual(
+            self.harness.run('return H.entities["container"].Health.MaxHp'), 100,
+            "the health marker in the container must stop a second scale",
+        )
+        self.assertIn("StatusContainer=true", " ".join(self.harness.prints()))
 
     def test_missing_entity_returns_false(self) -> None:
         self.assertFalse(self.harness.run('return ER.Randomizer.ApplyTo("nobody")'))
