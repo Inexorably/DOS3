@@ -71,32 +71,20 @@ class GeneratedEnemyRandomizationTests(unittest.TestCase):
         self.assertEqual(hp, sorted(hp))
 
     def test_summoning_champions_summons_cost_four_ap(self):
-        # Champion of the Horde is the documented exception: Summon Horde raises
-        # four zombies in one cast and costs 2 AP.
-        exceptions = {"ENR_Summon_ZombieHorde": "ActionPoint:2"}
         for name, data in self.stats.items():
             if name.startswith("ENR_Summon_"):
                 with self.subTest(spell=name):
-                    expected = exceptions.get(name, "ActionPoint:4")
-                    self.assertEqual(data.get("UseCosts"), expected)
+                    self.assertEqual(data.get("UseCosts"), "ActionPoint:4")
 
-    def test_summon_horde_raises_four_zombies_on_separate_stacks(self) -> None:
-        data = self.stats["ENR_Summon_ZombieHorde"]
-        properties = data.get("SpellProperties", "")
-        # One Summon functor per creature per level band.
-        self.assertEqual(properties.count("Summon("), 4 * 20)
-        for index in range(1, 5):
-            self.assertIn(f"'ENR_ZombieHordeStack{index}'", properties)
-
-    def test_summon_horde_has_the_highest_ai_weight(self) -> None:
-        horde = int(self.stats["ENR_Summon_ZombieHorde"].get("AIWeight", "0"))
-        self.assertEqual(horde, 1000)
-        others = {
-            int(data.get("AIWeight", "0"))
-            for name, data in self.stats.items()
-            if name.startswith("ENR_Summon_") and name != "ENR_Summon_ZombieHorde"
-        }
-        self.assertLess(max(others), horde)
+    def test_no_generated_stat_value_is_long_enough_to_hang_loading(self) -> None:
+        # Summon Horde's 15,584-character SpellProperties hung the game at load
+        # before any Lua ran; the same spell cut to 3,914 characters loaded.
+        limit = 8000
+        data_dir = CHAMPION_STATS.parent
+        for path in sorted(data_dir.glob("*.txt")):
+            for number, line in enumerate(read(path).splitlines(), start=1):
+                with self.subTest(file=path.name, line=number):
+                    self.assertLessEqual(len(line), limit)
 
     def test_horde_champion_grants_its_spells_and_miasma(self) -> None:
         champion = self.stats["ENR_CHAMPION_HORDE"]
@@ -113,9 +101,11 @@ class GeneratedEnemyRandomizationTests(unittest.TestCase):
             "Target_AnimateDead",
             "Target_FungalInfestation",
             "Target_AnimateDead_Zombie_4",
-            "ENR_Summon_ZombieHorde",
         ):
             self.assertIn(f'"{spell}"', line)
+        # Summon Horde was removed because it hung the game at load.
+        self.assertNotIn("ENR_Summon_ZombieHorde", line)
+        self.assertNotIn("ENR_Summon_ZombieHorde", self.stats)
         # Rejuvenating Miasma is the native ANIMATEDEAD_ZONE status.
         self.assertIn('"ANIMATEDEAD_ZONE"', line)
 

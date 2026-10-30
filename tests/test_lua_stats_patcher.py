@@ -174,6 +174,8 @@ class StatsPatcherTests(unittest.TestCase):
             stat_type="SpellData",
         )
         h.set_stat("Spell_NoFields", {}, stat_type="SpellData")
+        h.set_stat("OBJ_Potion_Test", {"UseCosts": "BonusActionPoint:1"}, stat_type="Object")
+        h.set_stat("OBJ_Scroll_Test", {"UseCosts": "ActionPoint:1"}, stat_type="Object")
 
     # --------------------------------------------------------------------- tests
     def test_patch_all_updates_every_stat_type(self) -> None:
@@ -204,6 +206,14 @@ class StatsPatcherTests(unittest.TestCase):
         self.assertNotIn("Attack(", spell["SpellSuccess"])
         self.assertEqual(spell["UseCosts"], "ActionPoint:1")
         self.assertEqual(spell["DualWieldingUseCosts"], "ActionPoint:1")
+
+    def test_patch_all_converts_item_bonus_action_costs(self) -> None:
+        self.harness.run("DOS2C.Stats.PatchAll(false)")
+        potion = self.harness.run('return Ext.Stats.Get("OBJ_Potion_Test").UseCosts')
+        self.assertEqual(potion, "ActionPoint:1")
+        scroll = self.harness.run('return Ext.Stats.Get("OBJ_Scroll_Test").UseCosts')
+        self.assertEqual(scroll, "ActionPoint:1")
+        self.assertIn("1 item use costs", " ".join(self.harness.prints()))
 
     def test_patch_all_reports_cooldown_and_level_histograms(self) -> None:
         self.harness.run("DOS2C.Stats.PatchAll(false)")
