@@ -101,6 +101,24 @@ class FedoraCommandTests(unittest.TestCase):
     def test_the_command_is_registered(self) -> None:
         self.assertIn("orbweaver_fedora", self.harness.console_commands())
 
+    def test_the_command_accepts_a_root_template_and_stat_override(self) -> None:
+        # Lets the Gibus model be tried in game without a rebuild, since its root
+        # template could not be located offline.
+        self.harness.run_console("orbweaver_fedora", "gibus-root-guid", "GIBUS_STAT")
+        self.assertEqual(
+            self.calls("TemplateAddTo")[0][0], "gibus-root-guid"
+        )
+        self.harness.fire_listener("TemplateAddedTo", "gibus-root-guid", "item7",
+                                   "player1", 0)
+        self.assertEqual(self.calls("ItemSetStats"), [["item7", "GIBUS_STAT"]])
+
+    def test_the_command_defaults_when_no_arguments_are_given(self) -> None:
+        self.harness.run_console("orbweaver_fedora")
+        self.assertEqual(
+            self.calls("TemplateAddTo")[0][0],
+            "4d2e0931-3a01-4759-834b-8ae36749daab",
+        )
+
     def test_running_the_command_spawns_the_hat(self) -> None:
         self.harness.run_console("orbweaver_fedora")
         self.assertEqual(len(self.calls("TemplateAddTo")), 1)
