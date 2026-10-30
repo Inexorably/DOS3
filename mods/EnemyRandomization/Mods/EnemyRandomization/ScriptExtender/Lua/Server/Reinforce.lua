@@ -60,9 +60,10 @@ local function levelOf(entity)
     local level = 1
     if entity then
         local ok, value = pcall(function() return entity.EocLevel.Level end)
-        if ok and tonumber(value) then level = tonumber(value) end
+        local number = ok and tonumber(value) or nil
+        if number then level = math.floor(number) end
     end
-    return math.max(1, math.min(20, math.floor(level)))
+    return math.max(1, math.min(20, level))
 end
 
 local function raceOf(entity)
@@ -145,7 +146,8 @@ end
 if Ext and Ext.RegisterConsoleCommand then
     pcall(Ext.RegisterConsoleCommand, "enemyrandom_reinforce", function(_, chance, max)
         if tonumber(chance) then C.REINFORCE_CHANCE = clamp01(chance) end
-        if tonumber(max) then C.REINFORCE_MAX = math.max(1, math.floor(tonumber(max))) end
+        local size = tonumber(max)
+        if size then C.REINFORCE_MAX = math.max(1, math.floor(size)) end
         local text = string.format("reinforce chance is %.1f%%, max wave size %d",
             clamp01(C.REINFORCE_CHANCE) * 100, tonumber(C.REINFORCE_MAX) or 1)
         if Ext.Utils and Ext.Utils.Print then pcall(Ext.Utils.Print, C.LOG_PREFIX .. " " .. text) end
