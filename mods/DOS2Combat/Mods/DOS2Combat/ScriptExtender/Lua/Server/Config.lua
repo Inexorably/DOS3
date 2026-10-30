@@ -136,9 +136,15 @@ DOS2C.Config = {
     -- External Enemy Randomization summon skills are intentionally kept at
     -- 4 AP when both mods are loaded; DOS2Combat's default spell-level mapping
     -- would otherwise reduce these custom spells to 1 AP.
+    --
+    -- OrbWeaver's Charge is a level-2 spell, so the level mapping would charge
+    -- 2 AP where the mod defines 4. List it here rather than relying on the
+    -- level table: this table is applied after the level fallback.
     DOS2_AP_COSTS = {
         ENR_Summon_ChultAlioramus = 4,
         ENR_Summon_Crimson = 4,
+        CC_BallCharge = 4,
+        CC_BallCharge_Ignite = 4,
     },
 
     DOS2_COOLDOWNS = {

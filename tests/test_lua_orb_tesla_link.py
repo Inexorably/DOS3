@@ -28,8 +28,14 @@ class OrbTeslaLinkTests(unittest.TestCase):
             "Server/OrbTeslaLink.lua",
         ):
             self.harness.load(module)
+        self.orb_guids: list[str] = []
         self.harness.run(
             """
+            H.positions = {}
+            H.osi_results["GetPosition"] = function(guid)
+                local pos = H.positions[guid]
+                if pos then return table.unpack(pos) end
+            end
             H.statuses = {}
             H.osi_results["HasStatus"] = function(guid, status)
                 return H.statuses[guid] and H.statuses[guid][status] and 1 or 0
@@ -48,9 +54,19 @@ class OrbTeslaLinkTests(unittest.TestCase):
 
     # ------------------------------------------------------------------ helpers
     def mark_orb(self, orb: str) -> None:
-        self.harness.run(
-            f'H.statuses["{orb}"] = {{ CC_ORB = true }}'
-        )
+        """Register a real orb entity.
+
+        OrbTeslaLink identifies orbs through OrbShared.collectOrbs, which matches
+        Data.StatsId, so the fixture has to create a genuine orb rather than just
+        faking the CC_ORB status.
+        """
+        self.harness.add_entity(orb, {
+            "Uuid": {"EntityUuid": orb},
+            "Data": {"StatsId": "CC_Ball"},
+        })
+        self.orb_guids.append(orb)
+        self.harness.set_component("Data", self.orb_guids)
+        self.harness.run(f'H.positions["{orb}"] = {{ 0, 0, 0 }}')
 
     def cast(self, orb: str, caster: str = "caster") -> None:
         self.harness.fire_listener("UsingSpellOnTarget", caster, orb,

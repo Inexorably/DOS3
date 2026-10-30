@@ -88,8 +88,20 @@ function T.Resolve(caster, target)
         log("target %s is not an orb", tostring(target))
         return false
     end
-    if not hasStatus(target, "CC_ORB") then
-        log("target %s is not an arcane orb", tostring(target))
+    -- Identify the orb the same way every other orb spell does: match it against
+    -- OrbShared's orb list (Data.StatsId == CC_Ball). Osi.HasStatus('CC_ORB')
+    -- returned false for a real orb here, so the status marker is not reliable
+    -- for this check.
+    local orb = nil
+    for _, candidate in ipairs(S.collectOrbs()) do
+        if candidate.key == key then
+            orb = candidate
+            break
+        end
+    end
+    if not orb then
+        log("target %s is not an arcane orb (orbs found=%d)", tostring(target),
+            #S.collectOrbs())
         return false
     end
     local casterKey = tostring(caster or "")
