@@ -416,10 +416,20 @@ local function applyChampion(guid, isBoss, entity)
     return true
 end
 
+-- Props are not combatants even when the engine puts them in the combat
+-- component set, so they must never be buffed or made champions.
+local function isExcludedProp(guid)
+    for _, status in ipairs(C.NEVER_BUFF_STATUSES or {}) do
+        if hasStatus(guid, status) then return true end
+    end
+    return false
+end
+
 local function applyOne(entity, party)
     local guid = guidOf(entity)
     if not guid then return false end
     if not inCombat(entity, guid) then return false end
+    if isExcludedProp(guid) then return false end
     if isParty(entity, guid, party) or isSummon(entity) then
         buffed[guid] = true
         return false

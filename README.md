@@ -563,7 +563,9 @@ a mod convention — it is only the vanilla name for `RootTemplates/_merged`.
 - **Orb Stone Wall** targets one orb and raises a wall of stone between it and
   every other orb within **8 m** of the previous orb, chaining orb to orb (so the
   walk may run **A->B->C**, **B->A->C**, **C->B->A**, ...). Wall of Stone wall
-  segments are placed every 2 m along that line, each with **5 hit points**. Charging any orb that is part of the wall collapses it; charging an
+  segments are placed every 1 m along that line - close enough to touch - and each
+  has exactly **5 hit points**. Wall segments are not combatants: the enemy
+  randomizer never buffs or promotes them. Charging any orb that is part of the wall collapses it; charging an
   orb that is *not* on the wall leaves it standing, so a wall raised through A and
   C survives B charging. Costs **2 AP**.
 - **Orb Chain Lightning** is cast by the player and can only target a

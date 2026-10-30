@@ -63,7 +63,8 @@ OW.Config = {
     ORB_STONE_WALL_LINK_RADIUS = 8.0,
     -- Pillars are the Wall of Stone pillar object, one every PILLAR_SPACING
     -- metres along the chain, each set to PILLAR_HP hit points.
-    ORB_STONE_WALL_PILLAR_SPACING = 2.0,
+    -- 1 m, so consecutive pieces touch instead of leaving gaps between them.
+    ORB_STONE_WALL_PILLAR_SPACING = 1.0,
     ORB_STONE_WALL_PILLAR_HP = 5,
     -- Root template of one wall segment. Default is the Wall of Stone wall art
     -- (VFX_Static_Wall_Spell_Stone_A_LowMiddle_A); see OrbStoneWall.lua for the

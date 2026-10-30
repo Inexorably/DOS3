@@ -466,9 +466,13 @@ Known DOS2 visual references for the current test spells:
       line, 5 HP each (set at runtime with `Osi.SetHitpoints`). Charging an orb
       that is on the wall collapses it; charging an orb that is not on the wall
       leaves it standing.
-- [ ] Verify Orb Stone Wall in-game: the spell appears for the class, the wall is
-      built from the Wall of Stone wall art and does not crash, each segment dies
-      to **5** damage, a three-orb chain builds one continuous wall, charging a
+- [x] Wall segments now touch (spacing 2 m -> 1 m), are capped at exactly 5 max
+      HP (the Health component is written; `Osi.SetHitpoints` alone only moved
+      current HP), and carry `CC_ORB_WALL_PIECE` so EnemyRandomization skips them
+      (they were being buffed and champion-scaled to 30/45 HP).
+- [ ] Verify Orb Stone Wall in-game: the spell appears for the class, the pieces
+      form a continuous wall with no gaps, every segment shows **5/5** HP and
+      dies to 5 damage, no segment has random buffs or champion auras, charging a
       wall orb collapses every segment, and charging an off-wall orb leaves the
       wall intact. Log lines: `wall raised through a->b->c: N pillar(s)`,
       `collapsed (charged orb ...)`, `not part of any wall`. The combat log must

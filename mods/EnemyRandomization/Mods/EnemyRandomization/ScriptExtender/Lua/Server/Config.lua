@@ -91,6 +91,11 @@ ER.Config = {
     -- This is what prevents rerolls after save/reload mid-combat and keeps
     -- multiplayer clients from seeing different results.
     MARKER_STATUS = "ENR_RANDOMIZED",
+    -- Objects carrying any of these statuses are never buffed or promoted: they
+    -- are props, not combatants. OrbWeaver tags its stone-wall segments with
+    -- CC_ORB_WALL_PIECE; without this they were buffed like enemies and ended up
+    -- with varying hit points (30, then 45 from the champion multiplier).
+    NEVER_BUFF_STATUSES = { "CC_ORB_WALL_PIECE" },
 
     -- Statuses that were previously selected from the positive pool but are
     -- unsafe for enemies (for example, delayed-death effects that make them

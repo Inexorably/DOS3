@@ -59,6 +59,9 @@ class OrbStoneWallTests(unittest.TestCase):
                 return guid
             end
             H.osi_results["SetHitpoints"] = function() return true end
+            H.osi_results["ApplyStatus"] = function(guid, status)
+                return true
+            end
             H.osi_results["UseSpell"] = function(...)
                 error("the wall spell must not cast anything else")
             end
@@ -142,8 +145,19 @@ class OrbStoneWallTests(unittest.TestCase):
     def test_raises_pillars_along_the_whole_line(self) -> None:
         self.line()
         self.cast("a")
-        # 12 m at 2 m spacing: 3 points per 6 m pair, plus the closed end.
-        self.assertEqual(self.raised(), 7)
+        # 12 m at 1 m spacing (pieces must touch): 6 points per 6 m pair, plus
+        # the closed end.
+        self.assertEqual(self.raised(), 13)
+
+    def test_pieces_are_spaced_one_metre_apart(self) -> None:
+        # 2 m left visible gaps; the pieces must touch.
+        points = self.harness.run(
+            "local p = OW.OrbStoneWall.pillarPoints("
+            "{{x=0,y=0,z=0},{x=10,y=0,z=0}}, "
+            "OW.Config.ORB_STONE_WALL_PILLAR_SPACING) "
+            "return p[2].x - p[1].x"
+        )
+        self.assertAlmostEqual(float(points), 1.0, places=4)
 
     def test_pillars_run_from_one_end_of_the_wall_to_the_other(self) -> None:
         self.line()
@@ -179,6 +193,111 @@ class OrbStoneWallTests(unittest.TestCase):
             int(c["args"][1]) for c in self.harness.osi_calls("SetHitpoints")
         ]
         self.assertEqual(set(values), {9})
+
+    def test_every_pillar_is_marked_as_a_wall_piece(self) -> None:
+        # EnemyRandomization skips anything with this status; without it the wall
+        # was buffed like an enemy and ended up with 30 and 45 hit points.
+        self.line()
+        self.cast("a")
+        marks = [
+            str(c["args"][1]) for c in self.harness.osi_calls("ApplyStatus")
+        ]
+        self.assertEqual(set(marks), {"CC_ORB_WALL_PIECE"})
+        self.assertEqual(len(marks), self.raised())
+
+    def test_the_marker_is_applied_before_hit_points_are_capped(self) -> None:
+        self.line()
+        self.cast("a")
+        order = [
+            (str(c["name"]), str(c["args"][1]))
+            for c in self.harness.osi_calls()
+            if str(c["name"]) in ("ApplyStatus", "SetHitpoints")
+        ]
+        first_mark = next(
+            i for i, (n, _) in enumerate(order) if n == "ApplyStatus"
+        )
+        first_hp = next(
+            i for i, (n, _) in enumerate(order) if n == "SetHitpoints"
+        )
+        self.assertLess(first_mark, first_hp)
+
+    def test_max_hit_points_are_capped_not_just_current(self) -> None:
+        # Osi.SetHitpoints only moves current HP, so a 30-vitality template kept
+        # its 30 max and wall pieces showed 30 and 45 HP. The Health component is
+        # the real cap.
+        self.line()
+        result = str(self.harness.run(
+            """
+            H.health = { MaxHp = 30, Hp = 30 }
+            Ext.Entity.Get = function()
+                return {
+                    Health = H.health,
+                    Replicate = function() return true end,
+                }
+            end
+            return "ready"
+            """
+        ))
+        self.assertEqual(result, "ready")
+        self.cast("a")
+        self.assertEqual(int(self.harness.run("return H.health.MaxHp")), 5)
+        self.assertEqual(int(self.harness.run("return H.health.Hp")), 5)
+
+    def test_hit_points_fall_back_to_the_osiris_path(self) -> None:
+        # Some builds do not expose the entity, so the Osiris call is the only
+        # way to move current HP. It must still happen.
+        self.line()
+        self.harness.run(
+            """
+            Ext.Entity.Get = function() return nil end
+            return true
+            """
+        )
+        self.cast("a")
+        self.assertEqual(
+            len(self.harness.osi_calls("SetHitpoints")), self.raised()
+        )
+
+    def test_a_read_only_health_max_is_reported(self) -> None:
+        self.line()
+        self.harness.run(
+            """
+            Ext.Entity.Get = function()
+                local health = setmetatable({}, {
+                    __newindex = function() error("MaxHp is read-only") end,
+                })
+                return { Health = health, Replicate = function() return true end }
+            end
+            return true
+            """
+        )
+        self.cast("a")
+        self.assertIn("health write failed", self.logs())
+
+    def test_a_failed_marker_is_reported(self) -> None:
+        self.line()
+        self.harness.run(
+            'H.osi_results["ApplyStatus"] = function() error("no such call") end'
+        )
+        self.cast("a")
+        self.assertIn("could not mark pillar", self.logs())
+        # The wall is still raised; only the marker failed.
+        self.assertEqual(self.wall_count(), 1)
+
+    def test_a_failed_health_write_is_reported(self) -> None:
+        self.line()
+        self.harness.run(
+            """
+            Ext.Entity.Get = function()
+                return { Health = {}, Replicate = function() return true end }
+            end
+            return true
+            """
+        )
+        self.cast("a")
+        # MaxHp is a read-only proxy in a real entity; a rejected write must be
+        # logged rather than silently leaving the template's 30.
+        self.assertIn("orb stone wall", self.logs())
 
     def test_a_pillar_that_never_lands_is_not_counted(self) -> None:
         self.line()
@@ -367,8 +486,12 @@ class OrbStoneWallStatsTests(unittest.TestCase):
     def test_link_radius_and_hp_match_server_config(self) -> None:
         self.assertEqual(self.config_number("ORB_STONE_WALL_LINK_RADIUS"), "8.0")
         self.assertEqual(self.config_number("ORB_STONE_WALL_PILLAR_HP"), "5")
-        self.assertEqual(self.config_number("ORB_STONE_WALL_PILLAR_SPACING"), "2.0")
+        self.assertEqual(self.config_number("ORB_STONE_WALL_PILLAR_SPACING"), "1.0")
         self.assertIn("STONE_WALL_LINK_RADIUS = 8", self.generator)
+
+    def test_wall_piece_marker_status_exists(self) -> None:
+        self.assertIn('new entry "CC_ORB_WALL_PIECE"', self.spells_txt)
+        self.assertIn("CC_ORB_WALL_PIECE", self.module)
         self.assertIn("STONE_WALL_PILLAR_HP = 5", self.generator)
 
     def test_uses_the_vanilla_wall_of_stone_icon(self) -> None:

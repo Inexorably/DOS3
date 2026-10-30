@@ -323,8 +323,22 @@ lightning chain uses (`OrbShared.chainOrder`), bounded by
 C->B->A and so on.
 
 Pillars are placed directly with `Osi.CreateAt`, one every
-`ORB_STONE_WALL_PILLAR_SPACING` metres along the polyline through those orbs, and
-each is set to `ORB_STONE_WALL_PILLAR_HP` (5) with `Osi.SetHitpoints`.
+`ORB_STONE_WALL_PILLAR_SPACING` metres along the polyline through those orbs. The
+spacing is **1 m**, because the Wall of Stone pieces are about a metre wide and 2 m
+left visible gaps between them.
+
+Each piece is then capped at `ORB_STONE_WALL_PILLAR_HP` (5) by writing the Health
+component (`MaxHp` and `Hp`, then `Replicate("Health")`), because
+`Osi.SetHitpoints` only moves **current** HP - with it alone the template's 30 max
+showed through. `Osi.SetHitpoints` is still called as the fallback for builds where
+the entity is not exposed.
+
+Each piece also gets the `CC_ORB_WALL_PIECE` marker status. Wall pieces are objects
+the engine puts in the combat component set, so EnemyRandomization adopted them as
+combatants: they were buffed and, given `CHAMPION_HP_MULTIPLIER` 1.5, showed 30 and
+45 hit points. EnemyRandomization now skips any entity carrying a status in
+`Config.NEVER_BUFF_STATUSES` (which lists `CC_ORB_WALL_PIECE`) before either the
+buff or champion layer runs.
 `CreateAt` can return a GUID without placing anything, so each pillar's position
 is read back and an unplaced pillar is deleted and excluded.
 

@@ -53,6 +53,10 @@ local function pillarTemplate()
     return S.setting("ORB_STONE_WALL_PILLAR_TEMPLATE", DEFAULT_PILLAR_TEMPLATE)
 end
 
+-- Marker status on every wall segment. EnemyRandomization reads this list and
+-- skips anything carrying it, so the wall is never buffed like a combatant.
+local PIECE_STATUS = "CC_ORB_WALL_PIECE"
+
 -- Charge spells an orb can cast once the player spends its charge.
 local CHARGE_SPELLS = {
     CC_BallCharge = true,
@@ -102,11 +106,55 @@ function T.pillarPoints(nodes, spacing)
     return points
 end
 
+-- Caps a wall piece at `hp` current AND maximum hit points.
+--
+-- Osi.SetHitpoints only moves current HP, so a 30-vitality template would still
+-- show 30 max. The Health component is the real cap; this mirrors the write
+-- EnemyRandomization uses for champion HP.
 local function setHitpoints(guid, hp)
-    local ok, err = pcall(Osi.SetHitpoints, guid, hp)
+    local ok = true
+    if not (Ext and Ext.Entity and Ext.Entity.Get) then
+        ok = false
+    else
+        local entityOk, entity = pcall(Ext.Entity.Get, guid)
+        if not entityOk or not entity then
+            ok = false
+        else
+            local healthOk, health = pcall(function() return entity.Health end)
+            if healthOk and health then
+                local writeOk, err = pcall(function()
+                    health.MaxHp = hp
+                    health.Hp = hp
+                end)
+                if not writeOk then
+                    log("error: health write failed for pillar %s: %s",
+                        tostring(guid), tostring(err))
+                    ok = false
+                else
+                    pcall(function() entity:Replicate("Health") end)
+                end
+            else
+                ok = false
+            end
+        end
+    end
+    -- Keep the Osiris path too: it is what shows the correct current HP on the
+    -- object's tooltip when the Health component is unavailable.
+    local called = pcall(Osi.SetHitpoints, guid, hp)
+    if not ok and not called then
+        log("error: could not set pillar %s to %d hit points", tostring(guid), hp)
+    end
+    return ok
+end
+
+-- Tags the piece so EnemyRandomization leaves it alone. Objects spawned mid-fight
+-- otherwise look like combatants and get buffed, which is what produced walls
+-- with 30 and 45 hit points.
+local function markAsPiece(guid)
+    if not (Osi and Osi.ApplyStatus) then return false end
+    local ok, err = pcall(Osi.ApplyStatus, guid, PIECE_STATUS, -1, 1)
     if not ok then
-        log("error: could not set pillar %s to %d hit points: %s",
-            tostring(guid), hp, tostring(err))
+        log("error: could not mark pillar %s: %s", tostring(guid), tostring(err))
         return false
     end
     return true
@@ -129,6 +177,7 @@ local function createPillar(point)
         pcall(Osi.RequestDelete, guid)
         return nil
     end
+    markAsPiece(guid)
     setHitpoints(guid, pillarHp())
     return guid
 end

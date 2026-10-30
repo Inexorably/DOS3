@@ -876,6 +876,15 @@ data "CastEffect" "{CHAIN_LIGHTNING_PREPARE_EFFECT}"
 data "CastTextEvent" "Cast"
 data "AIFlags" "CanNotUse"
 
+-- Marks a wall segment so EnemyRandomization never buffs it as a combatant.
+new entry "CC_ORB_WALL_PIECE"
+type "StatusData"
+data "StatusType" "BOOST"
+data "DisplayName" "{handle('CC_ORB_WALL_PIECE/name')}"
+data "Description" "{handle('CC_ORB_WALL_PIECE/desc')}"
+data "StackId" "CC_ORB_WALL_PIECE"
+data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"
+
 new entry "CC_ORB_CHARGE"
 type "StatusData"
 data "DisplayName" "{handle('CC_ORB_CHARGE/name')}"
@@ -1037,6 +1046,11 @@ def write_loca() -> None:
         (
             handle("CC_OrbLightningBolt/desc"),
             f"Unleash a lightning bolt from an arcane orb to another orb within 8 m, dealing {BOLT_DAMAGE} Lightning damage to enemies caught between them. The bolt bounces on to further orbs, each struck once per cast. Needs at least two orbs. Costs 2 AP.",
+        ),
+        (handle("CC_ORB_WALL_PIECE/name"), "Wall Segment"),
+        (
+            handle("CC_ORB_WALL_PIECE/desc"),
+            "Internal marker: this object is a wall segment, not a combatant.",
         ),
         (handle("CC_OrbStoneWall/name"), "Orb Stone Wall"),
         (
