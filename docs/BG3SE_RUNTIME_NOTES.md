@@ -589,18 +589,18 @@ template references (`data "Vitality" ...`); stat overrides are name-keyed, so
 redefining the inherited stat is what applies the cap. `Osi.SetHitpoints` remains
 safe and only moves current HP.
 
-## Mods load, then the game hangs before any Lua runs (2026-10-30 03:56-03:57 runs)
+## A slow first load is not a hang (2026-10-30 03:56-04:05 runs)
 
-Three consecutive launches after installing rebuilt paks stopped at the same place,
-with the game **hanging** rather than crashing:
+After I replaced several large paks, three launches appeared to stop here:
 
 ```text
 Initializing client with target context Load
 Modded achievements enabled.
-LUA VM reset            <- nothing after this
+LUA VM reset            <- last line for a long time
 ```
 
-A healthy launch continues:
+The next launch with the **same** mods loaded fine, just slowly, and a healthy
+launch continues:
 
 ```text
 Initializing client with target context Game
@@ -608,37 +608,25 @@ LUA VM reset
 Loading bootstrap script: Mods/DOS2Combat/ScriptExtender/Lua/BootstrapClient.lua
 ```
 
-Two conclusions from that:
+I read "no further output" as "stuck" and spent a round of work hunting a
+load-time data fault that did not exist. It was still loading: replacing pak
+contents invalidates the engine's caches, and the first launch afterwards rebuilds
+them, which can take minutes on a setup with a 42 MB `_merged.lsf` and several GB
+of paks.
 
-- **No Lua is involved.** The failure is before `Bootstrap*.lua`, so a Lua syntax or
-  runtime error cannot be the cause. Do not go looking for one in this symptom.
-- **It is a hang, not a crash.** The Windows Application log had no `bg3.exe` fault
-  at all, only recurring `LariLauncher.exe` KERNELBASE `0xe0434352` (.NET) entries
-  that also occur in working sessions, so they are unrelated noise.
+**Rule: a load with no new log output is not evidence of a hang.** Before
+diagnosing one, confirm the process is actually stuck - the game window still
+sitting on the same screen for several minutes, or no new log line at all across
+two separate attempts - and check whether the previous launch also changed any
+pak. Only then go looking for a data fault.
 
-Static validation of every artifact in the suspect OrbWeaver pak came back clean
-(stats have no duplicate entries and every parent resolves; the `.loca` header,
-entry table and text blob line up exactly; the root template LSF has a valid `LSOF`
-header, converts, and is **byte-identical** to the known-good build; all ten `.lsx`
-resources are well-formed; `meta.lsx` and `modsettings.lsx` agree). Diffing the
-suspect build against a known-good one showed only the intended changes, and the
-new stat fields (`AreaRadius`, `ConcentrationSpellID`, `CycleConditions`,
-`FollowUpOriginalSpell`, `MemoryCost`) are all used by vanilla - an empty
-`ConcentrationSpellID ""` in particular is legitimate, vanilla does it 14 times.
+What *is* worth validating before shipping a pak, and what all came back clean in
+this round: no duplicate stat entries, every `using` parent resolves, the `.loca`
+entry table and text blob line up, root template LSFs start with `LSOF`, and every
+`.lsx` is well-formed sx with a `<save>` root. Those are cheap checks; keep doing
+them. They just cannot distinguish "slow" from "hung".
 
-So a hang of this shape cannot be diagnosed from the artifacts alone. Bisect by
-swapping one pak at a time and relaunching:
-
-1. Both paks from `master` builds (pre-change): `OrbWeaver` `D394F58A`,
-   `EnemyRandomization` pre-champion.
-2. Restore only the suspect `EnemyRandomization` (adds 20 templates to a 42 MB
-   `_merged.lsf`).
-3. Restore only the suspect `OrbWeaver` (adds four stat entries).
-
-Whichever pairing hangs first names the culprit. Keep the suspect paks; they are
-the only copy of those builds.
-
-## Maintenance rule
+## Maintenance rule## Maintenance rule
 
 Whenever a runtime-only API/arity/enum is discovered:
 
