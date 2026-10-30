@@ -15,6 +15,7 @@ ER.Generated = {
     { status = "ENR_CHAMPION_CONSTRUCTS", spells = { "ENR_Summon_AnimatedArmor", "ENR_Summon_AdamantineGolem", "ENR_Summon_FleshGolem" }, statuses = {  }, passives = {  }, weight = 1 },
     { status = "ENR_CHAMPION_MONSTROSITIES", spells = { "ENR_Summon_Bulette", "ENR_Summon_HookHorror" }, statuses = {  }, passives = {  }, weight = 1 },
     { status = "ENR_CHAMPION_OWLBEARS", spells = { "ENR_Summon_Owlbear", "ENR_Summon_ArmouredOwlbear", "ENR_Summon_OwlbearDad", "ENR_Summon_OwlbearCub" }, statuses = {  }, passives = {  }, weight = 1 },
+    { status = "ENR_CHAMPION_HORDE", spells = { "Target_AnimateDead", "Target_FungalInfestation", "Target_AnimateDead_Zombie_4", "ENR_Summon_ZombieHorde" }, statuses = { "ANIMATEDEAD_ZONE" }, passives = {  }, weight = 1 },
     { status = "ENR_CHAMPION_VITALITY", spells = {  }, statuses = { "ENR_Perm_AID", "ENR_Perm_BLESS" }, passives = {  }, weight = 1 },
     { status = "ENR_CHAMPION_LIGHTNING", spells = { "Target_CallLightning" }, statuses = { "ENR_Perm_RESISTANCE_LIGHTNING" }, passives = { "ElementalAdept_Lightning" }, weight = 1 },
     { status = "ENR_CHAMPION_LIGHT", spells = { "Zone_Sunbeam" }, statuses = { "ENR_Perm_RESISTANCE_RADIANT", "ENR_Perm_BLESS" }, passives = {  }, weight = 1 },
@@ -161,6 +162,7 @@ ER.Generated = {
     "ENR_Summon_ArmouredOwlbear",
     "ENR_Summon_OwlbearDad",
     "ENR_Summon_OwlbearCub",
+    "ENR_Summon_ZombieHorde",
   },
   abilities = {
     ["ENR_Alioramus"] = { 19, 13, 17, 2, 12, 5 },
@@ -204,6 +206,7 @@ ER.Generated = {
     ["ENR_ArmouredOwlbear"] = { 20, 12, 17, 3, 12, 7 },
     ["ENR_OwlbearDad"] = { 10, 10, 10, 10, 10, 10 },
     ["ENR_OwlbearCub"] = { 12, 9, 11, 3, 10, 7 },
+    ["ENR_ZombieHorde"] = { 16, 6, 16, 3, 6, 5 },
   },
   nativeLevels = {
     ["ENR_Alioramus"] = 1,
@@ -247,6 +250,7 @@ ER.Generated = {
     ["ENR_ArmouredOwlbear"] = 3,
     ["ENR_OwlbearDad"] = 3,
     ["ENR_OwlbearCub"] = 1,
+    ["ENR_ZombieHorde"] = 2,
   },
   names = {
     ["ENR_Alioramus"] = "Chult Alioramus",
@@ -290,5 +294,6 @@ ER.Generated = {
     ["ENR_ArmouredOwlbear"] = "Armoured Owlbear",
     ["ENR_OwlbearDad"] = "Owlbear Dad",
     ["ENR_OwlbearCub"] = "Owlbear Cub",
+    ["ENR_ZombieHorde"] = "Zombie Horde",
   },
 }

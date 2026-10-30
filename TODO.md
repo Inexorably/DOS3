@@ -372,6 +372,17 @@ Known DOS2 visual references for the current test spells:
 
 ## Enemy Randomization
 
+- [x] Add **Champion of the Horde**: grants Animate Dead, Fungal Infestation,
+      Animate Dead: Zombie Battalion and a custom **Summon Horde** spell that
+      raises four zombies in one cast for **2 AP** with the highest `AIWeight` in
+      the mod, plus the native **Rejuvenating Miasma** (`ANIMATEDEAD_ZONE`) aura.
+- [ ] Verify Champion of the Horde in-game: the champion appears, Summon Horde
+      raises exactly **four** zombies (not one), it costs 2 AP, the AI prefers it
+      over the vanilla necromancy spells, all three vanilla spells are in the
+      spellbook, and Rejuvenating Miasma persists for the fight. Log lines:
+      `champion spell grant: ENR_Summon_ZombieHorde ... has=true`, then four
+      summons from one cast.
+
 - [x] Rename the `Champion of Ogres` condition display name to **It's Ogre**.
 - [x] Implement the summoning champion roster: Dinosaurs, Spiders, Goblins,
       Ogres, Hell, Steel Watch, Dragons, Gnolls, Mind Flayers, Bugbears,

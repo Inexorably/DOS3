@@ -30,10 +30,34 @@ When testing is complete, restore a normal champion chance, e.g. `0.125`.
 | Constructs | Animated Armor, Adamantine Golem, Flesh Golem |
 | Monstrosities | Bulette, Hook Horror |
 | Owlbears | Owlbear, Armoured Owlbear, Owlbear Dad, Owlbear Cub |
+| Horde | Zombie Horde (four zombies from one 2 AP Summon Horde cast) |
 
 The generated roster is exported to
 `ScriptExtender/Lua/Server/GeneratedData.lua`, which supplies
 `Config.CHAMPIONS`, the cooldown registry, and summon ability/name data.
+
+## Champion of the Horde
+
+The only champion whose summon spell raises a whole group. Details that differ
+from every other summoning champion:
+
+- **Summon Horde** raises **four** zombies in one cast. `summon(count=4)` makes
+  the generator emit four `Summon` functors per level band, each with its own
+  stack (`ENR_ZombieHordeStack1`..`4`). Separate stacks are required - sharing one
+  stack makes the engine treat them as a single summon and cap the rest.
+- It costs **`ActionPoint:2`** instead of the usual 4, via `summon(use_costs=...)`.
+- It carries **`AIWeight` 1000**, far above the 100 every other ENR summon uses,
+  so the AI reaches for the horde before its other options.
+- The zombies are `AnimateDead_Zombie__Horde` (Vitality 10, the stat BG3's own
+  Zombie Battalion uses) from the `Undead_Zombie_Melee_AnimateDead_Swarm` root
+  template.
+- On top of the summon, the champion is granted the vanilla spells
+  `Target_AnimateDead`, `Target_FungalInfestation` and
+  `Target_AnimateDead_Zombie_4` (Animate Dead: Zombie Battalion), listed in the
+  champion's `spells` field.
+- It carries **Rejuvenating Miasma**, which is the native `ANIMATEDEAD_ZONE`
+  status. `Randomizer` applies champion statuses with duration `-1`, so the aura
+  lasts the whole fight.
 
 ## Non-summoning champion roster
 

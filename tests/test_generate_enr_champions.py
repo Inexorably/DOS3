@@ -362,6 +362,27 @@ class BuildTests(ChampionsFixture):
         self.assertIn("CanStand('guid-1')", conditions)
         self.assertTrue(conditions.endswith("and not Character() and not Self()"))
 
+    def test_multi_summon_item_raises_one_per_stack(self) -> None:
+        guids = {
+            ("TestImp", level): "guid-%d" % level for level in self.mod.LEVELS
+        }
+        item = dict(self.mod.CHAMPIONS[0]["summons"][0], count=4)
+        properties = self.mod.summon_properties(guids, item)
+        # Four creatures per level band, each on its own stack.
+        self.assertEqual(properties.count("Summon("), 4 * len(self.mod.LEVELS))
+        for index in range(1, 5):
+            self.assertIn("'ENR_TestImpStack%d'" % index, properties)
+        self.assertNotIn("'ENR_TestImpStack'", properties)
+
+    def test_single_summon_keeps_the_plain_stack_name(self) -> None:
+        guids = {
+            ("TestImp", level): "guid-%d" % level for level in self.mod.LEVELS
+        }
+        item = dict(self.mod.CHAMPIONS[0]["summons"][0], count=1)
+        properties = self.mod.summon_properties(guids, item)
+        self.assertIn("'ENR_TestImpStack'", properties)
+        self.assertNotIn("'ENR_TestImpStack1'", properties)
+
 
 class BuildStatsTests(ChampionsFixture):
     def build(self) -> None:
@@ -386,6 +407,27 @@ class BuildStatsTests(ChampionsFixture):
         self.assertIn('data "Boosts" "AC(2)"', text)
         self.assertIn('new entry "ENR_COOLDOWN_ENR_Summon_TestImp"', text)
         self.assertIn('new entry "ENR_CHAMPION_ROLLED"', text)
+
+    def test_summon_spell_uses_item_cost_and_ai_weight(self) -> None:
+        self.mod.CHAMPIONS[0]["summons"][0].update(
+            {"use_costs": "ActionPoint:2", "ai_weight": 1000}
+        )
+        self.build()
+        text = self.mod.STATS.read_text(encoding="utf-8")
+        entry = text.split('new entry "ENR_Summon_TestImp"', 1)[1].split(
+            "new entry", 1
+        )[0]
+        self.assertIn('data "UseCosts" "ActionPoint:2"', entry)
+        self.assertIn('data "AIWeight" "1000"', entry)
+
+    def test_summon_spell_defaults_to_four_ap_and_weight_100(self) -> None:
+        self.build()
+        text = self.mod.STATS.read_text(encoding="utf-8")
+        entry = text.split('new entry "ENR_Summon_TestWolf"', 1)[1].split(
+            "new entry", 1
+        )[0]
+        self.assertIn('data "UseCosts" "ActionPoint:4"', entry)
+        self.assertIn('data "AIWeight" "100"', entry)
 
     def test_stats_report_missing_and_boost_less_buff_sources(self) -> None:
         stdout = io.StringIO()
