@@ -145,6 +145,8 @@ DOS2C.Config = {
         ENR_Summon_Crimson = 4,
         CC_BallCharge = 4,
         CC_BallCharge_Ignite = 4,
+        CC_OrbTeslaLink = 4,
+        CC_ActivateTeslaLink = 4,
     },
 
     DOS2_COOLDOWNS = {

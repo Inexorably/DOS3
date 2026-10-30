@@ -218,6 +218,20 @@ data "CastEffect" "abf8542a-6c39-49ad-bc94-86c4585a5948"
 data "CastTextEvent" "Cast"
 data "AIFlags" "CanNotUse"
 
+-- Fedora of Invulnerability: a hat spawned by the !orbweaver_fedora command.
+-- Inherits ARM_Hat, the top-hat model, and grants Invulnerable() while worn
+-- (Boosts apply to the wearer while the item is equipped).
+new entry "ARM_FedoraOfInvulnerability"
+type "Armor"
+using "ARM_Hat"
+data "RootTemplate" "4d2e0931-3a01-4759-834b-8ae36749daab"
+data "ArmorType" "Cloth"
+data "Boosts" "Invulnerable()"
+data "Rarity" "Legendary"
+data "DisplayName" "h417d5f475c6b5b899c603916c882abbd"
+data "Description" "ha6998346bdcc5668b21abbca4ebe433f"
+data "Icon" "Item_ARM_Hat"
+
 -- Tesla Link: a Witch Bolt variant that is bound to an arcane orb instead of an
 -- enemy. The orb has no hit points worth damaging, so the spell does no damage
 -- itself; it marks the orb with TESLA_LINK and grants the owner the Activate
@@ -242,7 +256,7 @@ data "CycleConditions" "HasStatus('CC_ORB') and not Dead()"
 data "Icon" "Spell_Evocation_WitchBolt"
 data "DisplayName" "h8f4f6ec1e2395735941a4bc04bf0792c"
 data "Description" "h458d2cf3c48b5a399668ca415abdefc7"
-data "UseCosts" "ActionPoint:1"
+data "UseCosts" "ActionPoint:4"
 data "SpellFlags" "HasVerbalComponent;HasSomaticComponent;IsSpell;HasHighGroundRangeExtension;RangeIgnoreVerticalThreshold"
 data "ConcentrationSpellID" ""
 data "MemoryCost" "0"
@@ -286,7 +300,7 @@ data "SpellProperties" "SetStatusDuration(SELF,CC_TESLA_LINK,2)"
 data "AreaRadius" "30"
 data "TargetConditions" "HasStatus('CC_TESLA_LINK') or HasStatus('CC_TESLA_LINK_OWNER')"
 data "Cooldown" "OncePerTurn"
-data "UseCosts" "ActionPoint:1"
+data "UseCosts" "ActionPoint:4"
 data "Icon" "Spell_Evocation_ActivateWitchBolt"
 data "DisplayName" "h9d5be2abaa1f59fda98458a7f2ec75a9"
 data "Description" "hd0ee23cfa12f5b93b97f70ec222207bf"

@@ -303,8 +303,8 @@ class OrbTeslaLinkStatsTests(unittest.TestCase):
         self.assertEqual(spell["SpellSuccess"], "")
         self.assertEqual(spell["SpellProperties"], "")
 
-    def test_the_link_costs_one_ap_and_grants_the_link_status(self) -> None:
-        self.assertEqual(self.spells["CC_OrbTeslaLink"]["UseCosts"], "ActionPoint:1")
+    def test_the_link_costs_four_ap_and_grants_the_link_status(self) -> None:
+        self.assertEqual(self.spells["CC_OrbTeslaLink"]["UseCosts"], "ActionPoint:4")
         self.assertIn("ApplyStatus(CC_TESLA_LINK", self.spells_txt)
 
     def test_the_link_status_unlocks_the_activate_skill(self) -> None:
@@ -320,9 +320,9 @@ class OrbTeslaLinkStatsTests(unittest.TestCase):
             "UnlockSpell(CC_ActivateTeslaLink)",
         )
 
-    def test_activate_costs_one_ap_with_a_one_turn_cooldown(self) -> None:
+    def test_activate_costs_four_ap_with_a_one_turn_cooldown(self) -> None:
         activate = self.spells["CC_ActivateTeslaLink"]
-        self.assertEqual(activate["UseCosts"], "ActionPoint:1")
+        self.assertEqual(activate["UseCosts"], "ActionPoint:4")
         self.assertEqual(activate["Cooldown"], "OncePerTurn")
 
     def test_activate_requires_a_link(self) -> None:

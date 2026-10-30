@@ -878,6 +878,20 @@ data "CastEffect" "{CHAIN_LIGHTNING_PREPARE_EFFECT}"
 data "CastTextEvent" "Cast"
 data "AIFlags" "CanNotUse"
 
+-- Fedora of Invulnerability: a hat spawned by the !orbweaver_fedora command.
+-- Inherits ARM_Hat, the top-hat model, and grants Invulnerable() while worn
+-- (Boosts apply to the wearer while the item is equipped).
+new entry "ARM_FedoraOfInvulnerability"
+type "Armor"
+using "ARM_Hat"
+data "RootTemplate" "4d2e0931-3a01-4759-834b-8ae36749daab"
+data "ArmorType" "Cloth"
+data "Boosts" "Invulnerable()"
+data "Rarity" "Legendary"
+data "DisplayName" "{handle('ARM_FedoraOfInvulnerability/name')}"
+data "Description" "{handle('ARM_FedoraOfInvulnerability/desc')}"
+data "Icon" "Item_ARM_Hat"
+
 -- Tesla Link: a Witch Bolt variant that is bound to an arcane orb instead of an
 -- enemy. The orb has no hit points worth damaging, so the spell does no damage
 -- itself; it marks the orb with TESLA_LINK and grants the owner the Activate
@@ -902,7 +916,7 @@ data "CycleConditions" "HasStatus('CC_ORB') and not Dead()"
 data "Icon" "Spell_Evocation_WitchBolt"
 data "DisplayName" "{handle('CC_OrbTeslaLink/name')}"
 data "Description" "{handle('CC_OrbTeslaLink/desc')}"
-data "UseCosts" "ActionPoint:1"
+data "UseCosts" "ActionPoint:4"
 data "SpellFlags" "HasVerbalComponent;HasSomaticComponent;IsSpell;HasHighGroundRangeExtension;RangeIgnoreVerticalThreshold"
 data "ConcentrationSpellID" ""
 data "MemoryCost" "0"
@@ -946,7 +960,7 @@ data "SpellProperties" "SetStatusDuration(SELF,CC_TESLA_LINK,2)"
 data "AreaRadius" "30"
 data "TargetConditions" "HasStatus('CC_TESLA_LINK') or HasStatus('CC_TESLA_LINK_OWNER')"
 data "Cooldown" "OncePerTurn"
-data "UseCosts" "ActionPoint:1"
+data "UseCosts" "ActionPoint:4"
 data "Icon" "Spell_Evocation_ActivateWitchBolt"
 data "DisplayName" "{handle('CC_ActivateTeslaLink/name')}"
 data "Description" "{handle('CC_ActivateTeslaLink/desc')}"
@@ -1147,6 +1161,11 @@ def write_loca() -> None:
         (
             handle("CC_OrbTeslaLink/desc"),
             f"Target an arcane orb to link it with lightning. The link grants Activate Tesla Link, which deals {TESLA_LINK_DAMAGE} Lightning damage to the linked orb's enemies on later turns. Costs 1 AP.",
+        ),
+        (handle("ARM_FedoraOfInvulnerability/name"), "Fedora of Invulnerability"),
+        (
+            handle("ARM_FedoraOfInvulnerability/desc"),
+            "A hat that makes its wearer invulnerable. Spawned with !orbweaver_fedora.",
         ),
         (handle("CC_TESLA_LINK_OWNER/name"), "Tesla Link Owner"),
         (
