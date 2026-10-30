@@ -34,7 +34,7 @@ class OrbWeaverSpellsTests(unittest.TestCase):
 
         self.assertEqual(charge["Level"], "2")
         self.assertEqual(charge["Cooldown"], "OncePerTurn")
-        self.assertEqual(charge["UseCosts"], "ActionPoint:2")
+        self.assertEqual(charge["UseCosts"], "ActionPoint:4")
         self.assertIn("DealDamage(1,Bludgeoning)", charge["SpellSuccess"])
         self.assertNotIn("CC_BallCharge_Explosion", spells)
         self.assertIn("0319ca29-4024-4649-9278-3c1f20c5f023", charge["SpellAnimation"])
@@ -96,7 +96,7 @@ class OrbWeaverSpellsTests(unittest.TestCase):
         spells = parse_stats(data / "Spells.txt")
         charge = spells["CC_BallCharge_Ignite"]
         self.assertEqual(charge["Level"], "2")
-        self.assertEqual(charge["UseCosts"], "ActionPoint:2")
+        self.assertEqual(charge["UseCosts"], "ActionPoint:4")
         self.assertIn("CreateSurface(1.5,1,Fire)", charge["SpellProperties"])
         self.assertIn("DealDamage(1,Bludgeoning)", charge["SpellSuccess"])
 
