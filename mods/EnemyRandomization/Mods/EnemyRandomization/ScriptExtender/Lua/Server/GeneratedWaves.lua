@@ -5,10 +5,10 @@
 ER = ER or {}
 ER.GeneratedWaves = {
     {
-        key = "goblin", name = "Goblins", solo = false,
+        key = "goblin", name = "Goblins", solo = false, icon = "statIcons_GOB_GoblinPriest_Chains",
         races = { ["241b8b4d-763f-48e6-b1f8-a261ec0ef36b"] = true, ["54fb4eb9-2cb9-4925-a94f-c16d15e20999"] = true, ["a234ff21-6324-4ce2-977a-ae921475c046"] = true },
         members = {
-            { source = "Goblins_Male_Guard_Melee", native = 2, templates = {
+            { source = "Goblins_Male_Guard_Melee", display = "Goblin Brawler", native = 2, templates = {
                 "4e289bbb-8608-57af-a6e0-0fdf6fb7f5e6",
                 "159b34c8-5d06-5b89-8a59-4e9ac1a282f2",
                 "c122db11-d840-5ebe-930c-74876a79cc70",
@@ -30,7 +30,7 @@ ER.GeneratedWaves = {
                 "f9dcb873-3d28-5a9e-84c3-9cc2a1264425",
                 "924adc20-b074-59fe-9a2c-e2b8af86434f",
             } },
-            { source = "Goblins_Female_Guard_Melee", native = 3, templates = {
+            { source = "Goblins_Female_Guard_Melee", display = "Goblin Brawler", native = 3, templates = {
                 "cb76ebb2-4d5d-583e-bfef-8ce0c515fced",
                 "a32ee84d-bda3-5223-bfa7-3afeb3ff605b",
                 "b5214c7d-6925-56ff-abe9-3b20d74a189e",
@@ -52,7 +52,7 @@ ER.GeneratedWaves = {
                 "4f00b62f-7ecb-5621-9d42-567562d47d4f",
                 "9d1f5746-03ff-5b60-b2db-90a1964f93bb",
             } },
-            { source = "Goblins_Female_Guard_Ranger_Tier2", native = 2, templates = {
+            { source = "Goblins_Female_Guard_Ranger_Tier2", display = "Goblin Sharp-Eye", native = 2, templates = {
                 "cd71261c-0a19-52b0-8641-816cb9f9d7ca",
                 "19f48a7a-15fa-51eb-84b8-f21d87ec231c",
                 "8ec6952b-41f8-5d1a-9312-109222f1b1cf",
@@ -74,7 +74,7 @@ ER.GeneratedWaves = {
                 "a862869f-bf69-5e7c-a7b5-979fd3cff365",
                 "6b5c6ae5-6e6a-5744-ae6d-d1bab96ae449",
             } },
-            { source = "Goblins_Male_Devout", native = 2, templates = {
+            { source = "Goblins_Male_Devout", display = "Goblin Devout", native = 2, templates = {
                 "8bfd060d-308b-5a45-8c6e-dd039b60cd8f",
                 "8c25a2db-bd1f-5347-82dd-a97735799d08",
                 "956d7dd8-54b3-50fd-9227-e18112c590f7",
@@ -96,7 +96,7 @@ ER.GeneratedWaves = {
                 "4debb82f-5ebe-5f37-988b-19076ae82ee5",
                 "799d0287-6d66-583e-b927-05e726771063",
             } },
-            { source = "Hobgoblins_Male", native = 5, templates = {
+            { source = "Hobgoblins_Male", display = "Hobgoblins Male", native = 5, templates = {
                 "6d178f1c-e829-5643-b8c3-a3d10d92415a",
                 "38c30319-3340-540b-8ede-5e36af0567d1",
                 "80625cda-2acd-5540-8e38-6dcf39184f87",
@@ -118,7 +118,7 @@ ER.GeneratedWaves = {
                 "1b7d8333-6f85-596e-bf50-0aa8378aa6ae",
                 "e74439a7-b48c-50f2-8032-455135712df1",
             } },
-            { source = "Bugbears_Male", native = 3, templates = {
+            { source = "Bugbears_Male", display = "Bugbear", native = 3, templates = {
                 "d4b472c8-0dee-5054-bacc-c59b9ebf5b7c",
                 "21d962ad-26b0-58cd-890b-d8479652c0e4",
                 "2d816ea6-4032-5f11-9205-4f7288524ec4",
@@ -143,10 +143,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "drow", name = "Drow", solo = false,
+        key = "drow", name = "Drow", solo = false, icon = "Item_ARM_Boots_Leather_Drow",
         races = { ["c5f8ebdd-f4a5-4d2d-9eab-4a8d1b1dd724"] = true },
         members = {
-            { source = "Elves_Male_Drow_Guard_Lolth_Melee", native = 8, templates = {
+            { source = "Elves_Male_Drow_Guard_Lolth_Melee", display = "Drow", native = 8, templates = {
                 "679d478e-99c0-59f6-9159-fd487043e883",
                 "23c3e299-78ee-512a-9f3a-0d924e569395",
                 "fe2d5446-7a81-5524-a76e-8d1e8ed59d30",
@@ -168,7 +168,7 @@ ER.GeneratedWaves = {
                 "b4322e8c-2f2d-59b0-a356-f8d8bc9d82b2",
                 "54b7ed87-90a2-5cf7-b726-222e592aaf95",
             } },
-            { source = "Elves_Female_Drow_Guard_Lolth_Melee", native = 8, templates = {
+            { source = "Elves_Female_Drow_Guard_Lolth_Melee", display = "Drow", native = 8, templates = {
                 "7a7127fa-ca1b-51f1-b8ff-e7baae3b1dbb",
                 "38fd5456-c975-50b9-ba50-66d0f16b61d8",
                 "a5da9ea7-0abc-5ed3-a25b-7b997653efb0",
@@ -190,7 +190,7 @@ ER.GeneratedWaves = {
                 "16ce9abb-34b4-5c2c-91ee-d882851e3324",
                 "076c750c-7f21-5de8-a065-04f801190474",
             } },
-            { source = "Elves_Female_Drow_Guard_Lolth_Ranger", native = 8, templates = {
+            { source = "Elves_Female_Drow_Guard_Lolth_Ranger", display = "Drow", native = 8, templates = {
                 "818915d4-4562-50a7-981c-7b481f0f9e98",
                 "f300e7ae-69d3-5dd1-9733-f5f03a1a0138",
                 "9c970a8a-d246-57a2-919c-abddf08f721f",
@@ -212,7 +212,7 @@ ER.GeneratedWaves = {
                 "91948b22-9f1f-560f-9d36-a2f01589744f",
                 "784a43a2-bba0-5afd-8663-ab01f8f65c8f",
             } },
-            { source = "Elves_Male_Drow_Guard_Lolth_Caster", native = 5, templates = {
+            { source = "Elves_Male_Drow_Guard_Lolth_Caster", display = "Drow", native = 5, templates = {
                 "b378861f-b3e9-5e27-a06c-9ab0d05590e2",
                 "d9def44b-920a-57d5-814c-5dae0a68761e",
                 "4255689d-128b-5980-92e9-365543772c5c",
@@ -237,10 +237,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "duergar", name = "Duergar", solo = false,
+        key = "duergar", name = "Duergar", solo = false, icon = "Action_Monster_Duergar_DuergarEnlarge",
         races = { ["fe584d14-71ea-4bee-8ba0-99f780d4c957"] = true },
         members = {
-            { source = "Duergar_Male_Guard", native = 5, templates = {
+            { source = "Duergar_Male_Guard", display = "Duergar Warrior", native = 5, templates = {
                 "7c89500d-c584-5450-bfc7-fb2b8788b708",
                 "9cef9921-7367-5df5-b221-bf46aba4b346",
                 "a6b6906d-69fd-5e34-bf1b-16e218e56b35",
@@ -262,7 +262,7 @@ ER.GeneratedWaves = {
                 "fcc141bb-6c06-525a-ac2c-208aeaa38a8c",
                 "0240ea5c-5391-5698-b100-bb7b7854e41d",
             } },
-            { source = "Dwarves_Male_Duergar_Guard_Ranger", native = 4, templates = {
+            { source = "Dwarves_Male_Duergar_Guard_Ranger", display = "Duergar", native = 4, templates = {
                 "7d8b72ee-cd8f-54aa-b26f-8c79e84a185d",
                 "a8d076bd-0ea7-5740-9c7b-0f5ea12fc93f",
                 "39997475-cc4d-5ce1-839c-2cb0bec6ef7e",
@@ -284,7 +284,7 @@ ER.GeneratedWaves = {
                 "7fa168b4-5d71-5b50-873d-648e3f4fbc16",
                 "01bc3fef-9987-58a6-9d72-6c68d5fb9723",
             } },
-            { source = "Dwarves_Male_Duergar_Guard_Caster", native = 4, templates = {
+            { source = "Dwarves_Male_Duergar_Guard_Caster", display = "Duergar", native = 4, templates = {
                 "8d2b39e7-5dce-5a23-9928-b917295e681a",
                 "f3923ddb-b354-5fa4-9da3-9201704fc470",
                 "39449b38-d6f3-50cc-99ea-1833ea8bd536",
@@ -309,10 +309,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "githyanki", name = "Githyanki", solo = false,
+        key = "githyanki", name = "Githyanki", solo = false, icon = "Item_ARM_HalfPlate_Githyanki",
         races = { ["bdf9b779-002c-4077-b377-8ea7c1faa795"] = true },
         members = {
-            { source = "Githyanki_Male_Guard_Melee", native = 5, templates = {
+            { source = "Githyanki_Male_Guard_Melee", display = "Githyanki", native = 5, templates = {
                 "77dbae16-fcac-5367-bd9b-b49f218b7e39",
                 "e6c10232-d6f2-5c16-bc14-734e7a0aedb0",
                 "9ad88d94-5015-52b3-85a9-733af97ac631",
@@ -334,7 +334,7 @@ ER.GeneratedWaves = {
                 "3ae070a8-6095-5233-ac94-0bfd2aeda464",
                 "ba89b886-a11f-5175-a92e-0a38ed37f492",
             } },
-            { source = "Githyanki_Male_Raider", native = 5, templates = {
+            { source = "Githyanki_Male_Raider", display = "Raider", native = 5, templates = {
                 "cd5d56b3-e056-5328-8c29-75ccfbee4d8c",
                 "dd334b27-7af1-5af5-9c8f-9f701e8236d7",
                 "4d875297-8388-5dc6-b793-4f2bf7488d1a",
@@ -356,7 +356,7 @@ ER.GeneratedWaves = {
                 "6dd1a217-8ca5-54ab-b988-fc69d6746ff2",
                 "19b09ae2-fdbd-51c3-b4e2-8e4816aa40ae",
             } },
-            { source = "Githyanki_Female_Raider", native = 5, templates = {
+            { source = "Githyanki_Female_Raider", display = "Raider", native = 5, templates = {
                 "e7c3b2ed-f464-5298-b6b6-18ca8cd802e4",
                 "37850cc4-28b4-56e4-862a-7502f1e7399e",
                 "01a28193-63ff-54c6-9d4c-aa4767443692",
@@ -378,7 +378,7 @@ ER.GeneratedWaves = {
                 "16c24493-640d-50a7-93f4-388681c0e6aa",
                 "ae9046e8-7f0b-5e94-bff5-8aad2000253d",
             } },
-            { source = "Githyanki_Female_Gishra_Caster", native = 9, templates = {
+            { source = "Githyanki_Female_Gishra_Caster", display = "Githyanki", native = 9, templates = {
                 "d2d50aec-d342-5397-ae16-f41099500a09",
                 "3197e0c8-38f9-5fd2-9290-33f79898dc0d",
                 "b0b3bc04-7b0d-51bc-bdce-bc6527e32f41",
@@ -403,10 +403,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "skeleton", name = "Skeletons", solo = false,
+        key = "skeleton", name = "Skeletons", solo = false, icon = "Spell_Necromancy_AnimateDead_Skeleton",
         races = { ["ad533889-a032-41f2-b90c-592575b4e21c"] = true },
         members = {
-            { source = "SHA_Skeleton_Melee", native = 3, templates = {
+            { source = "SHA_Skeleton_Melee", display = "Apostate Defender", native = 3, templates = {
                 "a705c0e1-dcf7-54f8-84cd-990e2becf7bd",
                 "59bca3bd-8490-5a74-b142-91318575ba2a",
                 "cbcb9d69-c476-516f-bd4b-cda0e631fc90",
@@ -428,7 +428,7 @@ ER.GeneratedWaves = {
                 "146845e2-fc3e-5f74-90be-54e6126172ce",
                 "ec048e17-d238-582a-98fe-1dba434881cd",
             } },
-            { source = "SHA_Skeleton_Ranger", native = 3, templates = {
+            { source = "SHA_Skeleton_Ranger", display = "Apostate Sentinel", native = 3, templates = {
                 "2ee29dfb-9244-5f8f-a85d-cb226e4844cc",
                 "61f3825a-6180-5268-85db-f19ce13bee80",
                 "b631b077-a6e9-5351-b64a-da55afb0b6da",
@@ -450,7 +450,7 @@ ER.GeneratedWaves = {
                 "d3aa6e46-cf14-50bc-81f0-9242ca795915",
                 "3e5ff8a9-aa2b-5a26-83db-b4b1e889f53f",
             } },
-            { source = "SHA_Skeleton_Caster", native = 3, templates = {
+            { source = "SHA_Skeleton_Caster", display = "Apostate Librarian", native = 3, templates = {
                 "5fed0005-b456-5022-9c48-285aa4ede284",
                 "de8b8c5e-7e7e-5646-abd3-28d11e23bde1",
                 "6c334516-0f26-50a6-b80d-a149a150d545",
@@ -472,7 +472,7 @@ ER.GeneratedWaves = {
                 "ea4193b9-f25e-5820-a1dc-37e009c25005",
                 "90cbf479-a567-5841-b30d-6e9657cfe797",
             } },
-            { source = "SHA_Skeleton_Giant", native = 7, templates = {
+            { source = "SHA_Skeleton_Giant", display = "Apostate Destroyer", native = 7, templates = {
                 "5c676e55-81d7-5ec9-965f-61aab94a2edb",
                 "5a38868b-91da-5ddd-966f-29d5a038f2a2",
                 "8f582667-127c-55a3-b2bb-a61760f569a6",
@@ -497,10 +497,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "gnoll", name = "Gnolls", solo = false,
+        key = "gnoll", name = "Gnolls", solo = false, icon = "Status_Gnoll_PackTactics",
         races = { ["2a873c76-fb44-404a-982e-5b9c57256b4f"] = true },
         members = {
-            { source = "Gnoll_Ranger", native = 4, templates = {
+            { source = "Gnoll_Ranger", display = "Gnoll Hunter", native = 4, templates = {
                 "dfd123b2-49f7-5e36-bc35-c9261ed880c4",
                 "7ad3b995-a5b4-5341-a1c8-8dce19237ad2",
                 "ac65091a-6f76-574c-88cf-12c5af393b00",
@@ -522,7 +522,7 @@ ER.GeneratedWaves = {
                 "74bd1739-2dc3-5e22-a1d4-3977ceded87c",
                 "d484ed78-f3e2-5a8f-b36a-6ddb465ac5c7",
             } },
-            { source = "Gnoll_Ranger_02", native = 4, templates = {
+            { source = "Gnoll_Ranger_02", display = "Gnoll Hunter", native = 4, templates = {
                 "d6f1ea25-42a2-5769-a7ac-851fd42ccf33",
                 "5bf543c0-f00f-5818-992b-66478beb002b",
                 "f30b0250-acbb-534c-b539-1bda884b41e2",
@@ -544,7 +544,7 @@ ER.GeneratedWaves = {
                 "b8e4bda6-7634-5e1e-ad5c-63e0fbe4457f",
                 "8929a68d-cbb2-53b8-b6b6-3e44ed950b0f",
             } },
-            { source = "Gnoll_Fighter", native = 4, templates = {
+            { source = "Gnoll_Fighter", display = "Gnoll", native = 4, templates = {
                 "47d5230e-884f-5939-8523-0134d4d8d4e2",
                 "ab452a7b-aad0-5f76-b871-b57f760a3829",
                 "0663e5c3-f15e-56f1-a93e-8d061b28bf6e",
@@ -566,7 +566,7 @@ ER.GeneratedWaves = {
                 "3b6013e8-8f7d-50a5-a714-92c7fba132fd",
                 "0937366e-578c-5728-88fe-0f63bb6ed525",
             } },
-            { source = "Gnoll_FleshGnawer", native = 4, templates = {
+            { source = "Gnoll_FleshGnawer", display = "Gnoll Flesh Gnawer", native = 4, templates = {
                 "89ae1a84-f044-5f52-afcf-a0bd97411e37",
                 "7826a864-9428-5798-a625-8aec1c0a951a",
                 "dfa3300e-b3b2-5f43-99fd-c413a49892a0",
@@ -588,7 +588,7 @@ ER.GeneratedWaves = {
                 "f4fa1f28-7949-5e89-92ed-ac7e5f87836c",
                 "cfa87607-40b3-57d7-8b45-e10acd692e96",
             } },
-            { source = "Gnoll_FangOfYeenoghu", native = 5, templates = {
+            { source = "Gnoll_FangOfYeenoghu", display = "Gnoll Fang of Yeenoghu", native = 5, templates = {
                 "c789e5e6-25a7-5571-a5e4-387a098e0ab1",
                 "77417b9d-5e3d-59a6-9d86-e974a1afa047",
                 "8eafd91a-65a1-5dcb-800c-0df322037bbb",
@@ -613,10 +613,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "redcap", name = "Redcaps", solo = false,
+        key = "redcap", name = "Redcaps", solo = false, icon = "Spell_Evocation_SearingSmite",
         races = { ["b0957b33-4a99-48d9-9f2e-36b029c91a30"] = true },
         members = {
-            { source = "Redcap_A", native = 4, templates = {
+            { source = "Redcap_A", display = "Redcap", native = 4, templates = {
                 "dea741a0-2d49-5cfd-b3e1-7bb2d14023e4",
                 "730d4cac-3aec-58b1-93d3-83818884ccce",
                 "759fbd93-1e9f-51f5-b9f5-fd8f1104b4c3",
@@ -638,7 +638,7 @@ ER.GeneratedWaves = {
                 "e69ac46a-3210-533f-8d59-46d456f48dcb",
                 "5a9c8860-40c9-5281-a00f-474ddc830b59",
             } },
-            { source = "Redcap_Caster_A", native = 4, templates = {
+            { source = "Redcap_Caster_A", display = "Redcap Blood Sage", native = 4, templates = {
                 "f54cacbf-44af-5ff8-9b72-18cb99a9191e",
                 "a1f900f0-979e-51e7-b7cd-f52540bc7216",
                 "920fd7ff-f7e4-5ff6-b1ac-faa9d1c0e986",
@@ -663,10 +663,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "sahuagin", name = "Sahuagin", solo = false,
+        key = "sahuagin", name = "Sahuagin", solo = false, icon = "Spell_Conjuration_IceKnife",
         races = { ["899d275e-9893-490a-9cd5-be856794929f"] = true },
         members = {
-            { source = "Sahuagin", native = 6, templates = {
+            { source = "Sahuagin", display = "Sahuagin", native = 6, templates = {
                 "30ed8e3f-437f-5913-960d-cd845a8e175d",
                 "9659015e-78c7-5a6f-944a-91b74fa474f5",
                 "9f2f8023-3a30-52cc-80d6-593f83f4a361",
@@ -688,7 +688,7 @@ ER.GeneratedWaves = {
                 "b613b0ff-906d-5707-be2d-963af0312471",
                 "2d24bd3d-309b-5438-bf42-34f671cd13eb",
             } },
-            { source = "Sahuagin_Ranger_A", native = 6, templates = {
+            { source = "Sahuagin_Ranger_A", display = "Sahuagin Hunter", native = 6, templates = {
                 "fc9b4f79-08b8-5f72-a939-6c530e6c1c1c",
                 "ce138df6-6ba0-5663-a333-06ffdc8e1f2d",
                 "dc10de59-919e-5e99-8602-453f324f97fb",
@@ -710,7 +710,7 @@ ER.GeneratedWaves = {
                 "93658c15-d076-555f-b6cd-f2c288079f9b",
                 "52270e26-3350-52ba-ae59-3481b02693a6",
             } },
-            { source = "Sahuagin_Champion_A", native = 7, templates = {
+            { source = "Sahuagin_Champion_A", display = "Sahuagin Champion", native = 7, templates = {
                 "bf6effdc-2db4-5e15-9f51-9e253bd751a1",
                 "b45df2ae-8e89-5cac-a9ca-d0f411db23f4",
                 "6f4754aa-fb06-5cdf-ba66-dfa69587d25a",
@@ -735,10 +735,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "spider", name = "Spiders", solo = false,
+        key = "spider", name = "Spiders", solo = false, icon = "Action_Spider_Giant_PoisonousBite",
         races = { ["3acbe536-b157-471a-9919-611576da8ff6"] = true, ["b7a80e95-eb5a-4602-b235-8ae612ffe09d"] = true },
         members = {
-            { source = "SPIDER_Phaser", native = 3, templates = {
+            { source = "SPIDER_Phaser", display = "Phase Spider", native = 3, templates = {
                 "7ed5862c-01bb-5524-9454-40e34f2d9af8",
                 "817e57ca-601a-5e6d-b8c7-5c163f3d50e7",
                 "9e20b08b-c343-5a04-a412-c7e0c08f97dc",
@@ -760,7 +760,7 @@ ER.GeneratedWaves = {
                 "7a6d7811-7164-5eba-a553-17af7cc589a1",
                 "55f23a7e-6aac-59eb-b50b-8f0d7c2bd086",
             } },
-            { source = "Ettercap_A", native = 3, templates = {
+            { source = "Ettercap_A", display = "Ettercap", native = 3, templates = {
                 "8905e224-45ef-557e-94d3-19f9c7098800",
                 "9cc6b198-9bc8-5d3a-9936-84557befe53b",
                 "4f87084b-5bd2-5542-8e72-bf211d836c34",
@@ -785,10 +785,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "worg", name = "Worgs", solo = false,
+        key = "worg", name = "Worgs", solo = false, icon = "Item_LOOT_Alchemy_Worg_Fang_A",
         races = { ["31e1a2fe-0322-4540-95c3-9a28ad7fb202"] = true },
         members = {
-            { source = "Worg_A", native = 2, templates = {
+            { source = "Worg_A", display = "Worg", native = 2, templates = {
                 "44547cdd-137b-55d7-9e25-bfe727786ea4",
                 "bbc107c6-2e62-5289-843c-afab7c968ee5",
                 "1c94b520-5cd6-5b62-bd13-3ddbbfc4febb",
@@ -813,10 +813,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "mephit", name = "Mud Mephits", solo = false,
+        key = "mephit", name = "Mud Mephits", solo = false, icon = "Action_Monster_MudMephit_DeathBurst_Chosen",
         races = { ["7cfa46e7-b17e-4d08-b8d1-f10e89c06bda"] = true },
         members = {
-            { source = "MEPHIT_Mud_A", native = 3, templates = {
+            { source = "MEPHIT_Mud_A", display = "Mud Mephit", native = 3, templates = {
                 "a3ae33c5-bb17-5441-aebf-9a32f0cfd587",
                 "791e82c9-9144-5248-9f46-7fb956b95f2b",
                 "eb2d732e-fe87-5680-b907-ab6350da4c11",
@@ -841,10 +841,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "bhaal_cultist", name = "Bhaal Cultists", solo = false,
+        key = "bhaal_cultist", name = "Bhaal Cultists", solo = false, icon = "Action_Monster_ReaperOBhaal_MurderPrayer",
         races = { ["0eb594cb-8820-4be6-a58d-8be7a1a98fba"] = true },
         members = {
-            { source = "Humans_Male_Cultist_Bhaal_Reaper", native = 3, templates = {
+            { source = "Humans_Male_Cultist_Bhaal_Reaper", display = "Reaper of Bhaal", native = 3, templates = {
                 "f48530fc-de4e-55d4-8192-0bff4f38b9ea",
                 "35a0c0fc-ab50-523e-a498-61d90a395264",
                 "694ca7c7-d32e-587d-8258-20e7c46ac8c9",
@@ -866,7 +866,7 @@ ER.GeneratedWaves = {
                 "77e881d7-8f45-5089-b355-9fd42ce9d5be",
                 "9ffca578-385a-5c6e-8750-e1911508f890",
             } },
-            { source = "Humans_Female_Cultist_Bhaal_Reaper", native = 3, templates = {
+            { source = "Humans_Female_Cultist_Bhaal_Reaper", display = "Reaper of Bhaal", native = 3, templates = {
                 "2a097957-9325-52ae-8277-31f306fe8870",
                 "c27db6a8-c5bb-5dc5-bddd-b47ee8b77234",
                 "e5234c75-4110-5d03-be08-7a8920263cfb",
@@ -888,7 +888,7 @@ ER.GeneratedWaves = {
                 "c6d82492-9504-5cfb-8fbe-7708482ede5c",
                 "a1e02aae-da97-55ae-90d2-b21ac8b5602d",
             } },
-            { source = "Humans_Male_Cultist_Bhaal_NightBlade", native = 6, templates = {
+            { source = "Humans_Male_Cultist_Bhaal_NightBlade", display = "Night Blade", native = 6, templates = {
                 "2fe1ba41-b4c1-5c40-9d0e-aaa9ba9a210e",
                 "be9e0f2a-8b63-5fd3-8acc-f043795f5655",
                 "13dd77bc-4b96-560c-b2eb-966238dc9bc9",
@@ -910,7 +910,7 @@ ER.GeneratedWaves = {
                 "6a377b20-42e9-5861-bc33-1d4590e96397",
                 "9570dca3-bcaf-56c8-ab92-5024e29ee08b",
             } },
-            { source = "Humans_Female_Cultist_Bhaal_NightBlade", native = 4, templates = {
+            { source = "Humans_Female_Cultist_Bhaal_NightBlade", display = "Night Blade", native = 4, templates = {
                 "106974e3-0986-59ce-9e58-d157a006b71a",
                 "bd3b9d84-8078-5f01-adb1-6cebbc64aa7c",
                 "bf42df56-d688-5152-87c7-efaa32bea332",
@@ -932,7 +932,7 @@ ER.GeneratedWaves = {
                 "1e532dac-aa33-51ea-9e48-2a53a1b02e63",
                 "e9889597-8c0d-59d8-b7d9-31706d202b95",
             } },
-            { source = "Humans_Male_Cultist_Bhaal_DeathsHead", native = 8, templates = {
+            { source = "Humans_Male_Cultist_Bhaal_DeathsHead", display = "Death's Head of Bhaal", native = 8, templates = {
                 "5da68888-4eaa-528e-80a3-b8e3ffc4e930",
                 "8bb29d87-997f-557f-a69a-4e1f170a1e98",
                 "71bfadcd-c653-50f6-bda4-b54d2912907b",
@@ -954,7 +954,7 @@ ER.GeneratedWaves = {
                 "9aee1d92-406d-5e7f-8b1d-938739797157",
                 "e0a5f982-e466-53a6-99a0-1d48a7bdb217",
             } },
-            { source = "Humans_Female_Cultist_Bhaal_DeathsHead", native = 8, templates = {
+            { source = "Humans_Female_Cultist_Bhaal_DeathsHead", display = "Death's Head of Bhaal", native = 8, templates = {
                 "1e65e439-5d49-52ef-8013-41b90150fe31",
                 "59ead9ba-e052-5b6a-a46b-955b4fb9d2fb",
                 "87c0bff2-e1fc-57cc-b1d7-e1b9ac424a7d",
@@ -976,7 +976,7 @@ ER.GeneratedWaves = {
                 "b10e34ef-0f79-5e4d-bbbf-5da69a8ccfd6",
                 "3a468188-2840-5ba3-ac1c-0921966b802b",
             } },
-            { source = "Humans_Male_Cultist_Bhaal_Invoker", native = 11, templates = {
+            { source = "Humans_Male_Cultist_Bhaal_Invoker", display = "Invoker of Bhaal", native = 11, templates = {
                 "9d012da2-e37e-5fdc-9767-617eb92854a7",
                 "b6627957-3ea8-5aa8-a275-c30d709de490",
                 "d6cd5496-cba9-5381-a6c9-78b2245e69d7",
@@ -1001,10 +1001,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "kobold", name = "Kobolds", solo = false,
+        key = "kobold", name = "Kobolds", solo = false, icon = "Spell_Conjuration_FlamingSphere",
         races = { ["90e5a7c5-365b-48a6-8b71-15c61955a4d1"] = true },
         members = {
-            { source = "Kobolds_Melee", native = 6, templates = {
+            { source = "Kobolds_Melee", display = "Kobold", native = 6, templates = {
                 "1518498f-38e7-566f-9d57-4b0114a3ba27",
                 "68df8c39-ca74-5c6a-8fd3-d325d4529fa0",
                 "e0732cc9-28e2-50c5-ab0e-473577be32aa",
@@ -1026,7 +1026,7 @@ ER.GeneratedWaves = {
                 "1357a7f7-6df1-5cc9-a510-99ebef15f7f2",
                 "246cf432-9a33-5f0c-9c53-6174830d95b4",
             } },
-            { source = "Kobolds_Ranger", native = 5, templates = {
+            { source = "Kobolds_Ranger", display = "Kobold Scout", native = 5, templates = {
                 "a9388cb0-531a-57eb-9f98-778a3bf5d5be",
                 "c17baf48-c71f-51d1-aa1a-f8e35e75964d",
                 "7307a8fa-e055-5277-9b62-94ce9cf47b13",
@@ -1048,7 +1048,7 @@ ER.GeneratedWaves = {
                 "e34fce94-85d8-536c-970e-545e02174061",
                 "82ecb325-cda7-5e61-b471-184e4f38abde",
             } },
-            { source = "Kobolds_Inventor", native = 5, templates = {
+            { source = "Kobolds_Inventor", display = "Kobold Inventor", native = 5, templates = {
                 "16c8129a-90de-5b56-a872-2a5f4d00f4b2",
                 "47dd97af-6871-5c0d-8d8c-77deeefc500d",
                 "03ea509c-3463-5e49-b150-789b8415ddcd",
@@ -1073,10 +1073,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "animated_armor", name = "Animated Armour", solo = false,
+        key = "animated_armor", name = "Animated Armour", solo = false, icon = "statIcons_MageAnimated",
         races = { ["318e4b03-b7b6-4851-a36d-56fb08f146aa"] = true, ["5577163c-d258-4e12-ab0e-f2e32f0437ae"] = true },
         members = {
-            { source = "AnimatedArmor", native = 3, templates = {
+            { source = "AnimatedArmor", display = "Animated Armour", native = 3, templates = {
                 "15e4d6da-57ad-5cef-b3da-ccb15934cc04",
                 "33fd0f86-e9e4-5f90-89eb-c39db0947157",
                 "c267388b-ff0b-52f9-8d80-6791ef47569c",
@@ -1098,7 +1098,7 @@ ER.GeneratedWaves = {
                 "a467fea9-ba44-523b-b32a-63b73e024917",
                 "2c7278e5-2705-521c-9ebf-faf90e0d98b6",
             } },
-            { source = "Creatures_AnimatedArmor", native = 4, templates = {
+            { source = "Creatures_AnimatedArmor", display = "Animated Armour", native = 4, templates = {
                 "2e1732a5-7320-5899-9148-bbda11a2110f",
                 "5d276aab-63a4-520e-aa24-a46b72db81fa",
                 "30c0fddd-0f52-5766-b786-73c3b4f4c108",
@@ -1120,7 +1120,7 @@ ER.GeneratedWaves = {
                 "5975aed4-97cc-5107-aaea-d125ef5ab4f6",
                 "aa53bfde-6615-51a2-a82f-a58af3a8c792",
             } },
-            { source = "Automaton_A", native = 5, templates = {
+            { source = "Automaton_A", display = "Automaton", native = 5, templates = {
                 "0fc02215-cfae-5342-b59d-c52c2e4cbd96",
                 "7647ca70-d564-532e-8d62-1b1669af0f95",
                 "7ff46571-2283-584f-b96a-29227342a512",
@@ -1145,10 +1145,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "hell_boar", name = "Hell Boars", solo = false,
+        key = "hell_boar", name = "Hell Boars", solo = false, icon = "Action_Boar_Charge",
         races = { ["94343b04-974d-44bd-bdd5-34de45d1d058"] = true },
         members = {
-            { source = "Boar_Devil_Lesser", native = 1, templates = {
+            { source = "Boar_Devil_Lesser", display = "Lesser Hellsboar", native = 1, templates = {
                 "9ec59c97-4b35-56cc-900e-3a13569c2f1f",
                 "7fc3fe1b-4ed7-5f54-9004-54e6d865f38a",
                 "a10b51a6-7591-583c-823a-bb57cb75598a",
@@ -1170,7 +1170,7 @@ ER.GeneratedWaves = {
                 "2a5f53a6-4f77-52a6-91fe-a46768bde0d4",
                 "32423f8e-1888-502f-ba4c-7e2d21735dad",
             } },
-            { source = "Boar_Devil", native = 5, templates = {
+            { source = "Boar_Devil", display = "Hellsboar", native = 5, templates = {
                 "ad52d491-d967-5a5a-ab56-7a7d97d7a74e",
                 "507e1e4d-b580-59c1-914d-6117e3462a3c",
                 "c3c72115-334f-5328-a445-7dd5420899e0",
@@ -1195,10 +1195,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "spectator", name = "a Spectator", solo = true,
+        key = "spectator", name = "a Spectator", solo = true, icon = "statIcons_EyeOfTheBeholder",
         races = { ["5c0db546-e63b-4f80-be9e-ac00097f360d"] = true },
         members = {
-            { source = "Beholder_Spectator", native = 5, templates = {
+            { source = "Beholder_Spectator", display = "Spectator", native = 5, templates = {
                 "b9560e4f-907e-53bd-a3e4-4ef2f6423414",
                 "308254cf-6119-594e-93c3-69951ebd6365",
                 "457a9e99-ebf8-5eb1-977a-fc746284f7dc",
@@ -1223,10 +1223,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "goblin_raiders", name = "Goblin Raiders", solo = false,
+        key = "goblin_raiders", name = "Goblin Raiders", solo = false, icon = "Item_DEC_Goblins_Camp_DrumStick_A",
         races = { ["54fb4eb9-2cb9-4925-a94f-c16d15e20999"] = true },
         members = {
-            { source = "Goblins_Male_Melee", native = 1, templates = {
+            { source = "Goblins_Male_Melee", display = "Goblin Brawler", native = 1, templates = {
                 "6237df78-0383-511c-a55d-4e621630e628",
                 "a5d8cdd8-fcef-5a21-b46c-3cc4f028fa55",
                 "430d727b-98af-5ddc-9841-f615115cc40f",
@@ -1248,7 +1248,7 @@ ER.GeneratedWaves = {
                 "3de2891c-fe25-51b7-9f85-b6b7bd8a301d",
                 "14ea5f65-7279-58a6-ab6e-7d676687ea1e",
             } },
-            { source = "Goblins_Male_Ranger", native = 1, templates = {
+            { source = "Goblins_Male_Ranger", display = "Goblin Tracker", native = 1, templates = {
                 "ab5921c8-56b1-58dd-a776-95885e98fa7e",
                 "f73ce6b2-8781-522e-9ef6-815d28770ce4",
                 "6c167702-8908-5373-b837-0c5101eee5b9",
@@ -1270,7 +1270,7 @@ ER.GeneratedWaves = {
                 "e489fe42-54da-5c8a-9e76-98fd0389bc03",
                 "0c87c05e-cd98-5629-851d-84b8565bea8e",
             } },
-            { source = "Goblins_Female_Ranger", native = 1, templates = {
+            { source = "Goblins_Female_Ranger", display = "Goblin Tracker", native = 1, templates = {
                 "b8d38008-3656-5ed1-9140-e9219ffd174e",
                 "75c34d37-8ce1-5433-8d1b-f1f87fa9f2ff",
                 "a99c0f2b-2d19-5835-83e7-934218fb243c",
@@ -1292,7 +1292,7 @@ ER.GeneratedWaves = {
                 "85441109-43e9-5974-b0c0-a47ac0558212",
                 "283d57d3-0925-567c-9981-01a2e938ead7",
             } },
-            { source = "Goblins_Male_Caster", native = 2, templates = {
+            { source = "Goblins_Male_Caster", display = "Goblin Booyahg", native = 2, templates = {
                 "98799cf9-94e8-5756-b447-9df1d26a98bd",
                 "b60ee192-f1a2-5b1d-b22c-8ac076684729",
                 "61a38b28-d2dc-5dae-a766-7681e86d0f5e",
@@ -1314,7 +1314,7 @@ ER.GeneratedWaves = {
                 "62c40c7f-5c6f-5a10-9966-e139366e21fd",
                 "7fc68056-0d33-5fb3-8873-543dd2744a09",
             } },
-            { source = "Goblins_Female_Warlock", native = 2, templates = {
+            { source = "Goblins_Female_Warlock", display = "Goblin Warlock", native = 2, templates = {
                 "16581693-6b7c-514b-b941-b73411facc82",
                 "f6ca21d0-eecc-5055-b469-fff8e6711d5a",
                 "30dde3e2-f2cd-5bfc-a5a7-f0910a064d4d",
@@ -1336,7 +1336,7 @@ ER.GeneratedWaves = {
                 "e4bcc56f-b5e5-554d-a542-1af42ec7fcf0",
                 "2e02224a-ec03-56e0-b445-61738a89ada6",
             } },
-            { source = "Goblins_Male_Warlock", native = 2, templates = {
+            { source = "Goblins_Male_Warlock", display = "Goblin Warlock", native = 2, templates = {
                 "6dfd48ee-073b-5854-997a-6990bea61bae",
                 "81bbf983-2c0a-5508-8ec4-2e6bdc15d8b9",
                 "8d2ee9ab-c263-54f8-a413-1664ac873121",
@@ -1361,10 +1361,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "goblin_warband", name = "Goblin Warband", solo = false,
+        key = "goblin_warband", name = "Goblin Warband", solo = false, icon = "Item_GOB_GoblinKing_Warhammer",
         races = { ["54fb4eb9-2cb9-4925-a94f-c16d15e20999"] = true },
         members = {
-            { source = "Goblins_Male_Boss", native = 3, templates = {
+            { source = "Goblins_Male_Boss", display = "Goblin Boss", native = 3, templates = {
                 "9a081c40-4447-5f0d-a9bc-dbfe59e9cda7",
                 "7064bea5-fdde-5a1e-a65c-f2a95c288d90",
                 "05504a1f-ce2e-5cc4-b5b0-528686885c5d",
@@ -1386,7 +1386,7 @@ ER.GeneratedWaves = {
                 "84d00223-83fe-5326-b2a0-4a0089c08da4",
                 "b49aee49-3a51-591a-827b-bb02e5e9a675",
             } },
-            { source = "Goblins_Male_Guard_Melee_Tier2", native = 2, templates = {
+            { source = "Goblins_Male_Guard_Melee_Tier2", display = "Goblin Warrior", native = 2, templates = {
                 "1d44da4d-8ffd-531d-a554-f3cfbe8a336d",
                 "ca8655cc-39ac-50ad-9ea9-691d686b0128",
                 "ffb176ff-2993-5b60-8adb-797cd2ecce72",
@@ -1408,7 +1408,7 @@ ER.GeneratedWaves = {
                 "7bfcfc42-514e-51a0-b93a-3cbb789f1547",
                 "54fa694b-0504-5a81-ba8a-c1037973a32f",
             } },
-            { source = "Goblins_Female_Guard_Ranger_Tier2", native = 2, templates = {
+            { source = "Goblins_Female_Guard_Ranger_Tier2", display = "Goblin Sharp-Eye", native = 2, templates = {
                 "cd71261c-0a19-52b0-8641-816cb9f9d7ca",
                 "19f48a7a-15fa-51eb-84b8-f21d87ec231c",
                 "8ec6952b-41f8-5d1a-9312-109222f1b1cf",
@@ -1430,7 +1430,7 @@ ER.GeneratedWaves = {
                 "a862869f-bf69-5e7c-a7b5-979fd3cff365",
                 "6b5c6ae5-6e6a-5744-ae6d-d1bab96ae449",
             } },
-            { source = "Goblins_Female_Guard_Caster", native = 2, templates = {
+            { source = "Goblins_Female_Guard_Caster", display = "Goblin Booyahg", native = 2, templates = {
                 "d0486a24-327f-5589-9d2b-a39251463094",
                 "82e0d491-8e28-5d96-9850-e65f84a51410",
                 "4c38e085-21ad-5bbd-b688-7befbd2f3769",
@@ -1455,10 +1455,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "hobgoblin", name = "Hobgoblins", solo = false,
+        key = "hobgoblin", name = "Hobgoblins", solo = false, icon = "Spell_Evocation_Thunderwave",
         races = { ["a234ff21-6324-4ce2-977a-ae921475c046"] = true },
         members = {
-            { source = "Hobgoblins_Male", native = 5, templates = {
+            { source = "Hobgoblins_Male", display = "Hobgoblins Male", native = 5, templates = {
                 "6d178f1c-e829-5643-b8c3-a3d10d92415a",
                 "38c30319-3340-540b-8ede-5e36af0567d1",
                 "80625cda-2acd-5540-8e38-6dcf39184f87",
@@ -1480,7 +1480,7 @@ ER.GeneratedWaves = {
                 "1b7d8333-6f85-596e-bf50-0aa8378aa6ae",
                 "e74439a7-b48c-50f2-8032-455135712df1",
             } },
-            { source = "Hobgoblins_Male_Devastator", native = 5, templates = {
+            { source = "Hobgoblins_Male_Devastator", display = "Devastator", native = 5, templates = {
                 "bd557cf9-4933-5677-9752-b2bf19948f41",
                 "58a5df41-c46a-518b-a2c4-d96662491380",
                 "04938f7b-93c2-5f41-9b95-e63b5d39e6f1",
@@ -1505,10 +1505,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "bugbear", name = "Bugbears", solo = false,
+        key = "bugbear", name = "Bugbears", solo = false, icon = "statIcons_BugbearAssassin_Sneaking",
         races = { ["241b8b4d-763f-48e6-b1f8-a261ec0ef36b"] = true },
         members = {
-            { source = "Bugbears_Male", native = 3, templates = {
+            { source = "Bugbears_Male", display = "Bugbear", native = 3, templates = {
                 "d4b472c8-0dee-5054-bacc-c59b9ebf5b7c",
                 "21d962ad-26b0-58cd-890b-d8479652c0e4",
                 "2d816ea6-4032-5f11-9205-4f7288524ec4",
@@ -1533,10 +1533,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "duergar_squad", name = "Duergar Squad", solo = false,
+        key = "duergar_squad", name = "Duergar Squad", solo = false, icon = "Action_Monster_Duergar_MindSpike",
         races = { ["fe584d14-71ea-4bee-8ba0-99f780d4c957"] = true },
         members = {
-            { source = "Duergar_Female_Guard", native = 5, templates = {
+            { source = "Duergar_Female_Guard", display = "Duergar Warrior", native = 5, templates = {
                 "69ef33f4-157f-5a05-a16a-72799e08e376",
                 "e3b8c203-934c-5d1d-8c16-0ac013b4611c",
                 "6cb6bb7a-afd3-5071-8b25-9ac513c2bd06",
@@ -1558,7 +1558,7 @@ ER.GeneratedWaves = {
                 "6a81ba48-9319-51b8-8ce2-9804966b5979",
                 "9a72036a-6351-57ca-ab1c-add6daf8d0d9",
             } },
-            { source = "Dwarves_Male_Duergar_Guard_Melee", native = 5, templates = {
+            { source = "Dwarves_Male_Duergar_Guard_Melee", display = "Duergar", native = 5, templates = {
                 "9413e4fc-cc0c-5f0c-b82d-9a3808fb9eaf",
                 "cb3f183d-b7a8-5ada-bf8d-fa10f795ea72",
                 "dc056422-a6f2-5aeb-b1bb-abf396845ac5",
@@ -1580,7 +1580,7 @@ ER.GeneratedWaves = {
                 "9859491f-53a7-5dde-bce6-5c388790702f",
                 "7e7750ad-8d91-5c03-b824-608c6d843e30",
             } },
-            { source = "Dwarves_Female_Duergar_Guard_Ranger", native = 4, templates = {
+            { source = "Dwarves_Female_Duergar_Guard_Ranger", display = "Duergar Warrior", native = 4, templates = {
                 "d182391c-aeee-5ae1-9855-93f6fbcc7d99",
                 "2dd0b2c8-3b32-5c4d-8ca8-3f5219230969",
                 "de5e2ce0-367a-525f-96b4-3f90919d1113",
@@ -1602,7 +1602,7 @@ ER.GeneratedWaves = {
                 "fb19c03b-395d-5f32-9dd0-523550e8e139",
                 "04e497c1-a7ab-51f9-a150-318b0248a36c",
             } },
-            { source = "Dwarves_Female_Duergar_Guard_Caster", native = 5, templates = {
+            { source = "Dwarves_Female_Duergar_Guard_Caster", display = "Duergar Warrior", native = 5, templates = {
                 "746f839c-9bfe-5c55-9bda-659cc4ff7de2",
                 "27fdb1ce-a880-5333-8b51-7c9c931d6c99",
                 "774da80a-2ab6-5ce9-9eec-612f98bfcbe2",
@@ -1627,10 +1627,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "intellect_devourer", name = "Intellect Devourers", solo = false,
+        key = "intellect_devourer", name = "Intellect Devourers", solo = false, icon = "Spell_IntellectDevourer_DevourIntellect",
         races = { ["4bd6dcba-b21c-4d83-90fe-21bf84ecd50b"] = true },
         members = {
-            { source = "Intellect_Devourer", native = 2, templates = {
+            { source = "Intellect_Devourer", display = "Intellect Devourer", native = 2, templates = {
                 "ad84b785-b3aa-5308-9f3e-b7bc628c269e",
                 "3da40f8f-a867-5551-9e63-19d7eb2b2314",
                 "5e59f278-2c45-533c-a7a2-e644d5ae55df",
@@ -1652,7 +1652,7 @@ ER.GeneratedWaves = {
                 "33fb9b5f-c3f0-5e20-94a8-e1bff9c5ed4a",
                 "b93a87ee-2d2f-5d5a-a1dd-93e913a4b620",
             } },
-            { source = "Intellect_Detonator", native = 3, templates = {
+            { source = "Intellect_Detonator", display = "Intellect Glutton", native = 3, templates = {
                 "833bb064-8fa1-5225-8089-11256c142f0a",
                 "484c17a6-723b-5e0a-aa94-3ce832f4d01f",
                 "18450f76-d487-557f-9a08-a3ead77c4a7e",
@@ -1677,10 +1677,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "mind_flayer", name = "a Mind Flayer", solo = true,
+        key = "mind_flayer", name = "a Mind Flayer", solo = true, icon = "Action_Mag_Illithid_MindTax",
         races = { ["d4361929-70b8-4610-8073-2c827bf6d2fc"] = true },
         members = {
-            { source = "Mindflayer", native = 5, templates = {
+            { source = "Mindflayer", display = "Mind Flayer", native = 5, templates = {
                 "c345fbec-3eb9-5477-936b-3160b8e9aa24",
                 "4c5c0934-2012-55a3-a959-a83233abe144",
                 "3d08ea60-22fe-54d2-8205-59cd2f2a428f",
@@ -1702,7 +1702,7 @@ ER.GeneratedWaves = {
                 "fc5e665b-37d4-5d3a-bfa8-26784134f986",
                 "bfda449c-59ce-5538-9c0d-77a0690c3b14",
             } },
-            { source = "MindFlayer_Caster", native = 6, templates = {
+            { source = "MindFlayer_Caster", display = "Illithid Arcanist", native = 6, templates = {
                 "b402a9cb-0b90-5208-a5f3-fdb885df7dc1",
                 "3662fd2c-8f47-5d04-a3b1-17bde0c583ba",
                 "d73b5a60-d08e-566e-9970-03f4e189a7e3",
@@ -1727,10 +1727,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "harpy", name = "Harpies", solo = false,
+        key = "harpy", name = "Harpies", solo = false, icon = "Item_AlchemyIngredient_HarpyFeather",
         races = { ["34afb07e-44d1-4d00-b2eb-aff508a87718"] = true },
         members = {
-            { source = "Monstrosity_Harpy_Melee", native = 2, templates = {
+            { source = "Monstrosity_Harpy_Melee", display = "Harpy", native = 2, templates = {
                 "58886aff-8fc1-5f23-920c-8c44ad6df96e",
                 "c1bae9f6-c1bb-56c8-9c48-972214241537",
                 "6bd0effd-1490-59c6-b2c3-cdf8a5451052",
@@ -1752,7 +1752,7 @@ ER.GeneratedWaves = {
                 "34e98285-06ae-5113-a68f-2a62e74f591c",
                 "f8b29a9c-ea05-5c0f-8cab-9252c5c87a6c",
             } },
-            { source = "Monstrosity_Harpy_Ranger", native = 2, templates = {
+            { source = "Monstrosity_Harpy_Ranger", display = "Harpy", native = 2, templates = {
                 "ea5d3b47-376c-5636-b1e3-24bac6bedfee",
                 "6d89884c-0551-55b1-b04b-c31eadb54c62",
                 "ab33f76f-a3fd-53a8-ab67-ee0bc9db23b6",
@@ -1777,10 +1777,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "hook_horror", name = "Hook Horrors", solo = false,
+        key = "hook_horror", name = "Hook Horrors", solo = false, icon = "Action_HookHorror_Hook",
         races = { ["e154d373-8317-47af-b88f-0fb444677fc9"] = true },
         members = {
-            { source = "HookHorror_A", native = 4, templates = {
+            { source = "HookHorror_A", display = "Hook Horror", native = 4, templates = {
                 "56dfa672-e1d1-5c9c-99e7-9afd4e59d660",
                 "0e2545ce-7121-5e0e-950f-05ad675672d8",
                 "f404e7e8-b2ac-5f6c-bb78-65cd39780a34",
@@ -1805,10 +1805,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "minotaur", name = "a Minotaur", solo = true,
+        key = "minotaur", name = "a Minotaur", solo = true, icon = "Action_Monster_Minotaur_Jump",
         races = { ["31e1a2fe-0322-4540-95c3-9a28ad7fb202"] = true },
         members = {
-            { source = "Minotaur", native = 5, templates = {
+            { source = "Minotaur", display = "Minotaur", native = 5, templates = {
                 "d7612aa3-a672-5840-8418-7eff792b8788",
                 "d9b23b49-8934-5087-957c-44156280e264",
                 "2ed62e77-b89e-5166-ac7d-303232ebf364",
@@ -1833,10 +1833,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "mimic", name = "a Mimic", solo = true,
+        key = "mimic", name = "a Mimic", solo = true, icon = "Spell_Conjuration_MageHand",
         races = { ["31e1a2fe-0322-4540-95c3-9a28ad7fb202"] = true },
         members = {
-            { source = "Monstrosity_Mimic", native = 3, templates = {
+            { source = "Monstrosity_Mimic", display = "Mimic", native = 3, templates = {
                 "7fd486a1-1c2b-5a7b-992e-bdf850fb08fd",
                 "2a67289c-ce5d-50e1-9236-35953f5533dd",
                 "96601afe-5b8a-5312-b23f-84e6b04329aa",
@@ -1861,10 +1861,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "bulette", name = "a Bulette", solo = true,
+        key = "bulette", name = "a Bulette", solo = true, icon = "Action_Monster_Bulette_Bite",
         races = { ["95bd2d11-37c8-4cbc-b066-1dec40264b95"] = true },
         members = {
-            { source = "Bulette", native = 5, templates = {
+            { source = "Bulette", display = "Bulette", native = 5, templates = {
                 "4ac19977-caf8-5e73-bc1f-8da6e6ca8c95",
                 "e315496f-909e-5a75-b5f9-39ce977699bc",
                 "daa88eab-ef44-5e49-b643-ead5018e5b78",
@@ -1889,10 +1889,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "owlbear", name = "an Owlbear", solo = true,
+        key = "owlbear", name = "an Owlbear", solo = true, icon = "statIcons_OwlbearsRage",
         races = { ["27a5799e-1f5c-4c2c-9adf-fe1c0276a64e"] = true },
         members = {
-            { source = "Owlbear", native = 4, templates = {
+            { source = "Owlbear", display = "Owlbear", native = 4, templates = {
                 "228ce4c1-8bbf-56e1-85e9-39cb9f21889d",
                 "e33ee9e7-63a8-5670-b40b-c8211ac6cdc9",
                 "61c57968-1ba0-56c5-9d57-8b01b20d4694",
@@ -1917,10 +1917,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "phase_spider_matriarch", name = "a Phase Spider Matriarch", solo = true,
+        key = "phase_spider_matriarch", name = "a Phase Spider Matriarch", solo = true, icon = "Action_Spider_Giant_Web",
         races = { ["b7a80e95-eb5a-4602-b235-8ae612ffe09d"] = true },
         members = {
-            { source = "Phase_Spider_Queen", native = 5, templates = {
+            { source = "Phase_Spider_Queen", display = "Phase Spider Matriarch", native = 5, templates = {
                 "94dc3990-9717-51b6-9913-580e4c4a7a32",
                 "26d681c9-030b-5a99-a1d0-9b6dbc7e7df2",
                 "705437fe-100d-5113-bf10-967a54847a8f",
@@ -1945,10 +1945,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "gremishka", name = "Gremishkas", solo = false,
+        key = "gremishka", name = "Gremishkas", solo = false, icon = "Item_ALCH_Extract_GremishkaTail",
         races = { ["dc532c8f-cbfd-4513-acc6-922b88d09271"] = true },
         members = {
-            { source = "Gremishka", native = 1, templates = {
+            { source = "Gremishka", display = "Gremishka", native = 1, templates = {
                 "16fb8d0c-240f-5573-aab9-9a7afcc24bbf",
                 "5235fd3c-947e-5200-aeff-384218a42689",
                 "d1adf6dd-33fa-5bc3-8356-c38b986b6d40",
@@ -1973,10 +1973,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "ogre", name = "Ogres", solo = false,
+        key = "ogre", name = "Ogres", solo = false, icon = "Item_DEC_GEN_StuffedHead_Ogre_Poor_A",
         races = { ["40af3916-df35-4e6e-aa8b-276cfc2c4f6f"] = true },
         members = {
-            { source = "Ogres_Male_A", native = 4, templates = {
+            { source = "Ogres_Male_A", display = "Ogre", native = 4, templates = {
                 "c9b496c3-3aed-5982-aa6a-2cf917869790",
                 "8a049840-f3b9-5a10-8dac-c5e224438b5b",
                 "916e7466-3f09-5f05-add0-9090aafb141f",
@@ -1998,7 +1998,7 @@ ER.GeneratedWaves = {
                 "7b2596ab-10eb-5267-9c9b-9b7aa63fce25",
                 "b5421a73-b508-52e1-a889-6f3c97768c73",
             } },
-            { source = "Ogres_Female_A", native = 4, templates = {
+            { source = "Ogres_Female_A", display = "Ogre", native = 4, templates = {
                 "db31c0ce-8d8c-5cd8-8cbb-b43a06b10b39",
                 "392e4ae7-6323-5366-9a33-b0fa46e8e381",
                 "5d8c01be-14be-58f0-ba0f-d3c6ab4fef14",
@@ -2023,10 +2023,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "myconid", name = "Myconids", solo = false,
+        key = "myconid", name = "Myconids", solo = false, icon = "Action_Glut_BlackSporeCloud",
         races = { ["509af6eb-26a7-4c85-bd5f-410e6af8d6fb"] = true },
         members = {
-            { source = "Myconid_Slender", native = 5, templates = {
+            { source = "Myconid_Slender", display = "Myconid", native = 5, templates = {
                 "174f20a4-9796-508e-abe9-0add0805d254",
                 "cb8d063a-4958-5bf5-9a15-e87ca231aaf1",
                 "3daf758f-c050-59aa-82ef-7e5c8c2eea9d",
@@ -2048,7 +2048,7 @@ ER.GeneratedWaves = {
                 "d04039d8-7f50-51d4-b6c8-2fe10f3ededa",
                 "68b5eec0-f1a7-5ff0-a77b-a99a41b646d7",
             } },
-            { source = "Myconid_Slender_White", native = 3, templates = {
+            { source = "Myconid_Slender_White", display = "Restless Myconid", native = 3, templates = {
                 "26a8f4d8-51c4-54f6-9211-f3c6bb3f6176",
                 "1f374a98-6a91-561e-b2ca-03fd4fa89656",
                 "f212b63b-2953-561e-8627-a692c09a975f",
@@ -2070,7 +2070,7 @@ ER.GeneratedWaves = {
                 "8b7a9a1f-feeb-5f89-b59d-b84cb837a009",
                 "61665fe7-df57-5482-a2ff-9efbe082dc57",
             } },
-            { source = "Myconid_Slender_Green", native = 3, templates = {
+            { source = "Myconid_Slender_Green", display = "Noxious Myconid", native = 3, templates = {
                 "5f556c85-4269-53d9-9ad5-335c25f4acb9",
                 "0cbc6525-0d43-5906-a6a9-96b8e292c9b5",
                 "82c7a0c9-cdd5-5ccd-af19-dcd859c21e39",
@@ -2092,7 +2092,7 @@ ER.GeneratedWaves = {
                 "36347c19-ac19-57e4-8670-906d3224e5e7",
                 "e70f2c58-bb75-56c2-848f-0e8026de16d6",
             } },
-            { source = "Myconid_Slender_Black", native = 3, templates = {
+            { source = "Myconid_Slender_Black", display = "Mossy Myconid", native = 3, templates = {
                 "387a5d9a-246b-5254-b7df-5833d859d9a6",
                 "0d1ea481-9d73-578a-b1bb-48a76b3d20fe",
                 "5fa0081f-c738-53f5-b769-95ff282cb2ec",
@@ -2117,10 +2117,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "deep_rothe", name = "Deep Rothé", solo = false,
+        key = "deep_rothe", name = "Deep Rothé", solo = false, icon = "Action_DeepRothe_Gore",
         races = { ["27a5799e-1f5c-4c2c-9adf-fe1c0276a64e"] = true },
         members = {
-            { source = "DEEP_ROTHE", native = 1, templates = {
+            { source = "DEEP_ROTHE", display = "Deep Rothé", native = 1, templates = {
                 "cef08886-c096-5448-a0b8-2f2a505dff8a",
                 "44e671f3-9399-5d6e-9479-355ff3720f37",
                 "b2caefa6-8cee-581a-b2f9-12b2d7e4013c",
@@ -2145,10 +2145,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "magma_mephit", name = "Magma Mephits", solo = false,
+        key = "magma_mephit", name = "Magma Mephits", solo = false, icon = "Action_WildMagic_Mephit",
         races = { ["7cfa46e7-b17e-4d08-b8d1-f10e89c06bda"] = true },
         members = {
-            { source = "MEPHIT_Magma_A", native = 4, templates = {
+            { source = "MEPHIT_Magma_A", display = "Magma Mephit", native = 4, templates = {
                 "fdaaa874-6b9a-5e5e-a155-b21498f15dc1",
                 "cb53f60b-705a-5ea2-8843-335638c1bb02",
                 "60d2b2c0-1fed-5c0c-8b1c-c7a66711e898",
@@ -2173,10 +2173,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "ochre_jelly", name = "Ochre Jellies", solo = false,
+        key = "ochre_jelly", name = "Ochre Jellies", solo = false, icon = "Item_ALCH_Extract_OchreJellySlime",
         races = { ["889ca85e-9263-4086-aeab-352dd1eed3a0"] = true },
         members = {
-            { source = "Ooze_Jelly_Ochre", native = 5, templates = {
+            { source = "Ooze_Jelly_Ochre", display = "Ochre Jelly", native = 5, templates = {
                 "1ab3c365-d136-50c9-82bb-b09e84a33f15",
                 "d4181886-f704-5915-8fd6-a9b4ed1dd635",
                 "6cc86edb-699c-5b3c-8290-62f06c4ce736",
@@ -2201,10 +2201,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "wolf", name = "Wolves", solo = false,
+        key = "wolf", name = "Wolves", solo = false, icon = "Action_DireWolfPack_Howl",
         races = { ["63d47507-0398-4ef2-a217-66098b633e72"] = true },
         members = {
-            { source = "Wolf", native = 1, templates = {
+            { source = "Wolf", display = "Wolf", native = 1, templates = {
                 "374cfb94-72b7-5e1d-aa8c-2eb916eb27f2",
                 "b9d18032-af67-5804-a147-dc7b5e3372eb",
                 "14103162-5ed8-50cf-9543-c39f3feed9a2",
@@ -2226,7 +2226,7 @@ ER.GeneratedWaves = {
                 "1a4b8f34-22c5-533f-a644-7b593a89b57e",
                 "a72afebf-699c-5076-877e-93f1be93467c",
             } },
-            { source = "Wolf_Dire", native = 3, templates = {
+            { source = "Wolf_Dire", display = "Dire Wolf", native = 3, templates = {
                 "82ced9a2-b00c-54b7-9940-b4e236be827b",
                 "874aec10-b9df-5dab-bb3d-dd3a2e03ed10",
                 "92e76b92-c1dc-5196-8c0b-16ac6884070f",
@@ -2251,10 +2251,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "bear", name = "Bears", solo = false,
+        key = "bear", name = "Bears", solo = false, icon = "Action_Bear_Claws",
         races = { ["cc00854c-e17b-4b54-866e-62e23f27e8e5"] = true },
         members = {
-            { source = "Bear", native = 3, templates = {
+            { source = "Bear", display = "Bear", native = 3, templates = {
                 "829626dd-bd6d-5843-ac11-29be64708dda",
                 "fb5b1917-cf44-565f-a1d2-56b44ff3462e",
                 "f797089f-2437-5050-8c0d-8b9164a5dd09",
@@ -2279,10 +2279,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "meenlock", name = "Meenlocks", solo = false,
+        key = "meenlock", name = "Meenlocks", solo = false, icon = "Spell_Conjuration_HungerOfHadar",
         races = { ["c9479054-6a06-438b-9ab3-0467f70709de"] = true },
         members = {
-            { source = "Meenlock_A", native = 4, templates = {
+            { source = "Meenlock_A", display = "Meenlock", native = 4, templates = {
                 "ca954ff7-9589-597b-89d2-99236dfef346",
                 "d05c2cc2-bb44-5ef7-b07b-7e020c20cb1b",
                 "7d96a992-9a97-53ee-bd34-3a077f9754b3",
@@ -2307,10 +2307,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "imp", name = "Imps", solo = false,
+        key = "imp", name = "Imps", solo = false, icon = "Action_Imp_Claws",
         races = { ["7efb6df1-4f74-4d83-aeba-031b52d003a1"] = true },
         members = {
-            { source = "Imp", native = 3, templates = {
+            { source = "Imp", display = "Imp", native = 3, templates = {
                 "94674163-30ae-5d71-a2cc-3627819e6579",
                 "c2289733-a343-592f-a4a4-c8cc587a3d37",
                 "2266cb23-b9b8-554c-a5e9-23f5105c282a",
@@ -2332,7 +2332,7 @@ ER.GeneratedWaves = {
                 "47537015-6b15-55a0-8db6-731575db127a",
                 "efdb5976-8017-5c4c-a74a-0373351e5036",
             } },
-            { source = "Imp_Weak", native = 1, templates = {
+            { source = "Imp_Weak", display = "Imp", native = 1, templates = {
                 "eadfbd79-580c-54c0-9169-45eb108eb985",
                 "bc9528f3-ec5f-5d9b-acfd-da81b1e4d1cd",
                 "4e9edfb0-b3a2-517c-bd37-00438e5ca211",
@@ -2357,10 +2357,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "cambion", name = "Cambions", solo = false,
+        key = "cambion", name = "Cambions", solo = false, icon = "Action_Monster_Cambion_FireRay",
         races = { ["99c33978-f236-4f5b-a8d8-59aeeaf6140f"] = true },
         members = {
-            { source = "Cambion_Male", native = 4, templates = {
+            { source = "Cambion_Male", display = "Cambion", native = 4, templates = {
                 "60d6235a-4ef4-54d4-b761-f119c8b084ea",
                 "8b339bd7-f8e3-5b30-af5c-e2de86b6b3e8",
                 "deb5a46a-1da9-5b27-9eda-e509a8916623",
@@ -2385,10 +2385,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "bandit", name = "Bandits", solo = false,
+        key = "bandit", name = "Bandits", solo = false, icon = "Item_ARM_Bandit",
         races = { ["0eb594cb-8820-4be6-a58d-8be7a1a98fba"] = true },
         members = {
-            { source = "Humans_Male_Melee", native = 3, templates = {
+            { source = "Humans_Male_Melee", display = "Human Fighter", native = 3, templates = {
                 "55bbfdf2-a677-5ec3-8d3e-7748d0ec1cb7",
                 "7070a6e4-0a44-50dd-b32b-ba28d5d14b62",
                 "a22a8622-1a42-5c47-be72-08aff9c3dd0f",
@@ -2410,7 +2410,7 @@ ER.GeneratedWaves = {
                 "7d7dbcbd-33c4-5ce3-9caa-963ed1874a3e",
                 "28eb0bee-d113-5937-a896-43d2a977af36",
             } },
-            { source = "Humans_Female_Melee", native = 5, templates = {
+            { source = "Humans_Female_Melee", display = "Human Fighter", native = 5, templates = {
                 "c66ad680-6a9e-5e2f-a6a7-cd3aa31695bd",
                 "c0adc739-23e1-546a-8c06-49a708b7a7ab",
                 "e8dbfe4e-6869-5049-bc35-15a3cb77facb",
@@ -2432,7 +2432,7 @@ ER.GeneratedWaves = {
                 "37c72435-486a-57ac-8e6b-affb988381f1",
                 "e73705a1-4534-56f1-af1f-55f677721c73",
             } },
-            { source = "Humans_Female_Guard_Caster", native = 8, templates = {
+            { source = "Humans_Female_Guard_Caster", display = "Human Spellcaster", native = 8, templates = {
                 "7fa3c860-c44a-557c-90f8-b22e7bdae0a0",
                 "45a94112-dfad-5fcb-8c41-141c1a759bad",
                 "2cb7b526-ae14-51c2-aed2-34ece482839a",
@@ -2457,10 +2457,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "drider", name = "a Drider", solo = true,
+        key = "drider", name = "a Drider", solo = true, icon = "Action_Spider_Giant_Web",
         races = { ["14360cf2-e8cb-42dc-a02a-1e70b7713ab9"] = true },
         members = {
-            { source = "Drider", native = 6, templates = {
+            { source = "Drider", display = "Drider", native = 6, templates = {
                 "4d7cb891-a8cd-528f-b7ea-5dd951bac131",
                 "6a778e3d-b9d3-5cd0-8c8a-2d2981b8f565",
                 "69a0bbaf-2a87-554a-91f6-d702a5593b3f",
@@ -2485,10 +2485,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "shadow", name = "Shadows", solo = false,
+        key = "shadow", name = "Shadows", solo = false, icon = "Action_ShadowStrike",
         races = { ["99fcf1c3-b189-48e0-b21a-08438e03c929"] = true, ["9d4c97ce-5b07-4bf6-97fa-2e744032e170"] = true },
         members = {
-            { source = "Shadow_A", native = 5, templates = {
+            { source = "Shadow_A", display = "Shadow", native = 5, templates = {
                 "a50ba61a-43d5-54cb-af7b-a8062f54e98d",
                 "dbdd9488-f196-5a17-91d9-17fac0027399",
                 "841dc147-ce1b-5dac-9385-e91804e27c1f",
@@ -2510,7 +2510,7 @@ ER.GeneratedWaves = {
                 "25a010b2-3ce5-548a-a43f-375d50e60ef3",
                 "d2334ca9-d99f-5183-b72a-70fd8ca6d918",
             } },
-            { source = "Shadow_Wraith_A", native = 7, templates = {
+            { source = "Shadow_Wraith_A", display = "Wraith", native = 7, templates = {
                 "05f8d6db-0202-5dde-b024-6517a87e5ce9",
                 "43ba35f8-e374-5d0b-ab6d-de67df3b468f",
                 "e24779ff-f89e-55a4-9cf7-c3e80dd4ceda",
@@ -2535,10 +2535,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "shadow_raven", name = "Shadow-Cursed Ravens", solo = false,
+        key = "shadow_raven", name = "Shadow-Cursed Ravens", solo = false, icon = "Action_Raven_BadOmen",
         races = { ["02e5c59e-80e7-4176-a289-1d08699583f5"] = true },
         members = {
-            { source = "Raven_Dire_ShadowCursed", native = 5, templates = {
+            { source = "Raven_Dire_ShadowCursed", display = "Shadow-Cursed Raven", native = 5, templates = {
                 "3f7a465a-4992-552c-8139-9bbe64050849",
                 "0a83aaa3-52c3-5588-9577-cfcea7101abc",
                 "ef2fd026-ce71-5dfe-a888-04286e785c0e",
@@ -2563,10 +2563,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "shadow_blight", name = "Shadow Blights", solo = false,
+        key = "shadow_blight", name = "Shadow Blights", solo = false, icon = "Spell_Necromancy_Blight",
         races = { ["3a012942-fdc0-4554-825a-bf030cc9620e"] = true },
         members = {
-            { source = "BLIGHT_NeedleBlight_Dark_A", native = 5, templates = {
+            { source = "BLIGHT_NeedleBlight_Dark_A", display = "Shadow-Cursed Needle Blight", native = 5, templates = {
                 "cbc197dd-1ed4-5f48-9375-dd03609eb922",
                 "f13b90e9-5c52-582c-a14b-529102acc059",
                 "341d8230-9f56-56a4-9fc5-d5592a8fca8d",
@@ -2588,7 +2588,7 @@ ER.GeneratedWaves = {
                 "b5a796c1-a354-5af3-a23f-6b9f69e94ac1",
                 "a1614553-8d30-513c-8507-9390bd639410",
             } },
-            { source = "BLIGHT_VineBlight_Dark_A", native = 6, templates = {
+            { source = "BLIGHT_VineBlight_Dark_A", display = "Shadow-Cursed Vine Blight", native = 6, templates = {
                 "f3401af8-2d60-5e80-bfcb-7154c57412d8",
                 "c46c9892-8283-53e1-9fdb-65dd2edfa0f7",
                 "43825b04-92d7-596b-b5f7-dee65da4eb8e",
@@ -2613,10 +2613,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "shambling_mound", name = "a Shambling Mound", solo = true,
+        key = "shambling_mound", name = "a Shambling Mound", solo = true, icon = "PassiveFeature_Land_Swamp",
         races = { ["3a012942-fdc0-4554-825a-bf030cc9620e"] = true },
         members = {
-            { source = "ShamblingMound_Dark_A", native = 9, templates = {
+            { source = "ShamblingMound_Dark_A", display = "Shadow-Cursed Shambling Mound", native = 9, templates = {
                 "e62e7df0-3880-5303-995e-17e918ba72d2",
                 "6bd8761d-823c-5074-a71e-4fd3f25bea61",
                 "74e9d7a4-fbb7-5110-8deb-648a5bd8f3ea",
@@ -2641,10 +2641,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "shadow_vine", name = "Shadow Vines", solo = false,
+        key = "shadow_vine", name = "Shadow Vines", solo = false, icon = "Spell_Transmutation_ThornWhip",
         races = { ["eb48ad96-0676-439d-ab44-83a2495550f8"] = true },
         members = {
-            { source = "DarkVine_Tentacle", native = 4, templates = {
+            { source = "DarkVine_Tentacle", display = "Shadow Creeper", native = 4, templates = {
                 "90d7ef32-7cb4-5ddd-b00b-ea18e0b40dea",
                 "410853d0-db51-5f46-a1ca-59ef12c98529",
                 "3eefc7ea-0cc5-51cd-9a9f-7c7bfbb082d9",
@@ -2669,10 +2669,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "crawling_claw", name = "Crawling Claws", solo = false,
+        key = "crawling_claw", name = "Crawling Claws", solo = false, icon = "Action_Quasit_Claws",
         races = { ["76b61437-097b-42b9-af0a-66e9d47b20bb"] = true },
         members = {
-            { source = "Crawling_Claw", native = 1, templates = {
+            { source = "Crawling_Claw", display = "Crawling Claw", native = 1, templates = {
                 "51e780d2-bae6-5588-ad03-2c4a7edc7a17",
                 "f7d09883-c131-5f22-8af6-18449db26536",
                 "301f531d-9633-503f-9725-33e8888e28cd",
@@ -2697,10 +2697,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "nightmare_nurse", name = "Nightmare Nurses", solo = false,
+        key = "nightmare_nurse", name = "Nightmare Nurses", solo = false, icon = "Spell_Surgeon_GrapplingArm",
         races = { ["02e5c59e-80e7-4176-a289-1d08699583f5"] = true },
         members = {
-            { source = "Surgeon_Nightmare_Nurse_A", native = 6, templates = {
+            { source = "Surgeon_Nightmare_Nurse_A", display = "Zealous Assistant", native = 6, templates = {
                 "beff14e6-cebc-5018-b20a-7a287ae8b9fb",
                 "95141ff8-abbe-577b-a80e-c79077a8b719",
                 "51eab831-0d70-5b93-94e1-84fe66591f96",
@@ -2725,10 +2725,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "armoured_skeleton", name = "Armoured Skeletons", solo = false,
+        key = "armoured_skeleton", name = "Armoured Skeletons", solo = false, icon = "Action_Mag_CommandUndead_Halt",
         races = { ["ad533889-a032-41f2-b90c-592575b4e21c"] = true },
         members = {
-            { source = "Skeleton_Armored_A", native = 3, templates = {
+            { source = "Skeleton_Armored_A", display = "Skeleton", native = 3, templates = {
                 "4d604b3a-f3f8-5200-8423-52e7d6b798bb",
                 "8efb4904-2af6-5140-a1e7-508c69a1f3ae",
                 "39c8c50b-6838-5bb7-a5b6-a44ccbc1b964",
@@ -2753,10 +2753,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "absolute_soldier", name = "Absolute Soldiers", solo = false,
+        key = "absolute_soldier", name = "Absolute Soldiers", solo = false, icon = "Action_AbsolutePower",
         races = { ["0eb594cb-8820-4be6-a58d-8be7a1a98fba"] = true },
         members = {
-            { source = "Humans_Male_Guard_Melee", native = 8, templates = {
+            { source = "Humans_Male_Guard_Melee", display = "Human Fighter", native = 8, templates = {
                 "1d32413e-a9f2-5514-b207-85fadb29c410",
                 "3f4cfbe9-dbc9-527d-913c-5844144a72c2",
                 "bcba9385-0975-529f-9f7c-baffb7e65293",
@@ -2778,7 +2778,7 @@ ER.GeneratedWaves = {
                 "32bf3472-59f7-528c-8dce-5e7602c35998",
                 "364b1ab8-ca12-5995-8dff-8edc029decf0",
             } },
-            { source = "Humans_Female_Guard_Melee", native = 8, templates = {
+            { source = "Humans_Female_Guard_Melee", display = "Human Fighter", native = 8, templates = {
                 "ca6b6423-1315-5c0f-92bf-7ecfc98d923f",
                 "8076338d-5915-5d8d-a4db-ffe9a758f7f4",
                 "9ef89368-f5c5-57c1-bf4e-7f3c6fc27252",
@@ -2800,7 +2800,7 @@ ER.GeneratedWaves = {
                 "551e9127-df97-518a-9158-35516a7982a4",
                 "eb9e824e-e457-587a-88ae-ed256df84e63",
             } },
-            { source = "Humans_Female_Guard_Caster", native = 8, templates = {
+            { source = "Humans_Female_Guard_Caster", display = "Human Spellcaster", native = 8, templates = {
                 "7fa3c860-c44a-557c-90f8-b22e7bdae0a0",
                 "45a94112-dfad-5fcb-8c41-141c1a759bad",
                 "2cb7b526-ae14-51c2-aed2-34ece482839a",
@@ -2825,10 +2825,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "shadow_mastiff", name = "Shadow Mastiffs", solo = false,
+        key = "shadow_mastiff", name = "Shadow Mastiffs", solo = false, icon = "Action_Monk_ShadowStep",
         races = { ["d3c0ee1f-3cc3-463a-8869-edf646c5bbca"] = true },
         members = {
-            { source = "Shadow_Dog_A", native = 6, templates = {
+            { source = "Shadow_Dog_A", display = "Shadow Mastiff", native = 6, templates = {
                 "eba7ba5f-cdf4-55bd-99e0-36f0ccc80b05",
                 "f66333c7-67af-5b44-af9b-7501685c0f00",
                 "af44169e-5e4c-5188-84b2-6cba49ef26e8",
@@ -2850,7 +2850,7 @@ ER.GeneratedWaves = {
                 "87acea2e-bfd6-5ada-a4fe-3acbc5755a95",
                 "35669877-a36b-5e7c-830e-55c4fd372186",
             } },
-            { source = "Shadow_Dog_Alpha", native = 7, templates = {
+            { source = "Shadow_Dog_Alpha", display = "Shadow Mastiff Alpha", native = 7, templates = {
                 "18c7606e-505a-52d3-b73b-e950fecb8df1",
                 "d6a0d6c1-160e-5dae-890c-5e620a288902",
                 "5bcc432e-3fa0-56a5-897b-54cdd0f87ca0",
@@ -2875,10 +2875,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "meazel", name = "Meazels", solo = false,
+        key = "meazel", name = "Meazels", solo = false, icon = "Action_Mag_Garrote",
         races = { ["00c7ee76-58d0-429c-ae4d-ecc3d653da06"] = true },
         members = {
-            { source = "Meazel", native = 5, templates = {
+            { source = "Meazel", display = "Meazel", native = 5, templates = {
                 "23f32043-4b8d-581b-942f-2cf37fc3c93d",
                 "f74d64a0-eaea-5da0-9002-7b05907fde64",
                 "a519271d-0159-5207-a393-19423771e7fb",
@@ -2903,10 +2903,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "merregon", name = "Merregons", solo = false,
+        key = "merregon", name = "Merregons", solo = false, icon = "Item_MerregonMask",
         races = { ["0fff84f9-f614-49a1-81d6-2c9e82eb241e"] = true },
         members = {
-            { source = "Merregon", native = 6, templates = {
+            { source = "Merregon", display = "Merregon", native = 6, templates = {
                 "f12b8b39-6970-5576-a1f5-b74e3a65dee5",
                 "bb055eb8-5b58-5982-85f8-5bfa0d29d3ca",
                 "e6b68b5f-162d-5312-ae3b-b550b5cd6fa1",
@@ -2931,10 +2931,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "kuotoa", name = "Kuo-toa", solo = false,
+        key = "kuotoa", name = "Kuo-toa", solo = false, icon = "Action_Monster_KuoToa_Net",
         races = { ["ef9802b4-e872-4dec-bdb2-1cc0038b6856"] = true },
         members = {
-            { source = "SCL_ShadowCursed_KuoToa_Melee", native = 7, templates = {
+            { source = "SCL_ShadowCursed_KuoToa_Melee", display = "Shadow-Cursed Kuo-Toa", native = 7, templates = {
                 "ed75f59c-d887-5bd4-b41e-b2458c7b9f07",
                 "c5db2102-245d-5aa1-aa2e-d64f0e8f2c7d",
                 "ffb55b1a-bf2c-5b14-9bd8-c2be45276099",
@@ -2956,7 +2956,7 @@ ER.GeneratedWaves = {
                 "5ca8fb34-4a09-555b-a71c-c257ad03c6ab",
                 "09d6492d-1e5f-5cbd-a05b-91af1a30661e",
             } },
-            { source = "SCL_ShadowCursed_KuoToa_Ranger", native = 7, templates = {
+            { source = "SCL_ShadowCursed_KuoToa_Ranger", display = "Shadow-Cursed Kuo-Toa", native = 7, templates = {
                 "ab7e8d72-7a00-5d4b-ac09-2a6328b3b464",
                 "565cc0de-4cd9-5c9f-be92-e95d495ccff0",
                 "fc97b3f4-76bc-5de4-9acb-1fc5c1b76311",
@@ -2981,10 +2981,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "gishra", name = "Gish'ra Warriors", solo = false,
+        key = "gishra", name = "Gish'ra Warriors", solo = false, icon = "statIcons_GishArcaneCharge",
         races = { ["bdf9b779-002c-4077-b377-8ea7c1faa795"] = true },
         members = {
-            { source = "Githyanki_Male_Gishra_Melee", native = 9, templates = {
+            { source = "Githyanki_Male_Gishra_Melee", display = "Gish'ra", native = 9, templates = {
                 "523f7b7d-14a1-5daf-9cc2-19b9b421c9b2",
                 "70b8f5c0-d534-5f2e-938b-ade246309c56",
                 "146f960d-4e18-5c77-aad4-ae3f4ad4c0f7",
@@ -3006,7 +3006,7 @@ ER.GeneratedWaves = {
                 "517c8b3a-2e30-5fa6-baef-42dde957bdba",
                 "9e182671-0a01-5bf3-99d3-1f7eb18f6e19",
             } },
-            { source = "Githyanki_Female_Gishra_Melee", native = 9, templates = {
+            { source = "Githyanki_Female_Gishra_Melee", display = "Gish'ra", native = 9, templates = {
                 "4df84de9-1e62-595b-aea4-4456bd6fa652",
                 "f9e2aac3-1094-5c1c-8669-a432601b82e4",
                 "e9955e9a-4aea-57b5-9321-6b901a01ae52",
@@ -3028,7 +3028,7 @@ ER.GeneratedWaves = {
                 "1a2b378a-c191-5805-abc1-eb808ef3fe2c",
                 "4c48696d-765b-5210-bc5f-c9155622479d",
             } },
-            { source = "Githyanki_Male_Gishra_Caster", native = 9, templates = {
+            { source = "Githyanki_Male_Gishra_Caster", display = "Gish'ra", native = 9, templates = {
                 "b2ef74d1-2058-5596-800d-b2d1761b52b9",
                 "1dfb631c-81f4-5783-8ba4-328f485072d1",
                 "602223d8-1863-51d4-8618-951c0303fba3",
@@ -3050,7 +3050,7 @@ ER.GeneratedWaves = {
                 "a8ad4a5f-9e1b-593c-8379-9f5b51f5e9dc",
                 "02c9273d-aa5e-55d0-ae61-57338a9fe773",
             } },
-            { source = "Githyanki_Female_Gishra_Caster", native = 9, templates = {
+            { source = "Githyanki_Female_Gishra_Caster", display = "Githyanki", native = 9, templates = {
                 "d2d50aec-d342-5397-ae16-f41099500a09",
                 "3197e0c8-38f9-5fd2-9290-33f79898dc0d",
                 "b0b3bc04-7b0d-51bc-bdce-bc6527e32f41",
@@ -3075,10 +3075,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "githyanki_elite", name = "Githyanki Elite", solo = false,
+        key = "githyanki_elite", name = "Githyanki Elite", solo = false, icon = "Generated_ARM_HalfPlate_Githyanki_B",
         races = { ["bdf9b779-002c-4077-b377-8ea7c1faa795"] = true },
         members = {
-            { source = "Githyanki_Male_Raider_Strong", native = 9, templates = {
+            { source = "Githyanki_Male_Raider_Strong", display = "Veteran Raider", native = 9, templates = {
                 "202c7b02-b4d1-50ce-8b16-1abf46aa23ca",
                 "dcb695bd-f139-52f0-aef4-1f0cd0b47314",
                 "e33fe2be-3f25-5473-8c65-a770cd9e2ce2",
@@ -3100,7 +3100,7 @@ ER.GeneratedWaves = {
                 "ef753602-022d-5510-b000-3a25c289103f",
                 "903b3d14-5fbf-5cfc-a714-8314e018f42d",
             } },
-            { source = "Githyanki_Female_Warrior_Strong", native = 9, templates = {
+            { source = "Githyanki_Female_Warrior_Strong", display = "Veteran Warrior", native = 9, templates = {
                 "a3adb616-5991-5f74-9ffb-ee7956653bae",
                 "47e98b51-bd6e-5485-ab8a-5ddec734896d",
                 "4254f80e-9728-556a-96cc-89b04a1d84cc",
@@ -3122,7 +3122,7 @@ ER.GeneratedWaves = {
                 "5ee6efa6-922f-5267-9b43-4bcfa38c377e",
                 "c4e37f85-d3a5-531a-b9d5-5b9443a8711d",
             } },
-            { source = "Githyanki_Male_Warrior_Strong", native = 9, templates = {
+            { source = "Githyanki_Male_Warrior_Strong", display = "Veteran Warrior", native = 9, templates = {
                 "099a5818-8604-5c53-9b22-8961b0cf7fb3",
                 "ed94ba15-c736-5555-a6c0-9332b3bdcbeb",
                 "a7d76ccc-2a17-5706-9bc9-6fb80c8f2eb5",
@@ -3144,7 +3144,7 @@ ER.GeneratedWaves = {
                 "bcef24dd-fdf8-5988-a4f7-426780388580",
                 "aeea55d9-3c7f-583f-bbc5-19769d4f0232",
             } },
-            { source = "Githyanki_Female_Gish_Strong", native = 9, templates = {
+            { source = "Githyanki_Female_Gish_Strong", display = "Veteran Gish", native = 9, templates = {
                 "aafb84e3-dab9-5e1c-89fe-0c9507df1b0e",
                 "e455f879-c5f3-5739-9088-c3354b166972",
                 "cc59ad17-91c9-5e74-8866-418555d4fa13",
@@ -3166,7 +3166,7 @@ ER.GeneratedWaves = {
                 "1c70ecff-b884-518a-954e-4383569138e7",
                 "a878df3e-01bd-5110-acf3-4ea40caa97ff",
             } },
-            { source = "Githyanki_Male_Gish_Strong", native = 9, templates = {
+            { source = "Githyanki_Male_Gish_Strong", display = "Veteran Gish", native = 9, templates = {
                 "0a7e5a66-154c-5c7a-872a-b669803f2b91",
                 "104799a2-0774-5617-bf04-f437d6383560",
                 "ff229016-fced-552d-98b0-66225564180e",
@@ -3191,10 +3191,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "displacer_beast", name = "Displacer Beasts", solo = false,
+        key = "displacer_beast", name = "Displacer Beasts", solo = false, icon = "Action_Monster_DisplacerBeast_Tentacle",
         races = { ["14df0fc9-fe0d-4f53-a506-a3094a222717"] = true },
         members = {
-            { source = "Displacer_Beast", native = 6, templates = {
+            { source = "Displacer_Beast", display = "Displacer Beast", native = 6, templates = {
                 "009e43ac-4a74-5c37-8062-bb15b435caeb",
                 "6ede13bb-35a4-558a-8647-947256d67721",
                 "586f21f6-611e-54eb-ab00-38063be98cfa",
@@ -3219,10 +3219,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "cloaker", name = "a Cloaker", solo = true,
+        key = "cloaker", name = "a Cloaker", solo = true, icon = "Spell_Conjuration_ArmsOfHadar",
         races = { ["4742d30d-97b0-4537-a78a-0a803518be54"] = true },
         members = {
-            { source = "Cloaker", native = 6, templates = {
+            { source = "Cloaker", display = "Cloaker", native = 6, templates = {
                 "65d05864-e15f-58d1-aea7-5b85314c7949",
                 "f1dce127-f217-5c05-b497-847e861fd79a",
                 "9907ca22-d525-5fd3-bdf3-e8a205f715d9",
@@ -3247,10 +3247,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "gelatinous_cube", name = "a Gelatinous Cube", solo = true,
+        key = "gelatinous_cube", name = "a Gelatinous Cube", solo = true, icon = "Action_Monk_IceCube",
         races = { ["889ca85e-9263-4086-aeab-352dd1eed3a0"] = true },
         members = {
-            { source = "Ooze_Gelatinous_Cube_Toxic", native = 6, templates = {
+            { source = "Ooze_Gelatinous_Cube_Toxic", display = "Fetid Ooze", native = 6, templates = {
                 "e9a9659a-a625-5485-bc7d-9e59491efb76",
                 "cfc3d4f8-c97b-510e-b99f-1155b0c2de0a",
                 "8cb8503d-9528-5645-aa68-ac456a8bcd36",
@@ -3275,10 +3275,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "bane_cultist", name = "Banite Cultists", solo = false,
+        key = "bane_cultist", name = "Banite Cultists", solo = false, icon = "Spell_Enchantment_Bane",
         races = { ["0eb594cb-8820-4be6-a58d-8be7a1a98fba"] = true, ["fe584d14-71ea-4bee-8ba0-99f780d4c957"] = true },
         members = {
-            { source = "Humans_Male_Cultist_Bane_Fist", native = 9, templates = {
+            { source = "Humans_Male_Cultist_Bane_Fist", display = "Fist of Bane", native = 9, templates = {
                 "0e008ccf-c48a-5ef8-94fe-a364821601e2",
                 "06928ea6-9691-592c-9868-71d40e740511",
                 "5c7bffc8-50da-5ae4-bf40-2723a80bf699",
@@ -3300,7 +3300,7 @@ ER.GeneratedWaves = {
                 "0aec80fe-b707-5e3b-b784-3d0fcfd01fff",
                 "2a30e218-d598-5a29-8854-850ffc604b72",
             } },
-            { source = "Humans_Female_Cultist_Bane_Fist", native = 9, templates = {
+            { source = "Humans_Female_Cultist_Bane_Fist", display = "Fist of Bane", native = 9, templates = {
                 "1e722725-c220-5e42-8342-9b057ab17d2c",
                 "464b027a-f039-5ee7-a163-3ae5acc8411f",
                 "1f3dc1d1-bfbb-5b22-a6b0-1adfc63db34b",
@@ -3322,7 +3322,7 @@ ER.GeneratedWaves = {
                 "fc89dabb-d665-502e-bc94-09a4031356e7",
                 "5c6a0e07-e77c-5f5f-b043-e5868988dfff",
             } },
-            { source = "Dwarves_Duergar_Female_Cultist_Bane_Fist", native = 9, templates = {
+            { source = "Dwarves_Duergar_Female_Cultist_Bane_Fist", display = "Fist of Bane", native = 9, templates = {
                 "027f8e26-1711-598b-a19c-648e5bf17c60",
                 "7ebcd9e6-452f-5c51-9daf-d0e6f2d8c3c6",
                 "0df606db-066b-590a-88a6-9e74818702fc",
@@ -3344,7 +3344,7 @@ ER.GeneratedWaves = {
                 "9794d24d-4b8c-5409-8199-94d49c3d2e0b",
                 "41c412e8-ce14-548d-9494-5e899c6c9107",
             } },
-            { source = "Humans_Male_Cultist_Bane_BlackGauntlet", native = 10, templates = {
+            { source = "Humans_Male_Cultist_Bane_BlackGauntlet", display = "Black Gauntlet of Bane", native = 10, templates = {
                 "3b27657e-0a37-5ab4-9db0-792c401d9da8",
                 "c3b232ec-c81d-5344-8d0b-47c63e9a6d6c",
                 "dbad6574-5a92-5c65-8005-706354d7ea32",
@@ -3366,7 +3366,7 @@ ER.GeneratedWaves = {
                 "dba016c6-83c2-5c47-9a01-44a430342a53",
                 "392c7764-479b-532e-85ba-723de586120e",
             } },
-            { source = "Humans_Female_Cultist_Bane_BlackGauntlet", native = 10, templates = {
+            { source = "Humans_Female_Cultist_Bane_BlackGauntlet", display = "Black Gauntlet of Bane", native = 10, templates = {
                 "298be380-dad4-5da7-85b3-f5eab9188332",
                 "2f73d17e-4b39-5c0b-9b84-7922fb2fb188",
                 "72e63cdc-941b-5f57-aa96-d4561845afdc",
@@ -3388,7 +3388,7 @@ ER.GeneratedWaves = {
                 "7413f6af-67e1-5f94-84ec-f6a3673124c3",
                 "febddc65-af2b-508b-83e1-ad2ee1fe3623",
             } },
-            { source = "Humans_Male_Cultist_Bane_IronConsul", native = 11, templates = {
+            { source = "Humans_Male_Cultist_Bane_IronConsul", display = "Iron Consul of Bane", native = 11, templates = {
                 "b9598217-5bed-59c1-9585-d1d7fa6c7f0d",
                 "7748fa85-3621-5dd8-9b39-e956487c5d3c",
                 "9844b677-7bf5-5295-a9d7-531f62fdcf0c",
@@ -3413,10 +3413,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "umberlee_cultist", name = "Waveservants of Umberlee", solo = false,
+        key = "umberlee_cultist", name = "Waveservants of Umberlee", solo = false, icon = "Generated_MAG_Umberlee_Robe_A_Magic",
         races = { ["0eb594cb-8820-4be6-a58d-8be7a1a98fba"] = true },
         members = {
-            { source = "Humans_Female_Umberlee_Cultist_DarkBreaker", native = 9, templates = {
+            { source = "Humans_Female_Umberlee_Cultist_DarkBreaker", display = "Dark Breaker Tavette", native = 9, templates = {
                 "9ea29221-8c32-5688-b116-05bedc2754c5",
                 "c557c5e8-c59d-519b-9768-bc8047673d8e",
                 "365161ff-dae0-59ad-9b72-1e4ffa486540",
@@ -3438,7 +3438,7 @@ ER.GeneratedWaves = {
                 "315b46ce-030f-525a-a1ad-2ef885cc2b7a",
                 "cacea6d0-8623-5015-814a-b1cfd632fc28",
             } },
-            { source = "Humans_Female_Umberlee_Cultist_Untaken", native = 9, templates = {
+            { source = "Humans_Female_Umberlee_Cultist_Untaken", display = "Untaken Tavette", native = 9, templates = {
                 "7e349235-7dfb-5e0a-8627-18efe87bf700",
                 "8b168bdb-79c2-504b-9b32-99be0d2b4ac3",
                 "28449aff-a933-5827-9c5a-66eb25bd7d86",
@@ -3460,7 +3460,7 @@ ER.GeneratedWaves = {
                 "c4d8ea6d-c909-5823-9866-57eccaf45659",
                 "9bba4c39-182b-58b2-a7c9-d1226448c38e",
             } },
-            { source = "Humans_Female_Umberlee_Cultist_SavageSeawind", native = 9, templates = {
+            { source = "Humans_Female_Umberlee_Cultist_SavageSeawind", display = "Savage Seawind Tavette", native = 9, templates = {
                 "f4be8afb-e99e-5598-83ef-c6ca4a48e479",
                 "e0b930e6-ed80-50da-9204-428af057cdf2",
                 "9d660aae-0e85-5436-b49c-9366976b8795",
@@ -3482,7 +3482,7 @@ ER.GeneratedWaves = {
                 "f9d671e0-47ad-5a5e-8432-35aeaf75f59c",
                 "ef710ef1-90c2-56e5-8078-efc9530f03e3",
             } },
-            { source = "Humans_Female_Umberlee_Cultist_FloodTide", native = 9, templates = {
+            { source = "Humans_Female_Umberlee_Cultist_FloodTide", display = "Flood Tide Avette", native = 9, templates = {
                 "b3cec5de-abfc-521a-945a-876513ff2d74",
                 "efc0677a-1f1c-5c6a-b8fd-b579aafdf432",
                 "e72a2d62-5070-5959-bab8-4acf7807287b",
@@ -3507,10 +3507,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "sharran", name = "Sharran Cultists", solo = false,
+        key = "sharran", name = "Sharran Cultists", solo = false, icon = "statIcons_SharsEmbrace",
         races = { ["0eb594cb-8820-4be6-a58d-8be7a1a98fba"] = true, ["a459ba68-a9ec-4c8e-b127-602615f5b4c0"] = true },
         members = {
-            { source = "Sharran_Cultist_Human_Male_A", native = 4, templates = {
+            { source = "Sharran_Cultist_Human_Male_A", display = "Sharran Novice", native = 4, templates = {
                 "68a73841-d1af-5217-beb5-f0164527b41e",
                 "bf79adca-daf7-5c46-b01d-4ba2f19816f7",
                 "02c88bef-a4ab-541b-b46d-ecf662562c4a",
@@ -3532,7 +3532,7 @@ ER.GeneratedWaves = {
                 "3da9099a-abe9-52e2-9811-125b65647dca",
                 "b403a73b-6a7e-5b37-b35b-6dd5878a64d4",
             } },
-            { source = "Sharran_Cultist_Human_Male_Caster_A", native = 7, templates = {
+            { source = "Sharran_Cultist_Human_Male_Caster_A", display = "Sharran Fidelian", native = 7, templates = {
                 "1b722909-eb1e-58fa-9eed-c585d97e0f64",
                 "956e47d8-670e-50e1-b2d1-5cb38955758d",
                 "c4d9fa1d-d4c7-5788-a086-a489b5601e5f",
@@ -3554,7 +3554,7 @@ ER.GeneratedWaves = {
                 "73b286e6-fd9c-57a9-9315-bbd34105832e",
                 "7282f439-88c4-57a3-b285-c39f5841c3f3",
             } },
-            { source = "Sharran_Cultist_Elf_Female_A", native = 9, templates = {
+            { source = "Sharran_Cultist_Elf_Female_A", display = "Sharran Novice", native = 9, templates = {
                 "9e84850b-664e-531d-a4fb-0c4c7023f0b9",
                 "609038ee-359c-5529-8742-982e7f2f2294",
                 "a1ae67ff-e6cf-5197-a63f-d1ff7b23cd06",
@@ -3576,7 +3576,7 @@ ER.GeneratedWaves = {
                 "a8729b02-ef2c-55e8-9f3c-9eb9ee85c463",
                 "c3c5972a-f440-5209-b631-c596a25ca283",
             } },
-            { source = "Sharran_Cultist_Elf_Female_Caster_A", native = 9, templates = {
+            { source = "Sharran_Cultist_Elf_Female_Caster_A", display = "Sharran Fidelian ", native = 9, templates = {
                 "2f25e085-b529-50e8-8632-ff6e7977c490",
                 "304eee20-3d2d-593e-a6b9-6b0317f79011",
                 "12727afe-dd36-50a0-af07-536980afe62b",
@@ -3601,10 +3601,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "flaming_fist", name = "Flaming Fist", solo = false,
+        key = "flaming_fist", name = "Flaming Fist", solo = false, icon = "Item_ARM_Helmet_Metal_FlamingFist_A",
         races = { ["0eb594cb-8820-4be6-a58d-8be7a1a98fba"] = true },
         members = {
-            { source = "Humans_Male_FlamingFist_Melee_Attacker", native = 9, templates = {
+            { source = "Humans_Male_FlamingFist_Melee_Attacker", display = "Flaming Fist Guisarmier", native = 9, templates = {
                 "7e7bf9db-f9a4-56b6-89b0-018cd40afee8",
                 "198c7c6c-e26c-5680-90bb-1139e534ccc1",
                 "be77801b-6414-5ddb-8e69-8b0217c2c12d",
@@ -3626,7 +3626,7 @@ ER.GeneratedWaves = {
                 "23494db3-1af8-5608-96d9-1793c2130b8e",
                 "4a34fd9a-8fdd-5750-bcef-c13bd0819ff0",
             } },
-            { source = "Humans_Male_FlamingFist_Melee_Defender", native = 9, templates = {
+            { source = "Humans_Male_FlamingFist_Melee_Defender", display = "Flaming Fist Protector", native = 9, templates = {
                 "255d20f6-bbf1-5112-9a96-ede637df3cd2",
                 "38916a83-f32a-5f86-9208-191dd519784b",
                 "83418c95-655d-57ea-a64c-a4ec70a2e853",
@@ -3648,7 +3648,7 @@ ER.GeneratedWaves = {
                 "5dc62021-2923-520e-91e7-bd89179475f5",
                 "92f36930-2d16-50cb-b8cd-1fc0cbce36e6",
             } },
-            { source = "Humans_Female_FlamingFist_Ranger_B", native = 11, templates = {
+            { source = "Humans_Female_FlamingFist_Ranger_B", display = "Flaming Fist Archer", native = 11, templates = {
                 "5f830fce-8f02-5670-9d3c-da60480ced10",
                 "4497da7b-f14d-55cc-9082-f46b52abcd13",
                 "6b265e33-1dc5-5ec7-8858-1e43665b28ef",
@@ -3670,7 +3670,7 @@ ER.GeneratedWaves = {
                 "d90472d7-e3db-57ec-b351-53aa6bff53e7",
                 "b63d6825-e5e6-510f-b9f7-323693d20d59",
             } },
-            { source = "Humans_Male_FlamingFist_Caster_B", native = 9, templates = {
+            { source = "Humans_Male_FlamingFist_Caster_B", display = "Flaming Fist Wizard", native = 9, templates = {
                 "61fa4962-f4bf-5212-bff3-6b19765fee1e",
                 "844a3fc0-9994-573b-8663-e75f7f622793",
                 "7405d474-d733-529e-9351-0772513bf988",
@@ -3692,7 +3692,7 @@ ER.GeneratedWaves = {
                 "eb869dab-d45f-5695-9381-6dac311caba5",
                 "eca5aeb5-960d-5c0f-a8b7-e710979958b3",
             } },
-            { source = "Humans_Female_FlamingFist_Cleric", native = 5, templates = {
+            { source = "Humans_Female_FlamingFist_Cleric", display = "Flaming Fist Healer", native = 5, templates = {
                 "88512d05-6cfa-5958-882c-80928a4c02a3",
                 "3e735dfb-caa8-5631-b973-d7e6d5c917dc",
                 "a6a9db64-577e-51c6-bc7a-cb8d754ec83b",
@@ -3717,10 +3717,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "counting_house", name = "Counting House Guards", solo = false,
+        key = "counting_house", name = "Counting House Guards", solo = false, icon = "Item_LOW_CountingHouse_BankPass",
         races = { ["0eb594cb-8820-4be6-a58d-8be7a1a98fba"] = true },
         members = {
-            { source = "Humans_Male_CountingHouseGuard_Melee", native = 11, templates = {
+            { source = "Humans_Male_CountingHouseGuard_Melee", display = "Counting House Enforcer", native = 11, templates = {
                 "699e0333-2edb-5705-9b0d-cfb0690f038d",
                 "4f314c00-a2e7-548e-9d68-17df6102b4d7",
                 "0e0f8346-c39f-5c01-a2af-e6eb6bf944cd",
@@ -3742,7 +3742,7 @@ ER.GeneratedWaves = {
                 "b6cdcf8b-d9f4-5b5f-a63d-ebefcf326f01",
                 "9226d90e-cb5b-5e42-be26-96c5cf792a52",
             } },
-            { source = "Humans_Female_CountingHouseGuard_Melee", native = 11, templates = {
+            { source = "Humans_Female_CountingHouseGuard_Melee", display = "Counting House Enforcer", native = 11, templates = {
                 "c5d996ef-dbf7-5121-9717-7c6aea44fb0c",
                 "d248be10-e14f-5cd1-be59-8ab39365b2a4",
                 "0ba22e1d-3a33-520a-bf33-b68b6661f05c",
@@ -3764,7 +3764,7 @@ ER.GeneratedWaves = {
                 "765fdfd0-b2cf-5d02-9b9a-a1c78dce0337",
                 "f6d6a6ad-7617-5233-9d82-a62aa93ca35d",
             } },
-            { source = "Humans_Male_CountingHouseGuard_Ranged", native = 11, templates = {
+            { source = "Humans_Male_CountingHouseGuard_Ranged", display = "Counting House Artillerist", native = 11, templates = {
                 "a3da87c3-cda4-5b01-aa98-8727a324baa7",
                 "eff62807-83e8-5fba-b984-cf9c5f0196d5",
                 "73b01ebe-9cdd-5e10-8010-c1cd1f98e16c",
@@ -3786,7 +3786,7 @@ ER.GeneratedWaves = {
                 "05b8e32b-aa35-5d90-aa71-2f2e0b2ac373",
                 "dd35f148-95cc-5d3c-828c-e910fd906f95",
             } },
-            { source = "Humans_Female_CountingHouseGuard_Ranged", native = 11, templates = {
+            { source = "Humans_Female_CountingHouseGuard_Ranged", display = "Counting House Artillerist", native = 11, templates = {
                 "d10ea813-e862-5117-aba4-0d73f59c0d19",
                 "ab1dc026-098e-5422-a14f-aa68fa304b61",
                 "fc0929c4-6258-58b5-8999-13865a1b3a52",
@@ -3811,10 +3811,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "guild_thug", name = "Guild Thugs", solo = false,
+        key = "guild_thug", name = "Guild Thugs", solo = false, icon = "Item_TOOL_GEN_ThievesTools_A_Closed_A",
         races = { ["0eb594cb-8820-4be6-a58d-8be7a1a98fba"] = true, ["78cd3bcc-1c43-4a2a-aa80-c34322c16a04"] = true },
         members = {
-            { source = "Humans_Female_Guild_Melee", native = 8, templates = {
+            { source = "Humans_Female_Guild_Melee", display = "Human", native = 8, templates = {
                 "7701286c-894b-59a2-ba73-f6f8ca13451a",
                 "ffc07383-5da1-55fd-8323-62b3c7a9edb9",
                 "2454fff6-02f3-510a-b708-ca6dd277c96b",
@@ -3836,7 +3836,7 @@ ER.GeneratedWaves = {
                 "c9a400b5-a590-503d-835e-8800d1d97c50",
                 "b1f7b672-8a65-5a2a-8e73-59d2ef96d46e",
             } },
-            { source = "Humans_Male_Guild_Melee", native = 9, templates = {
+            { source = "Humans_Male_Guild_Melee", display = "Human", native = 9, templates = {
                 "0de4d4da-cd72-58fb-9558-531bea94f6ae",
                 "924e216f-1e42-5128-b7e0-740400fc5004",
                 "0cce21e4-fb71-5bbb-843f-85cfc6c8c9a5",
@@ -3858,7 +3858,7 @@ ER.GeneratedWaves = {
                 "c9706573-d2eb-50f7-b6f7-58e2f275514f",
                 "b1e3ec3f-e109-54b0-a80c-153291b451e6",
             } },
-            { source = "Humans_Female_Guild_Ranger", native = 8, templates = {
+            { source = "Humans_Female_Guild_Ranger", display = "Human", native = 8, templates = {
                 "799acb16-a482-5b52-b5eb-9b5297f537d7",
                 "88d89f13-c414-557c-93bd-183fb7578536",
                 "15e82ea2-a7bc-5550-90bf-0decdb98b208",
@@ -3880,7 +3880,7 @@ ER.GeneratedWaves = {
                 "05e132b9-a299-5514-90fe-f1327a219140",
                 "1654357e-04d5-5160-9b80-ffa5f3c485a9",
             } },
-            { source = "Humans_Female_Guild_Caster", native = 10, templates = {
+            { source = "Humans_Female_Guild_Caster", display = "Human", native = 10, templates = {
                 "0afcd3bc-9c6f-5e40-baaf-6e6beec21bc0",
                 "ec0caeb3-8ecd-5657-a832-c27244242366",
                 "629e1d48-032c-526d-887c-748eac50e6f2",
@@ -3902,7 +3902,7 @@ ER.GeneratedWaves = {
                 "b3757a19-ec9b-525c-a5da-336f416fb96a",
                 "76b284af-043b-5869-bdfa-59c73da6cde4",
             } },
-            { source = "Halflings_Male_Guild_Melee", native = 5, templates = {
+            { source = "Halflings_Male_Guild_Melee", display = "Halfling", native = 5, templates = {
                 "e4a8c09d-197a-5b28-b126-59a2989c54f7",
                 "e55475f0-5adf-5098-b607-9e8350df6097",
                 "1ca19ad1-98a9-5cb3-8113-c87431f12179",
@@ -3924,7 +3924,7 @@ ER.GeneratedWaves = {
                 "b396b63e-32cf-5c43-9ba1-42f04382e100",
                 "7999b5ff-407a-55aa-a937-a1a029050ce0",
             } },
-            { source = "Halflings_Male_Guild_Ranger", native = 6, templates = {
+            { source = "Halflings_Male_Guild_Ranger", display = "Halfling", native = 6, templates = {
                 "5b0aab2c-6bc5-5f2a-afab-4d26847c0529",
                 "2b61e4bc-fa77-522a-90aa-bae91938db08",
                 "bdb6a9a9-0b90-5cae-b0fe-53099ec44a14",
@@ -3949,10 +3949,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "zhentarim", name = "Zhentarim", solo = false,
+        key = "zhentarim", name = "Zhentarim", solo = false, icon = "Generated_MAG_Zhentarim_CloakOfDisguise_Cloak_Magic",
         races = { ["0eb594cb-8820-4be6-a58d-8be7a1a98fba"] = true, ["2cf6c770-24ab-4608-9617-d1e46c11ab55"] = true, ["30fafb0b-7c8b-4917-bd2a-536233b35d3c"] = true, ["4fda6bce-0b91-4427-901f-690c2d091c47"] = true },
         members = {
-            { source = "Humans_Female_Zhentarim_Caster", native = 8, templates = {
+            { source = "Humans_Female_Zhentarim_Caster", display = "Human", native = 8, templates = {
                 "7ea0314b-29ab-55f0-9962-a21e8d53cf95",
                 "92633dd9-00f7-5ee9-822d-193c8ec549e2",
                 "44ada759-52d6-5b96-8332-431202c7260a",
@@ -3974,7 +3974,7 @@ ER.GeneratedWaves = {
                 "0dfa509d-f623-5306-b6ae-2e39e84dcc36",
                 "b74fd467-3e05-5024-886d-47b4adfd3b60",
             } },
-            { source = "Elves_Male_High_Zhentarim_Melee", native = 4, templates = {
+            { source = "Elves_Male_High_Zhentarim_Melee", display = "Elf", native = 4, templates = {
                 "1747be90-cad6-59d3-9eb9-58a3623765a7",
                 "b1fe8714-8511-522d-9a72-16f904ab7efb",
                 "22b5fcc8-5a87-5b4c-9577-659d66adc515",
@@ -3996,7 +3996,7 @@ ER.GeneratedWaves = {
                 "7b49045c-e233-5751-946d-e0f57aa0a0ab",
                 "568df434-a2e5-52fe-a979-a5f69ec715f0",
             } },
-            { source = "Elves_Female_High_Zhentarim_Ranger", native = 4, templates = {
+            { source = "Elves_Female_High_Zhentarim_Ranger", display = "Elf", native = 4, templates = {
                 "0ddf74ae-48cb-5ea4-b4bb-e2e68b4aa758",
                 "1c09c784-57b6-505a-afac-5a49475a135e",
                 "04b46310-b3c8-52fa-b284-5f13831654e1",
@@ -4018,7 +4018,7 @@ ER.GeneratedWaves = {
                 "b321ef8f-8c51-551e-8940-fda4b63781e8",
                 "76f473ed-7f0d-52ba-822e-3cd0b8f7a6fd",
             } },
-            { source = "HalfElves_Female_High_Zhentarim_Melee", native = 3, templates = {
+            { source = "HalfElves_Female_High_Zhentarim_Melee", display = "Half-Elf", native = 3, templates = {
                 "433b0600-d733-581d-af1b-1170eed2cd8c",
                 "579575fa-abf3-5761-aa65-04e717dbdfaa",
                 "5ed01ea0-b862-5ffa-bf84-1752d7cb1c44",
@@ -4040,7 +4040,7 @@ ER.GeneratedWaves = {
                 "261caf20-cd52-5265-8ed4-535344c66b0f",
                 "f7fa1c8b-33b5-5819-90a8-034b687174f2",
             } },
-            { source = "Gnomes_Male_Regular_Zhentarim_Melee", native = 11, templates = {
+            { source = "Gnomes_Male_Regular_Zhentarim_Melee", display = "Gnome", native = 11, templates = {
                 "aa1b9ec8-3531-5f87-92bd-d2ca9b9a8ac1",
                 "0835a9e9-ef74-5134-bfa1-91d1bc8982f9",
                 "5bfabdc9-1ad6-5293-b8ec-21ebea21a62a",
@@ -4062,7 +4062,7 @@ ER.GeneratedWaves = {
                 "2ea0c763-750c-5ec0-9e38-a2ff7869c695",
                 "38c57807-5c69-58de-95a2-844a6ed2f864",
             } },
-            { source = "Gnomes_Male_Regular_Zhentarim_Caster", native = 12, templates = {
+            { source = "Gnomes_Male_Regular_Zhentarim_Caster", display = "Gnome", native = 12, templates = {
                 "613e06db-d126-5ece-87e6-d4333bf25f11",
                 "bda2670d-dca8-5050-ad2b-480bdff66e7e",
                 "e33010cb-c240-5c5f-bf9f-025e1c5a6bfd",
@@ -4087,10 +4087,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "steel_watcher", name = "Steel Watchers", solo = false,
+        key = "steel_watcher", name = "Steel Watchers", solo = false, icon = "PassiveFeature_SteelWatcher_ImmutableForm",
         races = { ["37d3e534-02e1-4887-a98e-0a9cfcf9a8d6"] = true },
         members = {
-            { source = "SteelWatcher_Biped_A", native = 11, templates = {
+            { source = "SteelWatcher_Biped_A", display = "Steel Watcher", native = 11, templates = {
                 "6ca6dec0-0341-5b62-af06-92d7eabbd7bb",
                 "85f0b1f7-2875-5713-9c2d-e1b902229892",
                 "75b9da6b-bb64-5820-adf5-1e0d491ca347",
@@ -4112,7 +4112,7 @@ ER.GeneratedWaves = {
                 "1b667e25-7806-5333-997e-ef6f14274073",
                 "4dd0425d-14ee-5d3f-ae4d-8178fbf8ecd1",
             } },
-            { source = "SteelWatcher_Biped_A_Ranged", native = 11, templates = {
+            { source = "SteelWatcher_Biped_A_Ranged", display = "Steel Watcher", native = 11, templates = {
                 "f549744f-dfc3-55ca-a8f8-47ffee35928b",
                 "197981ca-340d-5be8-b068-1799df4aecf8",
                 "8582f8d6-b9ac-5691-ac07-5058ea7899ab",
@@ -4137,10 +4137,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "doppelganger", name = "Doppelgangers", solo = false,
+        key = "doppelganger", name = "Doppelgangers", solo = false, icon = "PassiveFeature_Shapechanger",
         races = { ["07431f26-c33f-47f6-a418-c5613a37bd95"] = true },
         members = {
-            { source = "Doppelganger", native = 7, templates = {
+            { source = "Doppelganger", display = "Doppelganger", native = 7, templates = {
                 "97e160ec-e730-5897-a386-c821aa97ece6",
                 "92ea99ea-2bd3-5894-b5fa-ba6cc3910b43",
                 "cbe97c5e-a766-50bd-aef3-111af29ba6ff",
@@ -4165,10 +4165,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "vampire_spawn", name = "Vampire Spawn", solo = false,
+        key = "vampire_spawn", name = "Vampire Spawn", solo = false, icon = "Action_VampireBite",
         races = { ["b615c4e0-2157-4878-ab4c-cdacc679a87b"] = true, ["dbb041de-231c-4dc9-9a25-91c81b45976e"] = true },
         members = {
-            { source = "Vampire_Spawn_Human_Male", native = 11, templates = {
+            { source = "Vampire_Spawn_Human_Male", display = "Vampire Spawn", native = 11, templates = {
                 "40643ef5-135c-5f94-aaa7-8b2a50e14395",
                 "c6c1f9a1-fb1c-5bcf-9389-ccbfd7cead81",
                 "86dfd1e0-92dd-5a89-8d82-dfd720e67ee1",
@@ -4190,7 +4190,7 @@ ER.GeneratedWaves = {
                 "3c260aea-2fe1-5ea4-9702-2ff9c1afc5ac",
                 "966051d0-9617-50db-aed2-0c78cd25fff2",
             } },
-            { source = "Vampire_Spawn_Human_Female", native = 11, templates = {
+            { source = "Vampire_Spawn_Human_Female", display = "Vampire Spawn", native = 11, templates = {
                 "4da77285-9267-5627-ae31-1764b7234a75",
                 "0c6a95a1-d1ff-50c9-9d7f-65bcf1f32ea8",
                 "d819cc71-4b2d-518d-9ae0-43543dfb00ec",
@@ -4212,7 +4212,7 @@ ER.GeneratedWaves = {
                 "17ebbe54-2887-521f-89c9-a640b4e5f1e3",
                 "2ab55a03-7efa-5b82-8c9b-6390b851e44d",
             } },
-            { source = "Vampire_Spawn_Elf_Female", native = 11, templates = {
+            { source = "Vampire_Spawn_Elf_Female", display = "Vampire Spawn", native = 11, templates = {
                 "39da1973-987b-54fa-8c7e-0ce3dd64aeb8",
                 "74ba2afc-b33a-59e8-95ef-242436157ded",
                 "ac34b501-6bf2-5612-9783-3d6659eebc9f",
@@ -4234,7 +4234,7 @@ ER.GeneratedWaves = {
                 "445a4128-ffca-5dcf-afb3-9928905297d0",
                 "f785948e-6c81-5502-b02c-283bdb4073c8",
             } },
-            { source = "Vampire_Spawn_Gnomes_Male", native = 11, templates = {
+            { source = "Vampire_Spawn_Gnomes_Male", display = "Vampire Spawn", native = 11, templates = {
                 "69f22047-1974-5053-9bdc-f3b533abacc7",
                 "faeed957-8b5f-50c2-ba15-2b059ea9c83d",
                 "468b8bab-df0d-568a-ae4b-1e3bb9502100",
@@ -4259,10 +4259,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "vampire_rat", name = "Vampire Rats", solo = false,
+        key = "vampire_rat", name = "Vampire Rats", solo = false, icon = "Action_Rat_PlagueBite",
         races = { ["80d7f493-0adb-43e7-a4ad-59095b5d80df"] = true },
         members = {
-            { source = "RAT_Vampire", native = 8, templates = {
+            { source = "RAT_Vampire", display = "Giant Rat", native = 8, templates = {
                 "3896bb12-9f38-53d2-a461-d8ef9bbcf91e",
                 "41e05ccb-9b4a-534d-98f2-380024911bbc",
                 "e771f94e-f87c-5327-a771-e28adee17a12",
@@ -4287,10 +4287,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "cranium_rat", name = "Cranium Rats", solo = false,
+        key = "cranium_rat", name = "Cranium Rats", solo = false, icon = "Action_Rat_PlagueBite",
         races = { ["80d7f493-0adb-43e7-a4ad-59095b5d80df"] = true },
         members = {
-            { source = "RAT_Cranium_A", native = 8, templates = {
+            { source = "RAT_Cranium_A", display = "Cranium Rat", native = 8, templates = {
                 "96929817-5728-5417-8305-6e065f59b3e8",
                 "39cc6a34-6f19-5e1a-84ce-e09c16b23320",
                 "e24c5fd0-f10e-57a6-9333-b43f2fd61012",
@@ -4315,10 +4315,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "werewolf", name = "a Werewolf", solo = true,
+        key = "werewolf", name = "a Werewolf", solo = true, icon = "Action_AspectOfTheWolf",
         races = { ["faaaf3f6-4f9e-4042-92bf-a0645dcac232"] = true },
         members = {
-            { source = "Werewolf", native = 10, templates = {
+            { source = "Werewolf", display = "Werewolf", native = 10, templates = {
                 "24988cce-ce33-5aba-af11-487ef6588d5a",
                 "6d322471-c298-54a4-be3a-99c914c1bd09",
                 "e8247d88-2f8b-5aca-a657-f7ae4ef40fdc",
@@ -4343,10 +4343,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "white_worg", name = "White Worgs", solo = false,
+        key = "white_worg", name = "White Worgs", solo = false, icon = "Item_LOOT_Alchemy_Worg_Fang_A",
         races = { ["31e1a2fe-0322-4540-95c3-9a28ad7fb202"] = true },
         members = {
-            { source = "Worg_White_A", native = 8, templates = {
+            { source = "Worg_White_A", display = "Worg", native = 8, templates = {
                 "b4209d38-d745-5ce7-9ca2-a62f395add53",
                 "b8255505-f3e7-55d9-afe1-95b252adf4f9",
                 "3c5e0811-cf25-5a44-8000-ae19bb510d52",
@@ -4371,10 +4371,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "dinosaur", name = "Dinosaurs", solo = false,
+        key = "dinosaur", name = "Dinosaurs", solo = false, icon = "Action_Monster_Dilophosaurus_Pounce",
         races = { ["27a5799e-1f5c-4c2c-9adf-fe1c0276a64e"] = true, ["33923433-64bd-446d-b028-af6d5afe3ee0"] = true },
         members = {
-            { source = "Alioramus_A", native = 10, templates = {
+            { source = "Alioramus_A", display = "Alioramus", native = 10, templates = {
                 "5fc659c9-3e87-5903-92b7-8f54cb6dddab",
                 "bdab80d5-f2a1-5877-99a8-cc93b2fe6bc0",
                 "36ba5f8c-15b3-5f2c-a929-811e28cc893f",
@@ -4396,7 +4396,7 @@ ER.GeneratedWaves = {
                 "449f9349-7135-53a1-81a8-979cb0be44dc",
                 "b0f90db2-e001-5215-abaa-b4d83d04aef0",
             } },
-            { source = "Dilophosaurus_A", native = 10, templates = {
+            { source = "Dilophosaurus_A", display = "Dilophosaurus", native = 10, templates = {
                 "66a5cf80-c89b-54bd-9240-dc01168689f0",
                 "f4626b0d-ab1a-547a-85dd-97908d78ba16",
                 "91fabdd7-767f-5986-b75c-a32943752137",
@@ -4421,10 +4421,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "wyrmway_skeleton", name = "Wyrmway Skeletons", solo = false,
+        key = "wyrmway_skeleton", name = "Wyrmway Skeletons", solo = false, icon = "Spell_Necromancy_AnimateDead",
         races = { ["ad533889-a032-41f2-b90c-592575b4e21c"] = true },
         members = {
-            { source = "WYR_Wyrmsway_Skeleton_Melee", native = 10, templates = {
+            { source = "WYR_Wyrmsway_Skeleton_Melee", display = "Fallen Fighter", native = 10, templates = {
                 "d594c14d-3977-5150-93eb-cde560c1f204",
                 "16d0608c-eb4b-5f78-93aa-b3b5093a985c",
                 "c039b1ca-2d81-5ea4-992a-544a5bfae345",
@@ -4446,7 +4446,7 @@ ER.GeneratedWaves = {
                 "a44739d7-97af-5576-9ec2-0afd76da9522",
                 "66968839-6140-5724-aa69-922478a5145d",
             } },
-            { source = "WYR_Wyrmsway_Skeleton_Ranged", native = 10, templates = {
+            { source = "WYR_Wyrmsway_Skeleton_Ranged", display = "Fallen Ranger", native = 10, templates = {
                 "18686da2-55d5-5d6d-9a27-bd5634287f0f",
                 "fbaa7ff4-b128-5fc1-a1ef-52f887f48217",
                 "f2e1750a-8a73-51df-a1c5-5c303ecd3a71",
@@ -4468,7 +4468,7 @@ ER.GeneratedWaves = {
                 "b4535a1f-d366-51a1-a686-2d7f5c751b18",
                 "4d7d874a-1d33-5f70-982f-1df1ceb49d08",
             } },
-            { source = "WYR_Wyrmsway_Skeleton_Mage", native = 10, templates = {
+            { source = "WYR_Wyrmsway_Skeleton_Mage", display = "Fallen Wizard", native = 10, templates = {
                 "988dd372-9ea5-532f-8dff-ea31d9f84aaa",
                 "5beea2a4-9f65-5296-92af-bb453fefb3b8",
                 "9d950f03-5a83-5aae-b53f-1f0b3de4bdc3",
@@ -4493,10 +4493,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "myrmidon", name = "Elemental Myrmidons", solo = false,
+        key = "myrmidon", name = "Elemental Myrmidons", solo = false, icon = "Action_ElementalWildShape_Myrmidon_Fire",
         races = { ["24dfab7b-7d7e-4df9-aa23-7212b4ef8980"] = true },
         members = {
-            { source = "Myrmidon_Air", native = 10, templates = {
+            { source = "Myrmidon_Air", display = "Air Myrmidon", native = 10, templates = {
                 "795e8120-fa7a-5421-89b4-f0a882359c35",
                 "a982d87d-7989-564c-bdeb-7242ea55f6b7",
                 "cd373d7f-7590-5457-9b6e-a7d66ac2f45b",
@@ -4518,7 +4518,7 @@ ER.GeneratedWaves = {
                 "21c6388d-afc1-533e-89f3-3af0b2f399e4",
                 "3d85b86d-5b00-5650-a4b3-587b951a2b14",
             } },
-            { source = "Myrmidon_Water", native = 10, templates = {
+            { source = "Myrmidon_Water", display = "Water Myrmidon", native = 10, templates = {
                 "c39c4ed9-eb3e-5129-9eba-100bc3a3b1e5",
                 "828e5df1-66a8-5388-a46c-cb4f4f0b8b8c",
                 "a09a37e3-e336-50b7-ac1d-155a176b1daa",
@@ -4540,7 +4540,7 @@ ER.GeneratedWaves = {
                 "5a6250b9-7eae-57a1-9624-cfc3ac3cc7b5",
                 "d299ec52-77a0-5a5c-aa52-2117c96205b2",
             } },
-            { source = "Myrmidon_Fire", native = 10, templates = {
+            { source = "Myrmidon_Fire", display = "Fire Myrmidon", native = 10, templates = {
                 "84e6740c-1de9-58cc-b645-799dc04d98f5",
                 "b593947a-7317-5b97-8b44-f1df44017be1",
                 "45ebdb70-0eea-5f3a-8215-a8595ff23beb",
@@ -4562,7 +4562,7 @@ ER.GeneratedWaves = {
                 "e559bd9b-8f65-5738-a367-8363b292fbd1",
                 "d199b68f-919d-5fd2-8a03-fa6e2d518fe2",
             } },
-            { source = "Myrmidon_Earth", native = 10, templates = {
+            { source = "Myrmidon_Earth", display = "Earth Myrmidon", native = 10, templates = {
                 "d72eef52-adce-51c3-ad73-bc2a5aba97e1",
                 "48460499-a043-59d2-bf1e-c3a7b9d2461d",
                 "54a8fc86-db89-5d62-9572-b688d82071dc",
@@ -4587,10 +4587,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "elemental", name = "Elementals", solo = false,
+        key = "elemental", name = "Elementals", solo = false, icon = "Action_Monster_ElementalLava_Slam",
         races = { ["3b637556-32cd-4831-ac89-acf726df55c5"] = true, ["7184530f-5384-4da4-9097-9e98403f8249"] = true },
         members = {
-            { source = "Elemental_Lava", native = 8, templates = {
+            { source = "Elemental_Lava", display = "Lava Elemental", native = 8, templates = {
                 "fe90984b-dab0-59c9-888b-b691986ac0fc",
                 "24f65d27-cca4-53b5-a62f-ada864c1d9d5",
                 "cba0d0d7-0257-5bd4-8dd5-656c329d0569",
@@ -4612,7 +4612,7 @@ ER.GeneratedWaves = {
                 "d4999e76-537b-53cd-9a47-74ff2046a507",
                 "dc4e966a-7271-5cfa-bbfd-af8ba3d167e6",
             } },
-            { source = "Elemental_Mud_A", native = 6, templates = {
+            { source = "Elemental_Mud_A", display = "Elemental Mud A", native = 6, templates = {
                 "db614bac-688f-5af3-88e6-b146e76cb415",
                 "c838c2c4-21cb-5a80-8c27-e85a4ce3a349",
                 "8cf589ee-af3b-530a-ad06-0cf1eb007cbc",
@@ -4634,7 +4634,7 @@ ER.GeneratedWaves = {
                 "adbc1674-ea4c-5818-824b-f43e2efb7032",
                 "9ae18bbf-2347-566e-b1e1-61fc95798f6f",
             } },
-            { source = "Elemental_Grease", native = 6, templates = {
+            { source = "Elemental_Grease", display = "Grease Elemental", native = 6, templates = {
                 "37825249-edd6-5310-8843-f76d4088d219",
                 "11718562-b740-52bf-bba3-df97e5a4dfb8",
                 "f99cfc50-0d59-550b-bfc6-887b31fc6820",
@@ -4659,10 +4659,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "grease", name = "Grease Mephits and Oozes", solo = false,
+        key = "grease", name = "Grease Mephits and Oozes", solo = false, icon = "Spell_Conjuration_Grease",
         races = { ["7cfa46e7-b17e-4d08-b8d1-f10e89c06bda"] = true, ["889ca85e-9263-4086-aeab-352dd1eed3a0"] = true },
         members = {
-            { source = "Mephit_Grease", native = 4, templates = {
+            { source = "Mephit_Grease", display = "Grease Mephit", native = 4, templates = {
                 "a44d983d-e79b-5b58-9c4c-c8894e50207c",
                 "732fff20-39c9-5f71-b264-e63262bbb6aa",
                 "d39239b6-e71b-5f7c-8aef-4640bb005e5f",
@@ -4684,7 +4684,7 @@ ER.GeneratedWaves = {
                 "1ee09938-31ed-5ca2-8e73-dd4f131dab13",
                 "7784ac69-ddb5-58d9-9453-bbeac5a0dce2",
             } },
-            { source = "Ooze_Grease", native = 4, templates = {
+            { source = "Ooze_Grease", display = "Greaseball", native = 4, templates = {
                 "1db98bb3-9347-5d61-8ede-80cc2878a783",
                 "0905e855-439b-51c1-b689-18f9bac535d4",
                 "854c2472-ea84-5aff-b7ba-54765b80b3cd",
@@ -4709,10 +4709,10 @@ ER.GeneratedWaves = {
         },
     },
     {
-        key = "death_knight", name = "a Death Knight", solo = true,
+        key = "death_knight", name = "a Death Knight", solo = true, icon = "Item_WPN_HUM_Shield_DeathKnight",
         races = { ["7722d7b5-c734-429e-b0f2-fd768caa5ae6"] = true },
         members = {
-            { source = "DeathKnight_Weak", native = 10, templates = {
+            { source = "DeathKnight_Weak", display = "Death Knight", native = 10, templates = {
                 "8225095c-3dc3-5b09-b9de-bbc218d678a4",
                 "ed483596-898b-53e0-a717-9b619d8c3ed5",
                 "f6492c0e-920e-5800-b1d9-b089dd5bfa48",

@@ -31,15 +31,35 @@ ER.Config = {
     -- GeneratedStoryCharacters.lua.
     MIRROR_EXCLUDE = {},
 
-    -- Reinforcement waves: one roll per combat, spawning 1..REINFORCE_MAX
-    -- members of a GeneratedWaves.lua wave at the triggering enemy's level.
+    -- Reinforcement waves: one roll per combat, spawning members of a
+    -- GeneratedWaves.lua wave at the triggering enemy's level. Each offer
+    -- rolls a tier, Common to Legendary, spawning 20%..100% of
+    -- REINFORCE_MAX (solo waves are always one, at Legendary). With 5, each
+    -- tier adds one enemy and every tier is reachable.
     REINFORCE_CHANCE = 1.0, -- set to 1.0 for first-encounter testing
-    REINFORCE_MAX = 4,
+    REINFORCE_MAX = 5,
+    -- Chance per offer card of each tier, Common to Legendary (any scale;
+    -- normalised). The tier is rolled first and the wave is then chosen
+    -- from waves that can reach it, so solo waves (Legendary only) do not
+    -- inflate the Legendary rate.
+    REINFORCE_TIER_WEIGHTS = { 30, 30, 20, 15, 5 },
+    -- Chance per tier that a card is a split wave: its enemies divided
+    -- between two different waves, each part described by that wave's
+    -- flavour for the part's size.
+    REINFORCE_SPLIT_CHANCE = { 0.0, 0.15, 0.30, 0.45, 0.60 },
     -- Prefer a wave whose races include the triggering enemy's race. Off:
     -- every combat picks from all waves.
     REINFORCE_MATCH_RACE = false,
     -- Spawn ring radius around the triggering enemy, in metres.
     REINFORCE_SPAWN_OFFSET = 1.5,
+    -- Pause the combat and let the host pick one of REINFORCE_OFFER_COUNT
+    -- waves. No pick within REINFORCE_PICK_TIMEOUT_MS picks one at random.
+    REINFORCE_PICK = true,
+    REINFORCE_OFFER_COUNT = 3,
+    REINFORCE_PICK_TIMEOUT_MS = 60000,
+    -- The pick waits for the combat's first turn so it pauses mid-round with
+    -- initiative already rolled; if no turn starts within this, it opens anyway.
+    REINFORCE_FIRST_TURN_WAIT_MS = 15000,
 
     -- Summon economy: generated summons start and regenerate with 3 AP, not
     -- the normal 4 AP combatant turn. They also spawn with BG3's lethargic

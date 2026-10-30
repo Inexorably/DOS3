@@ -5,6 +5,8 @@
 -- a level-1 Redcap template has reduced HP/armor but still uses the native
 -- level-4 Redcap weapon and multiattack. Scale outgoing summon damage relative
 -- to the creature's native level so low-level summons are not mini-bosses.
+-- Reinforcement wave members (ENR_Wave_<source>_L<n>) get the same scaling,
+-- with native levels from GeneratedWaves.lua.
 
 ER = ER or {}
 ER.SummonDamage = ER.SummonDamage or {}
@@ -51,6 +53,21 @@ local function levelOf(entity, stats)
     return nil
 end
 
+local waveNatives = nil
+
+-- "ENR_Wave_<source>" -> native level, built once from GeneratedWaves.lua.
+local function waveNativeLevel(base)
+    if not waveNatives then
+        waveNatives = {}
+        for _, wave in ipairs(ER.GeneratedWaves or {}) do
+            for _, member in ipairs(wave.members or {}) do
+                waveNatives["ENR_Wave_" .. tostring(member.source)] = member.native
+            end
+        end
+    end
+    return waveNatives[base]
+end
+
 local function scaleFor(entity)
     if not C.SUMMON_DAMAGE_SCALE_ENABLED then return 1 end
     local stats = statsIdOf(entity)
@@ -58,9 +75,9 @@ local function scaleFor(entity)
 
     local base = stats:match("^(ENR_.-)_L%d+$")
     local level = levelOf(entity, stats)
-    local native = base and ER.Generated
+    local native = base and ((ER.Generated
         and ER.Generated.nativeLevels
-        and ER.Generated.nativeLevels[base]
+        and ER.Generated.nativeLevels[base]) or waveNativeLevel(base))
     if not level or not native then return 1 end
 
     local exponent = tonumber(C.SUMMON_DAMAGE_EXPONENT) or 0.456
