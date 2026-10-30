@@ -372,6 +372,16 @@ Known DOS2 visual references for the current test spells:
 
 ## Enemy Randomization
 
+- [x] Cut the load-time cost of the loot catalog: it was emitting 17,208 root
+      templates (717 items x 4 rarities x 6 level bands) that were byte-identical
+      apart from MapKey/Name/Stats. Now one template per base item, since
+      `Osi.ItemSetStats` retargets the item at runtime. Root template 42.7 -> 3.7 MB,
+      pak 11.6 -> 2.2 MB.
+- [ ] Verify loot drops still work in-game after the template deduplication: kill a
+      champion and confirm the item spawns, carries its rarity/spells/condition, and
+      can be picked up and equipped. Log lines: `loot item ready: root=...`,
+      `loot stats branch: ...`, and no `TemplateAddTo failed`.
+
 - [x] Add **Champion of the Horde**: grants Animate Dead, Fungal Infestation,
       Animate Dead: Zombie Battalion and a custom **Summon Horde** spell that
       raises four zombies in one cast for **2 AP** with the highest `AIWeight` in

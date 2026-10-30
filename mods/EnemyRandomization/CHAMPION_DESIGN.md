@@ -239,6 +239,33 @@ logs the before/after values.
 The UUIDs are deterministic UUIDv5 values derived from the template names, so
 rebuilding the mod does not change the root-template GUIDs.
 
+## Loot root templates are one per base item
+
+`scripts/generate-enr-loot.py` used to deep-copy the base root node once per
+(base item, rarity, level band) - 717 x 4 x 6 = **17,208 templates** - changing
+only `MapKey`, `Name` and `Stats` each time. Every sibling for one base item was
+byte-identical apart from those three attributes.
+
+That was pure duplication: the item is instanced with
+`Osi.TemplateAddTo(variant.template, ...)` and then retargeted by
+`Osi.ItemSetStats(item, variant.stats)` in `Loot.lua`, so rarity and level live in
+the **stats**, not in the template. The templates only inflated
+`RootTemplates/_merged.lsf`, which the engine parses on every game load.
+
+Now there is one template per base item (717), named `ENR_LootRoot_<base>` and
+keyed by `template_guid('lootroot_' + slug)`. Measured effect:
+
+| Artifact | Before | After |
+| --- | --- | --- |
+| `.analysis/enr_loot_roots.lsx` | 126 MB | 5.2 MB |
+| `RootTemplates/_merged.lsf` | 42.7 MB | 3.7 MB |
+| `EnemyRandomization.pak` | 11.6 MB | 2.2 MB |
+
+All 17,399 loot stats are unchanged, so drops, rarities and level scaling behave
+exactly as before. Two tests guard it: every `RootTemplate` a loot stat references
+must exist in the merged root, and every variant of one base item must resolve to a
+single template.
+
 ## Champion loot catalog
 
 `scripts/generate-enr-loot.py` generates the loot catalog from the extracted

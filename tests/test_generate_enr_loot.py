@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import contextlib
 import io
+import re
 import tempfile
 import unittest
 import xml.etree.ElementTree as ET
@@ -257,7 +258,56 @@ class MainTests(LootFixture):
         self.assertIn("Uncommon", lua)
 
         roots = ET.parse(self.mod.ROOT_XML).getroot()
-        self.assertEqual(len(roots.findall(".//node[@id='GameObjects']")), 2 * 4 * 6)
+        # One shared template per base item. Rarity and level live in the stats,
+        # which Loot.lua applies at runtime, so 4 rarities x 6 bands of the same
+        # base do not need their own identical node.
+        self.assertEqual(len(roots.findall(".//node[@id='GameObjects']")), 2)
+
+    def test_every_loot_stat_points_at_an_emitted_template(self) -> None:
+        # A stat referencing a template that is not in the merged root file gives
+        # an item that cannot spawn, so this has to hold after deduplication.
+        self.run_main()
+
+        roots = ET.parse(self.mod.ROOT_XML).getroot()
+        emitted = set()
+        for node in roots.findall(".//node[@id='GameObjects']"):
+            attribute = node.find("attribute[@id='MapKey']")
+            if attribute is not None and attribute.get("value"):
+                emitted.add(attribute.get("value"))
+
+        stats_text = "".join(
+            path.read_text(encoding="utf-8") for path in self.chunk_files()
+        )
+        referenced = set(re.findall(r'data "RootTemplate" "([^"]+)"', stats_text))
+
+        self.assertTrue(referenced)
+        self.assertLessEqual(referenced, emitted)
+
+    def test_all_variants_of_a_base_share_one_template(self) -> None:
+        # The deduplication itself: the same base item across rarities and bands
+        # must resolve to a single root template.
+        self.run_main()
+
+        stats_text = "".join(
+            path.read_text(encoding="utf-8") for path in self.chunk_files()
+        )
+        by_base: dict[str, set[str]] = {}
+        for block in stats_text.split("new entry ")[1:]:
+            name = block.split('"')[1]
+            match = re.search(
+                r"ENR_Loot_(?P<base>.+?)_(?:Uncommon|Rare|VeryRare|Legendary)_L\d+_0$",
+                name,
+            )
+            if not match:
+                continue
+            template = re.search(r'data "RootTemplate" "([^"]+)"', block)
+            if template:
+                by_base.setdefault(match.group("base"), set()).add(template.group(1))
+
+        self.assertTrue(by_base)
+        for base, templates in by_base.items():
+            with self.subTest(base=base):
+                self.assertEqual(len(templates), 1, f"{base} uses {templates}")
 
     def test_main_removes_stale_chunks(self) -> None:
         self.mod.STATS_OUT.parent.mkdir(parents=True, exist_ok=True)

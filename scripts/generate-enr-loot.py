@@ -442,7 +442,16 @@ def main():
     loot_by_rarity = {entry['name']: [] for entry in RARITIES}
     root_children = []
     variant_count = 0
+    created_roots = set()
 
+    # One root template per base item, not one per (base, rarity, level band).
+    #
+    # Rarity and level live entirely in the stats: the item is instanced with
+    # Osi.TemplateAddTo(variant.template, ...) and then retargeted by
+    # Osi.ItemSetStats(item, variant.stats) in Loot.lua. Deep-copying the same
+    # base node once per rarity and band wrote the identical template out 24
+    # times, which inflated RootTemplates/_merged.lsf to 42 MB - parsed on every
+    # game load - for no behavioural difference.
     for base in bases:
         base_slug = slug(base['root_name'])
         for rarity in RARITIES:
@@ -487,8 +496,10 @@ def main():
                         base_slug, rarity['name'], band_index, index)
                     stats_name = 'ENR_Loot_' + tag
                     base_root_guid = base.get('root_guid')
-                    root_guid = template_guid(tag)
-                    custom_root_name = 'ENR_Loot_' + tag
+                    # Shared per-base template: every rarity and band of this
+                    # base item uses the same node.
+                    root_guid = template_guid('lootroot_' + base_slug)
+                    custom_root_name = 'ENR_LootRoot_' + base_slug
                     if not base_root_guid:
                         continue
 
@@ -517,11 +528,17 @@ def main():
                         item_lines.append('data "PassivesOnEquip" "%s"' % passives)
                     item_lines.append('')
 
-                    node = copy.deepcopy(base['root_node'])
-                    set_attr(node, 'MapKey', root_guid)
-                    set_attr(node, 'Name', custom_root_name)
-                    set_attr(node, 'Stats', stats_name)
-                    root_children.append(node)
+                    # The node is shared by every variant of this base, so it is
+                    # only emitted once. Its Stats is the first variant generated
+                    # for the base, which is what the item spawns as before
+                    # Loot.lua retargets it.
+                    if base['root_name'] not in created_roots:
+                        created_roots.add(base['root_name'])
+                        node = copy.deepcopy(base['root_node'])
+                        set_attr(node, 'MapKey', root_guid)
+                        set_attr(node, 'Name', custom_root_name)
+                        set_attr(node, 'Stats', stats_name)
+                        root_children.append(node)
 
                     loot_by_rarity[rarity['name']].append({
                         'template': root_guid,
