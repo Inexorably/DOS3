@@ -35,8 +35,17 @@ class MirrorTests(unittest.TestCase):
             "H.osi_results.GetPosition = function() return 10, 0, 20 end "
             # The spawned clone exists as a combatant once CreateAt returns.
             f'H.osi_results.CreateAt = function() make_enemy("{CLONE}", {{ health = 10 }}) '
-            f'return "{CLONE}" end'
+            f'return "{CLONE}" end '
+            # Champions are off by default; Mirror only acts with them on.
+            "ER.Config.CHAMPIONS_ENABLED = true"
         )
+
+    def test_no_clone_while_champions_are_off(self) -> None:
+        self.harness.run("ER.Config.CHAMPIONS_ENABLED = false")
+        self.make_enemy("grunt", health=100)
+        self.give("grunt", MIRRORS)
+        self.harness.run('ER.Mirror.Consider("grunt", nil, false)')
+        self.assertEqual(self.harness.osi_calls("CreateAt"), [])
 
     def make_enemy(self, guid: str, **options) -> None:
         self.harness.lua.globals()["_options"] = self.harness.to_lua(options)

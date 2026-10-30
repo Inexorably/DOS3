@@ -53,8 +53,10 @@ class ReinforceFixture(unittest.TestCase):
             "ER.Config.REINFORCE_CHANCE = 1.0 "
             # These tests cover direct spawning; WavePickTests covers the offer.
             "ER.Config.REINFORCE_PICK = false "
-            # Single-wave cards unless a test asks for splits.
+            # Single-wave cards, all reinforcements, unless a test asks for
+            # splits or champions.
             "ER.Config.REINFORCE_SPLIT_CHANCE = { 0, 0, 0, 0, 0 } "
+            "ER.Config.REINFORCE_CHAMPION_OFFERS = false "
             'H.osi_results.CombatGetGuidFor = "combat-1" '
             "H.osi_results.GetPosition = function() return 10, 0, 20 end "
             "H.spawned = 0 "
@@ -98,6 +100,192 @@ class ReinforceTests(ReinforceFixture):
             "local n = 0 for _ in pairs(seen) do n = n + 1 end return n"
         )
         self.assertGreater(picks, 1)
+
+    def test_wave_spreads_across_enemies_in_the_fight(self) -> None:
+        for guid in ("grunt", "archer", "shaman"):
+            self.enemy(guid, race=GOBLIN_RACE)
+        self.harness.run(
+            "ER.Config.REINFORCE_MATCH_RACE = true "
+            "ER.Config.REINFORCE_TIER_WEIGHTS = { 0, 0, 1, 0, 0 } "
+            # The Randomizer hands every enemy over at combat start.
+            'ER.Reinforce.NoteEnemy("archer", H.entities["archer"], false) '
+            'ER.Reinforce.NoteEnemy("shaman", H.entities["shaman"], false)'
+        )
+        self.harness.run('ER.Reinforce.Consider("grunt", H.entities["grunt"], false)')
+        self.assertEqual(len(self.templates()), 3)
+        anchors = {str(call["args"][0]) for call in self.harness.osi_calls("GetPosition")}
+        self.assertEqual(anchors, {"grunt", "archer", "shaman"})
+
+    def test_roster_holds_the_fights_enemies_and_reinforcements(self) -> None:
+        self.harness.run("ER.Config.REINFORCE_TIER_WEIGHTS = { 0, 1, 0, 0, 0 }")
+        self.enemy("boss", level=7)
+        self.harness.run('ER.Reinforce.Consider("boss", H.entities["boss"], true)')
+        self.enemy("grunt", level=5)
+        self.harness.run('ER.Reinforce.Consider("grunt", H.entities["grunt"], false)')
+        # The combat has rolled; later enemies still join the roster.
+        self.enemy("late", level=3)
+        self.harness.run('ER.Reinforce.Consider("late", H.entities["late"], false)')
+        roster = self.harness.run(
+            'local out = {} for _, e in ipairs(ER.Reinforce.Encounter("combat-1")) do '
+            "out[#out + 1] = { e.id, e.level, e.boss and 1 or 0, e.reinforcement and 1 or 0 } end return out"
+        )
+        enemies = [row for row in roster if row[3] == 0]
+        reinforcements = [row for row in roster if row[3] == 1]
+        self.assertEqual(enemies, [["boss", 7, 1, 0], ["grunt", 5, 0, 0], ["late", 3, 0, 0]])
+        self.assertEqual(len(reinforcements), 2)
+
+    def test_kill_command_kills_the_roster_and_spares_the_party(self) -> None:
+        self.enemy("grunt")
+        self.harness.run('ER.Reinforce.Consider("grunt", H.entities["grunt"], false)')
+        killed = self.harness.run("return ER.Reinforce.KillEnemies(false)")
+        died = [str(call["args"][0]) for call in self.harness.osi_calls("Die")]
+        self.assertEqual(killed, 1 + len(self.templates()))
+        self.assertIn("grunt", died)
+        # `all` adds in-combat characters outside the party, never the party.
+        self.harness.clear_osi_calls()
+        self.enemy("stray")
+        self.enemy("hero")
+        self.harness.run(
+            "H.components.IsInCombat = { H.entities.stray, H.entities.hero } "
+            'H.osi_results.IsPartyMember = function(guid) return guid == "hero" and 1 or 0 end'
+        )
+        self.harness.run("ER.Reinforce.KillEnemies(true)")
+        died = [str(call["args"][0]) for call in self.harness.osi_calls("Die")]
+        self.assertIn("stray", died)
+        self.assertNotIn("hero", died)
+
+    def test_reinforcements_are_not_rostered_twice_or_as_enemies(self) -> None:
+        self.enemy("grunt")
+        self.harness.run('ER.Reinforce.Consider("grunt", H.entities["grunt"], false)')
+        self.harness.run('ER.Reinforce.NoteEnemy("reinforcement-1", H.entities["reinforcement-1"], false)')
+        count = self.harness.run('return #ER.Reinforce.Roster("combat-1")')
+        self.assertEqual(count, 1 + len(self.templates()))
+
+    def test_champion_offers_split_the_budget_and_keep_a_reinforcement(self) -> None:
+        self.harness.run(
+            "ER.Config.REINFORCE_CHAMPION_OFFERS = true "
+            "ER.Config.REINFORCE_TIER_WEIGHTS = { 0, 0, 0, 1, 0 }"
+        )
+        for _ in range(20):
+            counts = self.harness.run(
+                "local c = ER.Reinforce.BuildChoice({}) local r = 0 "
+                "for _, p in ipairs(c.parts) do r = r + p.count end "
+                "local seen, dup = {}, 0 for _, s in ipairs(c.champions) do "
+                "if seen[s] then dup = dup + 1 end seen[s] = true end "
+                "return { r, #c.champions, dup, c.parts[1].tier }"
+            )
+            reinforcements, champions, duplicates, part_tier = counts
+            self.assertEqual(reinforcements + champions, 4)
+            self.assertGreaterEqual(reinforcements, 1)
+            self.assertEqual(duplicates, 0)
+            # The wave's flavour follows the reinforcements that spawn.
+            self.assertEqual(part_tier, reinforcements)
+
+    def test_card_title_lists_champions(self) -> None:
+        title = 'return ER.Reinforce.CardTitle("Goblins", {%s})'
+        self.assertEqual(self.harness.run(title % ""), "Goblins")
+        self.assertEqual(self.harness.run(title % '"ENR_CHAMPION_MIRRORS"'), "Goblins of Mirrors")
+        self.assertEqual(
+            self.harness.run(title % '"ENR_CHAMPION_MIRRORS", "ENR_CHAMPION_DEATH"'),
+            "Goblins of Mirrors and Death",
+        )
+        self.assertEqual(
+            self.harness.run(title % '"ENR_CHAMPION_MIRRORS", "ENR_CHAMPION_DINOSAURS", "ENR_CHAMPION_DEATH"'),
+            "Goblins of Mirrors, Dinosaurs, and Death",
+        )
+        self.assertEqual(
+            self.harness.run('return ER.Reinforce.ChampionName("ENR_CHAMPION_STEEL_WATCH")'),
+            "Champion of Steel Watch",
+        )
+
+    def test_offered_champions_go_on_different_roster_members(self) -> None:
+        self.enemy("boss")
+        self.harness.run('ER.Reinforce.NoteEnemy("boss", H.entities["boss"], true)')
+        self.enemy("grunt")
+        self.harness.run('ER.Reinforce.Consider("grunt", H.entities["grunt"], false)')
+        statuses = self.harness.run(
+            "local out = {} for i = 1, 3 do out[i] = ER.Config.CHAMPIONS[i].status end return out"
+        )
+        self.harness.lua.globals()["_statuses"] = self.harness.to_lua(statuses)
+        placed = self.harness.run(
+            'local out = {} for _, p in ipairs(ER.Reinforce.ApplyChampions("combat-1", _statuses)) do '
+            "out[#out + 1] = { p.status, p.id } end return out"
+        )
+        targets = [target for _, target in placed]
+        self.assertEqual(len(set(targets)), len(targets))
+        self.assertEqual(len(placed), min(3, 2 + len(self.templates())))
+        for status, target in placed:
+            self.assertTrue(self.harness.run(f'return H.statuses["{target}|{status}"] or false'))
+
+    def test_mirrors_champion_never_goes_on_a_boss(self) -> None:
+        self.enemy("boss")
+        self.harness.run(
+            'ER.Reinforce.NoteEnemy("boss", H.entities["boss"], true) '
+            "ER.Config.MIRROR_CHAMPION = ER.Config.CHAMPIONS[1].status"
+        )
+        status = self.harness.run("return ER.Config.MIRROR_CHAMPION")
+        self.harness.lua.globals()["_statuses"] = self.harness.to_lua([status])
+        placed = self.harness.run('return #ER.Reinforce.ApplyChampions("combat-1", _statuses)')
+        self.assertEqual(placed, 0)
+
+    def party(self) -> None:
+        self.harness.run('H.osi_results.GetAllPartyMembers = { "p1", "p2", "p3", "p4" }')
+
+    def boons(self, tier: int) -> list[list]:
+        return self.harness.run(
+            f"local out = {{}} for _, b in ipairs(ER.Reinforce.RollBoons({tier})) do "
+            "out[#out + 1] = { b.player, b.status, b.champion and 1 or 0 } end return out"
+        )
+
+    def test_boon_counts_follow_the_tier(self) -> None:
+        self.party()
+        self.assertEqual(self.boons(1), [])
+        self.assertEqual(self.boons(2), [])
+        self.assertEqual(len(self.boons(3)), 1)
+        four = self.boons(4)
+        self.assertEqual(len(four), 2)
+        self.assertEqual(len({row[0] for row in four}), 2)
+        self.assertEqual(len({row[1] for row in four}), 2)
+        self.assertEqual([row[2] for row in four], [0, 0])
+
+    def test_legendary_boons_include_one_player_safe_champion(self) -> None:
+        self.party()
+        five = self.boons(5)
+        self.assertEqual(len(five), 3)
+        self.assertEqual(len({row[0] for row in five}), 3)
+        self.assertEqual([row[2] for row in five], [1, 0, 0])
+        champion = five[0][1]
+        spells = self.harness.run(
+            "for _, e in ipairs(ER.Config.CHAMPIONS) do "
+            f'if e.status == "{champion}" then return e.spells end end'
+        )
+        self.assertNotEqual(champion, self.harness.run("return ER.Config.MIRROR_CHAMPION"))
+        self.assertFalse(any(str(spell).startswith("ENR_Summon_") for spell in spells or []))
+
+    def test_boons_are_capped_by_party_size(self) -> None:
+        self.harness.run('H.osi_results.GetAllPartyMembers = { "p1" }')
+        self.assertEqual(len(self.boons(5)), 1)
+
+    def test_boons_are_removed_when_the_fight_ends(self) -> None:
+        self.harness.run(
+            'ER.Reinforce.ApplyBoons("combat-1", { { player = "p1", status = "ENR_Perm_BARKSKIN", champion = false } })'
+        )
+        self.assertTrue(self.harness.run('return H.statuses["p1|ENR_Perm_BARKSKIN"] or false'))
+        self.assertEqual(self.harness.run('return ER.Reinforce.RemoveBoons("combat-1")'), 1)
+        self.assertFalse(self.harness.run('return H.statuses["p1|ENR_Perm_BARKSKIN"] or false'))
+        self.assertEqual(self.harness.run('return ER.Reinforce.RemoveBoons("combat-1")'), 0)
+
+    def test_reward_goes_to_a_spawned_reinforcement(self) -> None:
+        self.harness.run(
+            "ER.Loot = { PickReward = function(rarity) return { label = rarity .. ' Greatsword', rarity = rarity } end, "
+            "AssignReward = function(guid, reward) H.reward = { guid, reward.label } end } "
+            "ER.Config.REINFORCE_TIER_WEIGHTS = { 0, 0, 1, 0, 0 }"
+        )
+        self.enemy("grunt")
+        self.harness.run('ER.Reinforce.Consider("grunt", H.entities["grunt"], false)')
+        carrier, label = self.harness.run("return H.reward")
+        self.assertEqual(label, "Rare Greatsword")
+        self.assertTrue(carrier.startswith("reinforcement-"))
 
     def test_tiers_scale_count_and_small_waves_start_at_legendary(self) -> None:
         self.harness.run("ER.Config.REINFORCE_MAX = 5")
@@ -355,13 +543,26 @@ class WavePickWindowTests(unittest.TestCase):
                                   "for _, b in ipairs(w.buttons) do out[#out + 1] = b.label end return out")
         self.assertEqual(labels, ["Choose##goblin", "Choose##spectator"])
 
+    def advance_frames(self, count: int) -> None:
+        for _ in range(count):
+            self.harness.fire_event("Tick")
+
     def test_clicking_a_button_posts_the_pick_and_closes(self) -> None:
         self.harness.lua.globals()["_payload"] = self.PAYLOAD
         self.harness.run("ER.WavePick.Show(_payload)")
+        # The harness has no clock, so the frame-count arm delay applies.
+        self.advance_frames(30)
         self.harness.run("H.imgui_windows[1].buttons[2].OnClick()")
         posted = self.harness.run("local m = H.server_messages[1] return { m.channel, m.payload }")
         self.assertEqual(posted, ["ENR_WavePick", f"{COMBAT}\tspectator"])
         self.assertTrue(self.harness.run("return H.imgui_windows[1].destroyed"))
+
+    def test_click_right_after_opening_is_ignored(self) -> None:
+        self.harness.lua.globals()["_payload"] = self.PAYLOAD
+        self.harness.run("ER.WavePick.Show(_payload)")
+        self.harness.run("H.imgui_windows[1].buttons[1].OnClick()")
+        self.assertEqual(self.harness.run("return #H.server_messages"), 0)
+        self.assertFalse(self.harness.run("return H.imgui_windows[1].destroyed or false"))
 
     def test_parse_offer_reads_combat_and_options(self) -> None:
         self.harness.lua.globals()["_payload"] = self.PAYLOAD
@@ -375,6 +576,36 @@ class WavePickWindowTests(unittest.TestCase):
         self.assertEqual(timeout, 60)
         self.assertEqual(tier, "Legendary")
         self.assertEqual(flavor, "A band of goblins.")
+
+    def test_boons_and_reward_are_shown(self) -> None:
+        payload = (
+            f"combat\t{COMBAT}\t60\n"
+            "goblin\tGoblins\t3\tGoblin\tIcon_Goblin\tEpic\tA band.\t\t"
+            "Lae'zel: Barkskin | Astarion: Aid\tVery Rare Greatsword"
+        )
+        self.harness.lua.globals()["_payload"] = payload
+        self.harness.run("ER.WavePick.Show(_payload)")
+        text = self.harness.run("return H.imgui_windows[1].text")
+        for expected in ("Boons", "Lae'zel: Barkskin", "Astarion: Aid", "Reward: Very Rare Greatsword"):
+            self.assertIn(expected, text)
+
+    def test_champions_are_listed_one_per_line(self) -> None:
+        payload = (
+            f"combat\t{COMBAT}\t60\n"
+            "goblin\tGoblins of Mirrors and Death\t3\tGoblin\tIcon_Goblin\tEpic\tA band.\t"
+            "Champion of Mirrors | Champion of Death"
+        )
+        self.harness.lua.globals()["_payload"] = payload
+        names = self.harness.run(
+            "local c, o = ER.WavePick.ParseOffer(_payload) return ER.WavePick.Champions(o[1])"
+        )
+        self.assertEqual(names, ["Champion of Mirrors", "Champion of Death"])
+        self.harness.run("ER.WavePick.Show(_payload)")
+        text = self.harness.run("return H.imgui_windows[1].text")
+        self.assertIn("Champion of Mirrors", text)
+        self.assertIn("Champion of Death", text)
+        # With champions listed, the member list is left out.
+        self.assertNotIn("|Goblin|", "|" + text + "|")
 
     def test_wrap_text_keeps_lines_within_limit(self) -> None:
         lines = self.harness.run('return ER.WavePick.WrapText("one two three four five six", 9)')

@@ -374,6 +374,7 @@ local function championExclusions(guid, entity, bossLike)
 end
 
 local function applyChampion(guid, isBoss, entity)
+    if not C.CHAMPIONS_ENABLED then return false end
     if not (C.CHAMPIONS and #C.CHAMPIONS > 0) then return false end
 
     local required, tier = championTargetCount(guid, entity, isBoss)
@@ -578,6 +579,35 @@ end
 
 function R.GrantChampionEffects(guid, champion, opts)
     grantChampionEffects(guid, champion, opts)
+end
+
+-- Party member GUIDs (bare UUIDs, no duplicates), for reinforcement boons.
+function R.PartyMembers()
+    local out, seen = {}, {}
+    for guid in pairs(partySet()) do
+        local id = tostring(guid):match("(%x+%-%x+%-%x+%-%x+%-%x+)$") or tostring(guid)
+        if not seen[id] then
+            seen[id] = true
+            out[#out + 1] = id
+        end
+    end
+    table.sort(out)
+    return out
+end
+
+-- Makes `guid` the champion `champion` (a Config.CHAMPIONS entry). Used by
+-- reinforcement offerings, so it works while random champions are off
+-- (CHAMPIONS_ENABLED). Returns true when the status applied.
+function R.ApplyChampionTo(guid, champion)
+    if not (guid and champion and champion.status and Osi and Osi.ApplyStatus) then return false end
+    local applied = pcall(Osi.ApplyStatus, guid, champion.status, -1, 1)
+    if not applied then return false end
+    pcall(Osi.ApplyStatus, guid, C.CHAMPION_MARKER, -1, 1)
+    championCache[guid] = championCache[guid] or {}
+    table.insert(championCache[guid], champion.status)
+    grantChampionEffects(guid, champion)
+    log("offered champion %s -> %s", champion.status, guid)
+    return true
 end
 
 function R.ResetChampionMarkers()

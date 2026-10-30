@@ -195,11 +195,14 @@ function M.CanMirror(guid, entity)
 end
 
 -- Returns the clone guid when a mirror was spawned, otherwise nil.
-function M.Consider(guid, entity, isBoss)
+function M.Consider(guid, entity, isBoss, offered)
     if not guid then return nil end
     local clones, rolled = registry()
     local id = uuidOf(guid)
     if M.IsClone(guid) then return nil end
+    -- Champion statuses left in saves do not clone while champions are off;
+    -- a champion just given by a reinforcement offering (`offered`) does.
+    if not (C.CHAMPIONS_ENABLED or offered) then return nil end
     if not hasStatus(guid, C.MIRROR_CHAMPION) then return nil end
     -- Only a Champion of Mirrors clone counts. Saves from the old per-enemy
     -- Mirror carry ENR_MIRROR_ROLLED and ENR_MirrorRolled entries on every

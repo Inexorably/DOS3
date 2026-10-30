@@ -249,6 +249,10 @@ class MainTests(LootFixture):
         self.assertIn('new entry "ENR_Loot_ARM_Test_Chest_Uncommon_L0_0"', text)
         self.assertIn('new entry "ENR_LootPassive_', text)
         self.assertIn('data "OnRemoveFunctors" ""', text)
+        # Items apply conditions through StatusOnEquip; the passive is display only.
+        self.assertIn('data "StatusOnEquip" "ENR_LootStatus_', text)
+        self.assertNotIn("ApplyStatus(SELF,ENR_LootStatus_", text)
+        self.assertNotIn('"OnUnequip"', text)
         self.assertIn("warning: missing conditions:", output)
         self.assertIn("variants:", output)
 

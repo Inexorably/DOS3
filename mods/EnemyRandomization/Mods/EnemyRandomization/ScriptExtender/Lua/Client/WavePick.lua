@@ -48,6 +48,7 @@ local COLORS = {
     text = { 0.92, 0.90, 0.85, 1.0 },
     muted = { 0.68, 0.66, 0.60, 1.0 },
     warning = { 0.95, 0.45, 0.35, 1.0 },
+    boon = { 0.55, 0.95, 0.55, 1.0 },
     -- One colour set per offer tier, using the usual RPG rarity colours.
     tiers = {
         Common = {
@@ -87,7 +88,22 @@ local countdown = nil
 local deadline = nil
 M.combat = nil
 
+-- Clicks are ignored until the window has been open for ARM_SECONDS (or,
+-- without a clock, ARM_TICKS frames): a click already in progress when the
+-- window opened landed on a Choose button and picked card 1 unasked.
+local ARM_SECONDS = 1.0
+local ARM_TICKS = 30
+---@type number|nil
+local openedAt = nil
+local openedTick = 0
+local ticks = 0
+
 local function try(fn) pcall(fn) end
+
+local function log(fmt, ...)
+    local text = "[ENR] wavepick " .. string.format(fmt, ...)
+    if Ext and Ext.Utils and Ext.Utils.Print then pcall(Ext.Utils.Print, text) end
+end
 
 local function nowSeconds()
     if Ext and Ext.Utils and Ext.Utils.MonotonicTime then
@@ -171,6 +187,7 @@ function M.ParseOffer(payload)
                 key = fields[1], name = fields[2], size = fields[3] or "",
                 members = fields[4] or "", icon = fields[5] or "",
                 tier = fields[6] or "Common", flavor = fields[7] or "",
+                champions = fields[8] or "", boons = fields[9] or "", reward = fields[10] or "",
             }
         end
     end
@@ -213,7 +230,72 @@ function M.WrapText(text, limit)
     return lines
 end
 
+-- The card's champion names, one per line (payload field 8, " | " separated).
+local function splitList(text)
+    local out = {}
+    for name in ((text or "") .. " | "):gmatch("(.-) | ") do
+        if name ~= "" then out[#out + 1] = name end
+    end
+    return out
+end
+
+function M.Champions(option)
+    return splitList(option.champions)
+end
+
+-- The card's boons, "Name: Buff" per line (payload field 9).
+function M.Boons(option)
+    return splitList(option.boons)
+end
+
+-- Lines listed under "Spawns": champions, a "Boons" heading with one line
+-- per boon, the reward, and the members only when there are no champions
+-- or boons.
+local function listedLines(option, layout)
+    local champions, boons = #M.Champions(option), #M.Boons(option)
+    local lines = champions + (boons > 0 and boons + 1 or 0) + ((option.reward or "") ~= "" and 1 or 0)
+    if champions == 0 and boons == 0 then lines = lines + #M.WrapMembers(option.members, layout.chars) end
+    return lines
+end
+
+-- Estimated height of a card's content above the button, with its icon.
+-- LINE_PITCH is an upper bound, so this errs high.
+function M.ContentHeight(option, layout)
+    local title = #M.WrapText(option.name, layout.chars)
+    local flavor, parts = 0, 0
+    for part in ((option.flavor or "") .. " | "):gmatch("(.-) | ") do
+        if part ~= "" then
+            parts = parts + 1
+            flavor = flavor + #M.WrapText(part, layout.chars)
+        end
+    end
+    local listed = listedLines(option, layout)
+    return FIRST_MEMBER_Y + (flavor + listed + title - 1) * LINE_PITCH + 16
+        + math.max(0, parts - 1) * 10 + layout.icon + 24 + 16
+end
+
+-- Seconds the window has been open, or nil without a clock.
+local function openSeconds()
+    local now, opened = nowSeconds(), openedAt
+    if now and opened then return now - opened end
+    return nil
+end
+
+-- True once the window has been open long enough to accept a click.
+function M.Armed()
+    local seconds = openSeconds()
+    if seconds then return seconds >= ARM_SECONDS end
+    return ticks - openedTick >= ARM_TICKS
+end
+
 local function sendPick(combat, key)
+    local seconds = openSeconds()
+    local shown = seconds and string.format("%.2fs", seconds) or string.format("%d frames", ticks - openedTick)
+    if not M.Armed() then
+        log("ignored click on %s %s after opening", key, shown)
+        return
+    end
+    log("picked %s %s after opening", key, shown)
     if Ext and Ext.Net and Ext.Net.PostMessageToServer then
         pcall(Ext.Net.PostMessageToServer, PICK_CHANNEL, combat .. "\t" .. key)
     end
@@ -356,17 +438,34 @@ local function addCard(parent, option, combat, layout)
     spacer(card, 1, 16)
     centred(card, "Spawns " .. option.size, inner, kind.stat)
     spacer(card, 1, 8)
-    local lines = M.WrapMembers(option.members, layout.chars)
+    -- Each champion on its own line; with champions the member list is left
+    -- out to keep the card short.
+    local champions = M.Champions(option)
+    for _, name in ipairs(champions) do
+        centred(card, name, inner, kind.accent)
+    end
+    local boons = M.Boons(option)
+    if #boons > 0 then
+        spacer(card, 1, 8)
+        centred(card, "Boons", inner, COLORS.muted)
+        for _, boon in ipairs(boons) do
+            centred(card, boon, inner, COLORS.boon)
+        end
+    end
+    local lines = (#champions == 0 and #boons == 0) and M.WrapMembers(option.members, layout.chars) or {}
     for _, line in ipairs(lines) do
         centred(card, line, inner, COLORS.muted)
+    end
+    if (option.reward or "") ~= "" then
+        spacer(card, 1, 8)
+        centred(card, "Reward: " .. option.reward, inner, COLORS.title)
     end
 
     -- Push the button to the bottom edge. The used height errs high (LINE_PITCH
     -- is an upper bound), so the button can sit a little high but never
     -- overflow into a scrollbar.
-    local used = FIRST_MEMBER_Y + (#flavor + #lines + #title - 1) * LINE_PITCH + 16
-        + math.max(0, partIndex - 1) * 10
-    if iconShown then used = used + layout.icon + 24 end
+    local used = M.ContentHeight(option, layout)
+    if not iconShown then used = used - layout.icon - 24 end
     spacer(card, 1, math.max(20, layout.h - used - BUTTON_SIZE[2] - BOTTOM_MARGIN))
     -- Centred, fixed-width button: a leading dummy, then the button beside it.
     spacer(card, math.floor((inner - BUTTON_SIZE[1]) / 2), 1)
@@ -392,6 +491,8 @@ function M.Show(payload)
     M.combat = combat
     local now = nowSeconds()
     deadline = (now and timeout) and (now + timeout) or nil
+    openedAt = now
+    openedTick = ticks
 
     -- Full-screen dimmed overlay.
     local width, height = viewportSize()
@@ -422,6 +523,14 @@ function M.Show(payload)
     -- each placed on the same line as the element before it.
     offerSerial = offerSerial + 1
     local layout = cardLayout(width, height)
+    -- Cards grow to fit the tallest card in the offer (champion lists, split
+    -- flavour), up to the screen height left below the header.
+    local needed = layout.h
+    for _, option in ipairs(options) do
+        needed = math.max(needed, M.ContentHeight(option, layout) + 20 + BUTTON_SIZE[2] + BOTTOM_MARGIN)
+    end
+    local available = height - math.floor(height * 0.05) - 140 - 2 * (FRAME_LIGHT + FRAME_DARK) - 10
+    layout.h = math.max(layout.h, math.min(needed, available))
     local framedW = framedSize(layout)
     local total = #options * framedW + (#options - 1) * layout.gap
     spacer(w, math.max(0, math.floor((width - total) / 2)), 1)
@@ -440,16 +549,25 @@ if Ext and Ext.Events and Ext.Events.NetMessage then
     Ext.Events.NetMessage:Subscribe(function(ev)
         if not ev then return end
         if ev.Channel == OFFER_CHANNEL then
-            pcall(M.Show, ev.Payload)
+            local ok, result = pcall(M.Show, ev.Payload)
+            if not ok then
+                log("window failed: %s; offer: %s", tostring(result),
+                    (tostring(ev.Payload or ""):gsub("\n", " / ")))
+            elseif result then
+                local _, options = M.ParseOffer(ev.Payload)
+                log("window opened with %d cards", #options)
+            else
+                log("window not opened (no options, combat, or IMGUI)")
+            end
         elseif ev.Channel == CLOSE_CHANNEL and (M.combat == nil or M.combat == ev.Payload) then
             close()
         end
     end)
 end
 
--- Refresh the countdown a few times a second.
+-- Count frames (for the click arm delay) and refresh the countdown a few
+-- times a second.
 if Ext and Ext.Events and Ext.Events.Tick then
-    local ticks = 0
     Ext.Events.Tick:Subscribe(function()
         ticks = ticks + 1
         local label = countdown
