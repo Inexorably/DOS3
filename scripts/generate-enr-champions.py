@@ -186,8 +186,11 @@ STATUS_DISPLAY_FALLBACKS = {
 }
 
 NATIVE_LEVELS = {
-    'ChultAlioramus': 1,
-    'Crimson': 1,
+    # The Chult dinosaurs are placed at level 10 (Alioramus_A, Dilophosaurus_A).
+    # A native level of 1 multiplied their 51+ base Vitality with every
+    # summoner level (Crimson had 120 HP at level 2).
+    'ChultAlioramus': 10,
+    'Crimson': 10,
     'GiantSpider': 3,
     'PhaseSpider': 3,
     'PhaseSpiderQueen': 5,

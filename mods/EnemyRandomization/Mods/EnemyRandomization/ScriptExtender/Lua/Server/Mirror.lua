@@ -200,10 +200,16 @@ function M.Consider(guid, entity, isBoss)
     local clones, rolled = registry()
     local id = uuidOf(guid)
     if M.IsClone(guid) then return nil end
-    if rolled[id] or hasStatus(guid, C.MIRROR_MARKER) then return nil end
     if not hasStatus(guid, C.MIRROR_CHAMPION) then return nil end
+    -- Only a Champion of Mirrors clone counts. Saves from the old per-enemy
+    -- Mirror carry ENR_MIRROR_ROLLED and ENR_MirrorRolled entries on every
+    -- enemy, which blocked the champion, so those are ignored here.
+    PersistentVars.ENR_MirrorChampionDone = PersistentVars.ENR_MirrorChampionDone or {}
+    local done = PersistentVars.ENR_MirrorChampionDone
+    if done[id] then return nil end
 
     -- Mark before spawning so an interrupted spawn is never retried.
+    done[id] = true
     rolled[id] = true
     applyStatus(guid, C.MIRROR_MARKER)
     if isBoss or isExcluded(guid, entity) then return nil end

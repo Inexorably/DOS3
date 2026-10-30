@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import tempfile
 import unittest
 from pathlib import Path
@@ -148,6 +149,30 @@ class WaveGeneratorTests(WaveFixture):
         self.assertIn("ER.GeneratedWaves = {", lua)
         self.assertIn(f'races = {{ ["{RACE}"] = true }}', lua)
         self.assertIn('{ source = "Goblin_Grunt", native = 4, templates = {', lua)
+
+    def test_every_wave_has_exactly_one_icon_entry(self) -> None:
+        mod = load_script("generate-enr-waves")
+        keys = {key for key, *_ in mod.WAVES}
+        self.assertEqual(set(mod.WAVE_ICONS), keys)
+        self.assertTrue(all(mod.WAVE_ICONS.values()))
+
+    def test_icon_names_are_read_from_atlases(self) -> None:
+        gui = self.root / ".analysis" / "icons" / "Public" / "Shared" / "GUI"
+        gui.mkdir(parents=True)
+        (gui / "Icons_Skills.lsx").write_text(
+            '<node id="IconUV"><attribute id="MapKey" type="FixedString" value="Action_Bear_Claws" /></node>',
+            encoding="utf-8",
+        )
+        self.assertEqual(self.mod.load_icon_names(), {"Action_Bear_Claws"})
+
+    def test_committed_waves_use_atlas_icons_not_portraits(self) -> None:
+        lua = (
+            Path(__file__).resolve().parents[1]
+            / "mods/EnemyRandomization/Mods/EnemyRandomization/ScriptExtender/Lua/Server/GeneratedWaves.lua"
+        ).read_text(encoding="utf-8")
+        icons = re.findall(r'icon = "([^"]*)"', lua)
+        self.assertTrue(icons)
+        self.assertEqual([icon for icon in icons if not icon or "(Icon_" in icon], [])
 
     def test_lua_writes_non_ascii_names_without_json_escapes(self) -> None:
         self.mod.WAVES = [("rothe", "Deep Rothé", False, [("Goblin_Grunt", 1)])]

@@ -208,8 +208,8 @@ ER.Generated = {
     ["ENR_OwlbearCub"] = { 12, 9, 11, 3, 10, 7 },
   },
   nativeLevels = {
-    ["ENR_Alioramus"] = 1,
-    ["ENR_Crimson"] = 1,
+    ["ENR_Alioramus"] = 10,
+    ["ENR_Crimson"] = 10,
     ["ENR_GiantSpider"] = 3,
     ["ENR_PhaseSpider"] = 3,
     ["ENR_PhaseSpiderQueen"] = 5,
