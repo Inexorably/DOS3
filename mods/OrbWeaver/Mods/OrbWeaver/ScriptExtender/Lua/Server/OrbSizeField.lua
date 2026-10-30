@@ -139,7 +139,7 @@ function T.Resolve(caster, variant, target)
     local within, first, second = T.withinRadius(orbs, radius)
     if not within then
         log("orbs %s and %s are further than %.0f m apart; no field",
-            first.key, second.key, radius)
+            tostring(first and first.key), tostring(second and second.key), radius)
         return false
     end
 
