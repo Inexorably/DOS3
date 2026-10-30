@@ -532,9 +532,15 @@ Known DOS2 visual references for the current test spells:
 ## OrbWeaver
 
 - [x] Add **Orb Tesla Link**: a Witch Bolt copy that links an orb and grants
-      **Activate Tesla Link** (1 AP, 1 turn cooldown, 8 Lightning) for later
+      **Activate Tesla Link** (4 AP, 1 turn cooldown, 8 Lightning) for later
       turns.
 - [x] Raise **Charge** and **Ignite Charge** to **4 AP**.
+- [x] Replace the `!orbweaver_fedora` item-spawning command with `!orbweaver_invuln`,
+      which applies the vanilla `INVULNERABLE` status to every party member and
+      `!orbweaver_invuln remove` to undo it. The item route never spawned
+      anything in game, and the status does the same job with no item chain.
+- [ ] Verify `!orbweaver_invuln` in-game: every party member shows the
+      Invulnerable status and takes no damage; `remove` clears it.
 - [ ] Verify Orb Tesla Link in-game: the spell targets orbs only, the caster gains
       Activate Tesla Link after linking, activating deals 8 Lightning and keeps the
       link, the 1 turn cooldown applies, the skill disappears once the link is gone,

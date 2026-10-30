@@ -583,6 +583,13 @@ a mod convention — it is only the vanilla name for `RootTemplates/_merged`.
 - The class progression is now the only source of the orb spells. The test
   bootstrap grant is disabled by default; see the Orbweaver section above.
 
+### Test console command
+
+`!orbweaver_invuln` applies the vanilla `INVULNERABLE` status to every party
+member (permanent, visible, `Invulnerable()`), for testing without dying.
+`!orbweaver_invuln remove` takes it back off. It is pure test tooling: no game
+content depends on it.
+
 ```text
 CC_Orbweaver          the class; owns the spells below
 CC_SummonBall_Azure   Summon Azure Orb cantrip
