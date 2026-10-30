@@ -221,58 +221,24 @@ class OrbStoneWallTests(unittest.TestCase):
         )
         self.assertLess(first_mark, first_hp)
 
-    def test_max_hit_points_are_capped_not_just_current(self) -> None:
-        # Osi.SetHitpoints only moves current HP, so a 30-vitality template kept
-        # its 30 max and wall pieces showed 30 and 45 HP. The Health component is
-        # the real cap.
-        self.line()
-        result = str(self.harness.run(
-            """
-            H.health = { MaxHp = 30, Hp = 30 }
-            Ext.Entity.Get = function()
-                return {
-                    Health = H.health,
-                    Replicate = function() return true end,
-                }
-            end
-            return "ready"
-            """
-        ))
-        self.assertEqual(result, "ready")
-        self.cast("a")
-        self.assertEqual(int(self.harness.run("return H.health.MaxHp")), 5)
-        self.assertEqual(int(self.harness.run("return H.health.Hp")), 5)
-
-    def test_hit_points_fall_back_to_the_osiris_path(self) -> None:
-        # Some builds do not expose the entity, so the Osiris call is the only
-        # way to move current HP. It must still happen.
-        self.line()
-        self.harness.run(
-            """
-            Ext.Entity.Get = function() return nil end
-            return true
-            """
+    def test_the_module_never_writes_the_health_component(self) -> None:
+        # Writing Health (or calling Replicate) on a spawned object crashed the
+        # game outright: objects have no replication channel for Health. The
+        # 5-point MAXIMUM therefore comes from the piece's stat, not a write.
+        module = read(
+            MODS
+            / "OrbWeaver/Mods/OrbWeaver/ScriptExtender/Lua/Server/OrbStoneWall.lua"
         )
+        code = re.sub(r"--[^\n]*", "", module)
+        self.assertNotIn("Replicate", code)
+        self.assertNotIn("MaxHp", code)
+
+    def test_hit_points_are_set_through_osiris(self) -> None:
+        self.line()
         self.cast("a")
         self.assertEqual(
             len(self.harness.osi_calls("SetHitpoints")), self.raised()
         )
-
-    def test_a_read_only_health_max_is_reported(self) -> None:
-        self.line()
-        self.harness.run(
-            """
-            Ext.Entity.Get = function()
-                local health = setmetatable({}, {
-                    __newindex = function() error("MaxHp is read-only") end,
-                })
-                return { Health = health, Replicate = function() return true end }
-            end
-            return true
-            """
-        )
-        self.cast("a")
-        self.assertIn("health write failed", self.logs())
 
     def test_a_failed_marker_is_reported(self) -> None:
         self.line()
@@ -283,40 +249,6 @@ class OrbStoneWallTests(unittest.TestCase):
         self.assertIn("could not mark pillar", self.logs())
         # The wall is still raised; only the marker failed.
         self.assertEqual(self.wall_count(), 1)
-
-    def test_a_failed_health_write_is_reported(self) -> None:
-        self.line()
-        self.harness.run(
-            """
-            Ext.Entity.Get = function()
-                return { Health = {}, Replicate = function() return true end }
-            end
-            return true
-            """
-        )
-        self.cast("a")
-        # MaxHp is a read-only proxy in a real entity; a rejected write must be
-        # logged rather than silently leaving the template's 30.
-        self.assertIn("orb stone wall", self.logs())
-
-    def test_a_pillar_that_never_lands_is_not_counted(self) -> None:
-        self.line()
-        self.harness.run(
-            'local made = 0\n'
-            'local create = H.osi_results["CreateAt"]\n'
-            'H.osi_results["CreateAt"] = function(...)\n'
-            '  made = made + 1\n'
-            '  local guid = create(...)\n'
-            '  if made == 2 then H.positions[guid] = nil end\n'
-            '  return guid\n'
-            'end'
-        )
-        self.cast("a")
-        self.assertIn("has no position", self.logs())
-        self.assertEqual(self.wall_count(), 1)
-        pillars = int(self.harness.run(
-            "return #OW.OrbStoneWall.WALLS[1].pillars"))
-        self.assertEqual(pillars, self.raised() - 1)
 
     def test_a_rejected_hit_point_change_is_reported(self) -> None:
         self.line()
@@ -488,6 +420,15 @@ class OrbStoneWallStatsTests(unittest.TestCase):
         self.assertEqual(self.config_number("ORB_STONE_WALL_PILLAR_HP"), "5")
         self.assertEqual(self.config_number("ORB_STONE_WALL_PILLAR_SPACING"), "1.0")
         self.assertIn("STONE_WALL_LINK_RADIUS = 8", self.generator)
+
+    def test_the_wall_pillar_stat_is_overridden_to_five_max_hp(self) -> None:
+        # The Wall of Stone art templates inherit Stats = OBJ_Wall_Of_Stone with
+        # Vitality 30, and Osi.SetHitpoints only moves current HP, so the 5-point
+        # maximum is applied by redefining that stat.
+        self.assertEqual(self.spells["OBJ_Wall_Of_Stone"]["Vitality"], "5")
+        self.assertIn(
+            'new entry "OBJ_Wall_Of_Stone"', self.spells_txt
+        )
 
     def test_wall_piece_marker_status_exists(self) -> None:
         self.assertIn('new entry "CC_ORB_WALL_PIECE"', self.spells_txt)

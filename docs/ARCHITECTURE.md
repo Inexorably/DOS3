@@ -327,11 +327,14 @@ Pillars are placed directly with `Osi.CreateAt`, one every
 spacing is **1 m**, because the Wall of Stone pieces are about a metre wide and 2 m
 left visible gaps between them.
 
-Each piece is then capped at `ORB_STONE_WALL_PILLAR_HP` (5) by writing the Health
-component (`MaxHp` and `Hp`, then `Replicate("Health")`), because
-`Osi.SetHitpoints` only moves **current** HP - with it alone the template's 30 max
-showed through. `Osi.SetHitpoints` is still called as the fallback for builds where
-the entity is not exposed.
+The 5-point **maximum** hit points come from the piece's stat, not a runtime
+write. `Osi.SetHitpoints` only moves *current* HP, and writing the `Health`
+component (or calling `entity:Replicate("Health")`) on a spawned object **crashed
+the game** - objects have no replication channel for Health. The Wall of Stone art
+templates inherit `Stats = OBJ_Wall_Of_Stone` (Vitality 30), so the generator
+redefines that stat with `Vitality 5`. Side effect: vanilla Wall of Stone pillars
+are also 5 HP in a save with this mod loaded. `Osi.SetHitpoints(guid, 5)` is still
+called to set current HP, and to report a failure if the call is rejected.
 
 Each piece also gets the `CC_ORB_WALL_PIECE` marker status. Wall pieces are objects
 the engine puts in the combat component set, so EnemyRandomization adopted them as

@@ -218,6 +218,32 @@ data "CastEffect" "abf8542a-6c39-49ad-bc94-86c4585a5948"
 data "CastTextEvent" "Cast"
 data "AIFlags" "CanNotUse"
 
+-- Wall pieces must have exactly 5 MAX hit points. Writing the Health component at
+-- runtime crashed the game (spawned objects have no replication channel), and
+-- Osi.SetHitpoints only moves current HP, so the cap has to come from the stat.
+-- The Wall of Stone art templates inherit Stats = OBJ_Wall_Of_Stone, so
+-- redefining that stat is what applies the cap. This does mean vanilla Wall of
+-- Stone pillars are also 5 HP in a save with this mod loaded.
+new entry "OBJ_Wall_Of_Stone"
+type "Object"
+using "OBJ_GenericImmutableObjectHeavy"
+data "RootTemplate" "d13587f4-a1f4-4833-bd1e-da1c7951d680"
+data "SoundSize" "Large"
+data "Vitality" "5"
+data "Armor" "15"
+data "BludgeoningResistance" "None"
+data "PiercingResistance" ""
+data "AcidResistance" "None"
+data "ColdResistance" "None"
+data "FireResistance" "None"
+data "ForceResistance" "Vulnerable"
+data "LightningResistance" "None"
+data "NecroticResistance" "None"
+data "PoisonResistance" "None"
+data "PsychicResistance" "Immune"
+data "RadiantResistance" "None"
+data "ThunderResistance" "Vulnerable"
+
 -- Marks a wall segment so EnemyRandomization never buffs it as a combatant.
 new entry "CC_ORB_WALL_PIECE"
 type "StatusData"

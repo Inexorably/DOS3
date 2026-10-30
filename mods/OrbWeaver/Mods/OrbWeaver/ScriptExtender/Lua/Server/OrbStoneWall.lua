@@ -106,45 +106,20 @@ function T.pillarPoints(nodes, spacing)
     return points
 end
 
--- Caps a wall piece at `hp` current AND maximum hit points.
+-- Sets the piece's hit points.
 --
--- Osi.SetHitpoints only moves current HP, so a 30-vitality template would still
--- show 30 max. The Health component is the real cap; this mirrors the write
--- EnemyRandomization uses for champion HP.
+-- Only Osiris is used here. Writing the Health component (or calling
+-- entity:Replicate) on a spawned object crashed the game outright: objects have
+-- no replication channel for Health. The 5-point MAXIMUM therefore comes from the
+-- piece's own stat (CC_OrbWallPiece, Vitality 5), not from a runtime write.
 local function setHitpoints(guid, hp)
-    local ok = true
-    if not (Ext and Ext.Entity and Ext.Entity.Get) then
-        ok = false
-    else
-        local entityOk, entity = pcall(Ext.Entity.Get, guid)
-        if not entityOk or not entity then
-            ok = false
-        else
-            local healthOk, health = pcall(function() return entity.Health end)
-            if healthOk and health then
-                local writeOk, err = pcall(function()
-                    health.MaxHp = hp
-                    health.Hp = hp
-                end)
-                if not writeOk then
-                    log("error: health write failed for pillar %s: %s",
-                        tostring(guid), tostring(err))
-                    ok = false
-                else
-                    pcall(function() entity:Replicate("Health") end)
-                end
-            else
-                ok = false
-            end
-        end
+    local ok, err = pcall(Osi.SetHitpoints, guid, hp)
+    if not ok then
+        log("error: could not set pillar %s to %d hit points: %s",
+            tostring(guid), hp, tostring(err))
+        return false
     end
-    -- Keep the Osiris path too: it is what shows the correct current HP on the
-    -- object's tooltip when the Health component is unavailable.
-    local called = pcall(Osi.SetHitpoints, guid, hp)
-    if not ok and not called then
-        log("error: could not set pillar %s to %d hit points", tostring(guid), hp)
-    end
-    return ok
+    return true
 end
 
 -- Tags the piece so EnemyRandomization leaves it alone. Objects spawned mid-fight

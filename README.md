@@ -564,8 +564,9 @@ a mod convention — it is only the vanilla name for `RootTemplates/_merged`.
   every other orb within **8 m** of the previous orb, chaining orb to orb (so the
   walk may run **A->B->C**, **B->A->C**, **C->B->A**, ...). Wall of Stone wall
   segments are placed every 1 m along that line - close enough to touch - and each
-  has exactly **5 hit points**. Wall segments are not combatants: the enemy
-  randomizer never buffs or promotes them. Charging any orb that is part of the wall collapses it; charging an
+  has exactly **5 hit points** (vanilla Wall of Stone pillars have 30; this mod
+  lowers that stat, so vanilla walls are 5 HP too while it is loaded). Wall
+  segments are not combatants: the enemy randomizer never buffs or promotes them. Charging any orb that is part of the wall collapses it; charging an
   orb that is *not* on the wall leaves it standing, so a wall raised through A and
   C survives B charging. Costs **2 AP**.
 - **Orb Chain Lightning** is cast by the player and can only target a

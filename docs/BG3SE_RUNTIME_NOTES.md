@@ -566,6 +566,24 @@ spell or asset being wrong.
 `OrbFire` already used the array form (`startPosition = { oldX, oldY, oldZ }`);
 match it.
 
+## Never write Health on a spawned object (2026-10-30 01:18 run)
+
+Setting `entity.Health.MaxHp` / `Health.Hp` and calling `entity:Replicate("Health")`
+on a wall piece created with `Osi.CreateAt` **crashed the game the moment the spell
+was cast**. Objects have no replication channel for Health, and the crash is
+native, so neither `pcall` nor a guard on the component can catch it. The wall
+itself had already been created successfully per the log:
+
+```text
+[OW] orb stone wall: wall raised through <a>-><b>-><c>: 9 pillar(s) at 5 HP each
+```
+
+`entity:Replicate` in EnemyRandomization is safe only because it runs on real
+characters. To give a spawned object a hit-point cap, change the **stat** its
+template references (`data "Vitality" ...`); stat overrides are name-keyed, so
+redefining the inherited stat is what applies the cap. `Osi.SetHitpoints` remains
+safe and only moves current HP.
+
 ## Maintenance rule
 
 Whenever a runtime-only API/arity/enum is discovered:
