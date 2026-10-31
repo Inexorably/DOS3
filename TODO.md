@@ -375,6 +375,17 @@ Known DOS2 visual references for the current test spells:
 
 ## Enemy Randomization
 
+- [x] Stop a save reload from treating the whole level as in combat: the
+      `IsInCombat` component is re-created while the map streams in, so
+      `inCombat()` now trusts `Osi.IsInCombat` and only falls back to the
+      component when Osiris cannot answer.
+- [x] Stop a reloaded enemy from rolling a second buff and champion:
+      `Osi.HasStatus` could not see the `ENR_*` markers, so `hasStatus` also
+      reads the ECS `StatusContainer` and every roll is recorded in
+      `PersistentVars.ENR_Rolls`.
+- [ ] Verify in game: fight, load a save mid-session, and confirm no enemy is
+      buffed or championed before combat starts, that the enemy keeps the same
+      champion across the reload, and that its health is not scaled twice.
 - [x] Add **Champion of the Horde**: grants Animate Dead, Fungal Infestation,
       Animate Dead: Zombie Battalion, plus the native **Rejuvenating Miasma**
       (`ANIMATEDEAD_ZONE`) aura.
@@ -519,6 +530,23 @@ Known DOS2 visual references for the current test spells:
       in-game, including multiplayer caster routing.
 
 ## OrbWeaver
+
+- [x] Add **Orb Tesla Link**: a Witch Bolt copy that links an orb and grants
+      **Activate Tesla Link** (4 AP, 1 turn cooldown, 8 Lightning) for later
+      turns.
+- [x] Raise **Charge** and **Ignite Charge** to **4 AP**.
+- [x] Replace the `!orbweaver_fedora` item-spawning command with `!orbweaver_invuln`,
+      which applies the vanilla `INVULNERABLE` status to every party member and
+      `!orbweaver_invuln remove` to undo it. The item route never spawned
+      anything in game, and the status does the same job with no item chain.
+- [ ] Verify `!orbweaver_invuln` in-game: every party member shows the
+      Invulnerable status and takes no damage; `remove` clears it.
+- [ ] Verify Orb Tesla Link in-game: the spell targets orbs only, the caster gains
+      Activate Tesla Link after linking, activating deals 8 Lightning and keeps the
+      link, the 1 turn cooldown applies, the skill disappears once the link is gone,
+      and recasting on a second orb moves the link. Log lines:
+      `orb tesla link: linked orb ... for ...`, `link on ... cleared (...)`.
+- [ ] Verify Charge at 4 AP in-game (both the plain and Ignite variants).
 
 - [x] Add player-cast **Orb Stone Wall**: target an orb and raise a wall of stone
       through it and every other orb within 8 m of the previous orb, chaining
