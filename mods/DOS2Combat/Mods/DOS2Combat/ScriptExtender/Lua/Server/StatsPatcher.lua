@@ -239,40 +239,38 @@ local function removeCastingAbilityDamage(stat)
 end
 
 local stripBonusActionBoosts
+-- Assigned below, once the raw-attribute helpers exist. Character resources are
+-- declared earlier in the file than the cost helpers they need.
+local rewriteCostField
 
 local function patchCharacter(stat)
     local cfg = DOS2C.Config
     local applied = stripBonusActionBoosts(stat, "DefaultBoosts")
-    local resources = U.SafeGet(stat, "ActionResources")
-    if type(resources) ~= "string" or resources == "" then
-        -- Character entries that inherit ActionResources do not repeat it.
-        -- At runtime the resolved entry usually has it, but give a sane
-        -- default if it does not.
-        resources = "ActionPoint:1;BonusActionPoint:1;Movement:9;ReactionActionPoint:1"
-    end
 
-    local parts = { "ActionPoint:" .. tostring(cfg.AP_BASE or 1) }
-    local hasMovement, hasReaction = false, false
-    for raw in resources:gmatch("[^;]+") do
-        local token = raw:gsub("^%s+", ""):gsub("%s+$", "")
-        local name = token:match("^([^:]+)")
-        if name == "Movement" then hasMovement = true end
-        if name == "ReactionActionPoint" then hasReaction = true end
-        if name and name ~= "ActionPoint" and name ~= "BonusActionPoint" then
-            parts[#parts + 1] = token
+    -- The character resource pool is what makes a bonus action available at all.
+    -- Remove it through the verified writer: an object-backed ActionResources
+    -- would otherwise keep the pool, and every spell that still lists a bonus
+    -- action would stay unusable. Characters that inherit ActionResources
+    -- without repeating it get a sane baseline.
+    if rewriteCostField(stat, "ActionResources", "character", function(value)
+        local hasMovement, hasReaction = false, false
+        local rebuilt = { "ActionPoint:" .. tostring(cfg.AP_BASE or 1) }
+        for raw in value:gmatch("[^;]+") do
+            local token = raw:gsub("^%s+", ""):gsub("%s+$", "")
+            local field = token:match("^([^:]+)")
+            if field == "Movement" then hasMovement = true end
+            if field == "ReactionActionPoint" then hasReaction = true end
+            if field and field ~= "ActionPoint" and field ~= "BonusActionPoint" then
+                rebuilt[#rebuilt + 1] = token
+            end
         end
-    end
-    if not hasMovement then
-        parts[#parts + 1] = "Movement:9"
-    end
-    if not hasReaction then
-        parts[#parts + 1] = "ReactionActionPoint:1"
-    end
-    if not cfg.REMOVE_BONUS_ACTIONS then
-        parts[#parts + 1] = "BonusActionPoint:1"
-    end
-
-    if U.SafeSet(stat, "ActionResources", table.concat(parts, ";")) then applied = true end
+        if not hasMovement then rebuilt[#rebuilt + 1] = "Movement:9" end
+        if not hasReaction then rebuilt[#rebuilt + 1] = "ReactionActionPoint:1" end
+        if not cfg.REMOVE_BONUS_ACTIONS then
+            rebuilt[#rebuilt + 1] = "BonusActionPoint:1"
+        end
+        return table.concat(rebuilt, ";")
+    end, "ActionPoint:1;BonusActionPoint:1;Movement:9;ReactionActionPoint:1") then applied = true end
     -- AP max is provided by the DOS2C_APBoost passive at runtime so existing
     -- saves receive it too; remove any old DefaultBoosts AP boost.
     if removeAPBoost(stat) then applied = true end
@@ -358,6 +356,39 @@ local function clearStatField(stat, field, spellName, replacement)
         tostring(spellName), tostring(after))
     return false
 end
+
+-- Rewrites a cost or resource field and verifies the result. `transform` gets
+-- the current text and returns the replacement (or nil to leave it alone).
+-- Several stats properties are object-backed at runtime, so a plain assignment
+-- silently keeps the old value: UseCosts is a plain string for Object stats but
+-- not necessarily for SpellData, and ActionResources on Character entries is
+-- what decides whether a bonus-action pool exists at all.
+local costFieldsRewritten = 0
+local costFieldsFailed = 0
+
+local function rewriteCostFieldImpl(stat, field, label, transform, fallback)
+    local before, raw = readFieldText(stat, field)
+    if not before or before == "" then
+        -- Fields that inherit their value do not repeat it. Only write when a
+        -- caller supplied an explicit baseline to build from.
+        if not fallback then return false end
+        before = fallback
+    end
+    local after = transform(before)
+    if after == nil or after == before then return false end
+    writeFieldText(stat, field, after, raw)
+    local actual = readFieldText(stat, field)
+    if actual == after then
+        costFieldsRewritten = costFieldsRewritten + 1
+        return true
+    end
+    costFieldsFailed = costFieldsFailed + 1
+    U.Log("could not rewrite %s on %s (wanted %s, got %s)", tostring(field),
+        tostring(label), tostring(after), tostring(actual))
+    return false
+end
+
+rewriteCostField = rewriteCostFieldImpl
 
 local function compressField(stat, field, changed, direct)
     local state = compressedFields[stat]
@@ -971,16 +1002,36 @@ local function patchSpell(name, stat)
     end
 
     if type(costs) == "string" and costs ~= "" then
-        if U.SafeSet(stat, "UseCosts", rebuildCosts(costs, apCost)) then
+        if rewriteCostField(stat, "UseCosts", name, function(value)
+            return rebuildCosts(value, apCost)
+        end) then
             changed = true
         end
     end
 
-    local dual = U.SafeGet(stat, "DualWieldingUseCosts")
-    if type(dual) == "string" and dual ~= "" then
-        if U.SafeSet(stat, "DualWieldingUseCosts", rebuildCosts(dual, apCost)) then
+    local dual = readFieldText(stat, "DualWieldingUseCosts")
+    if dual then
+        if rewriteCostField(stat, "DualWieldingUseCosts", name, function(value)
+            return rebuildCosts(value, apCost)
+        end) then
             changed = true
         end
+    end
+
+    -- Ritual costs are a second usable cost string on the same spell. Left
+    -- alone it keeps a bonus-action or slot charge the engine can still use.
+    if rewriteCostField(stat, "RitualCosts", name, function(value)
+        return rebuildCosts(value, apCost)
+    end) then
+        changed = true
+    end
+
+    -- HitCosts is the on-hit charge a few spells carry instead of a cast cost.
+    -- It is a separate field, so it needs the same conversion.
+    if rewriteCostField(stat, "HitCosts", name, function(value)
+        return rebuildCosts(value, apCost)
+    end) then
+        changed = true
     end
 
     if cfg.REMOVE_ATTACK_ROLLS or cfg.REMOVE_SAVING_THROWS then
@@ -1435,24 +1486,20 @@ local function patchInterrupt(name, stat)
         end
     end
     if DOS2C.Config.REMOVE_BONUS_ACTIONS then
-        local cost = U.SafeGet(stat, "Cost")
-        if type(cost) == "string" and cost ~= "" then
+        if rewriteCostField(stat, "Cost", name, function(cost)
             local updated = cost:gsub("BonusActionPoint%s*:%s*%d+", "ActionPoint:1")
             updated = updated:gsub("^%s*;%s*", ""):gsub("%s*;%s*$", "")
-            if updated ~= cost and U.SafeSet(stat, "Cost", updated) then changed = true end
-        end
+            return updated
+        end) then changed = true end
     end
     if DOS2C.Config.REMOVE_SPELL_SLOTS then
-        local cost = U.SafeGet(stat, "Cost")
-        if type(cost) == "string" and cost ~= "" then
+        if rewriteCostField(stat, "Cost", name, function(cost)
             local updated = cost:gsub("%s*;?%s*SpellSlots?Group%s*:%s*[^;]+", "")
             updated = updated:gsub("%s*;?%s*SpellSlots?%s*:%s*[^;]+", "")
             updated = updated:gsub("^%s*;%s*", ""):gsub("%s*;%s*$", "")
-            if updated ~= cost then
-                if updated == "" then updated = "ActionPoint:1" end
-                if U.SafeSet(stat, "Cost", updated) then changed = true end
-            end
-        end
+            if updated == "" then updated = "ActionPoint:1" end
+            return updated
+        end) then changed = true end
     end
     return changed
 end
@@ -1523,19 +1570,18 @@ end
 -- BonusActionPoint cost to a normal action.
 local function patchObject(stat)
     if not DOS2C.Config.REMOVE_BONUS_ACTIONS then return false end
-    local costs = U.SafeGet(stat, "UseCosts")
-    if type(costs) ~= "string" or not costs:find("BonusActionPoint", 1, true) then
-        return false
-    end
-    local parts = {}
-    local hasAP = false
-    for _, token in ipairs(U.SplitCosts(costs)) do
-        local name = token:match("^([^:]+)")
-        if name == "ActionPoint" then hasAP = true end
-        if name ~= "BonusActionPoint" then parts[#parts + 1] = token end
-    end
-    if not hasAP then table.insert(parts, 1, "ActionPoint:1") end
-    return U.SafeSet(stat, "UseCosts", table.concat(parts, ";"))
+    return rewriteCostField(stat, "UseCosts", "object", function(costs)
+        if not costs:find("BonusActionPoint", 1, true) then return nil end
+        local parts = {}
+        local hasAP = false
+        for _, token in ipairs(U.SplitCosts(costs)) do
+            local name = token:match("^([^:]+)")
+            if name == "ActionPoint" then hasAP = true end
+            if name ~= "BonusActionPoint" then parts[#parts + 1] = token end
+        end
+        if not hasAP then table.insert(parts, 1, "ActionPoint:1") end
+        return table.concat(parts, ";")
+    end)
 end
 
 local function eachStat(statType, handler)
@@ -1864,6 +1910,36 @@ function S.RestoreRolls(runtime)
     end)())
 end
 
+-- After the patch pass, anything still listing a bonus action is a spell the
+-- engine cannot pay for, because the bonus-action resource is gone. Naming them
+-- in the log is the only way to find the field that was missed without a
+-- debugger attached.
+local COST_FIELDS = { "UseCosts", "DualWieldingUseCosts", "RitualCosts", "HitCosts", "Cost" }
+
+local function auditBonusActionCosts()
+    if not DOS2C.Config.REMOVE_BONUS_ACTIONS then return end
+    local found, names = 0, {}
+    for _, statType in ipairs({ "SpellData", "Object", "InterruptData", "StatusData", "PassiveData" }) do
+        local ok, list = pcall(Ext.Stats.GetStats, statType)
+        if ok and type(list) == "table" then
+            for _, name in ipairs(list) do
+                local got, stat = pcall(Ext.Stats.Get, name)
+                if got and stat then
+                    for _, field in ipairs(COST_FIELDS) do
+                        local value = readFieldText(stat, field)
+                        if type(value) == "string" and value:find("BonusActionPoint", 1, true) then
+                            found = found + 1
+                            if #names < 10 then names[#names + 1] = tostring(name) end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    U.Log("bonus action costs remaining on %d stats%s", found,
+        found > 0 and (": " .. table.concat(names, ", ")) or "")
+end
+
 function S.PatchAll(runtime)
     if not (Ext and Ext.Stats) then return end
 
@@ -1943,6 +2019,9 @@ function S.PatchAll(runtime)
         compressedTotal, tonumber(DOS2C.Config.DAMAGE_RANGE_COMPRESSION) or 0)
     U.Log("native cast limits converted on %d spell fields (%d could not be cleared)",
         convertedLimits, unconvertedLimits)
+    U.Log("cost and resource fields rewritten: %d (%d rejected the write)",
+        costFieldsRewritten, costFieldsFailed)
+    auditBonusActionCosts()
 end
 
 if Ext.Events and Ext.Events.StatsLoaded then
