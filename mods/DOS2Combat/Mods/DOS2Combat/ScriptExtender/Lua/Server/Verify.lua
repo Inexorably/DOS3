@@ -146,6 +146,11 @@ function V.Verify(guid)
 
     statSnapshot("Projectile_FireBolt",
         { "TooltipDamageList", "SpellSuccess", "SpellRoll", "Cooldown", "UseCosts" })
+    -- Eldritch Blast keeps literal dice instead of a level map, so it is the
+    -- clearest proof that damage-range compression reached the functor and not
+    -- only the tooltip.
+    statSnapshot("Projectile_EldritchBlast",
+        { "TooltipDamageList", "SpellSuccess" })
     statSnapshot("DOS2C_FossilStrike",
         { "TooltipDamageList", "SpellSuccess", "SpellRoll", "Cooldown", "UseCosts" })
     statSnapshot("Target_MainHandAttack",

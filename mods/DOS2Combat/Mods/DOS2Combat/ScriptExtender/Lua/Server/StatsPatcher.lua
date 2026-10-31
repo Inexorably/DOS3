@@ -282,33 +282,73 @@ local function patchCharacter(stat)
     return applied
 end
 
-local function flattenField(stat, field, changed)
-    local original = U.SafeGet(stat, field)
-    local value = original
-    if type(value) ~= "string" or value == "" then return changed end
-    local flat = U.FlattenDice(value)
-    if flat ~= original then
-        if U.SafeSet(stat, field, flat) then changed = true end
+-- BG3SE exposes expression-backed fields (SpellSuccess, SpellProperties,
+-- SpellFail, Boosts, ...) as `Array<stats::FunctorGroup>` objects once the stat
+-- comes from the runtime table, not as strings. A plain type check therefore
+-- skipped every field that actually rolls damage: only the tooltip strings were
+-- ever compressed, so damage stayed at full spread. GetRawAttribute returns the
+-- underlying expression text and SetRawAttribute writes it back.
+local function rawField(stat, field)
+    if not (stat and stat.GetRawAttribute) then return nil end
+    local ok, value = pcall(function() return stat:GetRawAttribute(field) end)
+    if ok and type(value) == "string" and value ~= "" then return value end
+    return nil
+end
+
+local function writeRawField(stat, field, value)
+    if not (stat and stat.SetRawAttribute) then return false end
+    local ok, result = pcall(function() return stat:SetRawAttribute(field, value) end)
+    return ok and result ~= false
+end
+
+-- Reads `field` as text, preferring the plain attribute and falling back to the
+-- raw expression. The second return says whether the raw form must be used.
+-- Only expression objects trigger the raw read: a nil or empty plain value means
+-- the stat has no expression there, and probing every empty field of every stat
+-- would cost tens of thousands of native calls during the patch pass.
+local function readFieldText(stat, field)
+    local plain = U.SafeGet(stat, field)
+    if type(plain) == "string" and plain ~= "" then return plain, false end
+    if type(plain) == "table" or type(plain) == "userdata" then
+        local raw = rawField(stat, field)
+        if raw then return raw, true end
     end
+    return nil, false
+end
+
+local function writeFieldText(stat, field, value, raw)
+    if raw then return writeRawField(stat, field, value) end
+    return U.SafeSet(stat, field, value)
+end
+
+local function flattenField(stat, field, changed)
+    local original, raw = readFieldText(stat, field)
+    if not original then return changed end
+    local flat = U.FlattenDice(original)
+    if flat ~= original and writeFieldText(stat, field, flat, raw) then changed = true end
     return changed
 end
+
+-- Counts fields whose damage range was actually rewritten, so a game session
+-- proves whether compression reached the runtime stats.
+local compressedTotal = 0
 
 local function compressField(stat, field, changed, direct)
     local state = compressedFields[stat]
     if state and state[field] then return changed end
 
-    local original = U.SafeGet(stat, field)
-    local value = original
-    if type(value) ~= "string" or value == "" then return changed end
+    local original, raw = readFieldText(stat, field)
+    if not original then return changed end
 
     local cfg = DOS2C.Config
     local compressed = direct
-        and U.CompressDamageValue(value, cfg.DAMAGE_RANGE_COMPRESSION)
-        or U.CompressDamageFunctors(value, cfg.DAMAGE_RANGE_COMPRESSION)
-    if compressed ~= original and U.SafeSet(stat, field, compressed) then
+        and U.CompressDamageValue(original, cfg.DAMAGE_RANGE_COMPRESSION)
+        or U.CompressDamageFunctors(original, cfg.DAMAGE_RANGE_COMPRESSION)
+    if compressed ~= original and writeFieldText(stat, field, compressed, raw) then
         state = state or {}
         state[field] = true
         compressedFields[stat] = state
+        compressedTotal = compressedTotal + 1
         changed = true
     end
     return changed
@@ -1870,6 +1910,8 @@ function S.PatchAll(runtime)
     S.Patched = true
     U.Log("patched %d characters, %d spells, %d weapons, %d armor, %d statuses, %d passives, %d item use costs, %d interrupts; concentration removed from %d spells",
         nCharacters, nSpells, nWeapons, nArmor, nStatuses, nPassives, nObjects, nInterrupts, concentrationCount)
+    U.Log("damage ranges compressed on %d stat fields (ratio %.2f)",
+        compressedTotal, tonumber(DOS2C.Config.DAMAGE_RANGE_COMPRESSION) or 0)
 end
 
 if Ext.Events and Ext.Events.StatsLoaded then

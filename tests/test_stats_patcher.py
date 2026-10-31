@@ -426,6 +426,135 @@ class StatsPatcherSmokeTests(unittest.TestCase):
                 with self.subTest(kind=kind, field=field):
                     self.assertNotIn(f"{kind}|{field}", reads)
 
+    def test_expression_backed_damage_fields_are_compressed(self):
+        # Ext.Stats hands back Array<stats::FunctorGroup> for expression fields
+        # once the stat lives in the runtime table, so reading `stat.SpellSuccess`
+        # returns an object and the old string-only check skipped it. That left
+        # real damage at full spread while only the tooltip text was compressed.
+        lua = lua_runtime()
+        root = MODS / "DOS2Combat" / "Mods" / "DOS2Combat" / "ScriptExtender" / "Lua"
+        for relative in (
+            "Shared/ArmorFormula.lua",
+            "Server/Config.lua",
+            "Server/Util.lua",
+            "Server/StatsPatcher.lua",
+        ):
+            run_lua_file(lua, root / relative)
+
+        lua.execute(
+            """
+            -- Mirrors the runtime shape: the plain attribute is an expression
+            -- object, the text is only reachable through the raw accessors.
+            local raw = {
+                SpellSuccess = "DealDamage(1d10,Force,Magical)",
+                SpellProperties = "",
+                SpellFail = "",
+            }
+            local spell = {
+                Level = 0,
+                UseCosts = "ActionPoint:1",
+                DualWieldingUseCosts = "",
+                SpellRoll = "",
+                TooltipDamageList = "DealDamage(1d10,Force)",
+                DescriptionParams = "",
+                ExtraDescriptionParams = "",
+                TooltipUpcastDescriptionParams = "",
+                Cooldown = "",
+                RechargeValues = "",
+                SpellFlags = "",
+                ConcentrationSpellID = "",
+                SpellSuccess = { __functorGroup = true },
+                SpellProperties = { __functorGroup = true },
+                SpellFail = { __functorGroup = true },
+            }
+            function spell:GetRawAttribute(key) return raw[key] end
+            function spell:SetRawAttribute(key, value)
+                if raw[key] == nil then return false end
+                raw[key] = value
+                return true
+            end
+            function spell:Sync() end
+            Ext.Stats = {
+                GetStats = function(kind)
+                    if kind == "SpellData" then return { "Projectile_EldritchBlast" } end
+                    return {}
+                end,
+                Get = function(name)
+                    if name == "Projectile_EldritchBlast" then return spell end
+                    return nil
+                end,
+            }
+            DOS2C.Stats.PatchAll(false)
+            _G.raw = raw
+            _G.spell = spell
+            """
+        )
+
+        self.assertEqual(
+            lua.eval("raw.SpellSuccess"), "DealDamage(1d4+3,Force,Magical)",
+            "the damage functor must be compressed, not just the tooltip",
+        )
+        self.assertEqual(
+            lua.eval("spell.TooltipDamageList"), "DealDamage(1d4+3,Force)",
+        )
+
+    def test_compression_is_reported_for_the_session(self):
+        lua = lua_runtime()
+        root = MODS / "DOS2Combat" / "Mods" / "DOS2Combat" / "ScriptExtender" / "Lua"
+        for relative in (
+            "Shared/ArmorFormula.lua",
+            "Server/Config.lua",
+            "Server/Util.lua",
+            "Server/StatsPatcher.lua",
+        ):
+            run_lua_file(lua, root / relative)
+
+        lua.execute(
+            """
+            printed = {}
+            local spell = {
+                Level = 0,
+                UseCosts = "ActionPoint:1",
+                DualWieldingUseCosts = "",
+                SpellRoll = "",
+                SpellSuccess = "",
+                SpellProperties = "DealDamage(1d10,Force)",
+                SpellFail = "",
+                TooltipDamageList = "DealDamage(1d10,Force)",
+                DescriptionParams = "",
+                ExtraDescriptionParams = "",
+                TooltipUpcastDescriptionParams = "",
+                Cooldown = "",
+                RechargeValues = "",
+                SpellFlags = "",
+                ConcentrationSpellID = "",
+            }
+            function spell:Sync() end
+            printed = {}
+            Ext.Log = {
+                Print = function(text) printed[#printed + 1] = tostring(text) end,
+            }
+            Ext.Utils = {
+                Print = function(text) printed[#printed + 1] = tostring(text) end,
+            }
+            Ext.Stats = {
+                GetStats = function(kind)
+                    if kind == "SpellData" then return { "Test_Report" } end
+                    return {}
+                end,
+                Get = function(name)
+                    if name == "Test_Report" then return spell end
+                    return nil
+                end,
+            }
+            DOS2C.Config.DEBUG = true
+            DOS2C.Stats.PatchAll(false)
+            """
+        )
+
+        printed = " ".join(str(v) for v in lua.eval("printed").values())
+        self.assertIn("damage ranges compressed on", printed)
+
 
 if __name__ == "__main__":
     unittest.main()
