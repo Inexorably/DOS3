@@ -34,8 +34,12 @@ import json
 import pathlib
 import random
 import re
+import sys
 import uuid
 import xml.etree.ElementTree as ET
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import dos2_content_compat as compat
 
 ROOT = pathlib.Path('.')
 MOD = ROOT / 'mods/EnemyRandomization'
@@ -115,107 +119,10 @@ ABILITIES = ['Strength', 'Dexterity', 'Constitution', 'Intelligence', 'Wisdom', 
 
 # Only positive/native statuses. These are applied permanently while equipped
 # through a generated passive and a generated status wrapper.
-# Curated positive BOOST statuses that are safe to apply while an item is
-# equipped. This is intentionally broader than the original 12-condition list,
-# but it is not every native status: story, aura, class-only, target-marking,
-# and short-lived technical statuses are excluded.
-CONDITIONS = [
-    'AID',
-    'ARMOR_OF_AGATHYS',
-    'ASPECT_OF_THE_ELK',
-    'ASPECT_OF_THE_STALLION',
-    'ASPECT_OF_THE_WOLF',
-    'AURA_OF_COURAGE_BUFF',
-    'AURA_OF_DEVOTION_BUFF',
-    'AURA_OF_PROTECTION_BUFF',
-    'AURA_OF_WARDING_BUFF',
-    'BARDIC_INSPIRATION',
-    'BEACON_OF_HOPE',
-    'BEARS_ENDURANCE',
-    'BLADE_FLOURISH_DEFENSIVE',
-    'BLADE_FLOURISH_MOBILE',
-    'BULLS_STRENGTH',
-    'CALM_EMOTIONS',
-    'CATS_GRACE',
-    'COMPREHEND_LANGUAGES',
-    'CRYSTALSKIN',
-    'DARK_ONES_BLESSING',
-    'DAYLIGHT',
-    'DETECT_EVIL_GOOD',
-    'DETECT_THOUGHTS',
-    'DIVINE_FAVOR',
-    'DIVINE_SENSE',
-    'DRUNKEN_TECHNIQUE',
-    'EAGLES_SPLENDOR',
-    'EXPEDITIOUS_RETREAT',
-    'FALSE_LIFE',
-    'FLAME_BLADE',
-    'FOXS_CUNNING',
-    'FRIENDS',
-    'GUIDANCE',
-    'HEROES_FEAST',
-    'INSPIRING_LEADER',
-    'LIGHT',
-    'LONG_JUMP',
-    'MAGIC_WEAPON',
-    'MOBILE_NO_AOO',
-    'MULTIATTACKDEFENSE',
-    'OWLS_WISDOM',
-    'PASS_WITHOUT_TRACE',
-    'PATIENT_DEFENCE',
-    'PRODUCE_FLAME',
-    'RAGE',
-    'RALLY',
-    'RELENTLESS_RAGE',
-    'RESISTANCE',
-    'SACRED_WEAPON',
-    'SHILLELAGH',
-    'SPEAK_WITH_DEAD',
-    'TRUE_STRIKE',
-    'UNDEAD_FORTITUDE',
-    'VAMPIRE_REGENERATION',
-    'BARKSKIN',
-    'BLADE_WARD',
-    'BLESS',
-    'BLUR',
-    'DARKVISION',
-    'DEATH_WARD',
-    'ALCH_ELIXIR_ENLARGE',
-    'FEATHER_FALL',
-    'FLY',
-    'FREEDOM_OF_MOVEMENT',
-    'HASTE',
-    'HEROISM',
-    'LONGSTRIDER',
-    'MAGE_ARMOR',
-    'MIRROR_IMAGE_1',
-    'MIRROR_IMAGE_2',
-    'MIRROR_IMAGE_3',
-    'PROTECTION_FROM_ENERGY_ACID',
-    'PROTECTION_FROM_ENERGY_COLD',
-    'PROTECTION_FROM_ENERGY_FIRE',
-    'PROTECTION_FROM_ENERGY_LIGHTNING',
-    'PROTECTION_FROM_ENERGY_THUNDER',
-    'PROTECTION_FROM_EVIL_AND_GOOD',
-    'PROTECTION_FROM_POISON',
-    'RESISTANCE_ACID',
-    'RESISTANCE_COLD',
-    'RESISTANCE_FIRE',
-    'RESISTANCE_FORCE',
-    'RESISTANCE_LIGHTNING',
-    'RESISTANCE_NECROTIC',
-    'RESISTANCE_POISON',
-    'RESISTANCE_PSYCHIC',
-    'RESISTANCE_RADIANT',
-    'RESISTANCE_THUNDER',
-    'REFLECTIVE_SHELL',
-    'SANCTUARY',
-    'SHIELD',
-    'SHIELD_OF_FAITH',
-    'STONESKIN',
-    'VAMPIRIC_TOUCH',
-    'WARDING_FLARE',
-]
+# Curated conditions from scripts/dos2_content_compat.py. Combat buffs use
+# deterministic DOS2 replacements for native tokens the rules layer removed;
+# utility conditions are out-of-combat only, and unusable ones are excluded.
+CONDITIONS = list(compat.VALID_LOOT_CONDITIONS)
 
 # Spells that are not appropriate as player item grants. `Level` filtering is
 # done separately per rarity.
@@ -368,6 +275,8 @@ def load_spells():
             flags = set(filter(None, data.get('SpellFlags', '').split(';')))
             if flags & BAD_SPELL_FLAGS:
                 continue
+            if name in compat.UNUSABLE_LOOT_SPELLS:
+                continue
             if any(part in name for part in BAD_SPELL_NAME_PARTS):
                 continue
             spells.setdefault(name, level)
@@ -417,6 +326,12 @@ def main():
                 passive_lines.append('data "%s" "%s"' % (field, value))
         passive_lines.append('')
         condition_extra = []
+        replacement = compat.status_boosts(condition, native.get('Boosts'))
+        if replacement and replacement != (native.get('Boosts') or '').strip():
+            # Override the inherited native Boosts with the DOS2 replacement.
+            condition_extra.append('data "Boosts" "%s"' % replacement)
+        for field, value in compat.permanent_wrapper_fields(condition, native):
+            condition_extra.append('data "%s" "%s"' % (field, value))
         if condition == 'HASTE':
             # Permanent item haste must not inflict the native post-haste
             # lethargy when the item is unequipped.
