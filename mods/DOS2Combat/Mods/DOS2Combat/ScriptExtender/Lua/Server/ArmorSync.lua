@@ -73,85 +73,200 @@ local function setRuntimeDisplayName(entity, guid, text)
     return applied
 end
 
--- Refresh cached AC-derived reduction for every character. Equipment changes
--- do not reliably fire an event exposed to BG3SE, so the polling loop below
--- keeps the hover readout current after equipping/spawning gear.
-local function refreshEach(force)
+-- Every character (Health + ActionResources; this skips item/status resource
+-- holders), RE-READ on every call: enemies spawn and reinforcements join
+-- mid-fight, so nothing is cached at combat start.
+local function characters()
+    local out = {}
     for _, entity in ipairs(armorEntities()) do
         if entity.Health then
             local guid = U.GuidOf(entity)
-            if guid then pcall(A.RefreshChanged, guid, force) end
+            if guid then out[#out + 1] = { guid = guid, entity = entity } end
         end
     end
+    return out
 end
 
--- Every character (load, turn start).
+-- The current combat roster (guid -> true), re-read on every call.
+local function combatRoster()
+    local roster = {}
+    if not (Ext.Entity and Ext.Entity.GetAllEntitiesWithComponent) then return roster end
+    local ok, entities = pcall(Ext.Entity.GetAllEntitiesWithComponent, "IsInCombat")
+    if not ok or type(entities) ~= "table" then return roster end
+    for _, entity in ipairs(entities) do
+        local guid = U.GuidOf(entity)
+        if guid then roster[guid] = true end
+    end
+    return roster
+end
+
+-- Refresh the cached AC-derived reduction of every character (the console /
+-- a forced Broadcast; load and turns use the dirty set below instead).
 function S.RefreshAll()
-    refreshEach(true)
+    for _, c in ipairs(characters()) do pcall(A.RefreshChanged, c.guid, true) end
 end
 
--- Only characters whose armor inputs changed since their last refresh (the
--- poll): a full refresh of every character every 2 s was a ~1 s hitch.
-function S.RefreshChanged()
-    refreshEach(false)
-end
-
-function S.Snapshot(applyNames)
+-- read = A.Get (computes a missing value) or A.Cached (never computes).
+local function buildPayload(chars, read, applyNames)
     local parts = {}
     local named = 0
-    for _, entity in ipairs(armorEntities()) do
-        -- Only characters have Health; this skips item/status resource holders.
-        if entity.Health then
-            local guid = U.GuidOf(entity)
-            if guid then
-                local resist = A.Get(guid)
-                if resist then
-                    local percent = math.floor((tonumber(resist.percent) or 0) + 0.5)
-                    parts[#parts + 1] = string.format("%s|%d", guid, percent)
-                    if applyNames then
-                        local base = originalDisplayName(entity, guid)
-                        local text = string.format("%s  [DR %d%%]", base, percent)
-                        if setRuntimeDisplayName(entity, guid, text) then
-                            named = named + 1
-                        end
-                    end
+    for _, c in ipairs(chars) do
+        local guid, entity = c.guid, c.entity
+        local resist = read(guid)
+        if resist then
+            local percent = math.floor((tonumber(resist.percent) or 0) + 0.5)
+            parts[#parts + 1] = string.format("%s|%d", guid, percent)
+            if applyNames then
+                local base = originalDisplayName(entity, guid)
+                local text = string.format("%s  [DR %d%%]", base, percent)
+                if setRuntimeDisplayName(entity, guid, text) then
+                    named = named + 1
                 end
             end
         end
     end
+    -- The entity list order can differ between calls; sort so an
+    -- unchanged party gives the same payload and nothing is resent.
+    table.sort(parts)
+    return table.concat(parts, ";"), #parts, named
+end
+
+function S.Snapshot(applyNames)
+    local payload, count, named = buildPayload(characters(), A.Get, applyNames)
     if applyNames and not namesLogged then
         namesLogged = true
         U.Log("armor overhead names: %d characters updated", named)
     end
-    if not snapshotLogged and #parts > 0 then
+    if not snapshotLogged and count > 0 then
         snapshotLogged = true
-        U.Log("armor snapshot: %d characters", #parts)
+        U.Log("armor snapshot: %d characters", count)
     end
-    -- The entity list order can differ between calls; sort so an
-    -- unchanged party gives the same payload and Broadcast does not resend it.
-    table.sort(parts)
-    return table.concat(parts, ";")
+    return payload
 end
 
-function S.Broadcast(force)
-    if not (Ext.Net and Ext.Net.BroadcastMessage) then return end
-    -- Equipment can change outside combat/turn boundaries. Refresh the cached
-    -- AC-derived reduction before every snapshot so the hover widget follows
-    -- newly equipped gear. A forced broadcast refreshes everyone; the poll
-    -- only the characters whose armor inputs changed.
-    if force then S.RefreshAll() else S.RefreshChanged() end
-    local payload = S.Snapshot(false)
-    if not force and payload == lastPayload then return end
+local function send(payload, force)
+    if not force and payload == lastPayload then return false end
     lastPayload = payload
     local ok, err = pcall(Ext.Net.BroadcastMessage, CHANNEL, payload)
     if not ok then U.Log("armor sync broadcast failed: %s", tostring(err)) end
+    return true
 end
 
--- Re-broadcast when a turn starts because equipment/skills may have changed
--- since the previous snapshot.
+-- THE DIRTY SET: a character is refreshed when something marks it dirty, not
+-- on a timer. Marks: Equipped / Unequipped, StatusApplied / StatusRemoved of
+-- an AC status, EnteredCombat, SessionLoaded (everyone), and first seen (a
+-- character with no cached value, e.g. a mid-fight spawn or reinforcement).
+-- "combat" = refresh at the next pass whatever the cap.
+local dirty = {}
+local allDirty = false
+local backstopCursor = 0
+
+-- Dirty characters outside combat and the party refreshed per pass (a load
+-- marks every level character dirty; this spreads them over passes).
+S.DIRTY_PER_PASS = 32
+-- Combat characters re-checked per pass with the cheap armor key, round-robin:
+-- the backstop for an AC change no event reports.
+S.BACKSTOP_PER_PASS = 4
+
+function S.MarkDirty(handle, combat)
+    local guid = U.GuidOf(handle)
+    if not guid then return end
+    if combat then
+        dirty[guid] = "combat"
+    elseif not dirty[guid] then
+        dirty[guid] = true
+    end
+end
+
+function S.MarkAllDirty()
+    allDirty = true
+end
+
+local function hasComponent(entity, name)
+    local ok, value = pcall(function() return entity[name] end)
+    return ok and value ~= nil
+end
+
+local function isParty(entity)
+    return hasComponent(entity, "PartyMember") or hasComponent(entity, "Player")
+        or hasComponent(entity, "UserAvatar")
+end
+
+-- One pass: refresh the dirty characters (combat, party and "combat" marks
+-- always; the rest up to `budget`), re-check BACKSTOP_PER_PASS combat
+-- characters, and send the payload when it changed (or `force`).
+function S.Pass(force, budget)
+    if not (Ext.Net and Ext.Net.BroadcastMessage) then return end
+    local chars = characters()
+    local roster = combatRoster()
+    budget = tonumber(budget or S.DIRTY_PER_PASS) or 0
+    local combatList = {}
+    for _, c in ipairs(chars) do
+        local guid = c.guid
+        local mark = dirty[guid]
+        if not mark and (allDirty or not A.Cached(guid)) then mark = true end
+        if mark then
+            local always = mark == "combat" or roster[guid] or isParty(c.entity)
+            if always or budget > 0 then
+                if not always then budget = budget - 1 end
+                dirty[guid] = nil
+                pcall(A.RefreshChanged, guid, true)
+            else
+                dirty[guid] = mark
+            end
+        end
+        if roster[guid] then combatList[#combatList + 1] = guid end
+    end
+    allDirty = false
+
+    local count = #combatList
+    if count > 0 then
+        table.sort(combatList)
+        for _ = 1, math.min(tonumber(S.BACKSTOP_PER_PASS) or 0, count) do
+            backstopCursor = backstopCursor % count + 1
+            pcall(A.RefreshChanged, combatList[backstopCursor], false)
+        end
+    end
+
+    return send((buildPayload(chars, A.Cached, false)), force)
+end
+
+-- force = refresh every character and resend (a debug / console path);
+-- otherwise one pass.
+function S.Broadcast(force)
+    if not (Ext.Net and Ext.Net.BroadcastMessage) then return end
+    if not force then return S.Pass(false) end
+    S.RefreshAll()
+    return send(S.Snapshot(false), true)
+end
+
+-- A character's turn: Armor.lua's TurnStarted listener (registered first) has
+-- refreshed the actor; refresh the dirty combat characters (a spawn waiting
+-- for the next poll) and resend, so a client that joined gets every value.
+-- An object turn (24-29 per round in a big fight) does nothing.
+function S.OnTurnStarted(character)
+    if A.IsObject(character) then return false end
+    S.Pass(true, 0)
+    return true
+end
+
 if Ext.Osiris and Ext.Osiris.RegisterListener then
-    pcall(Ext.Osiris.RegisterListener, "TurnStarted", 1, "after", function()
-        S.Broadcast(true)
+    pcall(Ext.Osiris.RegisterListener, "TurnStarted", 1, "after", function(character)
+        local ok, err = pcall(S.OnTurnStarted, character)
+        if not ok then U.Log("armor sync turn failed: %s", tostring(err)) end
+    end)
+    local function onEquipment(_, character)
+        S.MarkDirty(character)
+    end
+    pcall(Ext.Osiris.RegisterListener, "Equipped", 2, "after", onEquipment)
+    pcall(Ext.Osiris.RegisterListener, "Unequipped", 2, "after", onEquipment)
+    local function onStatus(object, status)
+        if A.StatusGivesArmor(status) then S.MarkDirty(object) end
+    end
+    pcall(Ext.Osiris.RegisterListener, "StatusApplied", 4, "after", onStatus)
+    pcall(Ext.Osiris.RegisterListener, "StatusRemoved", 4, "after", onStatus)
+    pcall(Ext.Osiris.RegisterListener, "EnteredCombat", 2, "after", function(object)
+        if not A.IsObject(object) then S.MarkDirty(object, true) end
     end)
 end
 
@@ -161,25 +276,21 @@ function S.StartPolling()
     if pollingStarted or not (Ext.Timer and Ext.Timer.WaitFor) then return end
     pollingStarted = true
     local function poll()
-        -- Broadcast refreshes; refreshing here too did every character twice.
-        local ok, err = pcall(S.Broadcast, false)
+        local ok, err = pcall(S.Pass, false)
         if not ok then U.Log("armor sync poll failed: %s", tostring(err)) end
         Ext.Timer.WaitFor(2000, poll)
     end
     poll()
 end
 
+-- Load: every character dirty, computed once by the passes (no forced
+-- refresh timers: the first poll already covers the load).
 if Ext.Events and Ext.Events.SessionLoaded then
     Ext.Events.SessionLoaded:Subscribe(function()
         lastPayload = nil
+        S.MarkAllDirty()
         if Ext.Timer and Ext.Timer.WaitFor then
-            for _, delay in ipairs({ 500, 1500, 3000, 6000, 12000 }) do
-                Ext.Timer.WaitFor(delay, function()
-                    local ok, err = pcall(S.Broadcast, true)
-                    if not ok then U.Log("armor sync timer failed: %s", tostring(err)) end
-                end)
-            end
+            Ext.Timer.WaitFor(500, S.StartPolling)
         end
-        Ext.Timer.WaitFor(500, S.StartPolling)
     end)
 end
