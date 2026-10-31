@@ -131,25 +131,14 @@ local function dumpCandidate(guid)
         U.Log("diag armor %s: %s", guid, DOS2C.Armor.Dump(guid))
     end
 
-    if not (Osi and Osi.AddSpell) then
-        U.Log("diag %s: AddSpell unavailable", guid)
-        return
-    end
+    if not (Osi and Osi.HasSpell) then return end
 
+    -- Log only. Granting here re-added the surface test spells on every load
+    -- even with UNLOCK_TEST_SURFACE_SPELLS off.
     for _, spell in ipairs(CUSTOM_SPELLS) do
         local hasOk, has = pcall(Osi.HasSpell, guid, spell)
-        local hasSpell = hasOk and (has == 1 or has == true)
-        if not hasSpell then
-            local ok, err = pcall(Osi.AddSpell, guid, spell, 0, 1)
-            if not ok then
-                ok, err = pcall(Osi.AddSpell, guid, spell, 0)
-            end
-            local afterOk, after = pcall(Osi.HasSpell, guid, spell)
-            U.Log("diag addspell %s %s ok=%s after=%s err=%s",
-                guid, spell, tostring(ok), tostring(afterOk and after), tostring(err))
-        else
-            U.Log("diag spell already known %s %s", guid, spell)
-        end
+        U.Log("diag spell known %s %s = %s", guid, spell,
+            tostring(hasOk and (has == 1 or has == true)))
     end
 end
 

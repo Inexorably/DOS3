@@ -103,11 +103,10 @@ class DiagnosticsTests(unittest.TestCase):
         self.harness.run("DOS2C.Diagnostics.Run()")
         self.assertIn("no SpellBook component", self.logs())
 
-    def test_run_reports_custom_spell_grants(self) -> None:
+    def test_run_reports_custom_spells_without_granting(self) -> None:
         self.harness.run("DOS2C.Diagnostics.Run()")
-        self.assertIn("diag addspell", self.logs())
-        self.harness.run("DOS2C.Diagnostics.Run()")
-        self.assertIn("spell already known", self.logs())
+        self.assertIn("diag spell known", self.logs())
+        self.assertNotIn("diag addspell", self.logs())
 
 
 @unittest.skipUnless(HAVE_LUPA, "lupa is not installed")
