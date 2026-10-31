@@ -77,21 +77,23 @@ class ManifestTests(unittest.TestCase):
         self.assertIn("SpellSaveDC(2)", boosts)
         self.assertNotIn("IncreaseMaxHP(30%)", boosts)
 
-    def test_armor_passives_cover_full_formula_range(self):
-        path = (
-            MODS
-            / "DOS2Combat"
-            / "Public"
-            / "DOS2Combat"
-            / "Stats"
-            / "Generated"
-            / "Data"
-            / "ArmorPassives.txt"
+    def test_vanilla_plus_stats_define_the_three_tweaks(self):
+        stats = parse_stats(
+            MODS / "DOS2Combat" / "Public" / "DOS2Combat" / "Stats" / "Generated" / "Data" / "VanillaPlus.txt"
         )
-        stats = parse_stats(path)
-        for percent in (0, 5, 10, 25, 70, 80, 100):
-            with self.subTest(percent=percent):
-                self.assertIn(f"DOS2C_ArmorInfo_R{percent}", stats)
+        slots = stats["DOS2C_DoubleSpellSlots"].get("Boosts", "")
+        for level in range(1, 10):
+            self.assertIn(f"ActionResourceMultiplier(SpellSlot,200,{level})", slots)
+        for level in range(1, 6):
+            self.assertIn(f"ActionResourceMultiplier(WarlockSpellSlot,200,{level})", slots)
+        brawler = stats["DOS2C_UniversalBrawler"].get("Boosts", "")
+        for token in ("MeleeWeaponAttack", "RangedWeaponAttack", "MeleeUnarmedAttack",
+                      "MeleeSpellAttack", "RangedSpellAttack", "SpellCastingAbilityModifier"):
+            self.assertIn(token, brawler)
+        self.assertEqual(stats["DOS2C_ENEMY_HP"].get("StatusType"), "BOOST")
+        self.assertEqual(sorted(path.name for path in (
+            MODS / "DOS2Combat" / "Public" / "DOS2Combat" / "Stats" / "Generated" / "Data"
+        ).iterdir()), ["VanillaPlus.txt"])
 
     def test_summon_economy_marker_is_defined(self):
         path = (
@@ -106,35 +108,6 @@ class ManifestTests(unittest.TestCase):
         )
         stats = parse_stats(path)
         self.assertIn("ENR_SUMMON_ECONOMY", stats)
-
-    def test_bedroll_is_self_only_out_of_combat_full_heal(self):
-        stats = parse_stats(
-            MODS
-            / "DOS2Combat"
-            / "Public"
-            / "DOS2Combat"
-            / "Stats"
-            / "Generated"
-            / "Data"
-            / "Bedroll.txt"
-        )
-        bedroll = stats["DOS2C_Bedroll"]
-        self.assertEqual(bedroll.get("SpellProperties"), "RegainHitPoints(MaxHP)")
-        self.assertEqual(bedroll.get("TargetConditions"), "Self()")
-        self.assertEqual(bedroll.get("Requirements"), "!Combat")
-        self.assertEqual(bedroll.get("UseCosts"), "")
-        self.assertEqual(bedroll.get("Icon"), "Action_Paladin_LayOnHands_BigHeal")
-        self.assertTrue(bedroll.get("DisplayName", "").startswith("h"))
-        bootstrap = read(
-            MODS
-            / "DOS2Combat"
-            / "Mods"
-            / "DOS2Combat"
-            / "ScriptExtender"
-            / "Lua"
-            / "BootstrapServer.lua"
-        )
-        self.assertIn('Ext.Require("Server/Bedroll.lua")', bootstrap)
 
     def test_stats_files_have_no_obvious_broken_data_lines(self):
         for path in sorted(MODS.glob("*/Public/*/Stats/Generated/Data/*.txt")):

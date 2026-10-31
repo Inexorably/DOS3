@@ -1,9 +1,9 @@
 {
   "Mods": [
     {
-      "Name": "DOS2 Combat Overhaul",
+      "Name": "Vanilla Plus Combat",
       "Author": "Shawn",
-      "Description": "DOS2-style combat for BG3: 4 AP economy, deterministic attacks, physical/magic armor. Requires BG3 Script Extender for the full rules layer.",
+      "Description": "Vanilla BG3 combat plus: doubled spell slots, tougher enemies, and Tavern Brawler for every attack ability. Requires BG3 Script Extender.",
       "Version": "0.1.0",
       "UUID": "def5f99a-c4e3-45f7-bf08-c2ddac3283c9",
       "Folder": "DOS2Combat",

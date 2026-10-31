@@ -152,7 +152,7 @@ class OrbWeaverAssetTests(unittest.TestCase):
         self.assertIn(f"CanStand('{self.mod.ORB_GUID}')", spells)
         self.assertIn(self.mod.handle("CC_SummonBall_Azure/name"), spells)
 
-        loca = load_script("generate-armor-passives").read_loca(self.mod.LOCA)
+        loca = load_script("update-dos2combat-loca").read_loca(self.mod.LOCA)
         self.assertEqual(len(loca), 39)
         values = dict(loca).values()
         self.assertIn("Summon Azure Orb", values)

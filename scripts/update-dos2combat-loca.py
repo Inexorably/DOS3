@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Add the Bedroll spell name and description to DOS2Combat's localization.
+"""Write DOS2Combat's English localization (Vanilla Plus passives).
 
-The game requires binary .loca data. This script upserts two deterministic
-handles while preserving every existing entry in DOS2Combat.loca.
+The game requires binary .loca data. The file is owned by this script: it is
+rewritten with exactly the deterministic handles below.
 """
 
 from __future__ import annotations
@@ -15,11 +15,22 @@ ROOT = Path(__file__).resolve().parents[1]
 LOCA = ROOT / "mods/DOS2Combat/Localization/English/DOS2Combat.loca"
 NS = uuid.UUID("6ba7b810-9dad-11d1-80b4-00c04fd430c8")
 
-NAME_KEY = "h" + uuid.uuid5(NS, "DOS2Combat/DOS2C_Bedroll/name").hex
-DESC_KEY = "h" + uuid.uuid5(NS, "DOS2Combat/DOS2C_Bedroll/desc").hex
+
+def handle(key: str) -> str:
+    return "h" + uuid.uuid5(NS, f"DOS2Combat/{key}").hex
+
+
 ENTRIES = {
-    NAME_KEY: "Bedroll",
-    DESC_KEY: "Lie down and fully restore your hit points. Usable only outside combat.",
+    handle("DOS2C_DoubleSpellSlots/name"): "Deep Reserves",
+    handle("DOS2C_DoubleSpellSlots/desc"): (
+        "You have twice as many spell slots of every level, including Warlock pact slots."
+    ),
+    handle("DOS2C_UniversalBrawler/name"): "Brawler's Instinct",
+    handle("DOS2C_UniversalBrawler/desc"): (
+        "Like Tavern Brawler, for every attack: add the attack's ability modifier "
+        "a second time to attack and damage rolls. Weapons use Strength or Dexterity, "
+        "unarmed strikes use Strength, and spell attacks use your spellcasting ability."
+    ),
 }
 
 
@@ -58,18 +69,9 @@ def write_loca(path: Path, entries: list[tuple[str, str]]) -> None:
 
 
 def main() -> None:
-    entries = read_loca(LOCA)
-    by_key = {key: text for key, text in entries}
-    for key, value in ENTRIES.items():
-        by_key[key] = value
-    # Keep existing ordering and append new handles deterministically.
-    ordered = [(key, by_key[key]) for key, _ in entries if key in by_key]
-    seen = {key for key, _ in ordered}
-    for key, value in ENTRIES.items():
-        if key not in seen:
-            ordered.append((key, value))
-    write_loca(LOCA, ordered)
-    print(f"Bedroll localization updated: {LOCA} ({len(ordered)} entries)")
+    LOCA.parent.mkdir(parents=True, exist_ok=True)
+    write_loca(LOCA, list(ENTRIES.items()))
+    print(f"DOS2Combat localization written: {LOCA} ({len(ENTRIES)} entries)")
 
 
 if __name__ == "__main__":

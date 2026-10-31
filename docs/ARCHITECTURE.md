@@ -7,7 +7,7 @@ This document explains how the mods fit together and where to make changes.
 
 | Unit | Responsibility | Runtime requirement |
 | --- | --- | --- |
-| `mods/DOS2Combat` | Combat rules, AP, damage, armor, cooldowns, surfaces, client UI | BG3SE server/client Lua |
+| `mods/DOS2Combat` | Vanilla Plus: doubled spell slots, enemy HP boost, universal Tavern Brawler | BG3SE server Lua + stats |
 | `mods/EnemyRandomization` | Buffs, champions, summons, loot, persistent random state | BG3SE server Lua |
 | `mods/EnemyHealth` | Tactician `HEALTHBOOST_HARDCORE` override | BG3 stats only |
 | `mods/RespecAnywhere` | Respec request routing and panel | BG3SE server/client Lua |
@@ -27,24 +27,15 @@ assume only one mod exists.
 ```text
 Config
 Util
-Cooldowns
-StatsPatcher
-WeaponRuntime
-Armor
-ArmorSync
-Rest
-Surfaces
-SurfaceSpells
+PartyPassives
+EnemyHealth
 Commands
-Diagnostics
-Verify
 ```
 
-`StatsPatcher` loads before `Armor` because armor needs to read the original AC
-before hit-chance suppression and before generated armor tooltip passives are
-requested. `Armor.lua` owns the damage event; `ArmorSync.lua` publishes the
-server snapshot to clients. Client Lua owns only presentation (`CooldownUI`,
-`ArmorUI`).
+There is no client bootstrap. `PartyPassives` grants the passives from
+`VanillaPlus.txt` to the party via `Osi.AddPassive`; `EnemyHealth` rewrites the
+`DOS2C_ENEMY_HP` boost from `Config.ENEMY_HP_PERCENT` at `StatsLoaded` and
+applies it on `EnteredCombat`.
 
 ### Enemy Randomization server
 
@@ -62,71 +53,6 @@ Server/Loot
 
 `GeneratedData` and `GeneratedLoot` must load before `Config`, because
 `Config.CHAMPIONS`, the buff list, and loot selection consume generated tables.
-
-## DOS2Combat Data Flow
-
-### Stats
-
-1. `Ext.Events.StatsLoaded` / `SessionLoaded` triggers `StatsPatcher.PatchAll`.
-2. `StatsPatcher` rewrites:
-   - `UseCosts` and `DualWieldingUseCosts`
-   - `SpellRoll` / tooltip attack/save fields
-   - damage and tooltip functors
-   - AP and character boosts
-   - cooldown definitions
-   - weapon and armor display metadata
-   - status/passive damage and concentration removal
-3. `WeaponRuntime` patches live `eoc::WeaponComponent.Rolls` for existing saves,
-   because changing only `Weapon` stats does not rebuild saved weapon components.
-4. `Cooldowns` tracks numeric turn cooldowns per caster and writes temporary
-   `SpellBookCooldowns` entries for native UI/state.
-5. `Armor` caches original AC, suppresses its hit-chance contribution, derives
-   one percentage damage-reduction value, and applies it in the damage event.
-
-Important: some stat fields are expression objects rather than strings. In
-particular, `SpellRoll` may be a table; use the raw attribute path when clearing
-it.
-
-### Damage
-
-The damage path is score-authoritative on the server:
-
-```text
-Ext.Events.DealDamage
-  -> identify attacker/target
-  -> detect critical metadata or roll custom critical
-  -> apply percentage damage reduction
-  -> apply critical multiplier after armor
-  -> write adjusted damage pairs
-```
-
-EnemyRandomization adds `SummonDamage` scaling for generated summons. Keep
-armor, critical, and summon scaling ordering explicit; do not silently multiply
-the same pair twice.
-
-### Cooldowns and turns
-
-- `Cooldowns` maintains per-character/per-spell counters.
-- `SpellBookCooldowns` is the native representation used for UI and hard
-  blocking.
-- The client `CooldownUI` shows the numeric remaining turns because native
-  tooltips only understand enum labels.
-- Out-of-combat cooldown time is six seconds per turn.
-- `Rest.lua` handles short-rest refresh and long-rest clearing.
-
-### Armor and AC
-
-- Native AC is read before conversion so all sources, including Barkskin,
-  Mage Armor, gear, and passives, contribute to armor.
-- `ACOverrideFormula` is evaluated explicitly (`base + listed ability
-  modifiers`) and competes with the additive total, so Mage Armor, Barkskin,
-  Unarmored Defense, and Draconic Resilience work without native hit chance.
-- Attack rolls are removed entirely, so native AC never reintroduces hit
-  chance and no suppression status is needed. Legacy `DOS2C_NoDodge` copies
-  are still removed from existing saves.
-- Armor is a single percentage damage-reduction stat; it does not deplete.
-- `ArmorSync` sends a compact `guid|reduction%` snapshot to the client;
-  client code must not reimplement the formula with independent constants.
 
 ## Enemy Randomization Data Flow
 

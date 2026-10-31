@@ -1,4 +1,19 @@
-# DOS2 Combat Overhaul TODO
+# DOS3 TODO
+
+## Vanilla Plus (vanilla-plus branch) - in-game verification
+
+- [ ] `DOS2C_DoubleSpellSlots`: a level-5 Wizard shows 8/6/4 slots, a level-5
+      Warlock shows 4 pact slots; the doubling survives long rest and level-up.
+- [ ] `DOS2C_UniversalBrawler`: the attack-roll tooltip shows the ability
+      modifier twice for melee, ranged, unarmed, and spell attacks; check the
+      log for unparsed `RollBonus(MeleeUnarmedAttack,...)` boosts.
+- [ ] `DOS2C_ENEMY_HP`: an enemy entering combat has +50% max HP and starts at
+      full health; party members, allies, and neutrals are untouched.
+- [ ] OrbWeaver and Enemy Randomization still assume DOS2 AP costs in places
+      (`DOS2_AP_COSTS`, summon AP caps); rebalance for native BG3 actions.
+- [ ] `scripts/dos2_content_compat.py` still prunes buffs that were dead only
+      under the DOS2 rules layer; revisit and regenerate ENR assets.
+
 
 ## Code review backlog
 

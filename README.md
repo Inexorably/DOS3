@@ -1,20 +1,20 @@
 # DOS3 Mod Collection
 
-Baldur's Gate 3 mods focused on DOS2-style combat, randomized enemies and
+Baldur's Gate 3 mods focused on vanilla-plus combat, randomized enemies and
 champions, higher enemy health, and convenient respec access.
 
 ## Mods
 
 | Mod | Folder | Script Extender | Purpose |
 | --- | --- | --- | --- |
-| DOS2 Combat Overhaul | `mods/DOS2Combat` | Required | DOS2-style AP, damage reduction, surfaces, deterministic damage, turn cooldowns, and combat stat rewrites |
+| Vanilla Plus Combat | `mods/DOS2Combat` | Required | Native BG3 rules plus doubled spell slots, tougher enemies, and Tavern Brawler for every attack ability |
 | Enemy Randomization | `mods/EnemyRandomization` | Required | Random enemy buffs, themed champions, summoning variants, and generated champion loot |
 | Enemy Health Multiplier | `mods/EnemyHealth` | Not required | Doubles base enemy health on Tactician by overriding the native difficulty boost |
 | Respec Anywhere | `mods/RespecAnywhere` | Required | Grants a hotbar Respec spell that opens Withers' native respec UI, plus a console command |
 | OrbWeaver | `mods/OrbWeaver` | Required for class testing | The Orbweaver class and its arcane orb spells: Summon Azure Orb, Ignite Orb, Orb Chain Lightning, Orb Lightning Bolt, Orb Triangulation, Orb Stone Wall, Orb Tesla Link |
 
 The mods can be used independently. Enemy Randomization is designed to work
-alongside DOS2 Combat Overhaul, and Enemy Health uses the native Tactician
+alongside Vanilla Plus Combat, and Enemy Health uses the native Tactician
 difficulty system so it stacks naturally with the other mods.
 
 ## Requirements
@@ -112,175 +112,49 @@ GitHub Actions runs:
 
 - **CI** on Ubuntu: a dynamic matrix with one validation job per discovered mod,
   the shared full test suite, Ruff + Mypy, and LuaLS diagnostics/type checking.
-- **CD** after a successful `master` CI run: a Windows packaging matrix builds
-  all discovered mods with LSLib and replaces the single **latest** GitHub
-  release with the new `.pak` assets.
+- **CD** on every push to `vanilla-plus`: the source tests run, then a Windows
+  packaging matrix builds all discovered mods with LSLib and replaces the
+  **vanilla-plus-latest** pre-release with the new `.pak` assets.
 
-CD keeps only one release, tagged `latest`; previous release assets and tags are
-deleted before the new release is created. Packaging is not run on a clean
+This branch only ever deletes and recreates its own `vanilla-plus-latest`
+release; `master` keeps its `latest` release. Packaging is not run on a clean
 Ubuntu runner because LSLib requires Windows.
 
-## DOS2 Combat Overhaul
+## Vanilla Plus Combat
 
-### Combat rules
+> This is the `vanilla-plus` branch. The DOS2-style rules layer (4 AP economy,
+> armor pools, turn cooldowns, surfaces, deterministic damage) has been removed;
+> combat uses native BG3 rules with three tweaks. The mod keeps the
+> `DOS2Combat` folder, UUID, and `DOS2C` Lua table so existing saves and the
+> other mods' optional hooks keep loading.
 
-- Characters use a 4 AP starting pool, 6 AP maximum, and 4 AP regeneration per
-  turn with carryover capped by the maximum.
-- Basic weapon attacks cost 2 AP.
-- Spells use DOS2-style level-based AP costs.
-- Non-default spells have at least a one-turn cooldown.
-- Cooldowns use DOS2-style turn counts. Out of combat, one turn is six seconds.
-- Native attack rolls are removed, so weapon and spell attacks cannot miss.
-- Saving throws are removed everywhere: spell/alternate rolls, status apply and
-  tick rolls, functor conditions, and `ApplyStatus` condition arguments.
-- All AC sources are converted into **one percentage damage-reduction stat**.
-  There are no separate physical and magic armor buckets. Every damage type
-  uses the same reduction.
-- The formula gives 5% per AC above 9 through AC 20. Above AC 20 one smooth
-  logarithmic taper covers the whole 55% to 80% region, eliminating the old
-  slope jump at AC 26: AC 10 = 5%, AC 14 = 25%, AC 20 = 55%, AC 26 = 73%,
-  AC 30 = 80%, AC 40 ≈ 91%. A 100% hard safety cap remains. Shield items use
-  their ArmorClass bonus directly.
-- Enemy AC is converted into damage reduction instead of remaining as hit
-  avoidance. AC overrides such as Mage Armor, Barkskin, Unarmored Defense, and
-  Draconic Resilience are evaluated into the same reduction value.
+| Tweak | How |
+| --- | --- |
+| Doubled spell slots | `DOS2C_DoubleSpellSlots` passive: `ActionResourceMultiplier(...,200,level)` for spell slot levels 1-9 and Warlock pact slot levels 1-5 |
+| Tougher enemies | Hostile combatants get the `DOS2C_ENEMY_HP` status (`IncreaseMaxHP(50%)` by default) when they enter combat; their HP percentage is preserved |
+| Tavern Brawler for everyone | `DOS2C_UniversalBrawler` passive: the attack's ability modifier is added a second time to attack and damage rolls |
 
-![AC to damage reduction](docs/armor-resistance.png)
+Universal Tavern Brawler uses these abilities:
 
-The chart shows the AC-to-reduction mapping.
+| Attack | Ability added again |
+| --- | --- |
+| Melee weapon | Strength or Dexterity, whichever is higher |
+| Ranged weapon | Dexterity |
+| Unarmed | Strength (vanilla Tavern Brawler) |
+| Spell attack | Spellcasting ability (Intelligence, Wisdom, or Charisma) |
 
-- Concentration is removed from spells.
-- Damage ranges are compressed toward their average rather than fully
-  flattened.
-
-### Casting ability scaling
-
-The caster's spellcasting ability applies a **relative damage multiplier** to
-qualifying spell damage events:
-
-```text
-multiplier = 1 + max(0, SpellCastingAbilityModifier) / 7
-```
-
-```text
-Ability score:   10  12  14  16  18  20  22  24
-Damage increase:  0% +14% +29% +43% +57% +71% +86% +100%
-```
-
-Scores of 8–11 add nothing. The same percentage is applied to each qualifying
-hit, so multi-hit and single-hit spells gain the same relative amount regardless
-of their base damage. The multiplier is applied server-side and the native
-tooltip damage expressions are scaled to match.
-
-Weapon and item damage are not multiplied by the casting ability. Those hits
-already use Strength/Dexterity (or their own weapon-specific scaling), so the
-casting multiplier is skipped when the hit is a weapon or item hit.
-
-![Spell damage from casting ability](docs/spell-ability-damage.png)
-
-### Weapon ability scaling
-
-Weapon damage is not converted to a percentage multiplier. It uses the native
-BG3/5e additive formula:
-
-```text
-ability modifier = floor((ability score - 10) / 2)
-weapon hit      = weapon dice + ability modifier + enchantment + riders
-```
-
-The weapon's attack ability is chosen by the weapon:
-
-- Most melee weapons: Strength
-- Finesse weapons: the better of Strength and Dexterity
-- Ranged weapons: Dexterity
-- Thrown weapons: Strength
-- Pact of the Blade weapons: can use the spellcaster's casting ability through
-  their weapon override
-
-Off-hand attacks do not add the ability modifier unless the character has the
-Two-Weapon Fighting style. Because the modifier is additive rather than
-percentage-based, a +1 modifier is worth more relative damage on a dagger than
-on a greatsword.
-
-Weapon-damage spells use the weapon's native ability scaling for their weapon
-component. Their separate non-weapon damage events can still receive the
-casting-ability multiplier described above.
-
-![Weapon damage from Strength/Dexterity](docs/weapon-ability-damage.png)
-
-### Surfaces
-
-DOS2Combat keeps BG3's native surface visuals and terrain system, and adds a
-DOS2-style rules layer on top. When a character's turn starts while standing on
-a recognized surface, the surface can apply a status and a damage tick.
-
-- Base tick damage is **5% of max HP**, capped at **40** per tick.
-- Statuses applied by this layer last **2 turns**.
-- Surface tick damage goes through the normal damage pipeline, so armor damage
-  reduction and other damage modifiers still apply.
-- Surfaces are evaluated at **turn start**, not on every step or action.
-
-| Surface | Status/effect | Tick damage |
-| --- | --- | --- |
-| Fire, Holy Fire, Trial Fire | `BURNING` | Fire, 1.0x |
-| Hellfire | `BURNING` | Fire, 1.5x |
-| Lava | `BURNING` | Fire, 2.0x |
-| Poison, Cloudkill, Malice Cloud | `POISONED` | Poison, 0.75x |
-| Wyvern/Purple Worm/Serpent Venom | `POISONED` | Poison, 0.9x |
-| Stinking Cloud | `POISONED` | Poison, 0.5x |
-| Acid | `ACID` | Acid, 0.75x |
-| Water, Deep Water | `WET` | none |
-| Electrified Water/Blood | `SHOCKED` | Lightning, 0.8x |
-| Frozen Water/Blood, Ice Cloud | `CHILLED` | Cold, 0.6x |
-| Oil, Grease, Alien Oil | `OILED` | none |
-| Web, Vines | `RESTRAINED` | none |
-| Spike Growth | `RESTRAINED` | Piercing, 0.5x |
-| Blackpowder | none | Fire, 0.75x |
-
-Surface combinations:
-
-- Water and frozen/electrified water **douse `BURNING`**.
-- Fire on an **`OILED`** character adds **+100%** tick damage and consumes the
-  oil.
-- Fire on a **`POISONED`** character adds **+50%** tick damage and consumes the
-  poison.
-
-These are configurable in `Server/Config.lua` under `SURFACES_*`. The test-only
-surface-setter spells (`DOS2C_Rain`, `DOS2C_FossilStrike`, etc.) remain locked by
-default via `UNLOCK_TEST_SURFACE_SPELLS = false`; they are for testing the
-surface layer, not part of the normal spell list.
-
-DOS2Combat does not port DOS2's terrain VFX, surface transmutation rules, or
-per-step surface interactions. Those remain BG3-native.
-
-### Bedroll
-
-DOS2Combat grants a self-only **Bedroll** hotbar skill to each party member. It
-is available **outside combat only**, costs no AP, and restores the caster's HP
-to maximum with `RegainHitPoints(MaxHP)`. It cannot revive a downed character,
-does not affect allies or enemies, and is subject to the normal minimum
-one-turn cooldown (six seconds out of combat). It uses the native BG3 Lay on
-Hands healing icon because BG3 does not apply this mod's custom skill-atlas
-override.
+Both passives are granted to every party member on level load and when a
+character joins the party. Tune everything in
+`Mods/DOS2Combat/ScriptExtender/Lua/Server/Config.lua`; turning a passive off
+removes it from the party on the next load.
 
 ### Useful commands
 
 ```text
-!dos2c_status                 # print AP, cooldown, damage reduction, and patch state
-!dos2c_ap                     # dump the host's ActionResources (current/max AP)
-!dos2c_armor [guid]           # show percentage damage reduction for a character
-!dos2c_setarmor <percent>      # override the host's damage reduction (0-100)
-!dos2c_resetarmor             # clear and recompute reduction from AC/statuses
-!dos2c_patch                  # reapply the stat patches and repair runtime AP
-!dos2c_fixap                  # reapply the AP pool to existing-save characters
-!dos2c_rolls on|off           # debug: restore native rolls / reapply no-roll rules
-!dos2c_armorui on|off         # toggle the client damage-reduction overlay
-!dos2c_debug on|off           # toggle verbose DOS2Combat logging
-!dos2c_weapon                 # print equipped weapon stats and dice-roll data
+!dos2c_status        show the active tweaks
+!dos2c_party         grant/remove the party passives now
+!dos2c_debug on|off  toggle logging
 ```
-
-Use `!dos2c_status` first when diagnosing a problem. The BG3SE console opens
-with **Ctrl+F12**.
 
 ## Enemy Randomization
 

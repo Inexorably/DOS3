@@ -1,33 +1,48 @@
 name: CD
 
+# vanilla-plus branch release pipeline. GitHub always runs workflow_run
+# workflows from the default branch, so this branch triggers on its own push
+# and runs the source tests itself before packaging.
 on:
-  workflow_run:
-    workflows:
-      - CI
-    types:
-      - completed
+  push:
     branches:
-      - master
+      - vanilla-plus
+  workflow_dispatch:
 
 permissions:
   contents: write
   actions: read
 
 concurrency:
-  group: cd-latest
+  group: cd-vanilla-plus
   cancel-in-progress: true
 
 jobs:
+  test:
+    name: Source tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - name: Install test dependencies
+        run: python -m pip install -r requirements-dev.txt
+      - name: Validate mods
+        run: python scripts/validate-mod.py --all
+      - name: Run tests
+        run: python -m unittest discover -s tests -t . -v
+
   discover-mods:
     name: Discover mods
-    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'
+    needs: test
     runs-on: ubuntu-latest
     outputs:
       mods: ${{ steps.mods.outputs.mods }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.workflow_run.head_sha }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -48,8 +63,6 @@ jobs:
         mod: ${{ fromJSON(needs.discover-mods.outputs.mods) }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Download LSLib
         shell: pwsh
@@ -74,13 +87,11 @@ jobs:
           if-no-files-found: error
 
   release:
-    name: Update latest release
+    name: Update vanilla-plus release
     needs: package
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Download packaged mods
         uses: actions/download-artifact@v4
@@ -89,25 +100,14 @@ jobs:
           path: dist
           merge-multiple: true
 
-      - name: Replace latest release
+      - name: Replace vanilla-plus release
         env:
           GH_TOKEN: ${{ github.token }}
-          COMMIT_SHA: ${{ github.event.workflow_run.head_sha }}
-          RUN_URL: ${{ github.event.workflow_run.html_url }}
+          COMMIT_SHA: ${{ github.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          # Keep exactly one release: the latest complete build.
-          gh release delete latest --yes --cleanup-tag || true
-          git push origin :refs/tags/latest || true
+          # Only ever touch this branch's own release; master keeps "latest".
+          gh release delete vanilla-plus-latest --yes --cleanup-tag || true
+          git push origin :refs/tags/vanilla-plus-latest || true
 
-          # Remove any pre-existing versioned releases as well.
-          for tag in $(gh release list --limit 100 --json tagName --jq '.[].tagName' || true); do
-            if [ "$tag" != "latest" ]; then
-              gh release delete "$tag" --yes --cleanup-tag || true
-            fi
-          done
-
-          gh release create latest \
-            --target "$COMMIT_SHA" \
-            --title "DOS3 Mods - Latest" \
-            --notes "Automated build from commit ${COMMIT_SHA} (CI run: ${RUN_URL})" \
-            dist/*.pak
+          gh release create vanilla-plus-latest             --target "$COMMIT_SHA"             --title "DOS3 Mods - Vanilla Plus"             --notes "Automated vanilla-plus build from commit ${COMMIT_SHA} (run: ${RUN_URL})"             --prerelease             dist/*.pak

@@ -151,41 +151,20 @@ class Dos2CombatHarnessTests(unittest.TestCase):
     def setUp(self) -> None:
         self.harness = LuaModHarness("DOS2Combat")
 
-    def test_bootstrap_loads_every_server_module(self) -> None:
+    def test_bootstrap_loads_only_vanilla_plus_modules(self) -> None:
         harness = self.harness
         harness.load_bootstrap()
-        requires = harness.requires()
-        self.assertIn("Server/Armor.lua", requires)
-        self.assertIn("Server/Cooldowns.lua", requires)
-        self.assertIn("Server/StatsPatcher.lua", requires)
-        self.assertTrue(harness.run("return DOS2C.Config.AP_MAX == 6"))
-
-    def test_bootstrap_registers_session_and_stats_hooks(self) -> None:
-        harness = self.harness
-        harness.load_bootstrap()
-        harness.fire_event("SessionLoaded", {})
-        harness.fire_event("StatsLoaded", {})
-        self.assertTrue(harness.run("return DOS2C ~= nil"))
-
-    def test_rest_module_resets_armor_after_short_rest(self) -> None:
-        harness = self.harness
-        harness.load("Server/Util.lua")
-        harness.load("Server/Rest.lua")
-        harness.run("DOS2C.Armor = { ResetAll = function() DOS2C.armorResets = (DOS2C.armorResets or 0) + 1 end }")
-        entity = harness.lua.table()
-        entity["ServerShortRestResultEvent"] = {"Rested": True}
-        harness.fire_entity_oncreate(entity)
-        self.assertEqual(harness.run("return DOS2C.armorResets or 0"), 1)
-
-    def test_rest_module_ignores_unfinished_short_rest(self) -> None:
-        harness = self.harness
-        harness.load("Server/Util.lua")
-        harness.load("Server/Rest.lua")
-        harness.run("DOS2C.Armor = { ResetAll = function() DOS2C.armorResets = true end }")
-        entity = harness.lua.table()
-        entity["ServerShortRestResultEvent"] = {"Rested": False}
-        harness.fire_entity_oncreate(entity)
-        self.assertIsNone(harness.run("return DOS2C.armorResets"))
+        self.assertEqual(
+            harness.requires(),
+            [
+                "Server/Config.lua",
+                "Server/Util.lua",
+                "Server/PartyPassives.lua",
+                "Server/EnemyHealth.lua",
+                "Server/Commands.lua",
+            ],
+        )
+        self.assertTrue(harness.run("return DOS2C.Config.DOUBLE_SPELL_SLOTS"))
 
 
 class BootstrapSmokeTests(unittest.TestCase):
@@ -226,10 +205,9 @@ class BootstrapSmokeTests(unittest.TestCase):
                     harness.fire_event(event, {})
 
     def test_timers_are_flushed(self) -> None:
-        harness = self.bootstrap("DOS2Combat")
-        self.assertGreater(harness.timers(), 0)
+        harness = self.bootstrap("EnemyRandomization")
         harness.fire_timers()
-        self.assertGreater(len(harness.prints()), 0)
+        self.assertEqual(harness.timers(), 0)
 
 
 if __name__ == "__main__":

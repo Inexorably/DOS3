@@ -1,0 +1,34 @@
+-- Vanilla Plus combat tweaks. Everything else is native BG3 rules.
+-- Server/Config.lua is the source of truth for the enemy HP percentage;
+-- EnemyHealth.lua rewrites DOS2C_ENEMY_HP's Boosts at StatsLoaded.
+
+-- Doubles every spell slot level (1-9) and every Warlock pact slot level (1-5).
+new entry "DOS2C_DoubleSpellSlots"
+type "PassiveData"
+data "DisplayName" "h1bebaf6a59fc5729b7c074567de55f73"
+data "Description" "h16fbc35c3bab5ac5b5ad0a51020bc294"
+data "Icon" "PassiveFeature_ArcaneRecovery"
+data "Properties" "Highlighted"
+data "Boosts" "ActionResourceMultiplier(SpellSlot,200,1);ActionResourceMultiplier(SpellSlot,200,2);ActionResourceMultiplier(SpellSlot,200,3);ActionResourceMultiplier(SpellSlot,200,4);ActionResourceMultiplier(SpellSlot,200,5);ActionResourceMultiplier(SpellSlot,200,6);ActionResourceMultiplier(SpellSlot,200,7);ActionResourceMultiplier(SpellSlot,200,8);ActionResourceMultiplier(SpellSlot,200,9);ActionResourceMultiplier(WarlockSpellSlot,200,1);ActionResourceMultiplier(WarlockSpellSlot,200,2);ActionResourceMultiplier(WarlockSpellSlot,200,3);ActionResourceMultiplier(WarlockSpellSlot,200,4);ActionResourceMultiplier(WarlockSpellSlot,200,5)"
+
+-- Tavern Brawler for every attack ability: the attack's own ability modifier
+-- is added a second time to the attack roll and to its damage.
+--   melee weapons  -> best of Strength/Dexterity
+--   ranged weapons -> Dexterity
+--   unarmed        -> Strength (vanilla Tavern Brawler)
+--   spell attacks  -> spellcasting ability (Int/Wis/Cha)
+new entry "DOS2C_UniversalBrawler"
+type "PassiveData"
+data "DisplayName" "h8d82818ba122548c88203edd1df48e2b"
+data "Description" "h64f6f3e2220c544f991c3d5b72d009ae"
+data "Icon" "PassiveFeature_TavernBrawler"
+data "Properties" "Highlighted"
+data "Boosts" "RollBonus(MeleeWeaponAttack,max(0,max(StrengthModifier,DexterityModifier)));RollBonus(RangedWeaponAttack,max(0,DexterityModifier));RollBonus(MeleeUnarmedAttack,max(0,StrengthModifier));RollBonus(MeleeSpellAttack,max(0,SpellCastingAbilityModifier));RollBonus(RangedSpellAttack,max(0,SpellCastingAbilityModifier));IF(IsMeleeWeaponAttack()):DamageBonus(max(0,max(StrengthModifier,DexterityModifier)));IF(IsWeaponAttack() and IsRangedAttack()):DamageBonus(max(0,DexterityModifier));IF(IsMeleeUnarmedAttack()):DamageBonus(max(0,StrengthModifier));IF(IsSpell() and IsAttack()):DamageBonus(max(0,SpellCastingAbilityModifier))"
+
+-- Applied to hostile combatants when they enter combat.
+new entry "DOS2C_ENEMY_HP"
+type "StatusData"
+data "StatusType" "BOOST"
+data "StackId" "DOS2C_ENEMY_HP"
+data "Boosts" "IncreaseMaxHP(50%)"
+data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator;IgnoreResting"
