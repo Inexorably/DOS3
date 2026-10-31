@@ -76,13 +76,24 @@ end
 -- Refresh cached AC-derived reduction for every character. Equipment changes
 -- do not reliably fire an event exposed to BG3SE, so the polling loop below
 -- keeps the hover readout current after equipping/spawning gear.
-function S.RefreshAll()
+local function refreshEach(force)
     for _, entity in ipairs(armorEntities()) do
         if entity.Health then
             local guid = U.GuidOf(entity)
-            if guid then pcall(A.Refresh, guid, true) end
+            if guid then pcall(A.RefreshChanged, guid, force) end
         end
     end
+end
+
+-- Every character (load, turn start).
+function S.RefreshAll()
+    refreshEach(true)
+end
+
+-- Only characters whose armor inputs changed since their last refresh (the
+-- poll): a full refresh of every character every 2 s was a ~1 s hitch.
+function S.RefreshChanged()
+    refreshEach(false)
 end
 
 function S.Snapshot(applyNames)
@@ -116,6 +127,9 @@ function S.Snapshot(applyNames)
         snapshotLogged = true
         U.Log("armor snapshot: %d characters", #parts)
     end
+    -- The entity list order can differ between calls; sort so an
+    -- unchanged party gives the same payload and Broadcast does not resend it.
+    table.sort(parts)
     return table.concat(parts, ";")
 end
 
@@ -123,8 +137,9 @@ function S.Broadcast(force)
     if not (Ext.Net and Ext.Net.BroadcastMessage) then return end
     -- Equipment can change outside combat/turn boundaries. Refresh the cached
     -- AC-derived reduction before every snapshot so the hover widget follows
-    -- newly equipped gear.
-    S.RefreshAll()
+    -- newly equipped gear. A forced broadcast refreshes everyone; the poll
+    -- only the characters whose armor inputs changed.
+    if force then S.RefreshAll() else S.RefreshChanged() end
     local payload = S.Snapshot(false)
     if not force and payload == lastPayload then return end
     lastPayload = payload
@@ -146,7 +161,7 @@ function S.StartPolling()
     if pollingStarted or not (Ext.Timer and Ext.Timer.WaitFor) then return end
     pollingStarted = true
     local function poll()
-        S.RefreshAll()
+        -- Broadcast refreshes; refreshing here too did every character twice.
         local ok, err = pcall(S.Broadcast, false)
         if not ok then U.Log("armor sync poll failed: %s", tostring(err)) end
         Ext.Timer.WaitFor(2000, poll)
@@ -160,7 +175,6 @@ if Ext.Events and Ext.Events.SessionLoaded then
         if Ext.Timer and Ext.Timer.WaitFor then
             for _, delay in ipairs({ 500, 1500, 3000, 6000, 12000 }) do
                 Ext.Timer.WaitFor(delay, function()
-                    S.RefreshAll()
                     local ok, err = pcall(S.Broadcast, true)
                     if not ok then U.Log("armor sync timer failed: %s", tostring(err)) end
                 end)

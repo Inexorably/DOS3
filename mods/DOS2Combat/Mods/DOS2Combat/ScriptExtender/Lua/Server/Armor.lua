@@ -14,6 +14,7 @@ local U = DOS2C.Utils
 
 local resistances = {}
 local originalACs = {}
+local refreshedFrom = {}
 
 local function hasStatus(handle, status)
     if not (Osi and Osi.HasStatus) then return false end
@@ -98,6 +99,16 @@ local function component(entity, name)
     return nil
 end
 
+-- Named AC statuses read through Osiris when the StatusContainer gives no AC.
+local STATUS_ARMOR_FALLBACK = {
+    SHIELD_OF_FAITH = 2,
+    ENR_LootStatus_SHIELD_OF_FAITH = 2,
+    ENR_Perm_SHIELD_OF_FAITH = 2,
+    SHIELD = 5,
+    ENR_LootStatus_SHIELD = 5,
+    ENR_Perm_SHIELD = 5,
+}
+
 local function activeStatusArmor(entity)
     local total = 0
     local container = component(entity, "StatusContainer")
@@ -118,15 +129,7 @@ local function activeStatusArmor(entity)
     end
     if total == 0 then
         local guid = U.GuidOf(entity)
-        local fallback = {
-            SHIELD_OF_FAITH = 2,
-            ENR_LootStatus_SHIELD_OF_FAITH = 2,
-            ENR_Perm_SHIELD_OF_FAITH = 2,
-            SHIELD = 5,
-            ENR_LootStatus_SHIELD = 5,
-            ENR_Perm_SHIELD = 5,
-        }
-        for name, bonus in pairs(fallback) do
+        for name, bonus in pairs(STATUS_ARMOR_FALLBACK) do
             if guid and hasStatus(guid, name) then total = total + bonus end
         end
     end
@@ -267,6 +270,95 @@ local function nativeArmorClass(handle, entity)
 
     if best > 0 then return best, entity and entity.Armor or nil end
     return nil, nil
+end
+
+-- A cheap key of every input nativeArmorClass reads, without the per-name
+-- Ext.Stats lookups (stats are fixed per name): the Osiris and component AC,
+-- the equipped items (stats id + AC), Dexterity, the status ids (or the named
+-- Osiris statuses when the container gives none) and the passive names.
+-- nil = unreadable, so the caller refreshes.
+local function sortedJoin(list)
+    table.sort(list)
+    return table.concat(list, ",")
+end
+
+local function armorFingerprint(handle)
+    local guid = U.GuidOf(handle)
+    local entity = U.EntityOf(handle)
+    if not (guid and entity) then return nil end
+    local parts = {}
+
+    local osiAc = ""
+    if Osi and Osi.GetArmorClass then
+        local ok, ac = pcall(Osi.GetArmorClass, guid)
+        osiAc = ok and tostring(ac) or "?"
+    end
+    local armor = component(entity, "Armor")
+    parts[#parts + 1] = osiAc .. "/" .. tostring(armor and armor.ArmorClass)
+
+    local member = component(entity, "InventoryMember")
+    local equipmentHandle = member and component(member, "Equipment")
+    local equipmentEntity = equipmentHandle and Ext.Entity.Get(equipmentHandle)
+    local equipment = equipmentEntity and component(equipmentEntity, "Equipment")
+    local slots = equipment and component(equipment, "Slots")
+    local items = {}
+    if slots then
+        for slot, item in pairs(slots) do
+            local itemEntity = item and Ext.Entity.Get(item) or nil
+            local itemArmor = itemEntity and component(itemEntity, "Armor")
+            local data = itemEntity and component(itemEntity, "Data")
+            items[#items + 1] = string.format("%s=%s:%s", tostring(slot),
+                tostring(data and data.StatsId), tostring(itemArmor and itemArmor.ArmorClass))
+        end
+    elseif Osi and Osi.GetEquippedItem then
+        for _, slot in ipairs(ARMOR_SLOTS) do
+            local ok, item = pcall(Osi.GetEquippedItem, guid, slot)
+            items[#items + 1] = slot .. "=" .. tostring(ok and item)
+        end
+    end
+    parts[#parts + 1] = sortedJoin(items)
+
+    local stats = component(entity, "Stats")
+    local dexOk, dex = false, nil
+    if stats then
+        dexOk, dex = pcall(function() return stats.AbilityModifiers[2] end)
+    end
+    parts[#parts + 1] = dexOk and tostring(dex) or "?"
+
+    local statusIds = {}
+    local container = component(entity, "StatusContainer")
+    local statuses = container and component(container, "Statuses")
+    if statuses then
+        local ok = pcall(function()
+            for _, status in ipairs(statuses) do
+                local id = status and component(status, "StatusId")
+                if id then statusIds[#statusIds + 1] = tostring(id) end
+            end
+        end)
+        if not ok then statusIds = {} end
+    end
+    if #statusIds == 0 then
+        for name in pairs(STATUS_ARMOR_FALLBACK) do
+            if hasStatus(guid, name) then statusIds[#statusIds + 1] = "osi:" .. name end
+        end
+    end
+    parts[#parts + 1] = sortedJoin(statusIds)
+
+    local passiveNames = {}
+    local passives = component(entity, "Passives") or component(entity, "PassiveContainer")
+    local list = passives and component(passives, "Passives")
+    if list then
+        local ok = pcall(function()
+            for key, value in pairs(list) do
+                local name = type(key) == "number" and value or key
+                if name then passiveNames[#passiveNames + 1] = tostring(name) end
+            end
+        end)
+        if not ok then return nil end
+    end
+    parts[#parts + 1] = sortedJoin(passiveNames)
+
+    return table.concat(parts, "|")
 end
 
 local function computeResistance(handle)
@@ -637,6 +729,27 @@ function A.Refresh(handle, quiet)
         U.Log("armor refresh %s: %.0f%% reduction",
             tostring(key), tonumber(resist.percent) or 0)
     end
+    return true
+end
+
+-- Refresh only when an armor input changed since this function last
+-- refreshed the character, or its cached value was replaced since (a turn
+-- refresh, A.Set, A.ResetAll, a load). force = always refresh.
+-- Returns true when it refreshed.
+function A.RefreshChanged(handle, force)
+    local key = U.GuidOf(handle)
+    if not key then return false end
+    local ok, fingerprint = pcall(armorFingerprint, handle)
+    if not ok then fingerprint = nil end
+    local last = refreshedFrom[key]
+    if not force and fingerprint and last and last.fingerprint == fingerprint
+        and resistances[key] == last.resist and last.resist.percent == last.percent then
+        return false
+    end
+    A.Refresh(handle, true)
+    local resist = resistances[key]
+    refreshedFrom[key] = fingerprint and resist
+        and { fingerprint = fingerprint, resist = resist, percent = resist.percent } or nil
     return true
 end
 
