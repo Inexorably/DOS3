@@ -74,6 +74,10 @@ and replaces the single latest GitHub release.
   - `scripts/generate-enr-champions.py`
   - `scripts/generate-enr-loot.py`
   Then regenerate only when `.analysis` is available.
+- `scripts/dos2_content_compat.py` is the single source of truth for which
+  native statuses still work under DOS2Combat. Add buff-pool or loot-condition
+  changes there, not in the generators. A status needs a live `Boosts`
+  replacement or a whitelisted passive/aura to stay in a pool.
 - Committed EnemyRandomization build inputs:
   - `GeneratedLoot.lua`
   - `EnemyRandomizationLoot_*.txt`

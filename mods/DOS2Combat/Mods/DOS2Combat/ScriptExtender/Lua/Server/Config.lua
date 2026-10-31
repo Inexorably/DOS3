@@ -180,8 +180,7 @@ DOS2C.Config = {
     ATTACK_DEBUFF_CANCELS_BASELINE = false,
 
     REMOVE_SAVING_THROWS = true, -- DOS2 has no saving throws
-    CASTING_ABILITY_SPELL_DAMAGE = true, -- give Int/Wis/Cha combat value
-    CASTING_ABILITY_DAMAGE_PER_MODIFIER = 1 / 7, -- +100% at ability score 24
+    CASTING_ABILITY_SPELL_DAMAGE = true, -- give Int/Wis/Cha combat value    CASTING_ABILITY_DAMAGE_PER_MODIFIER = 1 / 7, -- +100% at ability score 24
     STRIP_DEAD_SAVING_THROW_BOOSTS = true,
     -- Damage rolls stay random but are compressed around the average instead
     -- of using the full die range. Default: 1/3 of the original range width,
@@ -247,6 +246,18 @@ DOS2C.Config = {
     ATTACK_ADVANTAGE_PASSIVES = {},
     ATTACK_DISADVANTAGE_STATUSES = {},
     ATTACK_DISADVANTAGE_PASSIVES = {},
+    -- Advantage(AttackTarget) means attackers have advantage against the
+    -- bearer, so it raises incoming damage. Disadvantage(AttackTarget) lowers
+    -- it. These are the defensive half of the conversion.
+    INCOMING_ADVANTAGE_STATUSES = {},
+    INCOMING_ADVANTAGE_PASSIVES = {},
+    INCOMING_DISADVANTAGE_STATUSES = {},
+    INCOMING_DISADVANTAGE_PASSIVES = {},
+    INCOMING_ADVANTAGE_DAMAGE_MULT = 1.15,
+    INCOMING_DISADVANTAGE_DAMAGE_MULT = 0.85,
+    -- Positive attack-roll bonuses converted into flat outgoing damage.
+    ATTACK_ROLL_DAMAGE_BONUS = {},
+    ATTACK_ROLL_DAMAGE_BONUS_PASSIVES = {},
     -- Blinded/ranged restriction: cap ranged spell and weapon targeting while
     -- blinded. Native attack-roll disadvantage is converted into damage too.
     BLINDED_RANGE_CAP_ENABLED = true,

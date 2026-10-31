@@ -297,6 +297,13 @@ Known DOS2 visual references for the current test spells:
 
 ## DOS2 Combat compatibility gaps
 
+- [x] Work through `docs/DOS2_DEAD_CONTENT_AUDIT.md`: retire dead buffs,
+      filter loot conditions and spells, patch `InterruptData` and bonus-action
+      conditions, support `ACOverrideFormula`, and convert dead class passives.
+      P0/P1 items are implemented; P2 balance tuning remains.
+- [ ] P2 balance pass from the audit: Great Weapon Master / Sharpshooter flat
+      `+10`, Divine Smite and Mind Blast costs, Haste downside, and finite
+      durations for de-concentrated spells. Needs in-game feel testing.
 - [x] Use no hit-roll RNG. Every AC source now becomes one percentage
       damage-reduction stat; native AC and Dodge no longer affect hit chance.
 - [x] Apply a final-damage multiplier when native critical-hit metadata is

@@ -116,10 +116,14 @@ the same pair twice.
 
 ### Armor and AC
 
-- Native AC is still read before suppression so all sources, including
-  Barkskin, Mage Armor, gear, and passives, contribute to armor.
-- `DOS2C_NoDodge` plus `Osi.SetArmorClass`/`SetArmorClassBoost` fallbacks
-  prevent later AC sources from reintroducing hit chance.
+- Native AC is read before conversion so all sources, including Barkskin,
+  Mage Armor, gear, and passives, contribute to armor.
+- `ACOverrideFormula` is evaluated explicitly (`base + listed ability
+  modifiers`) and competes with the additive total, so Mage Armor, Barkskin,
+  Unarmored Defense, and Draconic Resilience work without native hit chance.
+- Attack rolls are removed entirely, so native AC never reintroduces hit
+  chance and no suppression status is needed. Legacy `DOS2C_NoDodge` copies
+  are still removed from existing saves.
 - Armor is a single percentage damage-reduction stat; it does not deplete.
 - `ArmorSync` sends a compact `guid|reduction%` snapshot to the client;
   client code must not reimplement the formula with independent constants.

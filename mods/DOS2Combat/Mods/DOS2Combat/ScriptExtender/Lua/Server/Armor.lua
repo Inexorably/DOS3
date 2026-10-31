@@ -24,6 +24,9 @@ local function hasStatus(handle, status)
     return ok and (result == 1 or result == true)
 end
 
+-- Legacy cleanup: earlier builds applied a no-dodge status to suppress native
+-- AC. Native AC no longer affects hit chance at all, so the status is gone.
+-- Remove any copy that an existing save still carries.
 local function removeLegacyNoDodge(handle)
     local guid = U.GuidOf(handle)
     if not guid or not (Osi and Osi.RemoveStatus) then return end
@@ -85,6 +88,43 @@ local function acFromBoosts(boosts)
     return total
 end
 
+local ABILITY_INDEX = {
+    Strength = 1, Dexterity = 2, Constitution = 3,
+    Intelligence = 4, Wisdom = 5, Charisma = 6,
+}
+
+local function abilityModifier(entity, ability)
+    local stats = entity and entity.Stats
+    local index = ABILITY_INDEX[ability]
+    if not stats or not index then return 0 end
+    local ok, value = pcall(function() return stats.AbilityModifiers[index] end)
+    if not ok then return 0 end
+    return math.max(0, tonumber(value) or 0)
+end
+
+-- ACOverrideFormula replaces the unarmored base instead of adding a bonus:
+--   ACOverrideFormula(13,true,Dexterity)          -> 13 + DEX  (Mage Armor)
+--   ACOverrideFormula(10,true,Dexterity,Constitution) -> 10 + DEX + CON
+--   ACOverrideFormula(16,false)                   -> 16        (Barkskin)
+-- The ability list supplies the modifiers; when it is empty and addDex is set
+-- the formula still means Dexterity.
+local function acFromOverride(boosts, entity)
+    if type(boosts) ~= "string" then return nil end
+    local base, addDex, rest =
+        boosts:match("ACOverrideFormula%(%s*(%-?%d+)%s*,%s*(%a+)%s*([^)]*)%)")
+    if not base then return nil end
+    local abilities = {}
+    for ability in (rest or ""):gmatch("%a+") do
+        abilities[#abilities + 1] = ability
+    end
+    if #abilities == 0 and addDex == "true" then abilities[1] = "Dexterity" end
+    local total = tonumber(base) or 0
+    for _, ability in ipairs(abilities) do
+        total = total + abilityModifier(entity, ability)
+    end
+    return total
+end
+
 local function statBoosts(name, statType)
     if not (name and Ext.Stats and Ext.Stats.Get) then return "" end
     local ok, stat = pcall(Ext.Stats.Get, tostring(name), statType)
@@ -111,6 +151,7 @@ local STATUS_ARMOR_FALLBACK = {
 
 local function activeStatusArmor(entity)
     local total = 0
+    local override = 0
     local container = component(entity, "StatusContainer")
     local statuses = container and component(container, "Statuses")
     if statuses then
@@ -121,11 +162,17 @@ local function activeStatusArmor(entity)
             for _, status in ipairs(statuses) do
                 local id = status and component(status, "StatusId")
                 if id then
-                    total = total + acFromBoosts(statBoosts(id, "StatusData"))
+                    local boosts = statBoosts(id, "StatusData")
+                    total = total + acFromBoosts(boosts)
+                    local value = acFromOverride(boosts, entity)
+                    if value and value > override then override = value end
                 end
             end
         end)
-        if not ok then total = 0 end
+        if not ok then
+            total = 0
+            override = 0
+        end
     end
     if total == 0 then
         local guid = U.GuidOf(entity)
@@ -133,25 +180,29 @@ local function activeStatusArmor(entity)
             if guid and hasStatus(guid, name) then total = total + bonus end
         end
     end
-    return total
+    return total, override
 end
 
 local function activePassiveArmor(entity)
     local total = 0
+    local override = 0
     local container = component(entity, "Passives") or component(entity, "PassiveContainer")
-    if not container then return total end
+    if not container then return total, override end
     local list = component(container, "Passives")
-    if not list then return total end
+    if not list then return total, override end
     local ok = pcall(function()
         for key, value in pairs(list) do
             local name = type(key) == "number" and value or key
             if name then
-                total = total + acFromBoosts(statBoosts(name, "PassiveData"))
+                local boosts = statBoosts(name, "PassiveData")
+                total = total + acFromBoosts(boosts)
+                local evaluated = acFromOverride(boosts, entity)
+                if evaluated and evaluated > override then override = evaluated end
             end
         end
     end)
-    if not ok then return 0 end
-    return total
+    if not ok then return 0, 0 end
+    return total, override
 end
 
 local function itemPassiveArmor(statsId)
@@ -231,14 +282,15 @@ local function manualArmorClass(handle, entity)
     end
 
     local stats = entity and entity.Stats
-    if stats then
-        local ok, value = pcall(function() return stats.AbilityModifiers[2] end)
-        if ok then dex = math.max(0, tonumber(value) or 0) end
-    end
+    dex = abilityModifier(entity, "Dexterity")
 
-    statuses = activeStatusArmor(entity)
-    local passives = activePassiveArmor(entity)
-    return gear + dex + statuses + passives, gear, dex, statuses + passives
+    local statusAc, statusOverride = activeStatusArmor(entity)
+    local passiveAc, passiveOverride = activePassiveArmor(entity)
+    statuses = statusAc
+    local override = math.max(statusOverride or 0, passiveOverride or 0)
+    local total = gear + dex + statuses + passiveAc
+    if override > total then total = override end
+    return total, gear, dex, statuses + passiveAc
 end
 
 local function nativeArmorClass(handle, entity)
@@ -548,6 +600,7 @@ local function critChanceFor(attacker)
 end
 
 local multiplyDamage
+local addFlatDamage
 
 local function attackDamageMultiplier(attacker)
     local cfg = DOS2C.Config
@@ -573,14 +626,62 @@ local function attackDamageMultiplier(attacker)
     return 1.0
 end
 
+local function attackRollFlatBonus(attacker)
+    local cfg = DOS2C.Config
+    local total = 0
+    for status, bonus in pairs(cfg.ATTACK_ROLL_DAMAGE_BONUS or {}) do
+        if hasStatus(attacker, status) then total = total + (tonumber(bonus) or 0) end
+    end
+    for passive, bonus in pairs(cfg.ATTACK_ROLL_DAMAGE_BONUS_PASSIVES or {}) do
+        if hasPassive(attacker, passive) then total = total + (tonumber(bonus) or 0) end
+    end
+    return total
+end
+
+-- Advantage(AttackTarget) and Disadvantage(AttackTarget) are the defensive
+-- half of the roll conversion: they change incoming damage instead of an
+-- attacker's hit chance.
+local function incomingDamageMultiplier(target)
+    local cfg = DOS2C.Config
+    local advantage = false
+    local disadvantage = false
+    for status in pairs(cfg.INCOMING_ADVANTAGE_STATUSES or {}) do
+        if hasStatus(target, status) then advantage = true break end
+    end
+    for passive in pairs(cfg.INCOMING_ADVANTAGE_PASSIVES or {}) do
+        if hasPassive(target, passive) then advantage = true break end
+    end
+    for status in pairs(cfg.INCOMING_DISADVANTAGE_STATUSES or {}) do
+        if hasStatus(target, status) then disadvantage = true break end
+    end
+    for passive in pairs(cfg.INCOMING_DISADVANTAGE_PASSIVES or {}) do
+        if hasPassive(target, passive) then disadvantage = true break end
+    end
+    if advantage and not disadvantage then
+        return tonumber(cfg.INCOMING_ADVANTAGE_DAMAGE_MULT) or 1.15
+    elseif disadvantage and not advantage then
+        return tonumber(cfg.INCOMING_DISADVANTAGE_DAMAGE_MULT) or 0.85
+    end
+    return 1.0
+end
+
 local function applyAttackRollDamageModifier(ev, hit)
     if not isAttackDamage(ev, hit) then return false end
     local attacker = attackerOf(ev, hit)
     local multiplier = attackDamageMultiplier(attacker)
-    if multiplier == 1.0 then return false end
-    local added = multiplyDamage(hit, multiplier)
-    U.Log("attack-roll damage modifier x%.2f (+%d)", multiplier, added)
-    return true
+    local flat = attackRollFlatBonus(attacker)
+    local changed = false
+    if flat > 0 then
+        local added = addFlatDamage(hit, flat)
+        U.Log("attack-roll flat damage +%d (%d applied)", flat, added)
+        changed = true
+    end
+    if multiplier ~= 1.0 then
+        local added = multiplyDamage(hit, multiplier)
+        U.Log("attack-roll damage modifier x%.2f (+%d)", multiplier, added)
+        changed = true
+    end
+    return changed
 end
 
 multiplyDamage = function(hit, multiplier)
@@ -611,6 +712,39 @@ multiplyDamage = function(hit, multiplier)
         end
     end
     return changed
+end
+
+-- Add a flat amount to a hit. The largest damage pair carries the bonus so
+-- the total stays correct without inventing a new damage type.
+addFlatDamage = function(hit, amount)
+    if not hit or not amount or amount <= 0 then return 0 end
+    local list = hit.DamageList
+    if list and #list > 0 then
+        local target, best = nil, 0
+        for i = 1, #list do
+            local pair = list[i]
+            local value = tonumber(pair and pair.Amount) or 0
+            if value > best then
+                target, best = pair, value
+            end
+        end
+        if target then
+            local ok = pcall(function() target.Amount = best + amount end)
+            if ok then return amount end
+        end
+    end
+
+    local damage = hit.Damage
+    if damage then
+        local total = tonumber(damage.FinalDamage) or 0
+        if total <= 0 then total = tonumber(damage.TotalDamage) or 0 end
+        if total > 0 then
+            pcall(function() damage.FinalDamage = total + amount end)
+            pcall(function() damage.TotalDamage = total + amount end)
+            return amount
+        end
+    end
+    return 0
 end
 
 local function applyCriticalMultiplier(ev, hit)
@@ -681,6 +815,14 @@ local function resistDamage(ev)
     -- Native critical metadata is converted into a final-damage multiplier.
     applyAttackRollDamageModifier(ev, hit)
     applyCriticalMultiplier(ev, hit)
+
+    -- Defensive disadvantage/advantage from AttackTarget tokens is applied to
+    -- the damage that actually lands, after armor and criticals.
+    local incoming = incomingDamageMultiplier(ev.Target)
+    if incoming ~= 1.0 then
+        local delta = multiplyDamage(hit, incoming)
+        U.Log("incoming damage modifier x%.2f (%+d)", incoming, delta)
+    end
 end
 
 function A.Get(handle)

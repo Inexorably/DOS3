@@ -99,10 +99,12 @@ class GeneratedEnemyRandomizationTests(unittest.TestCase):
         )
         for spell in (
             "Target_AnimateDead",
-            "Target_FungalInfestation",
             "Target_AnimateDead_Zombie_4",
         ):
             self.assertIn(f'"{spell}"', line)
+        # Fungal Infestation costs a FungalInfestationCharge that champions do
+        # not have, so it cannot be cast and is no longer granted.
+        self.assertNotIn('"Target_FungalInfestation"', line)
         # Summon Horde was removed because it hung the game at load.
         self.assertNotIn("ENR_Summon_ZombieHorde", line)
         self.assertNotIn("ENR_Summon_ZombieHorde", self.stats)
