@@ -31,8 +31,12 @@ import pathlib
 import re
 import struct
 import subprocess
+import sys
 import uuid
 import xml.etree.ElementTree as ET
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import dos2_content_compat as compat
 
 ROOT = pathlib.Path('.')
 MOD = ROOT / 'mods/EnemyRandomization'
@@ -84,99 +88,10 @@ def template_guid(tag):
     return str(uuid.uuid5(NS, 'EnemyRandomization/template/' + tag))
 
 
-RANDOM_BUFF_SOURCES = [
-    'AID',
-    'ARMOR_OF_AGATHYS',
-    'ASPECT_OF_THE_ELK',
-    'ASPECT_OF_THE_STALLION',
-    'ASPECT_OF_THE_WOLF',
-    'AURA_OF_COURAGE_BUFF',
-    'AURA_OF_DEVOTION_BUFF',
-    'AURA_OF_PROTECTION_BUFF',
-    'AURA_OF_WARDING_BUFF',
-    'BARKSKIN',
-    'BEACON_OF_HOPE',
-    'BEARS_ENDURANCE',
-    'BLADE_FLOURISH_DEFENSIVE',
-    'BLADE_FLOURISH_MOBILE',
-    'BLADE_WARD',
-    'BLESS',
-    'BLUR',
-    'BULLS_STRENGTH',
-    'CALM_EMOTIONS',
-    'CATS_GRACE',
-    'COMPREHEND_LANGUAGES',
-    'CRYSTALSKIN',
-    'DARK_ONES_BLESSING',
-    'DARKVISION',
-    'DAYLIGHT',
-    'DEATH_WARD',
-    'DETECT_EVIL_GOOD',
-    'DETECT_THOUGHTS',
-    'DIVINE_FAVOR',
-    'DIVINE_SENSE',
-    'DRUNKEN_TECHNIQUE',
-    'EAGLES_SPLENDOR',
-    'EXPEDITIOUS_RETREAT',
-    'FALSE_LIFE',
-    'FEATHER_FALL',
-    'FLAME_BLADE',
-    'FLY',
-    'FOXS_CUNNING',
-    'FREEDOM_OF_MOVEMENT',
-    'FRIENDS',
-    'GUIDANCE',
-    'HASTE',
-    'HEROES_FEAST',
-    'HEROISM',
-    'INSPIRING_LEADER',
-    'LIGHT',
-    'LONG_JUMP',
-    'LONGSTRIDER',
-    'MAGE_ARMOR',
-    'MAGIC_WEAPON',
-    'MIRROR_IMAGE_1',
-    'MIRROR_IMAGE_2',
-    'MIRROR_IMAGE_3',
-    'MOBILE_NO_AOO',
-    'MULTIATTACKDEFENSE',
-    'OWLS_WISDOM',
-    'PASS_WITHOUT_TRACE',
-    'PATIENT_DEFENCE',
-    'PRODUCE_FLAME',
-    'PROTECTION_FROM_ENERGY_ACID',
-    'PROTECTION_FROM_ENERGY_COLD',
-    'PROTECTION_FROM_ENERGY_FIRE',
-    'PROTECTION_FROM_ENERGY_LIGHTNING',
-    'PROTECTION_FROM_ENERGY_THUNDER',
-    'PROTECTION_FROM_EVIL_AND_GOOD',
-    'PROTECTION_FROM_POISON',
-    'RALLY',
-    'REFLECTIVE_SHELL',
-    'RELENTLESS_RAGE',
-    'RESISTANCE',
-    'RESISTANCE_ACID',
-    'RESISTANCE_COLD',
-    'RESISTANCE_FIRE',
-    'RESISTANCE_FORCE',
-    'RESISTANCE_LIGHTNING',
-    'RESISTANCE_NECROTIC',
-    'RESISTANCE_POISON',
-    'RESISTANCE_PSYCHIC',
-    'RESISTANCE_RADIANT',
-    'RESISTANCE_THUNDER',
-    'SACRED_WEAPON',
-    'SHIELD',
-    'SHIELD_OF_FAITH',
-    'SHILLELAGH',
-    'SPEAK_WITH_DEAD',
-    'STONESKIN',
-    'TRUE_STRIKE',
-    'UNDEAD_FORTITUDE',
-    'VAMPIRE_REGENERATION',
-    'VAMPIRIC_TOUCH',
-    'WARDING_FLARE',
-]
+# Buffs that still produce a DOS2 effect. scripts/dos2_content_compat.py is
+# the single source of truth: it also supplies the deterministic Boosts
+# replacement for native tokens that DOS2Combat removed.
+RANDOM_BUFF_SOURCES = list(compat.VALID_RANDOM_BUFFS)
 
 STATUS_DISPLAY_FALLBACKS = {
     'MUDMEPHIT_HARD': (
@@ -271,6 +186,9 @@ CHAMPIONS = [
                 'spell': 'ENR_Summon_ChultAlioramus',
                 'stack': 'ENR_DinoAlioramusStack',
                 'tag': 'Alioramus',
+                # Explicit so regenerate output does not depend on whether the
+                # local root template happens to carry a LevelOverride.
+                'native_level': NATIVE_LEVELS['ChultAlioramus'],
             },
             {
                 'key': 'Crimson',
@@ -281,6 +199,7 @@ CHAMPIONS = [
                 'spell': 'ENR_Summon_Crimson',
                 'stack': 'ENR_DinoCrimsonStack',
                 'tag': 'Crimson',
+                'native_level': NATIVE_LEVELS['Crimson'],
             },
         ],
     },
@@ -424,16 +343,14 @@ CHAMPIONS = [
         'summons': [],
         'spells': [
             'Target_AnimateDead',
-            'Target_FungalInfestation',
             'Target_AnimateDead_Zombie_4',
         ],
         # Rejuvenating Miasma is the native ANIMATEDEAD_ZONE aura.
         'statuses': ['ANIMATEDEAD_ZONE'],
         'passives': [],
         'summary': (
-            'This champion raises a horde: it knows Animate Dead, Fungal '
-            'Infestation and Animate Dead: Zombie Battalion, and is wreathed in '
-            'Rejuvenating Miasma.'
+            'This champion raises a horde: it knows Animate Dead and Animate '
+            'Dead: Zombie Battalion, and is wreathed in Rejuvenating Miasma.'
         ),
     },
 ]
@@ -940,19 +857,24 @@ def build_stats_and_loca(guids, stats_by_tag):
     # as Mage Armor can remove themselves OnTurn/OnEquip; champion boons must
     # remain for the whole fight.
     status_stats = load_status_stats()
+
+    def wrapper_boosts(source):
+        native = status_stats.get(source) or {}
+        return compat.status_boosts(source, native.get('Boosts'))
+
     random_buff_sources = [
         source for source in RANDOM_BUFF_SOURCES
-        if source in status_stats and status_stats[source].get('Boosts')
+        if source in status_stats and wrapper_boosts(source)
     ]
     missing_buffs = [source for source in RANDOM_BUFF_SOURCES if source not in status_stats]
     no_boost_buffs = [
         source for source in RANDOM_BUFF_SOURCES
-        if source in status_stats and not status_stats[source].get('Boosts')
+        if source in status_stats and not wrapper_boosts(source)
     ]
     if missing_buffs:
         print('missing random buff statuses:', ', '.join(missing_buffs))
     if no_boost_buffs:
-        print('random buff statuses without Boosts:', ', '.join(no_boost_buffs))
+        print('random buff statuses without a usable boost:', ', '.join(no_boost_buffs))
     permanent_sources = sorted({
         status
         for champion in NON_SUMMON_CHAMPIONS
@@ -992,8 +914,11 @@ def build_stats_and_loca(guids, stats_by_tag):
         ]
         if native.get('DescriptionParams'):
             lines.append('data "DescriptionParams" "%s"' % native['DescriptionParams'])
-        if native.get('Boosts'):
-            lines.append('data "Boosts" "%s"' % native['Boosts'])
+        boosts = wrapper_boosts(source)
+        if boosts:
+            lines.append('data "Boosts" "%s"' % boosts)
+        for field, value in compat.permanent_wrapper_fields(source, native):
+            lines.append('data "%s" "%s"' % (field, value))
         lines += ['data "StackId" "%s"' % wrapped, '']
 
     # Hidden per-spell cooldown markers used by SummonCooldown.lua.

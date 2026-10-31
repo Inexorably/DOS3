@@ -1082,16 +1082,96 @@ end
 -- Convert native d20 critical-threshold and attack-roll advantage metadata into
 -- the custom deterministic critical/damage maps used by Armor.lua. This keeps
 -- feats and statuses meaningful after attack rolls are removed.
+--
+-- Outgoing advantage is only recorded when the token is not gated by an
+-- IF(...) condition: a conditional passive must not become an unconditional
+-- damage buff. Defensive (AttackTarget) tokens are recorded unconditionally
+-- because their guards are edge cases such as Blindsight.
+local function forEachSegment(text, fn)
+    local pos = 1
+    while true do
+        local sep = text:find(";", pos, true)
+        local piece = sep and text:sub(pos, sep - 1) or text:sub(pos)
+        fn(piece)
+        if not sep then break end
+        pos = sep + 1
+    end
+end
+
+local function pieceHasUnconditional(piece, token)
+    local at = piece:find(token, 1, true)
+    if not at then return false end
+    local colon = piece:find(":", 1, true)
+    return not (colon and colon < at)
+end
+
+local function hasUnconditional(text, token)
+    local found = false
+    forEachSegment(text, function(piece)
+        if pieceHasUnconditional(piece, token) then found = true end
+    end)
+    return found
+end
+
+local function hasAnywhere(text, token)
+    return text:find(token, 1, true) ~= nil
+end
+
+-- Average of a native roll-bonus expression: 1d4 -> 2.5, 2 -> 2, 1d10 -> 5.5.
+local function averageOf(value)
+    local text = (value or ""):match("^%s*(.-)%s*$")
+    if text == "" then return nil end
+    local count, sides = text:match("^(%d+)d(%d+)$")
+    if count then
+        return (tonumber(count) + tonumber(sides) + 1) / 2
+    end
+    return tonumber(text)
+end
+
 stripBonusActionBoosts = function(stat, field)
     -- Statuses and passives have Boosts; characters have DefaultBoosts.
     local current = U.SafeGet(stat, field)
-    if type(current) == "string" and current ~= "" then
-        local cleaned = current:gsub("%s*;?%s*ActionResource%(%s*BonusActionPoint%s*,%s*%d+%s*,%s*%d+%s*%)", "")
-        cleaned = cleaned:gsub("%s*;?%s*BonusActionPoint%(%s*%d+%s*%)", "")
-        cleaned = cleaned:gsub("^%s*;%s*", ""):gsub("%s*;%s*$", "")
-        if cleaned ~= current then return U.SafeSet(stat, field, cleaned) end
-    end
+    if type(current) ~= "string" or current == "" then return false end
+    local cleaned = current:gsub("%s*;?%s*ActionResource%(%s*BonusActionPoint%s*,%s*%d+%s*,%s*%d+%s*%)", "")
+    cleaned = cleaned:gsub("%s*;?%s*BonusActionPoint%(%s*%d+%s*%)", "")
+    cleaned = cleaned:gsub("^%s*;%s*", ""):gsub("%s*;%s*$", "")
+    if cleaned ~= current then return U.SafeSet(stat, field, cleaned) end
     return false
+end
+
+-- Field lists are per stat type: reading a field the type does not define
+-- makes BG3SE log "has no attribute named" spam even inside pcall.
+local STATUS_BONUS_FIELDS = {
+    "Boosts", "RemoveConditions", "OnRemoveFunctors", "TickFunctors",
+    "OnApplyFunctors", "AuraStatuses",
+}
+local PASSIVE_BONUS_FIELDS = { "Boosts", "StatsFunctors" }
+
+local function cleanBonusActionText(text)
+    local updated = text:gsub("RestoreResource%(BonusActionPoint", "RestoreResource(ActionPoint")
+    updated = updated:gsub("UseActionResource%(SELF,%s*BonusActionPoint", "UseActionResource(SELF,ActionPoint")
+    updated = updated:gsub("UseActionResource%(BonusActionPoint", "UseActionResource(ActionPoint")
+    updated = updated:gsub("HasActionResource%(%s*'BonusActionPoint'", "HasActionResource('ActionPoint'")
+    updated = updated:gsub("HasActionResource%(%s*BonusActionPoint", "HasActionResource(ActionPoint")
+    updated = updated:gsub("%s*;?%s*ActionResource%(%s*BonusActionPoint%s*,%s*%d+%s*,%s*%d+%s*%)", "")
+    updated = updated:gsub("%s*;?%s*BonusActionPoint%(%s*%d+%s*%)", "")
+    updated = updated:gsub(";%s*;", ";")
+    updated = updated:gsub("^%s*;%s*", ""):gsub("%s*;%s*$", "")
+    return updated
+end
+
+local function patchBonusActionFields(stat, fields)
+    if not DOS2C.Config.REMOVE_BONUS_ACTIONS then return false end
+    local changed = false
+    for _, field in ipairs(fields) do
+        local current = U.SafeGet(stat, field)
+        if type(current) == "string" and current ~= ""
+            and current:find("BonusActionPoint", 1, true) then
+            local updated = cleanBonusActionText(current)
+            if updated ~= current and U.SafeSet(stat, field, updated) then changed = true end
+        end
+    end
+    return changed
 end
 
 local function recordCombatModifiers(name, stat, passive)
@@ -1129,13 +1209,50 @@ local function recordCombatModifiers(name, stat, passive)
 
     local advMap = passive and cfg.ATTACK_ADVANTAGE_PASSIVES or cfg.ATTACK_ADVANTAGE_STATUSES
     local disMap = passive and cfg.ATTACK_DISADVANTAGE_PASSIVES or cfg.ATTACK_DISADVANTAGE_STATUSES
-    if text:find("Advantage%(AttackRoll", 1) then
+    if hasUnconditional(text, "Advantage(AttackRoll")
+        or hasUnconditional(text, "SourceAdvantageOnAttack(") then
         if not advMap[name] then advMap[name] = true end
         changed = true
     end
-    if text:find("Disadvantage%(AttackRoll", 1) then
+    if hasUnconditional(text, "Disadvantage(AttackRoll") then
         if not disMap[name] then disMap[name] = true end
         changed = true
+    end
+
+    -- Defensive direction: Advantage(AttackTarget) makes the bearer easier to
+    -- hit, Disadvantage(AttackTarget) harder.
+    local incAdv = passive and cfg.INCOMING_ADVANTAGE_PASSIVES or cfg.INCOMING_ADVANTAGE_STATUSES
+    local incDis = passive and cfg.INCOMING_DISADVANTAGE_PASSIVES or cfg.INCOMING_DISADVANTAGE_STATUSES
+    if hasAnywhere(text, "Advantage(AttackTarget") and not incAdv[name] then
+        incAdv[name] = true
+        changed = true
+    end
+    if hasAnywhere(text, "Disadvantage(AttackTarget") and not incDis[name] then
+        incDis[name] = true
+        changed = true
+    end
+
+    -- Positive attack-roll bonuses become flat outgoing damage. Negative
+    -- tokens (Great Weapon Master's -5) are ignored so the feat keeps its
+    -- upside without a hidden penalty or bonus.
+    local bonusMap = passive and cfg.ATTACK_ROLL_DAMAGE_BONUS_PASSIVES or cfg.ATTACK_ROLL_DAMAGE_BONUS
+    local function recordRollBonus(pattern)
+        for token in text:gmatch(pattern) do
+            local average = averageOf(token)
+            if average and average > 0 then
+                recordMap(bonusMap, name, math.floor(average + 0.5))
+                changed = true
+            end
+        end
+    end
+    recordRollBonus("RollBonus%(%s*Attack%s*,%s*([^,)]+)")
+    recordRollBonus("RollBonus%(%s*[%a_]*WeaponAttack%s*,%s*([^,)]+)")
+    for value in text:gmatch("WeaponAttackRollBonus%(%s*(%-?%d+)%s*%)") do
+        local number = tonumber(value) or 0
+        if number > 0 then
+            recordMap(bonusMap, name, number)
+            changed = true
+        end
     end
     return changed
 end
@@ -1150,6 +1267,10 @@ local function stripDeadSavingThrowBoosts(stat)
     cleaned = cleaned:gsub(";?%s*Advantage%(SavingThrow[^)]*%)", "")
     cleaned = cleaned:gsub(";?%s*Disadvantage%(SavingThrow[^)]*%)", "")
     cleaned = cleaned:gsub(";?%s*RollBonus%(SavingThrow[^)]*%)", "")
+    cleaned = cleaned:gsub(";?%s*ProficiencyBonus%(SavingThrow[^)]*%)", "")
+    cleaned = cleaned:gsub(";?%s*Advantage%(Concentration%)", "")
+    cleaned = cleaned:gsub(";?%s*Disadvantage%(Concentration%)", "")
+    cleaned = cleaned:gsub(";?%s*ConcentrationIgnoreDamage%(%s*%a+%s*%)", "")
     cleaned = cleaned:gsub(";?%s*ModifySavingThrowDisadvantage%(%),?", "")
     cleaned = cleaned:gsub("^%s*;%s*", ""):gsub("%s*;%s*$", "")
     cleaned = cleaned:gsub(";%s*;", ";")
@@ -1216,6 +1337,57 @@ local function patchHasteLethargy(name, stat)
     return U.SafeSet(stat, "OnRemoveFunctors", updated)
 end
 
+-- Slow's companion passive falls back to spending a bonus action and charges
+-- an extra ActionPoint when the bonus-action pool is empty. With one AP pool
+-- that means every Slow-affected cast pays double, so drop the passive.
+local function patchSlowActionPoint(name, stat)
+    if name ~= "SLOW" then return false end
+    local passives = U.SafeGet(stat, "Passives")
+    if type(passives) ~= "string" or passives == "" then return false end
+    if not passives:find("Slow_ActionPoint", 1, true) then return false end
+    local updated = passives:gsub("%s*;?%s*Slow_ActionPoint%s*", "")
+    updated = updated:gsub("^%s*;%s*", ""):gsub("%s*;%s*$", "")
+    return U.SafeSet(stat, "Passives", updated)
+end
+
+-- InterruptData carries its own costs, conditions, and roll gates. Rewrite the
+-- ones that can never fire so reactions such as Shield, Warding Flare, and
+-- Divine Smite stay usable after attack rolls, saving throws, and bonus
+-- actions are removed.
+local function patchInterrupt(name, stat)
+    local changed = false
+    if DOS2C.Config.REMOVE_SAVING_THROWS then
+        for _, field in ipairs({ "Properties", "Conditions" }) do
+            local value = U.SafeGet(stat, field)
+            if type(value) == "string" and value ~= "" then
+                local updated = U.NeutralizeSavingThrows(value)
+                if updated ~= value and U.SafeSet(stat, field, updated) then changed = true end
+            end
+        end
+    end
+    if DOS2C.Config.REMOVE_BONUS_ACTIONS then
+        local cost = U.SafeGet(stat, "Cost")
+        if type(cost) == "string" and cost ~= "" then
+            local updated = cost:gsub("BonusActionPoint%s*:%s*%d+", "ActionPoint:1")
+            updated = updated:gsub("^%s*;%s*", ""):gsub("%s*;%s*$", "")
+            if updated ~= cost and U.SafeSet(stat, "Cost", updated) then changed = true end
+        end
+    end
+    if DOS2C.Config.REMOVE_SPELL_SLOTS then
+        local cost = U.SafeGet(stat, "Cost")
+        if type(cost) == "string" and cost ~= "" then
+            local updated = cost:gsub("%s*;?%s*SpellSlots?Group%s*:%s*[^;]+", "")
+            updated = updated:gsub("%s*;?%s*SpellSlots?%s*:%s*[^;]+", "")
+            updated = updated:gsub("^%s*;%s*", ""):gsub("%s*;%s*$", "")
+            if updated ~= cost then
+                if updated == "" then updated = "ActionPoint:1" end
+                if U.SafeSet(stat, "Cost", updated) then changed = true end
+            end
+        end
+    end
+    return changed
+end
+
 local function cleanupAttackDebuff(stat)
     local boosts = U.SafeGet(stat, "Boosts")
     if type(boosts) ~= "string" or boosts == "" then return false end
@@ -1247,11 +1419,13 @@ local function patchStatusDamage(name, stat)
     local changed = neutralizeSavingThrowFields(stat, STATUS_SAVE_FIELDS)
     if stripDeadSavingThrowBoosts(stat) then changed = true end
     if stripBonusActionBoosts(stat, "Boosts") then changed = true end
+    if patchBonusActionFields(stat, STATUS_BONUS_FIELDS) then changed = true end
     if recordCombatModifiers(name, stat, false) then changed = true end
     if patchBlindedRange(name, stat) then changed = true end
     if cleanupAttackDebuff(stat) then changed = true end
     if patchExtraAttackStatus(name, stat) then changed = true end
     if patchHasteLethargy(name, stat) then changed = true end
+    if patchSlowActionPoint(name, stat) then changed = true end
     if patchAttackDisadvantage(stat) then changed = true end
     if DOS2C.Config.COMPRESS_DAMAGE_RANGES then
         for _, field in ipairs(STATUS_DAMAGE_FIELDS) do
@@ -1265,6 +1439,7 @@ local function patchPassiveDamage(name, stat)
     local changed = neutralizeSavingThrowFields(stat, PASSIVE_SAVE_FIELDS)
     if stripDeadSavingThrowBoosts(stat) then changed = true end
     if stripBonusActionBoosts(stat, "Boosts") then changed = true end
+    if patchBonusActionFields(stat, PASSIVE_BONUS_FIELDS) then changed = true end
     if recordCombatModifiers(name, stat, true) then changed = true end
     if DOS2C.Config.COMPRESS_DAMAGE_RANGES then
         for _, field in ipairs(PASSIVE_DAMAGE_FIELDS) do
@@ -1643,6 +1818,9 @@ function S.PatchAll(runtime)
     local nObjects = eachStat("Object", function(_, stat)
         return patchObject(stat)
     end)
+    local nInterrupts = eachStat("InterruptData", function(name, stat)
+        return patchInterrupt(name, stat)
+    end)
 
     collectTooltipRiders()
     local nSpells = eachStat("SpellData", function(name, stat)
@@ -1651,7 +1829,7 @@ function S.PatchAll(runtime)
 
     if runtime then
         -- Stats changes made after module load must be replicated to clients.
-        for _, statType in ipairs({ "Character", "SpellData", "Weapon", "Armor", "StatusData", "PassiveData", "Object" }) do
+        for _, statType in ipairs({ "Character", "SpellData", "Weapon", "Armor", "StatusData", "PassiveData", "Object", "InterruptData" }) do
             local ok, names = pcall(Ext.Stats.GetStats, statType)
             if ok and type(names) == "table" then
                 for _, name in ipairs(names) do
@@ -1690,8 +1868,8 @@ function S.PatchAll(runtime)
     local concentrationCount = 0
     for _ in pairs(concentrationRemoved) do concentrationCount = concentrationCount + 1 end
     S.Patched = true
-    U.Log("patched %d characters, %d spells, %d weapons, %d armor, %d statuses, %d passives, %d item use costs; concentration removed from %d spells",
-        nCharacters, nSpells, nWeapons, nArmor, nStatuses, nPassives, nObjects, concentrationCount)
+    U.Log("patched %d characters, %d spells, %d weapons, %d armor, %d statuses, %d passives, %d item use costs, %d interrupts; concentration removed from %d spells",
+        nCharacters, nSpells, nWeapons, nArmor, nStatuses, nPassives, nObjects, nInterrupts, concentrationCount)
 end
 
 if Ext.Events and Ext.Events.StatsLoaded then

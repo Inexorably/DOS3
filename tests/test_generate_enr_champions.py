@@ -435,7 +435,45 @@ class BuildStatsTests(ChampionsFixture):
             self.build()
         output = stdout.getvalue()
         self.assertIn("missing random buff statuses: MISSING_STATUS", output)
-        self.assertIn("random buff statuses without Boosts: HASTE, NO_BOOST", output)
+        self.assertIn("random buff statuses without a usable boost: HASTE, NO_BOOST", output)
+
+    def test_permanent_wrappers_keep_dead_boost_replacements_and_payload(self) -> None:
+        extra = """
+new entry "BLESS"
+type "StatusData"
+data "Boosts" "RollBonus(Attack,1d4);RollBonus(SavingThrow,1d4)"
+
+new entry "ARMOR_OF_AGATHYS"
+type "StatusData"
+data "Boosts" "TemporaryHP(5)"
+data "Passives" "ArmorOfAgathys"
+
+new entry "ASPECT_OF_THE_ELK"
+type "StatusData"
+data "Boosts" "ActionResource(Movement,1.5,0)"
+data "AuraRadius" "18"
+data "AuraStatuses" "IF(Ally()):ApplyStatus(ASPECT_OF_THE_ELK_AURA)"
+"""
+        status_file = self.mod.STATUS_SOURCES[0]
+        status_file.write_text(status_file.read_text(encoding="utf-8") + extra, encoding="utf-8")
+        self.mod.RANDOM_BUFF_SOURCES = ["BLESS", "ARMOR_OF_AGATHYS", "ASPECT_OF_THE_ELK"]
+        self.build()
+        text = self.mod.STATS.read_text(encoding="utf-8")
+
+        bless = text.split('new entry "ENR_Perm_BLESS"', 1)[1].split("new entry", 1)[0]
+        self.assertIn('data "Boosts" "CharacterWeaponDamage(1d4)"', bless)
+        self.assertNotIn("RollBonus(SavingThrow", bless)
+
+        agathys = text.split('new entry "ENR_Perm_ARMOR_OF_AGATHYS"', 1)[1].split(
+            "new entry", 1
+        )[0]
+        self.assertIn('data "Passives" "ArmorOfAgathys"', agathys)
+
+        elk = text.split('new entry "ENR_Perm_ASPECT_OF_THE_ELK"', 1)[1].split(
+            "new entry", 1
+        )[0]
+        self.assertIn('data "AuraRadius" "18"', elk)
+        self.assertIn("ASPECT_OF_THE_ELK_AURA", elk)
 
     def test_loca_contains_champion_and_summon_names(self) -> None:
         self.build()

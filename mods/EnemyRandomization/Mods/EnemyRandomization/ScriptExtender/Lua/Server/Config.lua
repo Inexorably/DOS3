@@ -168,8 +168,11 @@ ER.Config = {
     NEVER_BUFF_STATS = { "OBJ_Wall_Of_Stone" },
 
     -- Statuses that were previously selected from the positive pool but are
-    -- unsafe for enemies (for example, delayed-death effects that make them
-    -- effectively immortal). Existing saves are cleaned up on the next scan.
+    -- unsafe or inert for enemies (delayed-death effects that make them
+    -- effectively immortal, and native tokens DOS2Combat removed with no
+    -- deterministic replacement). Existing saves are cleaned up on the next
+    -- scan. scripts/dos2_content_compat.py keeps this list in sync with the
+    -- generator.
     REMOVED_BUFF_STATUSES = {
         ENR_Perm_SURVIVAL_INSTINCT = true,
         SURVIVAL_INSTINCT = true,
@@ -178,6 +181,33 @@ ER.Config = {
         ENR_Perm_DEATH_WARD = true,
         ENR_Perm_RELENTLESS_RAGE = true,
         ENR_Perm_UNDEAD_FORTITUDE = true,
+        -- Native boosts below were pure attack-roll, saving-throw, ability-check,
+        -- light, or utility text. They no longer change a fight.
+        ENR_Perm_ASPECT_OF_THE_WOLF = true,
+        ENR_Perm_ASPECT_OF_THE_STALLION = true,
+        ENR_Perm_BLADE_FLOURISH_MOBILE = true,
+        ENR_Perm_BULLS_STRENGTH = true,
+        ENR_Perm_CATS_GRACE = true,
+        ENR_Perm_COMPREHEND_LANGUAGES = true,
+        ENR_Perm_DARKVISION = true,
+        ENR_Perm_DAYLIGHT = true,
+        ENR_Perm_DETECT_EVIL_GOOD = true,
+        ENR_Perm_DETECT_THOUGHTS = true,
+        ENR_Perm_EAGLES_SPLENDOR = true,
+        ENR_Perm_FLAME_BLADE = true,
+        ENR_Perm_FOXS_CUNNING = true,
+        ENR_Perm_FRIENDS = true,
+        ENR_Perm_GUIDANCE = true,
+        ENR_Perm_LIGHT = true,
+        ENR_Perm_MOBILE_NO_AOO = true,
+        ENR_Perm_MULTIATTACKDEFENSE = true,
+        ENR_Perm_OWLS_WISDOM = true,
+        ENR_Perm_PASS_WITHOUT_TRACE = true,
+        ENR_Perm_PATIENT_DEFENCE = true,
+        ENR_Perm_PRODUCE_FLAME = true,
+        ENR_Perm_SHILLELAGH = true,
+        ENR_Perm_SPEAK_WITH_DEAD = true,
+        ENR_Perm_VAMPIRE_REGENERATION = true,
     },
 
     -- Native BG3 statuses used by the first pass. Every entry here must be a
@@ -193,11 +223,14 @@ ER.Config = {
             end
             return list
         end
+        -- Fallback used only when GeneratedData.lua failed to load. It lists
+        -- native statuses whose boosts still work without a wrapper, so it
+        -- deliberately omits BLESS and BARKSKIN: their native tokens are dead
+        -- under DOS2Combat, and only the generated ENR_Perm_* wrappers carry
+        -- the DOS2 replacement.
         return {
             { status = "HASTE", weight = 1 },
-            { status = "BLESS", weight = 1 },
             { status = "AID", weight = 1 },
-            { status = "BARKSKIN", weight = 1 },
             { status = "BLADE_WARD", weight = 1 },
             { status = "RESISTANCE_FIRE", weight = 1 },
             { status = "RESISTANCE_COLD", weight = 1 },
@@ -206,8 +239,7 @@ ER.Config = {
             { status = "RESISTANCE_POISON", weight = 1 },
             { status = "REFLECTIVE_SHELL", weight = 1 },
             { status = "VAMPIRIC_TOUCH", weight = 1 },
-        }
-    end)(),
+        }    end)(),
 }
 
 

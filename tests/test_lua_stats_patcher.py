@@ -177,6 +177,59 @@ class StatsPatcherTests(unittest.TestCase):
         h.set_stat("OBJ_Potion_Test", {"UseCosts": "BonusActionPoint:1"}, stat_type="Object")
         h.set_stat("OBJ_Scroll_Test", {"UseCosts": "ActionPoint:1"}, stat_type="Object")
 
+        h.set_stat(
+            "Interrupt_TestShield",
+            {
+                "Cost": "ReactionActionPoint:1;SpellSlotsGroup:1:1:1",
+                "Properties": (
+                    "IF(HasInterruptedAttack()):AdjustRoll(-5);"
+                    "ApplyStatus(OBSERVER_OBSERVER,SHIELD,100,1)"
+                ),
+            },
+            stat_type="InterruptData",
+        )
+        h.set_stat(
+            "Interrupt_TestBonus",
+            {"Cost": "BonusActionPoint:1;Charge:1"},
+            stat_type="InterruptData",
+        )
+        h.set_stat(
+            "STATUS_BonusCondition",
+            {
+                "Boosts": "AC(2)",
+                "RemoveConditions": "not HasActionResource('BonusActionPoint', 1, 0, false, false)",
+            },
+            stat_type="StatusData",
+        )
+        h.set_stat(
+            "SLOW",
+            {
+                "Boosts": "AC(-2)",
+                "Passives": "Slow_ActionPoint;Slow_Casting",
+            },
+            stat_type="StatusData",
+        )
+        h.set_stat(
+            "PASSIVE_ConditionalAdvantage",
+            {"Boosts": "IF(HasAllyWithinRange('SG_Incapacitated',3)):Advantage(AttackRoll)"},
+            stat_type="PassiveData",
+        )
+        h.set_stat(
+            "PASSIVE_FlatAdvantage",
+            {"Boosts": "Advantage(AttackRoll)"},
+            stat_type="PassiveData",
+        )
+        h.set_stat(
+            "PASSIVE_SaveProficiency",
+            {
+                "Boosts": (
+                    "ProficiencyBonus(SavingThrow,Wisdom);"
+                    "ProficiencyBonus(SavingThrow,Intelligence);AC(1)"
+                )
+            },
+            stat_type="PassiveData",
+        )
+
     # --------------------------------------------------------------------- tests
     def test_patch_all_updates_every_stat_type(self) -> None:
         self.harness.run("DOS2C.Stats.PatchAll(false)")
@@ -265,6 +318,85 @@ class StatsPatcherTests(unittest.TestCase):
     def test_stats_loaded_event_runs_patch_all(self) -> None:
         self.harness.fire_event("StatsLoaded", {})
         self.assertIn("patched", " ".join(self.harness.prints()))
+
+    # ------------------------------------------------------- DOS2 rule gaps
+    def test_interrupt_costs_move_off_bonus_actions_and_slots(self) -> None:
+        self.harness.run("DOS2C.Stats.PatchAll(false)")
+        cost = self.harness.run('return Ext.Stats.Get("Interrupt_TestShield").Cost')
+        self.assertNotIn("SpellSlotsGroup", cost)
+        self.assertIn("ActionPoint:1", cost)
+        bonus = self.harness.run('return Ext.Stats.Get("Interrupt_TestBonus").Cost')
+        self.assertNotIn("BonusActionPoint", bonus)
+        self.assertIn("ActionPoint:1", bonus)
+        self.assertIn("Charge:1", bonus)
+
+    def test_interrupt_conditions_lose_saving_throw_gates(self) -> None:
+        self.harness.set_stat(
+            "Interrupt_Save",
+            {"Properties": "IF(not SavingThrow(Ability.Dexterity, 10)):DealDamage(1d6,Fire)"},
+            stat_type="InterruptData",
+        )
+        self.harness.run("DOS2C.Stats.PatchAll(false)")
+        props = self.harness.run('return Ext.Stats.Get("Interrupt_Save").Properties')
+        self.assertNotIn("SavingThrow(", props)
+
+    def test_bonus_action_conditions_are_rewritten(self) -> None:
+        self.harness.run("DOS2C.Stats.PatchAll(false)")
+        condition = self.harness.run(
+            'return Ext.Stats.Get("STATUS_BonusCondition").RemoveConditions'
+        )
+        self.assertNotIn("BonusActionPoint", condition)
+        self.assertIn("ActionPoint", condition)
+
+    def test_slow_drops_the_extra_action_point_passive(self) -> None:
+        self.harness.run("DOS2C.Stats.PatchAll(false)")
+        passives = self.harness.run('return Ext.Stats.Get("SLOW").Passives')
+        self.assertNotIn("Slow_ActionPoint", passives)
+        self.assertIn("Slow_Casting", passives)
+
+    def test_conditional_advantage_is_not_converted_to_damage(self) -> None:
+        self.harness.run("DOS2C.Stats.PatchAll(false)")
+        converted = self.harness.run(
+            'return DOS2C.Config.ATTACK_ADVANTAGE_PASSIVES["PASSIVE_ConditionalAdvantage"] == true'
+        )
+        self.assertFalse(converted)
+
+    def test_unconditional_advantage_is_converted_to_damage(self) -> None:
+        self.harness.run("DOS2C.Stats.PatchAll(false)")
+        converted = self.harness.run(
+            'return DOS2C.Config.ATTACK_ADVANTAGE_PASSIVES["PASSIVE_FlatAdvantage"] == true'
+        )
+        self.assertTrue(converted)
+
+    def test_saving_throw_proficiency_is_stripped(self) -> None:
+        self.harness.run("DOS2C.Stats.PatchAll(false)")
+        boosts = self.harness.run('return Ext.Stats.Get("PASSIVE_SaveProficiency").Boosts')
+        self.assertNotIn("ProficiencyBonus(SavingThrow", boosts)
+        self.assertIn("AC(1)", boosts)
+
+    def test_flat_attack_roll_bonus_becomes_damage(self) -> None:
+        self.harness.set_stat(
+            "PASSIVE_AttackBonus",
+            {"Boosts": "RollBonus(RangedWeaponAttack, 2);WeaponAttackRollBonus(1)"},
+            stat_type="PassiveData",
+        )
+        self.harness.run("DOS2C.Stats.PatchAll(false)")
+        bonus = self.harness.run(
+            'return DOS2C.Config.ATTACK_ROLL_DAMAGE_BONUS_PASSIVES["PASSIVE_AttackBonus"]'
+        )
+        self.assertEqual(bonus, 2)
+
+    def test_negative_attack_roll_penalty_is_ignored(self) -> None:
+        self.harness.set_stat(
+            "PASSIVE_AllIn",
+            {"Boosts": "IF(GWM(context.Source)):RollBonus(MeleeWeaponAttack, -5)"},
+            stat_type="PassiveData",
+        )
+        self.harness.run("DOS2C.Stats.PatchAll(false)")
+        bonus = self.harness.run(
+            'return DOS2C.Config.ATTACK_ROLL_DAMAGE_BONUS_PASSIVES["PASSIVE_AllIn"]'
+        )
+        self.assertIsNone(bonus)
 
 
 if __name__ == "__main__":

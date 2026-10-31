@@ -321,6 +321,100 @@ class ArmorTests(unittest.TestCase):
             self.harness.run("DOS2C.Config.ATTACK_DISADVANTAGE_PASSIVES = nil")
         self.assertIn("attack-roll damage modifier x0.75", self.logs())
 
+    def test_ac_override_formula_replaces_the_unarmored_base(self) -> None:
+        # Mage Armor: ACOverrideFormula(13,true,Dexterity) with DEX mod 3.
+        self.harness.set_stat(
+            "MAGE_ARMOR", {"Boosts": "ACOverrideFormula(13,true,Dexterity)"}, stat_type="StatusData"
+        )
+        self.character("mage", dex=3, statuses=["MAGE_ARMOR"])
+        self.assertEqual(self.resist("mage")["ac"], 16)
+
+    def test_ac_override_without_dexterity_is_flat(self) -> None:
+        # Barkskin: ACOverrideFormula(16,false).
+        self.harness.set_stat(
+            "BARKSKIN", {"Boosts": "ACOverrideFormula(16,false)"}, stat_type="StatusData"
+        )
+        self.character("bark", dex=5, statuses=["BARKSKIN"])
+        self.assertEqual(self.resist("bark")["ac"], 16)
+
+    def test_ac_override_does_not_double_count_dexterity(self) -> None:
+        # Unarmored Defense: 10 + DEX + CON, and the plain DEX contribution
+        # must not be added a second time.
+        self.harness.set_stat(
+            "UNARMORED_TEST",
+            {"Boosts": "ACOverrideFormula(10,true,Dexterity,Constitution)"},
+            stat_type="PassiveData",
+        )
+        self.harness.run(
+            'H.osi_results["HasPassive"] = function(guid, passive) '
+            'if passive == "UNARMORED_TEST" then return 1 end return 0 end'
+        )
+        self.harness.lua.globals()["_opts"] = self.harness.to_lua(
+            {"dex": 3, "passives": {"UNARMORED_TEST": True}}
+        )
+        self.harness.run(
+            "local e = make_armor_character('monk', _opts) "
+            "e.Stats.AbilityModifiers = { 0, 3, 4, 0, 0, 0 }"
+        )
+        self.assertEqual(self.resist("monk")["ac"], 17)
+
+    def test_attack_target_disadvantage_reduces_incoming_damage(self) -> None:
+        self.character("attacker3", ac=10)
+        self.character("victim7", ac=10)
+        self.harness.run("DOS2C.Config.INCOMING_DISADVANTAGE_STATUSES = { BLUR = true }")
+        self.harness.run('H.statuses["victim7|BLUR"] = true')
+        event = self.harness.raw(
+            """
+            return {
+                Target = "victim7",
+                Hit = { DamageList = { { Amount = 100 } }, CauseType = 6, Inflicter = "attacker3" },
+            }
+            """
+        )
+        try:
+            self.harness.fire_event_value("DealDamage", event)
+        finally:
+            self.harness.run("DOS2C.Config.INCOMING_DISADVANTAGE_STATUSES = nil")
+        self.assertIn("incoming damage modifier x0.85", self.logs())
+
+    def test_attack_target_advantage_raises_incoming_damage(self) -> None:
+        self.character("attacker4", ac=10)
+        self.character("victim8", ac=10)
+        self.harness.run("DOS2C.Config.INCOMING_ADVANTAGE_STATUSES = { FAERIE_FIRE = true }")
+        self.harness.run('H.statuses["victim8|FAERIE_FIRE"] = true')
+        event = self.harness.raw(
+            """
+            return {
+                Target = "victim8",
+                Hit = { DamageList = { { Amount = 100 } }, CauseType = 6, Inflicter = "attacker4" },
+            }
+            """
+        )
+        try:
+            self.harness.fire_event_value("DealDamage", event)
+        finally:
+            self.harness.run("DOS2C.Config.INCOMING_ADVANTAGE_STATUSES = nil")
+        self.assertIn("incoming damage modifier x1.15", self.logs())
+
+    def test_attack_roll_bonus_becomes_flat_damage(self) -> None:
+        self.character("attacker5", ac=10)
+        self.character("victim9", ac=10)
+        self.harness.run("DOS2C.Config.ATTACK_ROLL_DAMAGE_BONUS = { BLESSED = 2 }")
+        self.harness.run('H.statuses["attacker5|BLESSED"] = true')
+        event = self.harness.raw(
+            """
+            return {
+                Target = "victim9",
+                Hit = { DamageList = { { Amount = 50 } }, CauseType = 6, Inflicter = "attacker5" },
+            }
+            """
+        )
+        try:
+            self.harness.fire_event_value("DealDamage", event)
+        finally:
+            self.harness.run("DOS2C.Config.ATTACK_ROLL_DAMAGE_BONUS = nil")
+        self.assertIn("attack-roll flat damage +2", self.logs())
+
     def test_prepare_all_scans_combat_components(self) -> None:
         self.character("enemy-a", ac=16, combatParticipant=True)
         self.character("enemy-b", ac=16, inCombat=True)

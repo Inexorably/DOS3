@@ -142,8 +142,8 @@ Ubuntu runner because LSLib requires Windows.
   AC 30 = 80%, AC 40 ≈ 91%. A 100% hard safety cap remains. Shield items use
   their ArmorClass bonus directly.
 - Enemy AC is converted into damage reduction instead of remaining as hit
-  avoidance. A hidden no-dodge status also cancels AC from statuses, spells,
-  and passives, including `ACOverrideFormula` effects.
+  avoidance. AC overrides such as Mage Armor, Barkskin, Unarmored Defense, and
+  Draconic Resilience are evaluated into the same reduction value.
 
 ![AC to damage reduction](docs/armor-resistance.png)
 
@@ -667,6 +667,7 @@ tests/                  unittest and Lua harness tests
 - `AGENTS.md` - repository guardrails for coding agents and new contributors
 - `GLOSSARY.md` - BG3/DOS2/BG3SE and project terminology
 - `docs/ARCHITECTURE.md` - module boundaries, load order, event flow, and build pipeline
+- `docs/DOS2_DEAD_CONTENT_AUDIT.md` - buffs, spells, passives, and loot made inert by DOS2 rules
 - `TODO.md` - implementation backlog and in-game verification checklist
 - `mods/EnemyRandomization/CHAMPION_DESIGN.md` - champion, summon, and loot architecture
 - `tests/README.md` - test coverage and limitations
