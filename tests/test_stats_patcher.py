@@ -555,6 +555,141 @@ class StatsPatcherSmokeTests(unittest.TestCase):
         printed = " ".join(str(v) for v in lua.eval("printed").values())
         self.assertIn("damage ranges compressed on", printed)
 
+    def test_native_recharge_is_cleared_through_the_raw_attribute(self):
+        # Witch Bolt keeps RechargeValues = 3-6. The engine exposes that property
+        # as an object, so the plain "" assignment reported success and changed
+        # nothing - the spell kept advertising "Must take a Short Rest." and the
+        # turn cooldown never replaced it.
+        lua = lua_runtime()
+        root = MODS / "DOS2Combat" / "Mods" / "DOS2Combat" / "ScriptExtender" / "Lua"
+        for relative in (
+            "Shared/ArmorFormula.lua",
+            "Server/Config.lua",
+            "Server/Util.lua",
+            "Server/Cooldowns.lua",
+            "Server/StatsPatcher.lua",
+        ):
+            run_lua_file(lua, root / relative)
+
+        lua.execute(
+            """
+            local raw = { RechargeValues = "3-6", Cooldown = "" }
+            local spell = {
+                Level = 1,
+                UseCosts = "ActionPoint:1;SpellSlotsGroup:1:1:1",
+                DualWieldingUseCosts = "",
+                SpellRoll = "",
+                SpellSuccess = "",
+                SpellProperties = "",
+                SpellFail = "",
+                TooltipDamageList = "DealDamage(1d12,Lightning)",
+                DescriptionParams = "",
+                ExtraDescriptionParams = "",
+                TooltipUpcastDescriptionParams = "",
+                SpellFlags = "IsSpell;IsConcentration;IsHarmful",
+                ConcentrationSpellID = "Shout_WitchBolt_Activate",
+                -- Object-backed, exactly like the runtime exposes them.
+                RechargeValues = { __recharge = true },
+                Cooldown = { __enum = true },
+            }
+            function spell:GetRawAttribute(key) return raw[key] end
+            function spell:SetRawAttribute(key, value)
+                if raw[key] == nil then return false end
+                raw[key] = value
+                return true
+            end
+            function spell:Sync() end
+            Ext.Stats = {
+                GetStats = function(kind)
+                    if kind == "SpellData" then return { "Projectile_WitchBolt" } end
+                    return {}
+                end,
+                Get = function(name)
+                    if name == "Projectile_WitchBolt" then return spell end
+                    return nil
+                end,
+            }
+            DOS2C.Stats.PatchAll(false)
+            _G.raw = raw
+            _G.spell = spell
+            """
+        )
+
+        self.assertEqual(
+            lua.eval("raw.RechargeValues"), "",
+            "RechargeValues must be cleared or the tooltip keeps the short-rest text",
+        )
+        self.assertGreater(
+            lua.eval('DOS2C.Cooldowns.Get("Projectile_WitchBolt")'), 0,
+            "the native limit must be replaced by a turn cooldown",
+        )
+        self.assertNotIn("IsConcentration", lua.eval("spell.SpellFlags"))
+        self.assertEqual(lua.eval("spell.ConcentrationSpellID"), "")
+        self.assertEqual(lua.eval("spell.UseCosts"), "ActionPoint:1")
+
+    def test_a_limit_that_will_not_clear_is_reported(self):
+        lua = lua_runtime()
+        root = MODS / "DOS2Combat" / "Mods" / "DOS2Combat" / "ScriptExtender" / "Lua"
+        for relative in (
+            "Shared/ArmorFormula.lua",
+            "Server/Config.lua",
+            "Server/Util.lua",
+            "Server/Cooldowns.lua",
+            "Server/StatsPatcher.lua",
+        ):
+            run_lua_file(lua, root / relative)
+
+        lua.execute(
+            """
+            printed = {}
+            local spell = {
+                Level = 1,
+                UseCosts = "ActionPoint:1",
+                DualWieldingUseCosts = "",
+                SpellRoll = "",
+                SpellSuccess = "",
+                SpellProperties = "",
+                SpellFail = "",
+                TooltipDamageList = "",
+                DescriptionParams = "",
+                ExtraDescriptionParams = "",
+                TooltipUpcastDescriptionParams = "",
+                SpellFlags = "",
+                ConcentrationSpellID = "",
+                -- Object-backed and unstoppable: SetRawAttribute refuses, and the
+                -- plain field still reads as set.
+                RechargeValues = { __recharge = true },
+            }
+            function spell:GetRawAttribute(key)
+                if key == "RechargeValues" then return "3-6" end
+                return nil
+            end
+            function spell:SetRawAttribute(key, value)
+                if key == "RechargeValues" then return false end
+                return false
+            end
+            function spell:Sync() end
+            Ext.Log = { Print = function(text) printed[#printed + 1] = tostring(text) end }
+            Ext.Utils = { Print = function(text) printed[#printed + 1] = tostring(text) end }
+            Ext.Stats = {
+                GetStats = function(kind)
+                    if kind == "SpellData" then return { "Test_Stuck" } end
+                    return {}
+                end,
+                Get = function(name)
+                    if name == "Test_Stuck" then return spell end
+                    return nil
+                end,
+            }
+            DOS2C.Config.DEBUG = true
+            DOS2C.Stats.PatchAll(false)
+            """
+        )
+
+        printed = " ".join(str(v) for v in lua.eval("printed").values())
+        self.assertIn("could not clear RechargeValues", printed)
+        self.assertIn("could not be cleared", printed)
+
 
 if __name__ == "__main__":
     unittest.main()

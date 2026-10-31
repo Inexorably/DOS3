@@ -81,6 +81,17 @@
       runtime level/cooldown histogram.
 - [x] Remove concentration from every spell in DOS2Combat by stripping
       `IsConcentration` from `SpellFlags` and clearing `ConcentrationSpellID`.
+      `SpellFlags` is an enum bitfield at runtime, so the strip now goes through
+      `GetRawAttribute`/`SetRawAttribute`; the plain string check silently
+      skipped it and only 47 spells lost concentration.
+- [x] Clear the native `Cooldown` and `RechargeValues` fields through the raw
+      accessors and verify the write with a read back. A plain `""` assignment
+      reported success without changing the property, so recharging spells kept
+      the native limit: Witch Bolt (native `RechargeValues = 3-6`) still showed
+      "Must take a Short Rest." and never switched to its turn cooldown.
+- [ ] Verify in game that Witch Bolt and other recharge spells show a numeric
+      turn cooldown with no rest text, and that the log reports
+      `native cast limits converted on <n> spell fields (0 could not be cleared)`.
 - [x] Spells that recharge on a **short rest** get a **3-turn cooldown**.
 - [x] Spells that recharge on a **long rest** get a **5-turn cooldown**.
 - [x] All non-default spells have a **minimum 1-turn cooldown**.
