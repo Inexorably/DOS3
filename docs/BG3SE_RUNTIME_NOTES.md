@@ -589,6 +589,34 @@ template references (`data "Vitality" ...`); stat overrides are name-keyed, so
 redefining the inherited stat is what applies the cap. `Osi.SetHitpoints` remains
 safe and only moves current HP.
 
+## `Ext.Stats` returns expression fields as `Array<stats::FunctorGroup>` (2026-10-30 02:12 run)
+
+Damage-range compression silently stopped reaching spell damage. The patcher
+rewrote `TooltipDamageList` (a plain string) but skipped every field that
+actually rolls damage, because it required a string:
+
+```lua
+local value = U.SafeGet(stat, field)
+if type(value) ~= "string" or value == "" then return changed end
+```
+
+The game's own verification dump shows what those fields really are:
+
+```text
+[DOS2C][VERIFY] stat Projectile_FireBolt TooltipDamageList=DealDamage(LevelMapValue(D10Cantrip),Fire) | SpellSuccess=Array<stats::FunctorGroup> (0000012B58A3D830) | SpellRoll=table: 0000012B6E...
+```
+
+So `SpellSuccess`, `SpellProperties`, `SpellFail` and `Boosts` come back as
+expression objects, `type() ~= "string"` and `compressField` returned early for
+every one of them. Eldritch Blast (`DealDamage(1d10,Force,Magical)`) therefore
+kept rolling 1-10 while its tooltip advertised the compressed 1d4+3 (4-7).
+
+`SpellRoll` had already hit this and used `SetRawAttribute`; the compression
+path never did. `StatsPatcher` now reads and writes through
+`GetRawAttribute`/`SetRawAttribute` whenever the plain attribute is not a
+string, and logs `damage ranges compressed on <n> stat fields` so one game
+session proves whether the runtime stats were rewritten.
+
 ## The IsInCombat component is stale after a save reload (2026-10-30 04:05 run)
 
 Reloading a save inside a running game leaves `IsInCombat` component instances on
