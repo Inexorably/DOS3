@@ -333,6 +333,32 @@ end
 -- proves whether compression reached the runtime stats.
 local compressedTotal = 0
 
+-- Removes a native cast limit (Cooldown, RechargeValues). Verified with a read
+-- back: several stats properties accept a plain string assignment and silently
+-- keep their old value, which is how "Must take a Short Rest." survived on a
+-- spell whose RechargeValues had supposedly been cleared.
+local convertedLimits = 0
+local unconvertedLimits = 0
+
+local function clearStatField(stat, field, spellName, replacement)
+    local before, raw = readFieldText(stat, field)
+    if not before or before == "" then return false end
+    if replacement ~= nil then
+        U.SafeSet(stat, field, replacement)
+    else
+        writeFieldText(stat, field, "", raw)
+    end
+    local after = readFieldText(stat, field)
+    if after == nil or after == "" then
+        convertedLimits = convertedLimits + 1
+        return true
+    end
+    unconvertedLimits = unconvertedLimits + 1
+    U.Log("could not clear %s on %s (still %s)", tostring(field),
+        tostring(spellName), tostring(after))
+    return false
+end
+
 local function compressField(stat, field, changed, direct)
     local state = compressedFields[stat]
     if state and state[field] then return changed end
@@ -830,8 +856,11 @@ local function patchConcentration(name, stat)
     if not cfg.REMOVE_CONCENTRATION then return false end
 
     local changed = false
-    local flags = U.SafeGet(stat, "SpellFlags")
-    if type(flags) == "string" and flags ~= "" then
+    -- SpellFlags is an enum bitfield at runtime, so a plain string read returns
+    -- an object and the old type check skipped the flag strip. Route it through
+    -- the raw accessors, which is what the engine actually writes.
+    local flags, flagsRaw = readFieldText(stat, "SpellFlags")
+    if flags then
         local parts = {}
         for raw in flags:gmatch("[^;]+") do
             local token = raw:gsub("^%s+", ""):gsub("%s+$", "")
@@ -840,7 +869,7 @@ local function patchConcentration(name, stat)
             end
         end
         local updated = table.concat(parts, ";")
-        if updated ~= flags and U.SafeSet(stat, "SpellFlags", updated) then
+        if updated ~= flags and writeFieldText(stat, "SpellFlags", updated, flagsRaw) then
             changed = true
         end
     end
@@ -921,23 +950,23 @@ local function patchSpell(name, stat)
     end
 
     -- Replace native cast limits with the numeric turn-cooldown overlay.
-    -- Compute the cooldown above before clearing these fields.
+    -- Compute the cooldown above before clearing these fields. Both fields are
+    -- read and written through the raw accessors because the engine exposes them
+    -- as objects, and a plain string assignment to an object-backed property
+    -- reports success without changing it - which left spells advertising
+    -- "Must take a Short Rest." with no turn cooldown at all.
     if cfg.CONVERT_NATIVE_COOLDOWNS then
+        if clearStatField(stat, "RechargeValues", name) then changed = true end
         local currentCooldown = U.SafeGet(stat, "Cooldown")
         if currentCooldown ~= nil and currentCooldown ~= "" then
-            -- SpellCooldownType.Default is enum value 0. Writing the numeric
-            -- value avoids the invalid "Default" label while preventing the
-            -- native tooltip from advertising a per-turn/rest cooldown that
-            -- no longer applies. Fall back to OncePerTurn only if the stats
-            -- field rejects numeric enum values.
-            if U.SafeSet(stat, "Cooldown", 0) then
+            -- SpellCooldownType.Default is enum value 0: no native limit, so the
+            -- numeric overlay is the only limiter left. Fall back to the enum
+            -- label if the field rejects the numeric value.
+            if clearStatField(stat, "Cooldown", name, 0) then
                 changed = true
             elseif U.SafeSet(stat, "Cooldown", "OncePerTurn") then
                 changed = true
             end
-        end
-        if U.SafeGet(stat, "RechargeValues") ~= nil then
-            if U.SafeSet(stat, "RechargeValues", "") then changed = true end
         end
     end
 
@@ -1912,6 +1941,8 @@ function S.PatchAll(runtime)
         nCharacters, nSpells, nWeapons, nArmor, nStatuses, nPassives, nObjects, nInterrupts, concentrationCount)
     U.Log("damage ranges compressed on %d stat fields (ratio %.2f)",
         compressedTotal, tonumber(DOS2C.Config.DAMAGE_RANGE_COMPRESSION) or 0)
+    U.Log("native cast limits converted on %d spell fields (%d could not be cleared)",
+        convertedLimits, unconvertedLimits)
 end
 
 if Ext.Events and Ext.Events.StatsLoaded then
