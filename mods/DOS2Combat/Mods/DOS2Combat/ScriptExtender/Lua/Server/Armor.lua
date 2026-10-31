@@ -852,21 +852,15 @@ function A.ForceNoDodge(handle)
     return true
 end
 
+-- One computation per refresh: dropping the cached AC makes computeResistance
+-- re-read it (and clear the legacy NoDodge status). A first-seen character
+-- used to be computed twice here.
 function A.Refresh(handle, quiet)
     local key = U.GuidOf(handle)
     if not key then return false end
-    local resist = resistances[key]
-    if not resist then
-        resist = computeResistance(handle)
-        resistances[key] = resist
-    end
     originalACs[key] = nil
-    resistances[key] = nil
-    removeLegacyNoDodge(handle)
-    local updated = computeResistance(handle)
-    resistances[key] = updated
-    resist = updated
-    for k, v in pairs(updated) do resist[k] = v end
+    local resist = computeResistance(handle)
+    resistances[key] = resist
     if not quiet then
         U.Log("armor refresh %s: %.0f%% reduction",
             tostring(key), tonumber(resist.percent) or 0)
@@ -892,6 +886,49 @@ function A.RefreshChanged(handle, force)
     local resist = resistances[key]
     refreshedFrom[key] = fingerprint and resist
         and { fingerprint = fingerprint, resist = resist, percent = resist.percent } or nil
+    return true
+end
+
+-- The cached value for a guid string, or nil; never computes (ArmorSync's
+-- pass builds the hover payload from it without an entity lookup).
+function A.Cached(guid)
+    return guid and resistances[guid] or nil
+end
+
+-- Candles, barrels and chests take turns in combat too. Their TurnStarted
+-- must not refresh anything.
+function A.IsObject(handle)
+    local entity = U.EntityOf(handle)
+    if entity and component(entity, "ServerItem") then return true end
+    local guid = U.GuidOf(handle)
+    if not (guid and Osi) then return false end
+    local okItem, item = pcall(function() return Osi.IsItem(guid) end)
+    if okItem and (item == 1 or item == true) then return true end
+    local okChar, character = pcall(function() return Osi.IsCharacter(guid) end)
+    if okChar and (character == 0 or character == false) then return true end
+    return false
+end
+
+-- True when a status can move a character's AC (the named Osiris statuses or
+-- an AC(n) in its Boosts), so its StatusApplied / StatusRemoved marks the
+-- character dirty; every other status is ignored.
+function A.StatusGivesArmor(status)
+    if status == nil then return false end
+    local name = tostring(status)
+    if STATUS_ARMOR_FALLBACK[name] then return true end
+    local boosts = statBoosts(name, "StatusData")
+    return acFromBoosts(boosts) ~= 0 or acFromOverride(boosts, nil) ~= nil
+end
+
+-- TurnStarted: refresh the actor only (it records the actor's armor key, so
+-- the poll's backstop does not refresh it again); object turns do nothing.
+function A.OnTurnStarted(character)
+    if A.IsObject(character) then return false end
+    A.RefreshChanged(character, true)
+    local key = U.GuidOf(character)
+    local resist = key and resistances[key]
+    U.Log("armor refresh %s: %.0f%% reduction",
+        tostring(key), tonumber(resist and resist.percent) or 0)
     return true
 end
 
@@ -974,7 +1011,7 @@ end
 
 if Ext.Osiris and Ext.Osiris.RegisterListener then
     pcall(Ext.Osiris.RegisterListener, "TurnStarted", 1, "after", function(character)
-        local ok, err = pcall(A.Refresh, character)
+        local ok, err = pcall(A.OnTurnStarted, character)
         if not ok then U.Log("armor refresh error: %s", tostring(err)) end
     end)
 end
