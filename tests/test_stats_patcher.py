@@ -690,6 +690,145 @@ class StatsPatcherSmokeTests(unittest.TestCase):
         self.assertIn("could not clear RechargeValues", printed)
         self.assertIn("could not be cleared", printed)
 
+    def test_jump_costs_are_converted_to_action_points(self):
+        # Vanilla Projectile_Jump is BonusActionPoint:1;Movement:3. With the
+        # bonus-action pool removed, a leftover bonus-action cost makes Jump
+        # unpayable, so the conversion has to survive on every cost field.
+        lua = lua_runtime()
+        root = MODS / "DOS2Combat" / "Mods" / "DOS2Combat" / "ScriptExtender" / "Lua"
+        for relative in (
+            "Shared/ArmorFormula.lua",
+            "Server/Config.lua",
+            "Server/Util.lua",
+            "Server/Cooldowns.lua",
+            "Server/StatsPatcher.lua",
+        ):
+            run_lua_file(lua, root / relative)
+
+        lua.execute(
+            """
+            local spell = {
+                TargetRadius = 4.5,
+                Icon = "Action_Jump",
+                UseCosts = "BonusActionPoint:1;Movement:3",
+                RitualCosts = "",
+                HitCosts = "",
+                DualWieldingUseCosts = "",
+                SpellFlags = "IsJump;CannotTargetCharacter",
+                SpellActionType = "Jump",
+                SpellCategory = "SC_Jump",
+            }
+            function spell:Sync() end
+            Ext.Stats = {
+                GetStats = function(kind)
+                    if kind == "SpellData" then return { "Projectile_Jump" } end
+                    return {}
+                end,
+                Get = function(name)
+                    if name == "Projectile_Jump" then return spell end
+                    return nil
+                end,
+            }
+            DOS2C.Stats.PatchAll(false)
+            _G.spell = spell
+            """
+        )
+
+        self.assertEqual(lua.eval("spell.UseCosts"), "ActionPoint:1;Movement:3")
+        self.assertNotIn("BonusActionPoint", lua.eval("spell.UseCosts"))
+
+    def test_the_character_bonus_action_pool_is_removed(self):
+        lua = lua_runtime()
+        root = MODS / "DOS2Combat" / "Mods" / "DOS2Combat" / "ScriptExtender" / "Lua"
+        for relative in (
+            "Shared/ArmorFormula.lua",
+            "Server/Config.lua",
+            "Server/Util.lua",
+            "Server/Cooldowns.lua",
+            "Server/StatsPatcher.lua",
+        ):
+            run_lua_file(lua, root / relative)
+
+        lua.execute(
+            """
+            local char = {
+                ActionResources = "ActionPoint:1;BonusActionPoint:1;Movement:9;ReactionActionPoint:1",
+                DefaultBoosts = "",
+                Level = 1,
+            }
+            function char:Sync() end
+            Ext.Stats = {
+                GetStats = function(kind)
+                    if kind == "Character" then return { "CHAR_Test" } end
+                    return {}
+                end,
+                Get = function(name)
+                    if name == "CHAR_Test" then return char end
+                    return nil
+                end,
+            }
+            DOS2C.Stats.PatchAll(false)
+            _G.char = char
+            """
+        )
+
+        resources = lua.eval("char.ActionResources")
+        self.assertNotIn("BonusActionPoint", resources)
+        self.assertIn("ActionPoint:", resources)
+        self.assertIn("Movement:9", resources)
+
+    def test_a_leftover_bonus_action_cost_is_named_in_the_log(self):
+        lua = lua_runtime()
+        root = MODS / "DOS2Combat" / "Mods" / "DOS2Combat" / "ScriptExtender" / "Lua"
+        for relative in (
+            "Shared/ArmorFormula.lua",
+            "Server/Config.lua",
+            "Server/Util.lua",
+            "Server/Cooldowns.lua",
+            "Server/StatsPatcher.lua",
+        ):
+            run_lua_file(lua, root / relative)
+
+        lua.execute(
+            """
+            printed = {}
+            -- A stat whose cost will not clear: the raw write is refused, so the
+            -- field still reads as a bonus action. The audit must name it.
+            local stuck = {
+                UseCosts = { __object = true },
+                DualWieldingUseCosts = "",
+                RitualCosts = "",
+                HitCosts = "",
+                SpellFlags = "",
+                ConcentrationSpellID = "",
+            }
+            function stuck:GetRawAttribute(key)
+                if key == "UseCosts" then return "BonusActionPoint:1" end
+                return nil
+            end
+            function stuck:SetRawAttribute(key, value) return false end
+            function stuck:Sync() end
+            Ext.Log = { Print = function(text) printed[#printed + 1] = tostring(text) end }
+            Ext.Utils = { Print = function(text) printed[#printed + 1] = tostring(text) end }
+            Ext.Stats = {
+                GetStats = function(kind)
+                    if kind == "SpellData" then return { "Spell_WithBonusAction" } end
+                    return {}
+                end,
+                Get = function(name)
+                    if name == "Spell_WithBonusAction" then return stuck end
+                    return nil
+                end,
+            }
+            DOS2C.Config.DEBUG = true
+            DOS2C.Stats.PatchAll(false)
+            """
+        )
+
+        printed = " ".join(str(v) for v in lua.eval("printed").values())
+        self.assertIn("bonus action costs remaining on", printed)
+        self.assertIn("Spell_WithBonusAction", printed)
+
 
 if __name__ == "__main__":
     unittest.main()

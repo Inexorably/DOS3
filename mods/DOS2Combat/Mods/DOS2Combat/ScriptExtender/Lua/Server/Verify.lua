@@ -144,6 +144,9 @@ function V.Verify(guid)
         cfg.AP_START, cfg.AP_MAX, cfg.AP_REGEN,
         tostring(cfg.BASE_ATTACK_ROLL_BONUS), tostring(cfg.ARMOR_ENABLED))
 
+    -- Jump is the clearest proof that bonus-action costs were converted: its
+    -- native UseCosts is BonusActionPoint:1;Movement:3.
+    statSnapshot("Projectile_Jump", { "UseCosts", "SpellFlags" })
     statSnapshot("Projectile_FireBolt",
         { "TooltipDamageList", "SpellSuccess", "SpellRoll", "Cooldown", "UseCosts" })
     -- Eldritch Blast keeps literal dice instead of a level map, so it is the
