@@ -319,7 +319,10 @@ local function armorFingerprint(handle)
     parts[#parts + 1] = sortedJoin(items)
 
     local stats = component(entity, "Stats")
-    local dexOk, dex = pcall(function() return stats.AbilityModifiers[2] end)
+    local dexOk, dex = false, nil
+    if stats then
+        dexOk, dex = pcall(function() return stats.AbilityModifiers[2] end)
+    end
     parts[#parts + 1] = dexOk and tostring(dex) or "?"
 
     local statusIds = {}
