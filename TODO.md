@@ -9,8 +9,13 @@
       log for unparsed `RollBonus(MeleeUnarmedAttack,...)` boosts.
 - [ ] `DOS2C_ENEMY_HP`: an enemy entering combat has +50% max HP and starts at
       full health; party members, allies, and neutrals are untouched.
-- [ ] OrbWeaver and Enemy Randomization still assume DOS2 AP costs in places
-      (`DOS2_AP_COSTS`, summon AP caps); rebalance for native BG3 actions.
+- [x] Enemy Randomization summons are off (`SUMMONS_ENABLED = false`): the 14
+      generated summoner champions and Horde are dropped from the roster at
+      load, and Death loses Animate Dead. Generated summon stats/templates
+      are still packaged but unused; remove them from the generator later.
+- [ ] Verify no champion casts a summon in-game and old saves with a
+      summoner champion status still load.
+- [ ] OrbWeaver spells still cost 2-4 DOS2 AP; rebalance for native BG3 actions.
 - [ ] `scripts/dos2_content_compat.py` still prunes buffs that were dead only
       under the DOS2 rules layer; revisit and regenerate ENR assets.
 

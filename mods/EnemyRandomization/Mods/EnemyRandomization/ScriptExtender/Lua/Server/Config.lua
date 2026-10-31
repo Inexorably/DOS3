@@ -156,6 +156,13 @@ ER.Config = {
     -- data must not silently disable every other summoning champion.
     CHAMPIONS = (ER.Generated and ER.Generated.champions) or {},
 
+    -- Summons are off on the vanilla-plus branch: the generated ENR_Summon_*
+    -- spells cost 4 DOS2 AP and summons ran on a DOS2 AP pool. Champions whose
+    -- spells are all summons are dropped from the roster; other champions lose
+    -- just their summon spells. Spells matching any pattern count as summons.
+    SUMMONS_ENABLED = false,
+    SUMMON_SPELL_PATTERNS = { "^ENR_Summon_", "^Target_AnimateDead" },
+
     -- A hidden persistent status marks enemies that were already randomized.
     -- This is what prevents rerolls after save/reload mid-combat and keeps
     -- multiplayer clients from seeing different results.
@@ -242,6 +249,42 @@ ER.Config = {
         }    end)(),
 }
 
+
+local function isSummonSpell(spell)
+    for _, pattern in ipairs(ER.Config.SUMMON_SPELL_PATTERNS or {}) do
+        if tostring(spell):match(pattern) then return true end
+    end
+    return false
+end
+
+-- Returns the champion roster without summons. Generated entries are copied,
+-- never mutated, so ER.Generated stays the untouched source data.
+function ER.FilterSummonChampions(champions)
+    local out = {}
+    for _, entry in ipairs(champions or {}) do
+        local spells, summons = {}, 0
+        for _, spell in ipairs(entry.spells or {}) do
+            if isSummonSpell(spell) then
+                summons = summons + 1
+            else
+                spells[#spells + 1] = spell
+            end
+        end
+        if summons == 0 then
+            out[#out + 1] = entry
+        elseif #spells > 0 then
+            local copy = {}
+            for key, value in pairs(entry) do copy[key] = value end
+            copy.spells = spells
+            out[#out + 1] = copy
+        end
+    end
+    return out
+end
+
+if not ER.Config.SUMMONS_ENABLED then
+    ER.Config.CHAMPIONS = ER.FilterSummonChampions(ER.Config.CHAMPIONS)
+end
 
 if Ext and Ext.Utils and Ext.Utils.Print then
     pcall(Ext.Utils.Print, ER.Config.LOG_PREFIX .. " random buff pool: " .. tostring(#ER.Config.BUFFS))

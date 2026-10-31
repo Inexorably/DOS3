@@ -6,10 +6,18 @@ import unittest
 
 from .lua_harness import LuaModHarness
 
+try:
+    import lupa  # noqa: F401
+
+    HAVE_LUPA = True
+except ImportError:  # pragma: no cover
+    HAVE_LUPA = False
+
 HOST = "host-guid"
 ENEMY = "enemy-guid"
 
 
+@unittest.skipUnless(HAVE_LUPA, "lupa is not installed")
 class VanillaPlusTestCase(unittest.TestCase):
     def setUp(self) -> None:
         self.harness = LuaModHarness("DOS2Combat")

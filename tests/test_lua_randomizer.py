@@ -245,14 +245,14 @@ class RandomizerTests(unittest.TestCase):
             ' { StatusId = "ENR_RANDOMIZED" },'
             ' { StatusId = "ENR_CHAMPION_ROLLED" },'
             ' { StatusId = "ENR_CHAMPION_HP_SCALED" },'
-            ' { StatusId = "ENR_CHAMPION_HELL" },'
+            ' { StatusId = "ENR_CHAMPION_FIRE" },'
             "} }"
         )
         self.harness.set_osi_result("HasStatus", 0)
         self.assertFalse(self.harness.run('return ER.Randomizer.ApplyTo("container")'))
         self.assertEqual(
             self.applied_statuses("container") & self.champion_statuses(),
-            {"ENR_CHAMPION_HELL"},
+            {"ENR_CHAMPION_FIRE"},
             "the champion already on the entity must be adopted, not replaced",
         )
         self.assertEqual(
