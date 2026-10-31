@@ -286,17 +286,76 @@ end
 -- skipped every field that actually rolls damage: only the tooltip strings were
 -- ever compressed, so damage stayed at full spread. GetRawAttribute returns the
 -- underlying expression text and SetRawAttribute writes it back.
+--
+-- Feature detection must not index the stats object bare: BG3SE v33 (Oct 24
+-- 2026 build) has SetRawAttribute but no GetRawAttribute, and indexing a stats
+-- object for a property it lacks THROWS ("Property does not exist:
+-- stats::Object::GetRawAttribute") after logging "has no attribute named" for
+-- that stat. Unguarded, that aborted the patch of every spell, status and
+-- passive entry (`0 spells ... 0 passives`). The lookup runs inside pcall, and a
+-- method that threw once is remembered as missing: methods belong to the stats
+-- object type, so asking again per stat would only repeat the log line.
+local missingStatMethods = {}
+
+local function statMethod(stat, name)
+    if not stat or missingStatMethods[name] then return nil end
+    local ok, method = pcall(function() return stat[name] end)
+    if not ok then
+        missingStatMethods[name] = true
+        return nil
+    end
+    return method
+end
+
 local function rawField(stat, field)
-    if not (stat and stat.GetRawAttribute) then return nil end
+    if not statMethod(stat, "GetRawAttribute") then return nil end
     local ok, value = pcall(function() return stat:GetRawAttribute(field) end)
     if ok and type(value) == "string" and value ~= "" then return value end
     return nil
 end
 
 local function writeRawField(stat, field, value)
-    if not (stat and stat.SetRawAttribute) then return false end
+    if not statMethod(stat, "SetRawAttribute") then return false end
     local ok, result = pcall(function() return stat:SetRawAttribute(field, value) end)
     return ok and result ~= false
+end
+
+-- Field lists are per stat type: reading a field the type does not define logs
+-- "has no attribute named" once per stat even inside pcall (the cost audit alone
+-- logged ~45,000 such lines on one load). When the SE lists a type's attributes
+-- (Ext.Stats.GetModifierAttributes, {name = type}), a field the list lacks is
+-- not read at all. No list (older SE, unknown type, an error) = read as before.
+local typeAttributes = {}
+local currentStatType = nil
+
+local function attributesOf(statType)
+    if statType == nil then return nil end
+    local known = typeAttributes[statType]
+    if known ~= nil then return known or nil end
+    known = false
+    local list = Ext and Ext.Stats and Ext.Stats.GetModifierAttributes
+    if list then
+        local ok, attributes = pcall(list, statType)
+        if ok and attributes ~= nil then
+            local set, any = {}, false
+            pcall(function()
+                for name in pairs(attributes) do
+                    if type(name) == "string" then
+                        set[name] = true
+                        any = true
+                    end
+                end
+            end)
+            if any then known = set end
+        end
+    end
+    typeAttributes[statType] = known
+    return known or nil
+end
+
+local function typeDefines(field)
+    local attributes = attributesOf(currentStatType)
+    return attributes == nil or attributes[field] == true
 end
 
 -- Reads `field` as text, preferring the plain attribute and falling back to the
@@ -305,6 +364,7 @@ end
 -- the stat has no expression there, and probing every empty field of every stat
 -- would cost tens of thousands of native calls during the patch pass.
 local function readFieldText(stat, field)
+    if not typeDefines(field) then return nil, false end
     local plain = U.SafeGet(stat, field)
     if type(plain) == "string" and plain ~= "" then return plain, false end
     if type(plain) == "table" or type(plain) == "userdata" then
@@ -1057,7 +1117,7 @@ local function patchSpell(name, stat)
             -- Lua string can report success without changing the underlying
             -- expression. SetRawAttribute writes the actual stats property.
             local cleared = false
-            if stat.SetRawAttribute then
+            if statMethod(stat, "SetRawAttribute") then
                 local ok, result = pcall(function()
                     return stat:SetRawAttribute("SpellRoll", "")
                 end)
@@ -1590,6 +1650,8 @@ local function eachStat(statType, handler)
 
     local count = 0
     local errors = 0
+    local outerStatType = currentStatType
+    currentStatType = statType
     for _, name in ipairs(names) do
         local got, stat = pcall(Ext.Stats.Get, name)
         if got and stat then
@@ -1606,6 +1668,7 @@ local function eachStat(statType, handler)
             end
         end
     end
+    currentStatType = outerStatType
     if errors > 20 then
         U.Log("stat patch suppressed %d additional %s errors", errors - 20, tostring(statType))
     end
@@ -1898,7 +1961,7 @@ function S.RestoreRolls(runtime)
     for name, roll in pairs(originalRolls) do
         local got, stat = pcall(Ext.Stats.Get, name)
         if got and stat then
-            if U.SafeSet(stat, "SpellRoll", roll) and runtime and stat.Sync then
+            if U.SafeSet(stat, "SpellRoll", roll) and runtime and statMethod(stat, "Sync") then
                 pcall(function() stat:Sync() end)
             end
         end
@@ -1922,6 +1985,7 @@ local function auditBonusActionCosts()
     for _, statType in ipairs({ "SpellData", "Object", "InterruptData", "StatusData", "PassiveData" }) do
         local ok, list = pcall(Ext.Stats.GetStats, statType)
         if ok and type(list) == "table" then
+            currentStatType = statType
             for _, name in ipairs(list) do
                 local got, stat = pcall(Ext.Stats.Get, name)
                 if got and stat then
@@ -1936,6 +2000,7 @@ local function auditBonusActionCosts()
             end
         end
     end
+    currentStatType = nil
     U.Log("bonus action costs remaining on %d stats%s", found,
         found > 0 and (": " .. table.concat(names, ", ")) or "")
 end
@@ -1979,7 +2044,7 @@ function S.PatchAll(runtime)
             if ok and type(names) == "table" then
                 for _, name in ipairs(names) do
                     local got, stat = pcall(Ext.Stats.Get, name)
-                    if got and stat and stat.Sync then
+                    if got and stat and statMethod(stat, "Sync") then
                         pcall(function() stat:Sync() end)
                     end
                 end
