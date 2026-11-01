@@ -8,6 +8,8 @@
 -- Rows flagged "engine" are the game's own total. "rebuilt" means the engine
 -- field was empty and the Script Extender reconstructed the value, which cannot
 -- include AC that lives on worn items - treat those rows as suspect.
+--
+-- Off by default; !dos2c_ac in the client console toggles it.
 
 DOS2C = DOS2C or {}
 DOS2C.ArmorDebug = DOS2C.ArmorDebug or {}
