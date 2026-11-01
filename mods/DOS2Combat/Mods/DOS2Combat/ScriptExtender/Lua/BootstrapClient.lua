@@ -3,6 +3,7 @@
 -- cooldown readout and (later) the armor/AP UI.
 
 Ext.Require("Shared/ArmorFormula.lua")
+Ext.Require("Client/BonusActionCosts.lua")
 Ext.Require("Client/CooldownUI.lua")
 Ext.Require("Client/ArmorUI.lua")
 Ext.Events.SessionLoaded:Subscribe(function()
