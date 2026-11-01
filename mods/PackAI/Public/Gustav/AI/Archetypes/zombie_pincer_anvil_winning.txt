@@ -1,0 +1,18 @@
+// GEN bg3gen.ai.roles: role pincer_anvil x phase winning on zombie (emitted; difficulty TACTICIAN; value = zombie's seed
+// value + t * (full - seed) for each knob.sub of roles.yaml + lethality.yaml; everything else is inherited)
+USING zombie
+
+MULTIPLIER_ENDPOS_NOT_IN_AIHINT				0.60	// chokepoints.aihint t=1
+MULTIPLIER_ENDPOS_ENEMIES_NEARBY				0.20	// close_in.contact t=1
+MULTIPLIER_CONTROL_ENEMY_NEG				1.50	// control.crowd_control t=1
+MULTIPLIER_CONTROL_ENEMY_POS				1.50	// control.crowd_control t=1
+MULTIPLIER_TARGET_ENEMY_DOWNED				1.50	// finish.downed t=1
+MULTIPLIER_TARGET_KNOCKED_DOWN				2.00	// finish.knocked_down t=1
+MULTIPLIER_KILL_TARGET_HEALTH_BIAS				1.00	// finish.low_hp_kill t=1
+MULTIPLIER_KILL_ENEMY				2.50	// focus_fire.pile_on t=0.75
+MULTIPLIER_TARGET_HEALTH_BIAS				0.75	// focus_fire.pile_on t=0.75
+MULTIPLIER_TARGET_HOSTILE_COUNT_ONE				1.35	// focus_fire.pile_on t=0.75
+MULTIPLIER_TARGET_HOSTILE_COUNT_TWO_OR_MORE				1.65	// focus_fire.pile_on t=0.75
+MULTIPLIER_ENDPOS_NOT_IN_DANGEROUS_SURFACE				0.60	// surfaces.avoid t=1
+MULTIPLIER_MOVEMENT_SURFACE				2.00	// surfaces.avoid t=1
+MULTIPLIER_TARGET_PREFERRED				8.00	// target.preferred t=1

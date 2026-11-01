@@ -1,0 +1,14 @@
+// GEN bg3gen.ai.roles: role encirclement x phase losing on ranged (emitted; difficulty TACTICIAN; value = ranged's seed
+// value + t * (full - seed) for each knob.sub of roles.yaml + lethality.yaml; everything else is inherited)
+USING ranged
+
+MULTIPLIER_TARGET_ENEMY_DOWNED				0.03	// finish.downed t=-0.05
+MULTIPLIER_TARGET_KNOCKED_DOWN				1.2125	// finish.knocked_down t=-0.05
+MULTIPLIER_KILL_TARGET_HEALTH_BIAS				-0.05	// finish.low_hp_kill t=-0.05
+MULTIPLIER_ENDPOS_FLANKED				0.50	// flank.flanked t=1
+MULTIPLIER_KILL_ENEMY				1.50	// focus_fire.pile_on t=0
+MULTIPLIER_TARGET_HEALTH_BIAS				0.00	// focus_fire.pile_on t=0
+MULTIPLIER_TARGET_HOSTILE_COUNT_ONE				0.90	// focus_fire.pile_on t=0
+MULTIPLIER_TARGET_HOSTILE_COUNT_TWO_OR_MORE				0.60	// focus_fire.pile_on t=0
+MULTIPLIER_ENDPOS_ALLIES_NEARBY				-0.20	// spread.apart t=1
+MULTIPLIER_TARGET_PREFERRED				8.00	// target.preferred t=1

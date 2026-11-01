@@ -1,0 +1,17 @@
+// GEN bg3gen.ai.roles: role pincer_flanker x phase losing on base (emitted; difficulty TACTICIAN; value = base's seed
+// value + t * (full - seed) for each knob.sub of roles.yaml + lethality.yaml; everything else is inherited)
+USING base
+
+MULTIPLIER_TARGET_ENEMY_DOWNED				0.03	// finish.downed t=-0.05
+MULTIPLIER_TARGET_KNOCKED_DOWN				1.2125	// finish.knocked_down t=-0.05
+MULTIPLIER_KILL_TARGET_HEALTH_BIAS				-0.05	// finish.low_hp_kill t=-0.05
+MULTIPLIER_ENDPOS_FLANKED				0.50	// flank.flanked t=1
+MULTIPLIER_KILL_ENEMY				1.50	// focus_fire.pile_on t=0
+MULTIPLIER_TARGET_HEALTH_BIAS				0.00	// focus_fire.pile_on t=0
+MULTIPLIER_TARGET_HOSTILE_COUNT_ONE				0.90	// focus_fire.pile_on t=0
+MULTIPLIER_TARGET_HOSTILE_COUNT_TWO_OR_MORE				0.60	// focus_fire.pile_on t=0
+MULTIPLIER_ENDPOS_HEIGHT_DIFFERENCE				0.10	// high_ground.endpos t=1
+MULTIPLIER_ENEMY_HEIGHT_DIFFERENCE				0.02	// high_ground.over_enemy t=1
+MULTIPLIER_TARGET_PREFERRED				8.00	// target.preferred t=1
+SPELL_JUMP_MINIMUM_DISTANCE				2.00	// teleport.eager t=1
+SPELL_TELEPORT_MINIMUM_DISTANCE				2.00	// teleport.eager t=1
