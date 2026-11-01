@@ -59,6 +59,12 @@ local function combatKey(guid, entity)
     return nil
 end
 
+-- A key from Osi.CombatGetGuidFor is the fight's GUID; the CombatHandle
+-- fallback above is not, and never equals the GUID CombatEnded passes.
+local function isCombatGuid(combat)
+    return tostring(combat or ""):match("^%x+%-%x+%-%x+%-%x+%-%x+$") ~= nil
+end
+
 local function levelOf(entity)
     local level = 1
     if entity then
@@ -711,18 +717,26 @@ end
 function M.Pick(combat, key)
     local offers = pendingOffers()
     local offer = offers[combat]
-    if not offer then return false end
+    if not offer or offer.resolving then return false end
     local choice = offer.choices and offer.choices[key]
     if not choice then
         log("reinforce %s: rejected pick %s", combat, tostring(key))
         return false
     end
-    offers[combat] = nil
-    applyChoice(offer.guid, offer.level, combat, choice)
+    -- A spawn that throws (a missing entity at load, a champion that cannot
+    -- be applied) must never leave the combat paused: the error is logged,
+    -- the combat is resumed anyway, and only then is the offer dropped.
+    -- `resolving` stops a second pick while this one is spawning.
+    offer.resolving = true
+    local ok, err = pcall(applyChoice, offer.guid, offer.level, combat, choice)
+    if not ok then
+        log("reinforce %s: spawning %s failed: %s", combat, tostring(key), tostring(err))
+    end
     if offer.paused then
         combatCall("ResumeCombat", combat)
         if M.AfterResume then pcall(M.AfterResume, combat) end
     end
+    offers[combat] = nil
     broadcast(CLOSE_CHANNEL, combat)
     return true
 end
@@ -736,7 +750,9 @@ end
 -- Turn order -----------------------------------------------------------------
 -- Pausing as combat starts, before initiative is rolled, put the party first
 -- after the resume. Story scripts only pause mid-round, so the offer now
--- waits for the combat's first TurnStarted and pauses inside that turn.
+-- waits for the first TurnStarted of a party character and pauses inside
+-- that turn. Pausing inside an AI character's turn left that character idle
+-- after the resume (its turn ended without an action).
 -- Initiative is logged at the pause and after the resume, and the next
 -- turns are logged as they start, to check the rolled order survives.
 
@@ -808,14 +824,27 @@ function M.AfterResume(combat)
     logInitiative(combat, "after resume")
 end
 
--- Pauses (when the combat key is a real Osiris GUID), sends the offer, and
--- starts the pick timeout.
-local function openOffer(combat)
+-- A character the players control: the same rule as the Randomizer's party
+-- check (Player / UserAvatar / PartyMember components, then Osi.IsPlayer).
+local function isPartyCharacter(character)
+    if Ext and Ext.Entity and Ext.Entity.Get then
+        local ok, party = pcall(function()
+            local entity = Ext.Entity.Get(character)
+            return entity ~= nil and (entity.Player or entity.UserAvatar or entity.PartyMember) ~= nil
+        end)
+        if ok and party then return true end
+    end
+    local result = osiValue("IsPlayer", character)
+    return result == 1 or result == true
+end
+
+-- Pauses (when the combat key is a real Osiris GUID and `pause` is set),
+-- sends the offer, and starts the pick timeout.
+local function openOffer(combat, pause)
     local offer = pendingOffers()[combat]
     if not offer or not offer.waiting then return false end
     offer.waiting = false
-    offer.paused = combat:match("^%x+%-%x+%-%x+%-%x+%-%x+$") ~= nil
-        and combatCall("PauseCombat", combat) or false
+    offer.paused = pause and isCombatGuid(combat) and combatCall("PauseCombat", combat) or false
     pcall(logInitiative, combat, "at pause")
     broadcast(OFFER_CHANNEL, M.OfferPayload(combat, offer.options, offer.choices))
     -- Each card with its tier and champions, e.g. "1:goblin (Epic; ENR_CHAMPION_FIRE)".
@@ -838,8 +867,9 @@ local function openOffer(combat)
     return true
 end
 
--- Opens a waiting offer when its combat's first turn starts, and logs the
--- turns that follow a resume. Returns the combat whose offer opened.
+-- Opens a waiting offer when a party character's turn starts in its combat,
+-- and logs the turns that follow a resume. Returns the combat whose offer
+-- opened.
 function M.OnTurnStarted(character)
     local combat = combatOf(character)
     if not combat then return nil end
@@ -850,8 +880,13 @@ function M.OnTurnStarted(character)
     end
     local offer = pendingOffers()[combat]
     if offer and offer.waiting then
-        log("reinforce %s: first turn: %s", combat, nameOf(character))
-        openOffer(combat)
+        offer.turnSeen = true
+        if not isPartyCharacter(character) then
+            log("reinforce %s: waiting for a party turn, not %s", combat, nameOf(character))
+            return nil
+        end
+        log("reinforce %s: first party turn: %s", combat, nameOf(character))
+        openOffer(combat, true)
         return combat
     end
     return nil
@@ -873,14 +908,17 @@ local function offerWaves(guid, entity, combat)
         guid = guid, level = levelOf(entity), options = keys, choices = choices,
         paused = false, waiting = true,
     }
-    log("reinforce %s: waiting for the first turn", combat)
-    -- If no turn starts in time (or TurnStarted never fires), offer anyway.
+    log("reinforce %s: waiting for the first party turn", combat)
+    -- If no turn at all starts in time (TurnStarted never fires, or the fight
+    -- never rolls initiative), offer anyway WITHOUT pausing: a pause before
+    -- initiative breaks turn order. Once a turn has started, keep waiting
+    -- for the party's.
     if Ext and Ext.Timer and Ext.Timer.WaitFor then
         Ext.Timer.WaitFor(tonumber(C.REINFORCE_FIRST_TURN_WAIT_MS) or 15000, function()
             local offer = pendingOffers()[combat]
-            if offer and offer.waiting then
-                log("reinforce %s: no turn started in time", combat)
-                openOffer(combat)
+            if offer and offer.waiting and not offer.turnSeen then
+                log("reinforce %s: no turn started in time, offering without a pause", combat)
+                openOffer(combat, false)
             end
         end)
     end
@@ -944,12 +982,108 @@ function M.KillEnemies(everyone)
     return killed
 end
 
--- A reload loses the timeout, so open offers are resolved at random.
+-- Whether `id` still fights in the fight keyed `combat`. A GUID key needs
+-- the engine to place the character in that very combat. A CombatHandle
+-- fallback key cannot be compared with the engine's answer, so any fight
+-- the engine reports, other than `ended` (the one just over), counts.
+local function fightsIn(id, combat, ended)
+    local current = combatOf(id)
+    if current == "" then current = nil end
+    if isCombatGuid(combat) then return current == combat end
+    if current then return current ~= ended end
+    local result = osiValue("IsInCombat", id)
+    return result == 1 or result == true
+end
+
+-- Whether the fight keyed `combat` is still on: one of `people` still fights
+-- in it.
+local function fightGoesOn(combat, people, ended)
+    if combat == ended then return false end
+    for _, id in ipairs(people) do
+        if id and fightsIn(id, combat, ended) then return true end
+    end
+    return false
+end
+
+-- An offer's people: the enemy that rolled it, then the party.
+local function offerPeople(offer)
+    local people = { offer.guid }
+    local party = ER.Randomizer and ER.Randomizer.PartyMembers and ER.Randomizer.PartyMembers() or {}
+    for _, id in ipairs(party) do people[#people + 1] = id end
+    return people
+end
+
+-- A boon record's people: its recipients.
+local function boonPeople(granted)
+    local people = {}
+    for _, record in ipairs(granted) do people[#people + 1] = record.player end
+    return people
+end
+
+-- Drops an offer without resolving it (never mid-pick): resumes the combat
+-- if the offer paused it and closes the window if it was shown.
+local function dropOffer(combat, why)
+    local offers = pendingOffers()
+    local offer = offers[combat]
+    if not offer or offer.resolving then return false end
+    offers[combat] = nil
+    if offer.paused then combatCall("ResumeCombat", combat) end
+    if not offer.waiting then broadcast(CLOSE_CHANNEL, combat) end
+    log("reinforce %s: %s, offer dropped", combat, why)
+    return true
+end
+
+-- Records keyed by the CombatHandle fallback never match CombatEnded's GUID:
+-- each one of `records` none of whose people still fights is passed to
+-- `drop`. Returns how many were dropped.
+local function sweepFallbacks(records, peopleOf, drop, ended)
+    local keys = {}
+    for key, record in pairs(records) do
+        if not isCombatGuid(key) and not fightGoesOn(key, peopleOf(record), ended) then keys[#keys + 1] = key end
+    end
+    local dropped = 0
+    for _, key in ipairs(keys) do
+        if drop(key) then dropped = dropped + 1 end
+    end
+    return dropped
+end
+
+-- An offer whose fight is over is dropped, never resolved: a wave spawned
+-- after the fight would change the world outside combat. Covers an offer
+-- still waiting for a party turn that never came (an enemy-only fight, the
+-- party left first) and an open one whose pick timeout has not fired yet.
+-- Without this the offer stays saved and the next load spawns its wave.
+-- Offers and boons keyed by the CombatHandle fallback whose fight is over
+-- go too. Returns true when an offer was dropped.
+function M.OnCombatEnded(combat)
+    local dropped = dropOffer(combat, "combat ended")
+    local swept = sweepFallbacks(pendingOffers(), offerPeople, function(key)
+        return dropOffer(key, "its fight ended")
+    end, combat)
+    sweepFallbacks(activeBoons(), boonPeople, function(key)
+        return M.RemoveBoons(key) > 0
+    end, combat)
+    return dropped or swept > 0
+end
+
+-- A reload loses the timeout, so the offers of a fight still on are resolved
+-- at random. An offer whose fight is over (saved by older code, or keyed by
+-- the CombatHandle fallback) is dropped, never spawned. Returns how many
+-- offers were resolved.
 function M.ResolveStaleOffers()
     local combats = {}
     for combat in pairs(pendingOffers()) do combats[#combats + 1] = combat end
-    for _, combat in ipairs(combats) do pcall(pickRandom, combat) end
-    return #combats
+    local resolved = 0
+    for _, combat in ipairs(combats) do
+        local offer = pendingOffers()[combat]
+        if offer and fightGoesOn(combat, offerPeople(offer)) then
+            pcall(pickRandom, combat)
+            resolved = resolved + 1
+        elseif offer then
+            pcall(dropOffer, combat, "its fight is over")
+        end
+    end
+    return resolved
 end
 
 if Ext and Ext.Events and Ext.Events.NetMessage then
@@ -970,9 +1104,10 @@ if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
     pcall(Ext.Osiris.RegisterListener, "TurnStarted", 1, "after", function(character)
         pcall(M.OnTurnStarted, character)
     end)
-    -- Boons last for their fight only.
+    -- Boons and offers last for their fight only.
     pcall(Ext.Osiris.RegisterListener, "CombatEnded", 1, "after", function(combat)
         pcall(M.RemoveBoons, tostring(combat))
+        pcall(M.OnCombatEnded, tostring(combat))
     end)
 end
 
