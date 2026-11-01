@@ -29,8 +29,9 @@ function make_fighter(guid, engine_ac, dex, worn)
         ServerDisplayNameList = { Names = { { Name = "Fighter" } } },
     }
     if worn then
-        -- Worn items in both shapes: Equipment.Slots (read by master) and the
-        -- owned inventory whose items carry InventoryMember.EquipmentSlot
+        -- Worn items in both shapes: Equipment.Slots and the character's
+        -- Equipment inventory (InventoryData.Type "Equipment", the only one
+        -- the walk reads) whose items carry InventoryMember.EquipmentSlot
         -- (ItemSlot: Breast = 1, MeleeOffHand = 4).
         local slots, items = {}, {}
         local equip = guid .. "-equip"
@@ -44,7 +45,11 @@ function make_fighter(guid, engine_ac, dex, worn)
                 InventoryMember = { EquipmentSlot = item.slot, Inventory = equip },
             }
         end
-        H.entities[equip] = { Equipment = { Slots = slots }, InventoryContainer = { Items = items } }
+        H.entities[equip] = {
+            InventoryData = { Type = "Equipment", SlotLimit = 19 },
+            Equipment = { Slots = slots },
+            InventoryContainer = { Items = items },
+        }
         entity.InventoryMember = { Equipment = equip }
         entity.InventoryOwner = { Inventories = { equip }, PrimaryInventory = equip }
     end
