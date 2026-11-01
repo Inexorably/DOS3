@@ -5,6 +5,8 @@
 --
 -- Armor comes from equipment and skills only; character level contributes
 -- nothing. A character with no armor gear and no armor skill has 0 reduction.
+-- The AC itself is not assembled here: Ext.Entity.GetArmorClass reports the
+-- engine's own total, which already includes every source.
 
 DOS2C = DOS2C or {}
 DOS2C.Armor = DOS2C.Armor or {}
