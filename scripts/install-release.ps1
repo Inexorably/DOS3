@@ -33,6 +33,14 @@
 .PARAMETER SkipModSettings
     Copy the packages but leave modsettings.lsx alone.
 
+.PARAMETER SkipScriptExtender
+    Do not install the fork's Script Extender build. DOS2Combat's armor needs it
+    (Ext.Entity.GetArmorClass); see scripts/install-script-extender.ps1.
+
+.PARAMETER GameDir
+    Baldur's Gate 3 install folder, forwarded to the Script Extender installer
+    when it cannot be detected from Steam.
+
 .PARAMETER DryRun
     Print what would be downloaded and installed without touching the disk.
 
@@ -64,6 +72,8 @@ param(
     [string]$ProfileDir,
     [string[]]$Only,
     [switch]$SkipModSettings,
+    [switch]$SkipScriptExtender,
+    [string]$GameDir,
     [switch]$DryRun,
     [switch]$KeepStaging,
     [int]$WaitForGameSeconds = 0,
@@ -498,6 +508,30 @@ try {
     if ($backupDir) {
         Write-Step "Backup written to $backupDir"
     }
+
+    # The mods need the fork's Script Extender (Ext.Entity.GetArmorClass), so a
+    # fresh install is incomplete without it. A missing extender is a warning,
+    # not a failure: the packages are already installed at this point.
+    if (-not $SkipScriptExtender) {
+        $extender = Join-Path $PSScriptRoot 'install-script-extender.ps1'
+        if (Test-Path -LiteralPath $extender) {
+            try {
+                Write-Step 'Installing the Script Extender build DOS3 needs'
+                $extenderArgs = @{ WaitForGameSeconds = $WaitForGameSeconds }
+                if ($DryRun) { $extenderArgs['DryRun'] = $true }
+                if ($GameDir) { $extenderArgs['GameDir'] = $GameDir }
+                & $extender @extenderArgs
+            }
+            catch {
+                Write-Warn "Script Extender was not installed: $($_.Exception.Message)"
+                Write-Warn 'Run scripts\install-script-extender.ps1 yourself; armor damage reduction needs it.'
+            }
+        }
+        else {
+            Write-Warn "install-script-extender.ps1 not found next to this script; armor needs that extender build."
+        }
+    }
+
     Write-Host ''
     Write-Host 'Done. Launch BG3 and load a save; the mods are enabled in the order above.'
     if ($WaitForGameSeconds -eq 0 -or $DryRun) {

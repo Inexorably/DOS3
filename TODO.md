@@ -319,6 +319,17 @@ Known DOS2 visual references for the current test spells:
       reported 21 AC case), on both server and client. If a row is flagged
       "rebuilt", `eoc::ResistancesComponent.AC` is empty on that side and the
       AC accessor must be extended before the value can be trusted.
+- [x] Ship the fork's Script Extender so a DOS3 checkout gets the right build:
+      `scripts/install-script-extender.ps1` installs it (validating the PE
+      image and the `GetArmorClass` binding, backing up the old DLL, recording
+      provenance), `install-release.ps1` calls it, and `vendor/bg3se/` can pin a
+      package for offline installs. The fork publishes builds through
+      `.github/workflows/release.yml` (workflow_dispatch), which refuses to
+      publish a DLL without `GetArmorClass`.
+- [ ] Cut the first fork release (`se-<version>-dos3`) and confirm the workflow
+      produces `BG3SE-DWrite.zip` on `windows-latest`; the build steps are
+      unverified because this checkout has no MSVC or `External/` libraries.
+      Then pin that tag and SHA256 in `vendor/bg3se/README.md`.
 - [x] Evaluate `ACOverrideFormula` sources such as Mage Armor, Barkskin, and
       Unarmored Defense before adding status/passive AC bonuses; Shield of
       Faith now adds to the selected base instead of being swallowed by it.

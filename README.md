@@ -21,23 +21,38 @@ difficulty system so it stacks naturally with the other mods.
 
 - Baldur's Gate 3 with the BG3 Script Extender (`DWrite.dll` in the game's
   `bin` folder) for all Lua-backed mods.
-- The armour in `DOS2Combat` takes AC from `Ext.Entity.GetArmorClass` only:
-  `Total` is the engine's own `eoc::ResistancesComponent::AC` (the character
-  sheet value). There is no second AC implementation to fall back on. The
-  Script Extender logs a warning, and the mod logs an error, if that engine
-  field is ever empty, because the rebuilt value cannot see worn item AC.
-  Two diagnostics report it: `!dos2c_ac` in the server console prints every
-  character's AC and breakdown, and the same command in the client console
-  toggles an IMGUI window listing each character's total AC, reduction, and
-  where the total came from.
+- **The Script Extender build from the [DOS3 fork][se-fork], not a stock one.**
+  The armour in `DOS2Combat` reads AC through `Ext.Entity.GetArmorClass`, which
+  only that fork provides. Install it with:
+
+  ```powershell
+  .\scripts\install-script-extender.ps1        # or install-script-extender.cmd
+  ```
+
+  The installer validates the package before copying (real PE image, and the
+  `GetArmorClass` binding present), backs up the existing `DWrite.dll`, and
+  records what it installed in `bin\ScriptExtender.dos3.json`. To make a
+  checkout fully offline, drop the release zip in `vendor/bg3se` — see
+  [vendor/bg3se/README.md](vendor/bg3se/README.md).
+- The armour has no second AC implementation to fall back on: `Total` is the
+  engine's own `eoc::ResistancesComponent::AC` (the character sheet value). The
+  Script Extender warns, and the mod logs an error, if that engine field is
+  empty, because a rebuilt value cannot see worn item AC. Two diagnostics report
+  it: `!dos2c_ac` in the server console prints every character's AC and
+  breakdown, and the same command in the client console toggles an IMGUI window
+  listing each character's total AC, reduction, and where the total came from.
 - BG3 Mod Manager or the in-game Mods menu.
 - Python 3.12 only for the test suite and mod generators.
 - LSLib/`Divine.exe` is downloaded automatically by `scripts/build.sh` if it is missing. Packaging is Windows-oriented.
 
+[se-fork]: https://github.com/Inexorably/bg3se
+
 ## Installation
 
-1. Install BG3 Script Extender for the Lua-backed mods.
-2. Build or obtain the `.pak` files.
+1. Install the [DOS3 Script Extender build][se-fork]:
+   `.\scripts\install-script-extender.ps1`.
+2. Build or obtain the `.pak` files. (`scripts\install-release.ps1` installs a
+   published release and the extender together.)
 3. Copy them into:
 
    ```text
