@@ -14,11 +14,11 @@ DOS2C.ArmorDebug = DOS2C.ArmorDebug or {}
 
 local D = DOS2C.ArmorDebug
 
-local REFRESH_MS = 1000
+local REFRESH_MS = 2000
 local window = nil
 local lastText = nil
-local enabled = true
-local started = false
+local enabled = false
+local ticking = false
 
 local function guidOf(entity)
     local ok, guid = pcall(function() return entity.Uuid and entity.Uuid.EntityUuid end)
@@ -130,37 +130,67 @@ local function render()
     window = Ext.IMGUI.NewWindow("DOS2 AC check")
     window.Open = true
     window.AlwaysAutoResize = true
-    window:AddText(text)
+    -- One AddText per line; a single multi-line string is not reliably laid out.
+    for line in (text .. "\n"):gmatch("([^\n]*)\n") do
+        window:AddText(line)
+    end
     lastText = text
 end
 
-function D.Toggle()
-    enabled = not enabled
+local function tick()
+    local ok, err = pcall(render)
+    if not ok and Ext.Utils and Ext.Utils.PrintError then
+        pcall(Ext.Utils.PrintError, "[DOS2C] AC widget: " .. tostring(err))
+    end
+    if enabled and Ext.Timer and Ext.Timer.WaitFor then
+        Ext.Timer.WaitFor(REFRESH_MS, tick)
+    else
+        ticking = false
+    end
+end
+
+-- The widget is off by default: it is a diagnostic overlay, not gameplay UI.
+-- Enabling it starts the refresh timer; disabling it destroys the window and
+-- stops the timer, so a shipped game does no extra work.
+function D.Enable(on)
+    enabled = on and true or false
+    if not enabled then
+        render()
+        return false
+    end
+    if not (Ext.IMGUI and Ext.IMGUI.NewWindow) then return false end
     render()
-    return enabled
+    if not ticking and Ext.Timer and Ext.Timer.WaitFor then
+        ticking = true
+        Ext.Timer.WaitFor(REFRESH_MS, tick)
+    end
+    return true
+end
+
+function D.Toggle()
+    return D.Enable(not enabled)
 end
 
 function D.Start()
-    if started then return end
-    if not (Ext.IMGUI and Ext.IMGUI.NewWindow and Ext.Timer and Ext.Timer.WaitFor) then return end
-    started = true
-    local function tick()
-        local ok, err = pcall(render)
-        if not ok and Ext.Utils and Ext.Utils.PrintError then
-            pcall(Ext.Utils.PrintError, "[DOS2C] AC widget: " .. tostring(err))
-        end
-        if Ext.Timer and Ext.Timer.WaitFor then Ext.Timer.WaitFor(REFRESH_MS, tick) end
-    end
-    tick()
+    return D.Enable(true)
 end
 
 if Ext and Ext.RegisterConsoleCommand then
     pcall(Ext.RegisterConsoleCommand, "dos2c_ac", function()
         local shown = D.Toggle()
         if Ext.Utils and Ext.Utils.Print then
-            pcall(Ext.Utils.Print, "[DOS2C] AC widget " .. (shown and "shown" or "hidden"))
+            pcall(Ext.Utils.Print,
+                "[DOS2C] AC widget " .. (shown and "shown" or "hidden")
+                .. " (client context; in server context this command prints the server AC table)")
         end
     end)
 end
 
-D.Start()
+if Ext and Ext.Events and Ext.Events.SessionLoaded then
+    Ext.Events.SessionLoaded:Subscribe(function()
+        if not enabled and Ext.Utils and Ext.Utils.Print then
+            pcall(Ext.Utils.Print,
+                "[DOS2C] AC sanity check available: run !dos2c_ac in the client console to show it")
+        end
+    end)
+end

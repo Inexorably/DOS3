@@ -311,8 +311,9 @@ Known DOS2 visual references for the current test spells:
       override parser, `StatusGivesArmor`) has been deleted; AC has one source.
 - [x] Client IMGUI sanity checker: `Client/ArmorDebug.lua` lists every
       character's `Total`, its reduction, and `Source`/engine/base/ability/
-      boosts/override; `/dos2c_ac` toggles it. Rows built from a rebuilt total
-      are flagged.
+      boosts/override. Off by default; `!dos2c_ac` in the client console
+      toggles it (the same command in the server console prints the server
+      table). Rows built from a rebuilt total are flagged.
 - [ ] Verify in-game with the AC widget that `Source` is `"engine"` and `Total`
       equals the character sheet for a geared and buffed character (the
       reported 21 AC case), on both server and client. If a row is flagged

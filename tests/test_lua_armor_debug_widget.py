@@ -89,20 +89,43 @@ class ArmorDebugWidgetTests(unittest.TestCase):
         rows = self.harness.run("return DOS2C.ArmorDebug.Rows()")
         self.assertIn("boom", rows[0]["error"])
 
-    def test_widget_renders_an_imgui_window_and_can_be_hidden(self) -> None:
+    def test_widget_is_off_until_enabled(self) -> None:
         self.harness.run('make_character("c1", "Alice", 21)')
         self.harness.set_component("Stats", ["c1"])
         self.load_widget()
 
+        # A diagnostic overlay must not ship as always-on UI.
+        self.assertEqual(self.harness.run("return H.imgui_windows"), [])
+        self.assertEqual(self.harness.armor_class_calls(), [])
+
+        self.assertTrue(self.harness.run("return DOS2C.ArmorDebug.Toggle()"))
         windows = self.harness.run("return H.imgui_windows")
         self.assertEqual(len(windows), 1)
         self.assertEqual(windows[0]["title"], "DOS2 AC check")
         self.assertIn("Alice", windows[0]["text"])
+        self.assertIn("AC 21", windows[0]["text"])
 
         self.assertFalse(self.harness.run("return DOS2C.ArmorDebug.Toggle()"))
         self.assertTrue(self.harness.run("return H.imgui_windows[1].destroyed"))
+
         self.assertTrue(self.harness.run("return DOS2C.ArmorDebug.Toggle()"))
         self.assertEqual(len(self.harness.run("return H.imgui_windows")), 2)
+
+    def test_widget_schedules_a_refresh_only_while_enabled(self) -> None:
+        self.harness.run('make_character("c1", "Alice", 21)')
+        self.harness.set_component("Stats", ["c1"])
+        self.load_widget()
+        self.harness.run("DOS2C.ArmorDebug.Enable(true)")
+        self.assertEqual(self.harness.timers(), 1)
+        self.harness.run("DOS2C.ArmorDebug.Enable(false)")
+        self.harness.fire_timers()
+        # Disabled: the tick stops rescheduling itself.
+        self.assertEqual(self.harness.timers(), 0)
+
+    def test_session_loaded_advertises_the_command(self) -> None:
+        self.load_widget()
+        self.harness.fire_event("SessionLoaded", {})
+        self.assertIn("!dos2c_ac", " ".join(self.harness.prints()))
 
 
 if __name__ == "__main__":
