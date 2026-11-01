@@ -67,6 +67,12 @@ DOS2C.Config = {
     },
     -- These values are for rebalancing BG3-native spells. Ported DOS2 spells
     -- use their original DOS2 cooldown from DOS2_COOLDOWNS below.
+    -- Fallback turn cooldown for BG3-native spells with no explicit cooldown or
+    -- recharge data, indexed by spell level (0 = cantrip). A level-1 spell
+    -- waits one turn, which is the cooldown its tooltip advertises; each
+    -- further level adds a turn. Kept here so StatsPatcher and the tooltip
+    -- labels read the same numbers.
+    COOLDOWN_BY_LEVEL = { 1, 1, 2, 3, 4, 5, 6, 7, 7, 7, 7 },
     -- Rough BG3 HP baseline per spell level, used only for the damage bump.
     COOLDOWN_HP_BY_LEVEL = { 10, 15, 25, 35, 45, 55, 65, 75, 85, 95, 105 },
     COOLDOWN_DAMAGE_BUMP_RATIO = 0.80,   -- >= 80% of baseline HP -> +1 turn

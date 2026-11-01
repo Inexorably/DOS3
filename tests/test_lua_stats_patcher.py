@@ -274,6 +274,36 @@ class StatsPatcherTests(unittest.TestCase):
         self.assertIn("cooldowns:", logs)
         self.assertIn("spell levels:", logs)
 
+    def test_level_based_cooldown_matches_the_advertised_turn_count(self) -> None:
+        # A level-1 spell such as Inflict Wounds or Healing Word advertises a
+        # one-turn cooldown, so it must wait one turn, not two.
+        expectations = {0: 1, 1: 1, 2: 2, 3: 3, 4: 4}
+        for level in expectations:
+            self.harness.set_stat(
+                f"Spell_Level{level}",
+                {"Level": str(level), "UseCosts": "ActionPoint:1"},
+                stat_type="SpellData",
+            )
+        self.harness.run("DOS2C.Stats.PatchAll(false)")
+        for level, expected in expectations.items():
+            with self.subTest(level=level):
+                self.assertEqual(
+                    self.harness.run(f'return DOS2C.Cooldowns.Get("Spell_Level{level}")'),
+                    expected,
+                )
+
+    def test_level_cooldown_table_is_the_single_source_of_truth(self) -> None:
+        self.harness.set_stat(
+            "Spell_LevelOverride",
+            {"Level": "1", "UseCosts": "ActionPoint:1"},
+            stat_type="SpellData",
+        )
+        self.harness.run("DOS2C.Config.COOLDOWN_BY_LEVEL[2] = 4")
+        self.harness.run("DOS2C.Stats.PatchAll(false)")
+        self.assertEqual(
+            self.harness.run('return DOS2C.Cooldowns.Get("Spell_LevelOverride")'), 4
+        )
+
     def test_patch_all_runtime_syncs_changed_stats(self) -> None:
         self.harness.run("DOS2C.Stats.PatchAll(true)")
         self.assertTrue(self.harness.run('local s = Ext.Stats.Get("CHAR_Test") return s.synced == true'))

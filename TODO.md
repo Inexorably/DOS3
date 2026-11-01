@@ -101,6 +101,14 @@
       Fireball 4, Web 1, etc.).
 - [x] BG3-native spells use the BG3-side level/damage rebalancing heuristic
       (e.g. native Fireball 5, Magic Missile 3).
+- [x] The level fallback is `Config.COOLDOWN_BY_LEVEL`: level 0 and level 1 wait
+      one turn, then one turn per level. Charging `Level + 1` made level-1
+      spells (Inflict Wounds, Healing Word) wait two turns while their tooltip
+      advertised one.
+- [x] A definition cooldown label can no longer promise fewer turns than the
+      hotbar enforces; `Cooldowns` replaces it with the turn-derived label.
+- [ ] Verify in game that Inflict Wounds, Healing Word, and other level-1
+      spells come off cooldown on the next turn and show a one-turn label.
 - [x] Add a client IMGUI overlay that reads replicated `SpellBookCooldowns`
       and lists the actual remaining turn count.
 - [x] Audited status-only spells whose native data has no Level/Cooldown;

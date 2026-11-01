@@ -628,12 +628,16 @@ local function cooldownForSpell(name, stat, level)
         return (cfg.COOLDOWN_ENUMS or {}).OncePerShortRest or 3
     end
 
-    -- Level-based fallback: cooldown turns = Level + 1.
-    -- Cantrips are level 0, so they get exactly one turn instead of zero.
-    -- Explicit cooldown/recharge fields and the ported-DOS2 override tables
-    -- above still take precedence when they carry intentional rest timing.
-    local base = math.max(1, math.floor((tonumber(level) or 0) + 1))
-    return math.min(cfg.COOLDOWN_MAX, base)
+    -- Level-based fallback from Config.COOLDOWN_BY_LEVEL: level 0 and level 1
+    -- wait one turn, then one further turn per level. Charging Level + 1 made a
+    -- level-1 spell (Inflict Wounds, Healing Word, ...) wait two turns while its
+    -- tooltip still advertised one. Explicit cooldown/recharge fields and the
+    -- ported-DOS2 override tables above still take precedence when they carry
+    -- intentional rest timing.
+    local table_levels = cfg.COOLDOWN_BY_LEVEL or {}
+    local index = math.max(0, math.floor(tonumber(level) or 0)) + 1
+    local base = table_levels[index] or math.max(1, index)
+    return math.min(cfg.COOLDOWN_MAX, math.max(1, base))
 end
 
 -- Astral Knowledge is a long-rest racial buff in BG3. Its statuses are

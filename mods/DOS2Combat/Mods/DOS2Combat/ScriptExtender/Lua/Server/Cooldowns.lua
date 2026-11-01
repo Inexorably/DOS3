@@ -81,8 +81,31 @@ end
 
 -- What a cooldown entry or spellbook spell may hold: the given label in the
 -- runtime's own spelling, else the plain type for the turn count.
+--
+-- The label is what the tooltip prints, so it must not promise fewer turns
+-- than the hotbar enforces: a definition label that carries a shorter turn
+-- count is replaced by the turn-derived label. That is how "the tooltip says
+-- one turn but the spell waits two" is prevented.
+local function labelTurns(label)
+    local enums = (DOS2C.Config and DOS2C.Config.COOLDOWN_ENUMS) or {}
+    local turns = enums[label]
+    if turns ~= nil then return turns end
+    -- The runtime spelling differs from the definition spelling, so compare by
+    -- meaning: the definition label with the same words.
+    for candidate, value in pairs(enums) do
+        if labelMeaning(candidate) == labelMeaning(label) then return value end
+    end
+    return nil
+end
+
 local function runtimeCooldownType(label, turns)
-    return resolveLabel(label) or resolveLabel(cooldownTypeForTurns(turns)) or "OncePerTurn"
+    local resolved = resolveLabel(label)
+    local expected = resolved and labelTurns(resolved)
+    local enforced = tonumber(turns)
+    if expected ~= nil and enforced ~= nil and expected < enforced then
+        resolved = nil
+    end
+    return resolved or resolveLabel(cooldownTypeForTurns(turns)) or "OncePerTurn"
 end
 
 local function normalize(name)

@@ -205,6 +205,21 @@ class CooldownTests(unittest.TestCase):
         self.assertEqual(self.spellbook_types("c6")["Spell_Tick"], "Default")
         self.assertIn("cooldown expired", " ".join(self.harness.prints()))
 
+    def test_a_label_promising_fewer_turns_is_replaced_by_the_turn_label(self) -> None:
+        # A definition "OncePerTurn" label means one turn. Stamping it on a
+        # two-turn cooldown made the tooltip say one turn while the hotbar
+        # blocked for two, which is the Inflict Wounds / Healing Word report.
+        self.define("Spell_Promise", 2, "OncePerTurn")
+        self.character("c20", spells=["Spell_Promise"])
+        self.harness.run('DOS2C.Cooldowns.Apply("c20", "Spell_Promise", 2)')
+
+        entries = self.cooldown_entries("c20")
+        self.assertEqual(entries[0]["kind"], "OncePerTurnNoRealtime")
+        self.assertEqual(entries[0]["turns"], 2)
+        self.assertEqual(
+            self.spellbook_types("c20")["Spell_Promise"], "OncePerTurnNoRealtime"
+        )
+
     def test_turn_started_without_entity_is_a_noop(self) -> None:
         self.harness.run('DOS2C.Cooldowns.OnTurnStarted("missing")')
 
