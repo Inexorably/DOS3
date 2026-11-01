@@ -1,0 +1,17 @@
+// GEN bg3gen.ai.roles: role sapper x phase losing on goblin_sapper (emitted; difficulty TACTICIAN; value = goblin_sapper's seed
+// value + t * (full - seed) for each knob.sub of roles.yaml + lethality.yaml; everything else is inherited)
+USING goblin_sapper
+
+MULTIPLIER_TARGET_ENEMY_DOWNED				0.03	// finish.downed t=-0.05
+MULTIPLIER_TARGET_KNOCKED_DOWN				1.2125	// finish.knocked_down t=-0.05
+MULTIPLIER_KILL_TARGET_HEALTH_BIAS				-0.05	// finish.low_hp_kill t=-0.05
+MULTIPLIER_KILL_ENEMY				6.00	// focus_fire.pile_on t=0
+MULTIPLIER_TARGET_HEALTH_BIAS				0.00	// focus_fire.pile_on t=0
+MULTIPLIER_TARGET_HOSTILE_COUNT_ONE				1.00	// focus_fire.pile_on t=0
+MULTIPLIER_TARGET_HOSTILE_COUNT_TWO_OR_MORE				1.00	// focus_fire.pile_on t=0
+MULTIPLIER_DAMAGE_SELF_NEG				0.25	// self_harm.accept t=1
+MULTIPLIER_DOT_SELF_NEG				0.25	// self_harm.accept t=1
+MULTIPLIER_ENDPOS_NOT_IN_DANGEROUS_SURFACE				0.00	// surfaces.avoid t=0
+MULTIPLIER_MOVEMENT_SURFACE				0.00	// surfaces.avoid t=0
+MULTIPLIER_COMBO_SCORE_INTERACTION				1.20	// surfaces.combo_interact t=1
+MULTIPLIER_TARGET_PREFERRED				8.00	// target.preferred t=1

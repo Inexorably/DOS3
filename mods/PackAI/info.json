@@ -1,0 +1,13 @@
+{
+  "Mods": [
+    {
+      "Name": "PackAI",
+      "Author": "RaptorPatrolContinuum",
+      "Description": "Combat AI tactics (archetype files only; nothing outside combat changes)",
+      "Version": "1.0.0",
+      "UUID": "8649ee99-210d-5821-8adb-490e982314ea",
+      "Folder": "PackAI",
+      "Dependencies": []
+    }
+  ]
+}
