@@ -144,9 +144,141 @@ class LootTests(unittest.TestCase):
             'H.entities["00000000-0000-0000-0000-000000000004"].InventoryMember = '
             '{ Inventory = H.entities["00000000-0000-0000-0000-000000000003"] }'
         )
+        # The created item carries the queued root template (A10: required).
+        self.harness.run(
+            'H.entities["00000000-0000-0000-0000-000000000004"].ServerItem = { Template = { Id = "T1" } }'
+        )
         entity = self.harness.raw('return H.entities["00000000-0000-0000-0000-000000000004"]')
         self.harness.fire_entity_oncreate(entity)
         self.assertIn("loot item ready", self.logs())
+
+    # --- A10: the InventoryMember fallback rewrote an enemy's EQUIPPED vanilla item ---
+    # (the 3 s scan matched any item in the owner's inventory: Scale Mail -> an
+    # ENR helmet stat, then an engine crash loop). It must match the template the
+    # queue created and never touch an equipped item; a load-time sweep repairs
+    # saves that already hold such an item.
+
+    def queue_for_owner(self, owner: str) -> None:
+        self.character(owner, level=5)
+        self.harness.set_osi_result("GetHostCharacter", owner)
+        self.harness.run('ER.Loot.SpawnAtPlayer("Legendary", 1)')
+
+    def inventory_item(self, guid: str, owner: str, template: str | None, stats_id: str) -> None:
+        self.character(guid, inventory=owner, statsId=stats_id)
+        if template is not None:
+            self.harness.run(
+                f'H.entities["{guid}"].ServerItem = {{ Template = {{ Id = "{template}" }} }}'
+            )
+
+    def test_inventory_fallback_never_matches_an_equipped_vanilla_item(self) -> None:
+        owner = "00000000-0000-0000-0000-0000000000a1"
+        armour = "00000000-0000-0000-0000-0000000000a2"
+        self.queue_for_owner(owner)
+        self.inventory_item(armour, owner, "VANILLA-SCALEMAIL", "ARM_ScaleMail_Body")
+        self.harness.run(
+            f'H.osi_results["IsEquipped"] = function(g) return g == "{armour}" and 1 or 0 end'
+        )
+        self.harness.set_component("InventoryMember", [armour])
+        self.harness.run("for _, t in ipairs(H.timers) do if t.ms == 100 then t.fn() end end")
+        self.assertEqual(
+            self.harness.run(f'return H.entities["{armour}"].Data.StatsId'), "ARM_ScaleMail_Body"
+        )
+        self.assertNotIn("loot item ready", self.logs())
+
+    def test_inventory_fallback_needs_the_queued_template(self) -> None:
+        owner = "00000000-0000-0000-0000-0000000000b1"
+        other = "00000000-0000-0000-0000-0000000000b2"
+        loot = "00000000-0000-0000-0000-0000000000b3"
+        self.queue_for_owner(owner)
+        # An unequipped vanilla item of another template, and one whose
+        # template cannot be read: neither is ENR's.
+        self.inventory_item(other, owner, "VANILLA-SPEAR", "WPN_Spear")
+        self.inventory_item("00000000-0000-0000-0000-0000000000b4", owner, None, "WPN_Shortbow")
+        self.inventory_item(loot, owner, "T1", "ARM_Helmet_Metal")
+        self.harness.set_component(
+            "InventoryMember", [other, "00000000-0000-0000-0000-0000000000b4", loot]
+        )
+        self.harness.run("for _, t in ipairs(H.timers) do if t.ms == 100 then t.fn() end end")
+        self.assertEqual(self.harness.run(f'return H.entities["{other}"].Data.StatsId'), "WPN_Spear")
+        self.assertEqual(
+            self.harness.run('return H.entities["00000000-0000-0000-0000-0000000000b4"].Data.StatsId'),
+            "WPN_Shortbow",
+        )
+        self.assertEqual(self.harness.run(f'return H.entities["{loot}"].Data.StatsId'), "S1")
+
+    def test_template_added_never_rewrites_an_equipped_item(self) -> None:
+        item = "00000000-0000-0000-0000-000000000002"
+        self.harness.run('ER.Loot.SpawnAtPlayer("Legendary", 1)')
+        self.harness.run('H.entities["' + item + '"].Data.StatsId = "ARM_ScaleMail_Body"')
+        self.harness.set_osi_result("IsEquipped", 1)
+        self.harness.fire_listener(
+            "TemplateAddedTo", "T1", item, "00000000-0000-0000-0000-000000000001", "src"
+        )
+        self.assertEqual(
+            self.harness.run(f'return H.entities["{item}"].Data.StatsId'), "ARM_ScaleMail_Body"
+        )
+
+    def sweep_world(self) -> None:
+        # ENR's own stat names its own root template (the generated catalog).
+        self.harness.set_stat("ENR_Loot_ARM_Helmet_Metal_Legendary_L0_0", {"RootTemplate": "ENR-HELMET"})
+        self.harness.add_entity("00000000-0000-0000-0000-0000000000c1", {
+            "Uuid": {"EntityUuid": "00000000-0000-0000-0000-0000000000c1"},
+            "Data": {"StatsId": "ENR_Loot_ARM_Helmet_Metal_Legendary_L0_0"},
+            "ServerItem": {"Template": {"Id": "VANILLA-SCALEMAIL", "Stats": "ARM_ScaleMail_Body"}},
+        })
+        self.harness.add_entity("00000000-0000-0000-0000-0000000000c2", {
+            "Uuid": {"EntityUuid": "00000000-0000-0000-0000-0000000000c2"},
+            "Data": {"StatsId": "ENR_Loot_ARM_Helmet_Metal_Legendary_L0_0"},
+            "ServerItem": {"Template": {"Id": "ENR-HELMET", "Stats": "ENR_Loot_ARM_Helmet_Metal_Legendary_L0_0"}},
+        })
+        self.harness.add_entity("00000000-0000-0000-0000-0000000000c3", {
+            "Uuid": {"EntityUuid": "00000000-0000-0000-0000-0000000000c3"},
+            "Data": {"StatsId": "WPN_Spear"},
+            "ServerItem": {"Template": {"Id": "VANILLA-SPEAR", "Stats": "WPN_Spear"}},
+        })
+        self.harness.run(
+            "for _, g in ipairs({'00000000-0000-0000-0000-0000000000c1', "
+            "'00000000-0000-0000-0000-0000000000c2', '00000000-0000-0000-0000-0000000000c3'}) do "
+            "local e = H.entities[g]; e.replicated = {}; "
+            "function e:Replicate(c) self.replicated[#self.replicated + 1] = c end end"
+        )
+        self.harness.set_component("ServerItem", [
+            "00000000-0000-0000-0000-0000000000c1",
+            "00000000-0000-0000-0000-0000000000c2",
+            "00000000-0000-0000-0000-0000000000c3",
+        ])
+
+    def test_session_loaded_sweep_restores_a_vanilla_item_carrying_an_enr_stat(self) -> None:
+        self.sweep_world()
+        self.harness.fire_event("SessionLoaded", {})
+        broken = 'H.entities["00000000-0000-0000-0000-0000000000c1"]'
+        self.assertEqual(self.harness.run(f"return {broken}.Data.StatsId"), "ARM_ScaleMail_Body")
+        self.assertEqual(self.harness.run(f"return {broken}.replicated[1]"), "Data")
+        self.assertFalse(self.harness.osi_called("RequestDelete"))
+        self.assertIn("loot save sweep: items 3 enr 2 broken 1 repaired 1 deleted 0", self.logs())
+
+    def test_session_loaded_sweep_leaves_enr_own_item_and_vanilla_items_untouched(self) -> None:
+        self.sweep_world()
+        self.harness.fire_event("SessionLoaded", {})
+        own = 'H.entities["00000000-0000-0000-0000-0000000000c2"]'
+        spear = 'H.entities["00000000-0000-0000-0000-0000000000c3"]'
+        self.assertEqual(
+            self.harness.run(f"return {own}.Data.StatsId"), "ENR_Loot_ARM_Helmet_Metal_Legendary_L0_0"
+        )
+        self.assertEqual(self.harness.run(f"return #{own}.replicated"), 0)
+        self.assertEqual(self.harness.run(f"return {spear}.Data.StatsId"), "WPN_Spear")
+        self.assertEqual(self.harness.run(f"return #{spear}.replicated"), 0)
+
+    def test_session_loaded_sweep_deletes_only_when_the_repair_fails(self) -> None:
+        self.sweep_world()
+        # The template's own stats cannot be read: the item cannot be restored.
+        self.harness.run(
+            'H.entities["00000000-0000-0000-0000-0000000000c1"].ServerItem.Template.Stats = nil'
+        )
+        self.harness.fire_event("SessionLoaded", {})
+        deletes = self.harness.osi_calls("RequestDelete")
+        self.assertEqual(len(deletes), 1)
+        self.assertIn("deleted 1", self.logs())
 
     def test_item_type_reads_catalog_base_names(self) -> None:
         cases = {
