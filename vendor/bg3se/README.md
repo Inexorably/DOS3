@@ -41,6 +41,10 @@ Record the tag and SHA256 you pinned here so the provenance is auditable:
 
 | Pinned tag | SHA256 | Date |
 |------------|--------|------|
-| _(none yet)_ | | |
+| `se-0.1.0-dos3` | `57E223D90F22C0E7431ED50860EEEF5274A2AB3DC8ECED034B1F4B8AE3CE3500` | 2026-11-01 |
+
+`BG3SE-DWrite.zip` in this folder is that release asset. It was built by
+Inexorably/bg3se CI (`windows-latest`, MSVC) from commit `4e5c5777`, and its
+`DWrite.dll` was verified to contain the `GetArmorClass` binding.
 
 [fork]: https://github.com/Inexorably/bg3se

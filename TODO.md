@@ -326,10 +326,14 @@ Known DOS2 visual references for the current test spells:
       package for offline installs. The fork publishes builds through
       `.github/workflows/release.yml` (workflow_dispatch), which refuses to
       publish a DLL without `GetArmorClass`.
-- [ ] Cut the first fork release (`se-<version>-dos3`) and confirm the workflow
-      produces `BG3SE-DWrite.zip` on `windows-latest`; the build steps are
-      unverified because this checkout has no MSVC or `External/` libraries.
-      Then pin that tag and SHA256 in `vendor/bg3se/README.md`.
+- [x] Cut the first fork release: `se-0.1.0-dos3` built on `windows-latest`
+      and published `BG3SE-DWrite.zip` + `.sha256`. The asset is pinned in
+      `vendor/bg3se/` (DLL verified to contain `GetArmorClass`), so a clone
+      installs the right extender offline with
+      `scripts/install-script-extender.ps1`.
+- [ ] Verify in-game that the pinned build loads and `!dos2c_ac` reports
+      `src=engine` with the sheet AC. This is the end of the AC work: the
+      accessor, the single AC source, and the shipped build.
 - [x] Evaluate `ACOverrideFormula` sources such as Mage Armor, Barkskin, and
       Unarmored Defense before adding status/passive AC bonuses; Shield of
       Faith now adds to the selected base instead of being swallowed by it.
