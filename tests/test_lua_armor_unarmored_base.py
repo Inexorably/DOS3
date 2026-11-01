@@ -152,6 +152,103 @@ class UnarmoredBaseTests(unittest.TestCase):
         self.fighter(10, 3, statuses=("MAGE_ARMOR",))
         self.assertEqual(self.ac_and_percent()[0], 16)
 
+    def test_shield_of_faith_does_not_hide_an_existing_shield_fallback(self) -> None:
+        self.fighter(10, 0)
+        self.harness.run('H.statuses["f|SHIELD"] = true')
+        self.assertEqual(self.ac_and_percent(), (15, 30))
+
+        self.harness.run(
+            'H.statuses["f|SHIELD_OF_FAITH"] = true; '
+            'H.entities["f"].StatusContainer = { Statuses = { { StatusId = "SHIELD_OF_FAITH" } } }'
+        )
+        self.harness.run('DOS2C.Armor.RefreshChanged("f")')
+        self.assertEqual(self.ac_and_percent(), (17, 40))
+
+        self.harness.run(
+            'H.statuses["f|SHIELD_OF_FAITH"] = nil; '
+            'H.entities["f"].StatusContainer.Statuses = {}'
+        )
+        self.harness.run('DOS2C.Armor.RefreshChanged("f")')
+        self.assertEqual(self.ac_and_percent(), (15, 30))
+
+    def test_named_status_without_readable_boosts_keeps_its_fallback_bonus(self) -> None:
+        self.fighter(10, 0, statuses=("SHIELD", "SHIELD_OF_FAITH"))
+        self.assertEqual(self.ac_and_percent(), (17, 40))
+
+    def test_named_status_read_from_both_sources_is_not_double_counted(self) -> None:
+        self.fighter(10, 0, statuses=("SHIELD_OF_FAITH",))
+        self.harness.run('H.statuses["f|SHIELD_OF_FAITH"] = true')
+        self.assertEqual(self.ac_and_percent(), (12, 15))
+
+    def test_backstop_detects_named_status_changes_with_a_partial_container(self) -> None:
+        self.fighter(10, 0, statuses=("SHIELD_OF_FAITH",))
+        self.harness.run('DOS2C.Armor.RefreshChanged("f")')
+        self.assertEqual(self.ac_and_percent(), (12, 15))
+        self.harness.run('H.statuses["f|SHIELD"] = true')
+        self.assertTrue(self.harness.run('return DOS2C.Armor.RefreshChanged("f")'))
+        self.assertEqual(self.ac_and_percent(), (17, 40))
+        self.harness.run('H.statuses["f|SHIELD"] = nil')
+        self.assertTrue(self.harness.run('return DOS2C.Armor.RefreshChanged("f")'))
+        self.assertEqual(self.ac_and_percent(), (12, 15))
+
+    def test_shield_of_faith_adds_to_mage_armor_and_is_removed_again(self) -> None:
+        self.fighter(10, 3, statuses=("MAGE_ARMOR",))
+        self.assertEqual(self.ac_and_percent(), (16, 35))
+        self.harness.run(
+            'H.entities["f"].StatusContainer.Statuses[2] = { StatusId = "SHIELD_OF_FAITH" }'
+        )
+        self.harness.run('DOS2C.Armor.RefreshChanged("f")')
+        self.assertEqual(self.ac_and_percent(), (18, 45))
+        self.harness.run('H.entities["f"].StatusContainer.Statuses[2] = nil')
+        self.harness.run('DOS2C.Armor.RefreshChanged("f")')
+        self.assertEqual(self.ac_and_percent(), (16, 35))
+
+    def test_shield_of_faith_adds_to_passive_unarmored_defense(self) -> None:
+        self.harness.set_stat(
+            "UNARMORED_TEST",
+            {"Boosts": "ACOverrideFormula(10,true,Dexterity,Constitution)"},
+            stat_type="PassiveData",
+        )
+        self.fighter(10, 2, statuses=("SHIELD_OF_FAITH",))
+        self.harness.run(
+            'H.entities["f"].Passives = { Passives = { "UNARMORED_TEST" } }; '
+            'H.entities["f"].Stats.AbilityModifiers[3] = 3'
+        )
+        self.assertEqual(self.ac_and_percent(), (17, 40))
+
+    def test_status_apply_and_remove_update_both_synced_and_actual_reduction(self) -> None:
+        self.harness.load("Server/ArmorSync.lua")
+        self.fighter(10, 0)
+        self.harness.set_component("ActionResources", ["f"])
+        self.harness.run('H.statuses["f|SHIELD"] = true; DOS2C.ArmorSync.Pass(false)')
+        self.assertEqual(self.harness.run('return H.net_messages[#H.net_messages].payload'), "f|30")
+
+        self.harness.run(
+            'H.statuses["f|SHIELD_OF_FAITH"] = true; '
+            'H.entities["f"].StatusContainer = { Statuses = { { StatusId = "SHIELD_OF_FAITH" } } }'
+        )
+        self.harness.fire_listener("StatusApplied", "f", "SHIELD_OF_FAITH", "f", 0)
+        self.harness.run('DOS2C.ArmorSync.Pass(false)')
+        self.assertEqual(self.harness.run('return H.net_messages[#H.net_messages].payload'), "f|40")
+        event = self.harness.raw(
+            'return { Target = "f", Hit = { DamageList = { { Amount = 100 } } } }'
+        )
+        self.harness.fire_event_value("DealDamage", event)
+        self.assertEqual(event["Hit"]["DamageList"][1]["Amount"], 60)
+
+        self.harness.run(
+            'H.statuses["f|SHIELD_OF_FAITH"] = nil; '
+            'H.entities["f"].StatusContainer.Statuses = {}'
+        )
+        self.harness.fire_listener("StatusRemoved", "f", "SHIELD_OF_FAITH", "f", 0)
+        self.harness.run('DOS2C.ArmorSync.Pass(false)')
+        self.assertEqual(self.harness.run('return H.net_messages[#H.net_messages].payload'), "f|30")
+        event = self.harness.raw(
+            'return { Target = "f", Hit = { DamageList = { { Amount = 100 } } } }'
+        )
+        self.harness.fire_event_value("DealDamage", event)
+        self.assertEqual(event["Hit"]["DamageList"][1]["Amount"], 70)
+
     def test_negative_dexterity_lowers_the_unarmored_base(self) -> None:
         # Dex -1 unarmored: 10 - 1 = 9, as the engine says; the base must not
         # lift it to 10.

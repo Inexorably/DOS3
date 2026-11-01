@@ -288,8 +288,19 @@ Known DOS2 visual references for the current test spells:
 - [ ] `Osi.GetArmorClass` and `entity.Armor.ArmorClass` both returned 0/10 in
       this BG3SE build; continue looking for an authoritative total-AC
       accessor or ECS component.
-- [ ] Handle `ACOverrideFormula` sources such as Mage Armor, Barkskin, and
-      Unarmored Defense instead of treating all AC as additive.
+- [x] Evaluate `ACOverrideFormula` sources such as Mage Armor, Barkskin, and
+      Unarmored Defense before adding status/passive AC bonuses; Shield of
+      Faith now adds to the selected base instead of being swallowed by it.
+- [x] Fix partial AC-status reads discarding existing named fallback bonuses
+      when Shield of Faith appears in the status container (#43). Merge per
+      status without double-counting, and fingerprint fallback status changes
+      even with a nonempty container. Lua regressions cover apply/remove,
+      override stacking, actual damage, and the server-to-client snapshot.
+- [ ] Verify #43 in-game: reproduce the reported AC 16 -> 18 / DR 30% -> 20%
+      case with the same equipment and buffs, then confirm Shield of Faith
+      increases DR and expiry restores the previous value (also with Mage
+      Armor/Unarmored Defense). The source-level failures are fixed; the exact
+      reported runtime case and its AC/DR discrepancy remain unverified.
 
 ## Armor UI
 

@@ -119,8 +119,12 @@ the same pair twice.
 - Native AC is read before conversion so all sources, including Barkskin,
   Mage Armor, gear, and passives, contribute to armor.
 - `ACOverrideFormula` is evaluated explicitly (`base + listed ability
-  modifiers`) and competes with the additive total, so Mage Armor, Barkskin,
-  Unarmored Defense, and Draconic Resilience work without native hit chance.
+  modifiers`) and competes with the gear/base/Dexterity calculation before
+  additive status/passive AC bonuses are applied, so Shield of Faith still
+  adds AC alongside Mage Armor or Unarmored Defense.
+- Named AC-status fallbacks supplement partial status-container/stat reads
+  per status, never counting the same status twice. The armor fingerprint
+  includes these Osiris status checks even when the container is nonempty.
 - Attack rolls are removed entirely, so native AC never reintroduces hit
   chance and no suppression status is needed. Legacy `DOS2C_NoDodge` copies
   are still removed from existing saves.
