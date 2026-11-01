@@ -1,6 +1,7 @@
 -- DOS2 Combat Overhaul - debug console commands.
 -- In the Script Extender console:
 --   !dos2c_armor [guid]        print percentage damage reduction
+--   !dos2c_ac                  print every character's AC and where it came from
 --   !dos2c_setarmor 40         override host damage reduction (%)
 --   !dos2c_resetarmor          clear and recompute reduction caches
 --   !dos2c_patch               re-apply the stat patch pass
@@ -66,6 +67,41 @@ register("dos2c_armor", function(_, target)
         return
     end
     printLine("[DOS2C] " .. DOS2C.Armor.Dump(guid))
+end)
+
+-- Server-side sanity check for Ext.Entity.GetArmorClass, which is what the
+-- damage-reduction rule actually reads. The client IMGUI window shows the
+-- client's copy; this prints the authoritative server values.
+register("dos2c_ac", function()
+    printLine("[DOS2C] AC from Ext.Entity.GetArmorClass (server)")
+    local ok, entities = pcall(Ext.Entity.GetAllEntitiesWithComponent, "Stats")
+    if not ok or type(entities) ~= "table" then
+        printLine("[DOS2C] could not enumerate characters")
+        return
+    end
+    local getArmorClass = Ext.Entity.GetArmorClass
+    local seen, lines = {}, 0
+    for _, entity in ipairs(entities) do
+        local guid = U.GuidOf(entity)
+        if guid and not seen[guid] and entity.Health then
+            seen[guid] = true
+            local resOk, info = pcall(getArmorClass, guid)
+            if not resOk or type(info) ~= "table" then
+                printLine(string.format("[DOS2C]   %s: call failed: %s", tostring(guid), tostring(info)))
+            else
+                local resist = DOS2C.Armor.Cached(guid)
+                printLine(string.format(
+                    "[DOS2C]   %s AC=%s DR=%s%% src=%s engine=%s base=%s %s %s/%s boosts=%s override=%s",
+                    tostring(guid), tostring(info.Total),
+                    tostring(resist and resist.percent or "?"), tostring(info.Source),
+                    tostring(info.EngineAC), tostring(info.Base), tostring(info.Ability),
+                    tostring(info.AbilityModifier), tostring(info.AbilityModifierCap),
+                    tostring(info.Boosts), tostring(info.OverrideAC)))
+            end
+            lines = lines + 1
+        end
+    end
+    if lines == 0 then printLine("[DOS2C]   no characters found") end
 end)
 
 register("dos2c_setarmor", function(_, percent)

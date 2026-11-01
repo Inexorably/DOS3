@@ -108,6 +108,30 @@ class DiagnosticsTests(unittest.TestCase):
         self.assertIn("diag spell known", self.logs())
         self.assertNotIn("diag addspell", self.logs())
 
+    def test_ac_command_prints_the_script_extender_breakdown(self) -> None:
+        self.harness.run(
+            'H.ext_armor_class = { ["host-guid"] = { Total = 21, Source = "engine",'
+            ' EngineAC = 21, Base = 16, Ability = "Dexterity", AbilityModifier = 1,'
+            " AbilityModifierCap = 2, Boosts = 4, OverrideAC = 16 } }"
+        )
+        self.harness.run('H.entities["host-guid"].Health = { MaxHp = 30, Hp = 30 }')
+        self.harness.set_component("Stats", ["host-guid"])
+        self.harness.run_console("dos2c_ac")
+
+        logs = self.logs()
+        self.assertIn("AC from Ext.Entity.GetArmorClass (server)", logs)
+        self.assertIn("AC=21", logs)
+        self.assertIn("src=engine", logs)
+        self.assertIn("base=16", logs)
+        self.assertIn("boosts=4", logs)
+
+    def test_ac_command_reports_a_missing_accessor(self) -> None:
+        self.harness.run('H.entities["host-guid"].Health = { MaxHp = 30, Hp = 30 }')
+        self.harness.set_component("Stats", ["host-guid"])
+        self.harness.run("Ext.Entity.GetArmorClass = nil")
+        self.harness.run_console("dos2c_ac")
+        self.assertIn("call failed", self.logs())
+
 
 @unittest.skipUnless(HAVE_LUPA, "lupa is not installed")
 class VerifyTests(unittest.TestCase):
@@ -130,11 +154,13 @@ class VerifyTests(unittest.TestCase):
         self.harness.set_osi_result("GetHostCharacter", "verify-guid")
         self.harness.set_osi_result("GetPartyMembers", ["verify-guid"])
         self.harness.set_stat(
-            "Spell_Verify", {"SpellSuccess": "DealDamage(1d6,Fire)", "UseCosts": "ActionPoint:1"},
+            "Spell_Verify",
+            {"SpellSuccess": "DealDamage(1d6,Fire)", "UseCosts": "ActionPoint:1"},
             stat_type="SpellData",
         )
         self.harness.set_stat(
-            "STATUS_Save", {"Boosts": "SavingThrow(Save,DC,Ability,None)"},
+            "STATUS_Save",
+            {"Boosts": "SavingThrow(Save,DC,Ability,None)"},
             stat_type="StatusData",
         )
 
