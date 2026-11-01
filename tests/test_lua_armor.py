@@ -149,27 +149,27 @@ class ArmorTests(unittest.TestCase):
 
     def test_dexterity_contributes_to_manual_ac(self) -> None:
         self.character("c10", dex=3)
-        # Armor only comes from gear, Dexterity, statuses, and passives; there is
-        # no implicit base-10 contribution in the manual fallback.
-        self.assertEqual(self.resist("c10")["ac"], 3)
+        # No body armour: BG3's unarmored base 10 + Dexterity.
+        self.assertEqual(self.resist("c10")["ac"], 13)
 
     def test_status_and_passive_armor_are_counted(self) -> None:
         self.harness.set_stat("SHIELD", {"Boosts": "AC(5)"})
         self.harness.set_stat("Passive_Armor", {"Boosts": "AC(3)"})
         self.character("c11", statuses=["SHIELD"], passives=["Passive_Armor"])
-        self.assertEqual(self.resist("c11")["ac"], 8)
+        self.assertEqual(self.resist("c11")["ac"], 18)
 
     def test_status_fallback_table_is_used_without_stats(self) -> None:
         self.character("c12")
         self.harness.run('H.statuses["c12|SHIELD"] = true')
-        self.assertEqual(self.resist("c12")["ac"], 5)
+        self.assertEqual(self.resist("c12")["ac"], 15)
 
     def test_equipment_component_feeds_gear_ac(self) -> None:
         self.harness.run('make_equipment("equip-1", { Helmet = "item-1" })')
         self.harness.run('make_item("item-1", 2, "ARM_TestHelm")')
         self.harness.set_stat("ARM_TestHelm", {"Boosts": "AC(2)"})
         self.character("c13", equipment="equip-1")
-        self.assertEqual(self.resist("c13")["ac"], 4)
+        # A helmet is not body armour: unarmored base 10 + 4.
+        self.assertEqual(self.resist("c13")["ac"], 14)
         self.assertIn("armor equipped", self.logs())
 
     def test_equipped_item_fallback_uses_osi(self) -> None:
@@ -180,7 +180,7 @@ class ArmorTests(unittest.TestCase):
             'H.osi_results["GetEquippedItem"] = function(guid, slot) '
             'if slot == "Helmet" then return "item-2" end end'
         )
-        self.assertEqual(self.resist("c14")["ac"], 4)
+        self.assertEqual(self.resist("c14")["ac"], 14)
         self.assertIn("armor equipped fallback", self.logs())
 
     def test_osi_armor_class_is_preferred(self) -> None:
