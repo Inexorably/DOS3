@@ -59,6 +59,37 @@ Install the packaged files:
 ./scripts/install.sh OrbWeaver
 ```
 
+### Install straight from the latest GitHub release (Windows)
+
+`scripts/install-release.ps1` downloads every `.pak` from the rolling `latest`
+release and enables the mods in `modsettings.lsx` for you, in dependency order
+(OrbWeaver after DOS2Combat). Run it from the repository root:
+
+```powershell
+.\scripts\install-release.ps1
+```
+
+or from cmd/Explorer:
+
+```bat
+scripts\install-release.cmd
+```
+
+Useful options:
+
+| Option | Effect |
+| --- | --- |
+| `-DryRun` | Print the release contents and load order without writing anything |
+| `-WaitForGameSeconds -1` | Wait for BG3 to exit, then install (the engine keeps loaded `.pak` files locked) |
+| `-Only DOS2Combat,Relight` | Install a subset of the release |
+| `-SkipModSettings` | Copy the packages but leave `modsettings.lsx` untouched |
+| `-NoBackup` | Skip the `Mods_backup\<timestamp>` copy |
+| `-Tag <tag>` / `-Repo <owner/repo>` | Install a different release |
+
+The installer reads module UUIDs, names, versions, and dependencies from the
+`meta.lsx` files in this checkout, so the same script keeps working when mods
+are added. Existing non-DOS3 mod entries in `modsettings.lsx` are preserved.
+
 `build.sh` downloads LSLib into `tools/lslib` automatically if `Divine.exe` is
 missing. `EnemyRandomization` regenerates its deterministic champion and loot
 catalogs during `build.sh`. The generators require extracted BG3 data under
@@ -653,6 +684,8 @@ mods/
 scripts/
   build.sh              package a mod with LSLib
   install.sh            copy a package to the BG3 Mods folder
+  install-release.ps1   download the latest release and enable its mods
+  install-release.cmd   cmd/Explorer wrapper for install-release.ps1
   validate-mod.py       source validation for one mod or --all
   test.sh               full Python test suite
   generate-enr-*.py     deterministic Enemy Randomization generators
