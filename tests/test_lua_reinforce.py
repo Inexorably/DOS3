@@ -384,20 +384,211 @@ class WavePickTests(ReinforceFixture):
             f'H.osi_results.CombatGetGuidFor = "{COMBAT}"'
         )
         self.enemy("grunt", level=6)
+        # A party character in the same combat: the offer opens on its turn.
+        self.enemy("hero", level=6, player=True)
 
     def offer(self) -> list[str]:
-        """Roll the offer, then start the combat's first turn, which opens it."""
+        """Roll the offer, then start a party character's turn, which opens it."""
         keys = self.harness.run('return ER.Reinforce.Consider("grunt", H.entities["grunt"], false)')
-        self.harness.run('ER.Reinforce.OnTurnStarted("grunt")')
+        self.harness.run('ER.Reinforce.OnTurnStarted("hero")')
         return list(keys)
+
+    def offer_sent(self) -> bool:
+        return "ENR_WaveOffer" in [m["channel"] for m in self.harness.net_messages()]
 
     def test_offer_waits_for_the_first_turn(self) -> None:
         self.harness.run('ER.Reinforce.Consider("grunt", H.entities["grunt"], false)')
         self.assertEqual(self.calls("PauseCombat"), [])
         channels = [m["channel"] for m in self.harness.net_messages()]
         self.assertNotIn("ENR_WaveOffer", channels)
-        self.assertEqual(self.harness.run('return ER.Reinforce.OnTurnStarted("grunt")'), COMBAT)
+        self.assertEqual(self.harness.run('return ER.Reinforce.OnTurnStarted("hero")'), COMBAT)
         self.assertEqual(self.calls("PauseCombat"), [COMBAT])
+
+    def test_enemy_turn_start_does_not_open_the_offer(self) -> None:
+        self.harness.run('ER.Reinforce.Consider("grunt", H.entities["grunt"], false)')
+        self.assertIsNone(self.harness.run('return ER.Reinforce.OnTurnStarted("grunt")'))
+        self.assertEqual(self.calls("PauseCombat"), [])
+        self.assertFalse(self.offer_sent())
+        self.assertTrue(self.harness.run(f'return PersistentVars.ENR_PendingWaveOffers["{COMBAT}"].waiting'))
+
+    def test_party_turn_start_opens_and_pauses(self) -> None:
+        self.harness.run('ER.Reinforce.Consider("grunt", H.entities["grunt"], false)')
+        self.harness.run('ER.Reinforce.OnTurnStarted("grunt")')
+        self.assertEqual(self.harness.run('return ER.Reinforce.OnTurnStarted("hero")'), COMBAT)
+        self.assertEqual(self.calls("PauseCombat"), [COMBAT])
+        self.assertTrue(self.offer_sent())
+
+    def test_fallback_never_pauses_before_initiative(self) -> None:
+        self.harness.run('ER.Reinforce.Consider("grunt", H.entities["grunt"], false)')
+        self.harness.fire_timers()
+        self.assertEqual(self.calls("PauseCombat"), [])
+        # The offer still opens (without a pause) when no turn ever starts.
+        self.assertTrue(self.offer_sent())
+
+    def test_fallback_keeps_waiting_after_an_enemy_turn(self) -> None:
+        self.harness.run('ER.Reinforce.Consider("grunt", H.entities["grunt"], false)')
+        self.harness.run('ER.Reinforce.OnTurnStarted("grunt")')
+        self.harness.fire_timers()
+        self.assertEqual(self.calls("PauseCombat"), [])
+        self.assertFalse(self.offer_sent())
+        self.harness.run('ER.Reinforce.OnTurnStarted("hero")')
+        self.assertEqual(self.calls("PauseCombat"), [COMBAT])
+
+    def break_the_spawn(self) -> None:
+        self.harness.run('ER.Reinforce.ApplyChampions = function() error("spawn failed") end')
+
+    def test_pick_resumes_even_if_the_spawn_throws(self) -> None:
+        keys = self.offer()
+        self.break_the_spawn()
+        self.harness.run(f'pcall(ER.Reinforce.Pick, "{COMBAT}", "{keys[0]}")')
+        self.assertEqual(self.calls("ResumeCombat"), [COMBAT])
+        closed = self.harness.run(
+            "local out = {} for _, m in ipairs(H.net_messages) do "
+            'if m.channel == "ENR_WaveOfferClosed" then out[#out + 1] = m.payload end end return out'
+        )
+        self.assertEqual(closed, [COMBAT])
+        self.assertIsNone(self.harness.run(f'return PersistentVars.ENR_PendingWaveOffers["{COMBAT}"]'))
+
+    def test_reload_resumes_even_if_the_spawn_throws(self) -> None:
+        self.offer()
+        self.break_the_spawn()
+        self.harness.run("pcall(ER.Reinforce.ResolveStaleOffers)")
+        self.assertEqual(self.calls("ResumeCombat"), [COMBAT])
+        self.assertIsNone(self.harness.run(f'return PersistentVars.ENR_PendingWaveOffers["{COMBAT}"]'))
+
+    def pending(self) -> bool:
+        return bool(self.harness.run(f'return PersistentVars.ENR_PendingWaveOffers["{COMBAT}"] ~= nil'))
+
+    def test_waiting_offer_is_dropped_when_its_combat_ends(self) -> None:
+        # An enemy turn keeps the offer waiting; the fight ends before any party turn.
+        self.harness.run('ER.Reinforce.Consider("grunt", H.entities["grunt"], false)')
+        self.harness.run('ER.Reinforce.OnTurnStarted("grunt")')
+        self.harness.fire_listener("CombatEnded", COMBAT)
+        self.assertFalse(self.pending())
+        self.harness.fire_timers()
+        self.harness.fire_timers()
+        self.assertEqual(self.templates(), [])
+        self.assertEqual(self.calls("PauseCombat"), [])
+        self.assertFalse(self.offer_sent())
+
+    def test_load_after_the_combat_ended_never_spawns_the_wave(self) -> None:
+        self.harness.run('ER.Reinforce.Consider("grunt", H.entities["grunt"], false)')
+        self.harness.run('ER.Reinforce.OnTurnStarted("grunt")')
+        self.harness.fire_listener("CombatEnded", COMBAT)
+        self.harness.fire_event("SessionLoaded", {})
+        self.assertEqual(self.harness.run("return ER.Reinforce.ResolveStaleOffers()"), 0)
+        self.assertEqual(self.templates(), [])
+        self.assertEqual(self.calls("PauseCombat"), [])
+
+    def test_open_offer_is_dropped_when_its_combat_ends(self) -> None:
+        # The unpaused fallback opened the window; the fight ends before a pick:
+        # the pick timeout must not spawn the wave after the fight.
+        self.harness.run('ER.Reinforce.Consider("grunt", H.entities["grunt"], false)')
+        self.harness.fire_timers()
+        self.assertTrue(self.offer_sent())
+        self.harness.fire_listener("CombatEnded", COMBAT)
+        self.assertFalse(self.pending())
+        self.harness.fire_timers()
+        self.harness.fire_event("SessionLoaded", {})
+        self.assertEqual(self.templates(), [])
+        closed = self.harness.run(
+            "local out = {} for _, m in ipairs(H.net_messages) do "
+            'if m.channel == "ENR_WaveOfferClosed" then out[#out + 1] = m.payload end end return out'
+        )
+        self.assertEqual(closed, [COMBAT])
+
+    def test_review_p4_enemy_only_fight_then_reload_spawns_nothing(self) -> None:
+        # The H4 review's probe P4: an enemy-only fight, every timer fired, the fight
+        # ends, then a reload resolves stale offers.
+        self.harness.run('ER.Reinforce.Consider("grunt", H.entities["grunt"], false)')
+        self.harness.run('ER.Reinforce.OnTurnStarted("grunt")')
+        self.harness.fire_timers()
+        self.harness.fire_timers()
+        self.harness.fire_listener("CombatEnded", COMBAT)
+        self.assertFalse(self.pending())
+        self.assertEqual(self.harness.run("return ER.Reinforce.ResolveStaleOffers()"), 0)
+        self.assertEqual(self.templates(), [])
+        self.assertEqual(self.calls("PauseCombat"), [])
+        self.assertEqual(self.calls("ResumeCombat"), [])
+
+    def fight_over(self, *guids: str) -> None:
+        """The engine puts nobody in a combat any more; `guids` leave combat."""
+        self.harness.run("H.osi_results.CombatGetGuidFor = function() return nil end")
+        for guid in guids:
+            self.harness.run(f'H.entities["{guid}"].IsInCombat = false')
+
+    def fallback_offer(self) -> str:
+        """Roll an offer keyed by the CombatHandle fallback (no Osiris combat GUID)."""
+        self.harness.run(
+            "H.osi_results.CombatGetGuidFor = function() return nil end "
+            'H.entities["grunt"].CombatParticipant = { CombatHandle = "handle-7" }'
+        )
+        self.assertTrue(self.harness.run('return ER.Reinforce.Consider("grunt", H.entities["grunt"], false)'))
+        self.assertTrue(self.harness.run('return PersistentVars.ENR_PendingWaveOffers["handle-7"] ~= nil'))
+        return "handle-7"
+
+    def test_load_drops_an_old_offer_whose_fight_is_over(self) -> None:
+        # A paused offer saved by older code (no CombatEnded drop), then the
+        # fight ended: the load must not spawn its wave outside combat.
+        self.offer()
+        self.fight_over("grunt", "hero")
+        self.assertEqual(self.harness.run("return ER.Reinforce.ResolveStaleOffers()"), 0)
+        self.assertFalse(self.pending())
+        self.assertEqual(self.templates(), [])
+        self.assertEqual(self.calls("ResumeCombat"), [COMBAT])
+
+    def test_load_drops_an_old_fallback_keyed_offer_whose_fight_is_over(self) -> None:
+        key = self.fallback_offer()
+        self.fight_over("grunt", "hero")
+        self.assertEqual(self.harness.run("return ER.Reinforce.ResolveStaleOffers()"), 0)
+        self.assertIsNone(self.harness.run(f'return PersistentVars.ENR_PendingWaveOffers["{key}"]'))
+        self.assertEqual(self.templates(), [])
+
+    def test_load_resolves_an_offer_whose_fight_goes_on_without_its_trigger(self) -> None:
+        # The trigger left the fight (dead), the party still fights in it: resolved as before.
+        self.offer()
+        self.harness.run(
+            'H.osi_results.GetAllPartyMembers = { "hero" } '
+            f'H.osi_results.CombatGetGuidFor = function(id) if id == "hero" then return "{COMBAT}" end end '
+            'H.entities["grunt"].IsInCombat = false'
+        )
+        self.assertEqual(self.harness.run("return ER.Reinforce.ResolveStaleOffers()"), 1)
+        self.assertTrue(self.templates())
+
+    def test_fallback_keyed_offer_is_dropped_when_its_fight_ends(self) -> None:
+        key = self.fallback_offer()
+        self.fight_over("grunt", "hero")
+        self.harness.fire_listener("CombatEnded", COMBAT)
+        self.assertIsNone(self.harness.run(f'return PersistentVars.ENR_PendingWaveOffers["{key}"]'))
+        self.harness.fire_timers()
+        self.harness.fire_timers()
+        self.assertEqual(self.templates(), [])
+        self.assertFalse(self.offer_sent())
+
+    def test_fallback_keyed_offer_survives_another_fights_end(self) -> None:
+        key = self.fallback_offer()
+        # The trigger still fights (the engine says so); another combat ended.
+        self.harness.fire_listener("CombatEnded", "dddddddd-0000-4000-8000-000000000002")
+        self.assertTrue(self.harness.run(f'return PersistentVars.ENR_PendingWaveOffers["{key}"] ~= nil'))
+
+    def fallback_boon(self, in_combat: bool) -> None:
+        self.enemy("p1", player=True, inCombat=in_combat)
+        self.harness.run(
+            "H.osi_results.CombatGetGuidFor = function() return nil end "
+            'ER.Reinforce.ApplyBoons("handle-7", { { player = "p1", status = "ENR_Perm_BARKSKIN", champion = false } })'
+        )
+        self.assertTrue(self.harness.run('return H.statuses["p1|ENR_Perm_BARKSKIN"] or false'))
+
+    def test_fallback_keyed_boons_are_removed_when_their_fight_ends(self) -> None:
+        self.fallback_boon(in_combat=False)
+        self.harness.fire_listener("CombatEnded", COMBAT)
+        self.assertFalse(self.harness.run('return H.statuses["p1|ENR_Perm_BARKSKIN"] or false'))
+        self.assertIsNone(self.harness.run('return PersistentVars.ENR_ActiveBoons["handle-7"]'))
+
+    def test_fallback_keyed_boons_stay_while_their_fight_goes_on(self) -> None:
+        self.fallback_boon(in_combat=True)
+        self.harness.fire_listener("CombatEnded", "dddddddd-0000-4000-8000-000000000002")
+        self.assertTrue(self.harness.run('return H.statuses["p1|ENR_Perm_BARKSKIN"] or false'))
 
     def offer_payload(self) -> str:
         return str(self.harness.run(
