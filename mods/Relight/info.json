@@ -1,0 +1,13 @@
+{
+  "Mods": [
+    {
+      "Name": "Relight",
+      "Author": "RaptorPatrolContinuum",
+      "Description": "Lighting look (the atmosphere / lighting bank, every vanilla resource by UUID)",
+      "Version": "1.0.0",
+      "UUID": "b7806232-cc2a-5385-a74e-4515f88f744a",
+      "Folder": "Relight",
+      "Dependencies": []
+    }
+  ]
+}
