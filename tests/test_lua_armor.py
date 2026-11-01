@@ -35,39 +35,15 @@ function make_armor_character(guid, options)
     end
     if options.passives then entity.Passives = { Passives = options.passives } end
     if options.player then entity.Player = {} end
-    if options.equipment then
-        entity.InventoryOwner = { Inventories = { options.equipment }, PrimaryInventory = options.equipment }
-    end
+    if options.equipment then entity.InventoryMember = { Equipment = options.equipment } end
     if options.inCombat then entity.IsInCombat = {} end
     if options.combatParticipant then entity.CombatParticipant = {} end
     H.entities[guid] = entity
     return entity
 end
 
--- Ext_Enums.ItemSlot order (Helmet = 0 ... OffHand = 20).
-local ITEM_SLOTS = {
-    "Helmet", "Breast", "Cloak", "MeleeMainHand", "MeleeOffHand",
-    "RangedMainHand", "RangedOffHand", "Ring", "Underwear", "Boots",
-    "Gloves", "Amulet", "Ring2", "Wings", "Horns", "Overhead",
-    "MusicalInstrument", "VanityBody", "VanityBoots", "MainHand", "OffHand",
-}
-H.equipped_slots = {}
-
--- The character's Equipment inventory (InventoryData.Type "Equipment"), whose
--- items carry InventoryMember.EquipmentSlot: the shape BG3SE exposes for
--- equipped items.
 function make_equipment(guid, slots)
-    local items = {}
-    for slot, item in pairs(slots) do
-        for index, name in ipairs(ITEM_SLOTS) do
-            if name == slot then H.equipped_slots[item] = { index - 1, guid } end
-        end
-        items[#items + 1] = { Item = item }
-    end
-    H.entities[guid] = {
-        InventoryData = { Type = "Equipment", SlotLimit = 19 },
-        InventoryContainer = { Items = items },
-    }
+    H.entities[guid] = { Equipment = { Slots = slots } }
     return H.entities[guid]
 end
 
@@ -76,10 +52,6 @@ function make_item(guid, armor_class, stats_id)
         Armor = { ArmorClass = armor_class },
         Data = { StatsId = stats_id },
     }
-    local equipped = H.equipped_slots[guid]
-    if equipped then
-        H.entities[guid].InventoryMember = { EquipmentSlot = equipped[1], Inventory = equipped[2] }
-    end
     return H.entities[guid]
 end
 """
@@ -103,8 +75,18 @@ class ArmorTests(unittest.TestCase):
         self.harness.run(ENTITY_FACTORY)
 
     def character(self, guid: str, **options) -> None:
+        ac = options.get("ac")
         self.harness.lua.globals()["_options"] = self.harness.to_lua(options)
         self.harness.run(f'make_armor_character("{guid}", _options)')
+        if ac is not None:
+            self.set_ac(guid, ac)
+
+    def set_ac(self, guid: str, total: int, **fields) -> None:
+        info = {"Total": total, "Source": "engine", "EngineAC": total}
+        info.update(fields)
+        self.harness.run("H.ext_armor_class = H.ext_armor_class or {}")
+        self.harness.lua.globals()["_ac"] = self.harness.to_lua(info)
+        self.harness.run(f'H.ext_armor_class["{guid}"] = _ac')
 
     def resist(self, guid: str) -> dict:
         return self.harness.run(f'local r = DOS2C.Armor.Get("{guid}") return r')
@@ -175,135 +157,47 @@ class ArmorTests(unittest.TestCase):
         self.assertTrue(self.harness.run('return DOS2C.Armor.ForceNoDodge("c9")'))
         self.assertTrue(self.harness.osi_called("RemoveStatus"))
 
-    def test_dexterity_contributes_to_manual_ac(self) -> None:
-        self.character("c10", dex=3)
-        # No body armour: BG3's unarmored base 10 + Dexterity.
-        self.assertEqual(self.resist("c10")["ac"], 13)
+    def test_script_extender_total_is_used_verbatim(self) -> None:
+        self.character("c16", ac=10)
+        self.set_ac(
+            "c16",
+            20,
+            Base=16,
+            Ability="Dexterity",
+            AbilityModifier=1,
+            AbilityModifierCap=2,
+            Boosts=3,
+            OverrideAC=16,
+        )
+        resist = self.resist("c16")
+        self.assertEqual(resist["ac"], 20)
+        self.assertAlmostEqual(resist["percent"], 55, delta=1)
+        self.assertIn("ac=20", self.logs())
 
-    def test_status_and_passive_armor_are_counted(self) -> None:
-        self.harness.set_stat("SHIELD", {"Boosts": "AC(5)"})
-        self.harness.set_stat("Passive_Armor", {"Boosts": "AC(3)"})
-        self.character("c11", statuses=["SHIELD"], passives=["Passive_Armor"])
-        self.assertEqual(self.resist("c11")["ac"], 18)
-
-    def test_status_fallback_table_is_used_without_stats(self) -> None:
-        self.character("c12")
-        self.harness.run('H.statuses["c12|SHIELD"] = true')
-        self.assertEqual(self.resist("c12")["ac"], 15)
-
-    def test_equipment_component_feeds_gear_ac(self) -> None:
-        self.harness.run('make_equipment("equip-1", { Helmet = "item-1" })')
-        self.harness.run('make_item("item-1", 2, "ARM_TestHelm")')
-        self.harness.set_stat("ARM_TestHelm", {"Boosts": "AC(2)"})
-        self.character("c13", equipment="equip-1")
-        # A helmet is not body armour: unarmored base 10 + 4.
-        self.assertEqual(self.resist("c13")["ac"], 14)
-        self.assertIn("armor equipped", self.logs())
-
-    def test_equipped_item_fallback_uses_osi(self) -> None:
-        self.harness.run('make_item("item-2", 3, "ARM_TestBoots")')
-        self.harness.set_stat("ARM_TestBoots", {"Boosts": "AC(1)"})
-        self.character("c14")
-        self.harness.run(
-            'H.osi_results["GetEquippedItem"] = function(guid, slot) '
-            'if slot == "Helmet" then return "item-2" end end'
-        )
-        self.assertEqual(self.resist("c14")["ac"], 14)
-        self.assertIn("armor equipped fallback", self.logs())
-
-    def test_equipped_shield_in_owned_inventory_feeds_gear_ac(self) -> None:
-        # BG3SE: a character has InventoryOwner.Inventories; each inventory
-        # has InventoryContainer.Items; an item's InventoryMember.EquipmentSlot
-        # is its ItemSlot (MeleeOffHand = 4) while it sits in the Equipment
-        # inventory. Osiris GetEquippedItem does not return shields.
-        self.harness.run(
-            'H.entities["inv-1"] = { InventoryData = { Type = "Equipment", SlotLimit = 19 }, '
-            'InventoryContainer = { Items = { [0] = { Item = "shield-1" } } } }'
-        )
-        self.harness.run(
-            'H.entities["inv-main"] = { InventoryData = { Type = "Main", SlotLimit = 65535 }, '
-            'InventoryContainer = { Items = { [0] = { Item = "pack-1" } } } }'
-        )
-        self.harness.run('make_item("shield-1", 2, "ARM_TestShield")')
-        self.harness.run(
-            'H.entities["shield-1"].InventoryMember = { EquipmentSlot = 4, Inventory = "inv-1" }'
-        )
-        self.harness.run('make_item("pack-1", 5, "ARM_TestPackArmor")')
-        self.harness.run(
-            'H.entities["pack-1"].InventoryMember = { EquipmentSlot = -1, Inventory = "inv-main" }'
-        )
-        self.character("c16")
-        self.harness.run(
-            'H.entities["c16"].InventoryOwner = '
-            '{ Inventories = { "inv-main", "inv-1" }, PrimaryInventory = "inv-main" }'
-        )
-        # No body armour worn: #41's unarmored base 10 + the shield 2 = 12 (the
-        # AC-5 pack item in the Main inventory never counts).
-        self.assertEqual(self.resist("c16")["ac"], 12)
-        self.assertIn("armor equipped", self.logs())
-
-    def carried_gear_character(self, guid: str, shield_equipped: bool) -> None:
-        # In game (SE log, Shadowheart on #3) a CARRIED item's
-        # InventoryMember.EquipmentSlot is NOT -1: the backpack shield
-        # reported 14 and a spare body armour 6, inside 0-20, beside the
-        # worn chain shirt (1) and shield (4). Osiris GetEquippedItem returns
-        # the chain shirt (Breast) but NOT the worn shield (master's log: only
-        # Breast 15 counted). The FIX-3-BACKPACK probe (4 party members, 0
-        # exceptions): a worn item sits in the Equipment inventory
-        # (InventoryData Type "Equipment", SlotLimit 19) with a Wielding
-        # component; every bag item sits in the Main inventory, no Wielding.
-        self.harness.run(
-            'H.entities["inv-eq"] = { InventoryData = { Type = "Equipment", SlotLimit = 19 }, '
-            'InventoryContainer = { Items = { [0] = { Item = "chain-1" }, [1] = { Item = "shield-on" } } } }'
-        )
-        self.harness.run(
-            'H.entities["inv-bp"] = { InventoryData = { Type = "Main", SlotLimit = 65535 }, '
-            'InventoryContainer = { Items = { [0] = { Item = "shield-bag" }, [1] = { Item = "body-bag" } } } }'
-        )
-        items = {"chain-1": (1, 15, "ARM_ChainShirt_Body_2", "inv-eq"),
-                 "body-bag": (6, 17, "ARM_ChainMail_Body_1", "inv-bp"),
-                 "shield-bag": (14, 2, "GOB_Priest_Shield", "inv-bp")}
-        if shield_equipped:
-            items["shield-on"] = (4, 2, "MAG_LowHP_TemporaryHP_Shield", "inv-eq")
-        for item, (slot, ac, stats_id, inventory) in items.items():
-            self.harness.run(f'make_item("{item}", {ac}, "{stats_id}")')
-            self.harness.run(
-                f'H.entities["{item}"].InventoryMember = {{ EquipmentSlot = {slot}, Inventory = "{inventory}" }}'
-            )
-            if inventory == "inv-eq":
-                self.harness.run(f'H.entities["{item}"].Wielding = {{}}')
-        # Vanilla shape: body armour's Armor stat has Slot "Breast".
-        self.harness.set_stat("ARM_ChainShirt_Body_2", {"Slot": "Breast"})
-        self.harness.set_stat("ARM_ChainMail_Body_1", {"Slot": "Breast"})
-        self.harness.run(
-            'H.osi_results["GetEquippedItem"] = function(guid, slot) '
-            'if slot == "Breast" then return "chain-1" end end'
-        )
-        self.character(guid, dex=1)
-        self.harness.run(
-            f'H.entities["{guid}"].InventoryOwner = '
-            '{ Inventories = { "inv-bp", "inv-eq" }, PrimaryInventory = "inv-bp" }'
-        )
-
-    def test_backpack_shield_and_spare_body_armour_do_not_feed_gear_ac(self) -> None:
-        # FIX-3-BACKPACK: 15 chain + 1 Dex + 2 worn shield = 18 (45 %); the
-        # bag's shield (slot 14) and spare armour (slot 6) add nothing.
-        self.carried_gear_character("c17", shield_equipped=True)
+    def test_missing_script_extender_accessor_reports_and_uses_the_base(self) -> None:
+        self.character("c17")
+        self.harness.run("Ext.Entity.GetArmorClass = nil")
         resist = self.resist("c17")
-        self.assertEqual(resist["ac"], 18)
-        self.assertAlmostEqual(resist["percent"], 45, delta=1)
+        self.assertEqual(resist["ac"], 10)
+        self.assertIn("GetArmorClass is missing", self.logs())
 
-    def test_backpack_shield_does_not_feed_gear_ac_with_shield_off(self) -> None:
-        # Shield off: 15 chain + 1 Dex = 16 (35 %); the bag's shield stays out.
-        self.carried_gear_character("c18", shield_equipped=False)
-        resist = self.resist("c18")
-        self.assertEqual(resist["ac"], 16)
-        self.assertAlmostEqual(resist["percent"], 35, delta=1)
+    def test_zero_total_falls_back_to_the_unarmored_base(self) -> None:
+        self.character("c18")
+        self.set_ac("c18", 0)
+        self.assertEqual(self.resist("c18")["ac"], 10)
 
-    def test_osi_armor_class_is_preferred(self) -> None:
-        self.character("c15", ac=10)
-        self.harness.set_osi_result("GetArmorClass", 24)
-        self.assertEqual(self.resist("c15")["ac"], 24)
+    def test_a_rebuilt_total_is_reported_as_unreliable(self) -> None:
+        # The Script Extender rebuilds the total when the engine field is empty;
+        # that value cannot include worn item AC, so it must be loud, not silent,
+        # and reported once per character.
+        self.character("c19", ac=10)
+        self.set_ac("c19", 15, Source="components", EngineAC=0)
+        self.assertEqual(self.resist("c19")["ac"], 15)
+        self.assertIn("not the engine total", self.logs())
+        before = len(self.harness.prints())
+        self.harness.run('DOS2C.Armor.Refresh("c19")')
+        errors = [line for line in self.harness.prints()[before:] if "not the engine total" in line]
+        self.assertEqual(errors, [])
 
     # ---------------------------------------------------------------- damage path
     def test_deal_damage_reduces_damage_list(self) -> None:
@@ -437,43 +331,6 @@ class ArmorTests(unittest.TestCase):
         finally:
             self.harness.run("DOS2C.Config.ATTACK_DISADVANTAGE_PASSIVES = nil")
         self.assertIn("attack-roll damage modifier x0.75", self.logs())
-
-    def test_ac_override_formula_replaces_the_unarmored_base(self) -> None:
-        # Mage Armor: ACOverrideFormula(13,true,Dexterity) with DEX mod 3.
-        self.harness.set_stat(
-            "MAGE_ARMOR", {"Boosts": "ACOverrideFormula(13,true,Dexterity)"}, stat_type="StatusData"
-        )
-        self.character("mage", dex=3, statuses=["MAGE_ARMOR"])
-        self.assertEqual(self.resist("mage")["ac"], 16)
-
-    def test_ac_override_without_dexterity_is_flat(self) -> None:
-        # Barkskin: ACOverrideFormula(16,false).
-        self.harness.set_stat(
-            "BARKSKIN", {"Boosts": "ACOverrideFormula(16,false)"}, stat_type="StatusData"
-        )
-        self.character("bark", dex=5, statuses=["BARKSKIN"])
-        self.assertEqual(self.resist("bark")["ac"], 16)
-
-    def test_ac_override_does_not_double_count_dexterity(self) -> None:
-        # Unarmored Defense: 10 + DEX + CON, and the plain DEX contribution
-        # must not be added a second time.
-        self.harness.set_stat(
-            "UNARMORED_TEST",
-            {"Boosts": "ACOverrideFormula(10,true,Dexterity,Constitution)"},
-            stat_type="PassiveData",
-        )
-        self.harness.run(
-            'H.osi_results["HasPassive"] = function(guid, passive) '
-            'if passive == "UNARMORED_TEST" then return 1 end return 0 end'
-        )
-        self.harness.lua.globals()["_opts"] = self.harness.to_lua(
-            {"dex": 3, "passives": {"UNARMORED_TEST": True}}
-        )
-        self.harness.run(
-            "local e = make_armor_character('monk', _opts) "
-            "e.Stats.AbilityModifiers = { 0, 0, 3, 4, 0, 0, 0 }"
-        )
-        self.assertEqual(self.resist("monk")["ac"], 17)
 
     def test_attack_target_disadvantage_reduces_incoming_damage(self) -> None:
         self.character("attacker3", ac=10)

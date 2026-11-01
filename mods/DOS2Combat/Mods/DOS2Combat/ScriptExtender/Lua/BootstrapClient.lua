@@ -6,6 +6,7 @@ Ext.Require("Shared/ArmorFormula.lua")
 Ext.Require("Client/BonusActionCosts.lua")
 Ext.Require("Client/CooldownUI.lua")
 Ext.Require("Client/ArmorUI.lua")
+Ext.Require("Client/ArmorDebug.lua")
 Ext.Events.SessionLoaded:Subscribe(function()
     if Ext.Utils and Ext.Utils.Print then
         pcall(Ext.Utils.Print, "[DOS2C] client loaded (numeric cooldown readout active)")

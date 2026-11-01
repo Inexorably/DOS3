@@ -21,6 +21,13 @@ difficulty system so it stacks naturally with the other mods.
 
 - Baldur's Gate 3 with the BG3 Script Extender (`DWrite.dll` in the game's
   `bin` folder) for all Lua-backed mods.
+- The armour in `DOS2Combat` takes AC from `Ext.Entity.GetArmorClass` only:
+  `Total` is the engine's own `eoc::ResistancesComponent::AC` (the character
+  sheet value). There is no second AC implementation to fall back on. The
+  Script Extender logs a warning, and the mod logs an error, if that engine
+  field is ever empty, because the rebuilt value cannot see worn item AC.
+  A client-side IMGUI window (`/dos2c_ac` to toggle) lists every character's
+  total AC, its reduction, and where the total came from.
 - BG3 Mod Manager or the in-game Mods menu.
 - Python 3.12 only for the test suite and mod generators.
 - LSLib/`Divine.exe` is downloaded automatically by `scripts/build.sh` if it is missing. Packaging is Windows-oriented.

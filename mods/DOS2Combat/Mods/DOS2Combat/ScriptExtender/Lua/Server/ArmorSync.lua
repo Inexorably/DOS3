@@ -260,8 +260,11 @@ if Ext.Osiris and Ext.Osiris.RegisterListener then
     end
     pcall(Ext.Osiris.RegisterListener, "Equipped", 2, "after", onEquipment)
     pcall(Ext.Osiris.RegisterListener, "Unequipped", 2, "after", onEquipment)
-    local function onStatus(object, status)
-        if A.StatusGivesArmor(status) then S.MarkDirty(object) end
+    -- Any status can change AC (Boosts text, conditions, or an override), and the
+    -- Script Extender total is re-read on the refresh, so do not try to decide
+    -- here whether a status is armor-relevant.
+    local function onStatus(object)
+        S.MarkDirty(object)
     end
     pcall(Ext.Osiris.RegisterListener, "StatusApplied", 4, "after", onStatus)
     pcall(Ext.Osiris.RegisterListener, "StatusRemoved", 4, "after", onStatus)

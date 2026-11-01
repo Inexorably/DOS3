@@ -47,9 +47,7 @@ class LuaModHarness:
         path = self.lua_root / relative
         if not path.is_file():
             raise FileNotFoundError(path)
-        loader = self.lua.eval(
-            'function(text, name) return assert(load(text, "@" .. name))() end'
-        )
+        loader = self.lua.eval('function(text, name) return assert(load(text, "@" .. name))() end')
         loader(read(path), path.resolve().as_posix())
 
     def load_bootstrap(self, name: str = "BootstrapServer.lua") -> None:
@@ -67,8 +65,10 @@ class LuaModHarness:
         return [str(item) for item in self._call("return H.prints")]
 
     def console_commands(self) -> list[str]:
-        names = self._call("local out = {} for name in pairs(H.console) do out[#out+1] = name end "
-                           "table.sort(out) return out")
+        names = self._call(
+            "local out = {} for name in pairs(H.console) do out[#out+1] = name end "
+            "table.sort(out) return out"
+        )
         return [str(name) for name in names]
 
     def osi_calls(self, name: str | None = None) -> list[dict[str, Any]]:
@@ -87,8 +87,9 @@ class LuaModHarness:
         return bool(self.osi_calls(name))
 
     def listeners(self) -> list[str]:
-        events = self._call("local out = {} for _, l in ipairs(H.listeners) do out[#out+1] = l.event end "
-                            "return out")
+        events = self._call(
+            "local out = {} for _, l in ipairs(H.listeners) do out[#out+1] = l.event end return out"
+        )
         return [str(event) for event in events]
 
     def timers(self) -> int:
@@ -103,6 +104,16 @@ class LuaModHarness:
 
     def clear_osi_calls(self) -> None:
         self.lua.execute("H.osi_calls = {}")
+
+    def armor_class_calls(self) -> list[dict[str, Any]]:
+        calls = self._call(
+            "local out = {} for _, call in ipairs(H.armor_class_calls or {}) do "
+            "out[#out+1] = { guid = call.guid } end return out"
+        )
+        return [{"guid": str(call["guid"])} for call in calls]
+
+    def clear_armor_class_calls(self) -> None:
+        self.lua.execute("H.armor_class_calls = {}")
 
     # -------------------------------------------------------------------- driving
     def set_osi_result(self, name: str, value: Any) -> None:
@@ -122,9 +133,7 @@ class LuaModHarness:
             return table
         return value
 
-    def set_stat(
-        self, name: str, values: dict[str, Any], stat_type: str | None = None
-    ) -> None:
+    def set_stat(self, name: str, values: dict[str, Any], stat_type: str | None = None) -> None:
         table = self.to_lua(values)
         self.lua.globals().H["stats"][name] = table
         if stat_type:

@@ -18,7 +18,28 @@ class ArmorSyncTests(unittest.TestCase):
     def test_armor_no_longer_suppresses_native_ac(self):
         text = read(LUA / "Armor.lua")
         self.assertNotIn("suppressHitChanceAC", text)
-        self.assertIn("nativeArmorClass", text)
+
+    def test_armor_reads_ac_only_from_the_script_extender(self):
+        # One AC source: the engine total from Ext.Entity.GetArmorClass. The
+        # old per-source parsing (Boosts text, status/passive/equipment walks)
+        # must not come back.
+        text = read(LUA / "Armor.lua")
+        self.assertIn("Ext.Entity.GetArmorClass", text)
+        for legacy in (
+            "acFromBoosts",
+            "acFromOverride",
+            "STATUS_ARMOR_FALLBACK",
+            "activeStatusArmor",
+            "activePassiveArmor",
+            "itemPassiveArmor",
+            "manualArmorClass",
+            "nativeArmorClass",
+            "Osi.GetArmorClass",
+            "Osi.GetEquippedItem",
+            "ArmorClassWithBoosts",
+        ):
+            with self.subTest(legacy=legacy):
+                self.assertNotIn(legacy, text)
 
 
 if __name__ == "__main__":

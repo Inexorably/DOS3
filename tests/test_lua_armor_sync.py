@@ -22,10 +22,17 @@ function make_sync_character(guid, ac, options)
     -- Only characters carry Health; ActionResources is also present on items.
     if ac then
         entity.Health = { MaxHp = 30, Hp = 30 }
-        entity.Armor = { ArmorClass = ac }
+        H.ext_armor_class = H.ext_armor_class or {}
+        H.ext_armor_class[guid] = { Total = ac, Source = "engine", EngineAC = ac }
     end
     H.entities[guid] = entity
     return entity
+end
+
+-- Test-only: change the AC the Script Extender reports for a character.
+function DOS2C_test_set_ac(guid, total)
+    H.ext_armor_class = H.ext_armor_class or {}
+    H.ext_armor_class[guid] = { Total = total, Source = "engine", EngineAC = total }
 end
 """
 
@@ -111,9 +118,7 @@ class ArmorSyncTests(unittest.TestCase):
         )
 
     def refreshes(self) -> dict[str, int]:
-        counts = self.harness.run(
-            "local out = refresh_counts; refresh_counts = {}; return out"
-        )
+        counts = self.harness.run("local out = refresh_counts; refresh_counts = {}; return out")
         return dict(counts or {})
 
     def test_poll_refreshes_each_character_once_then_only_changed_ones(self) -> None:
@@ -142,7 +147,7 @@ class ArmorSyncTests(unittest.TestCase):
         self.assertEqual(self.refreshes(), {})
         self.assertEqual(len(self.harness.net_messages()), sent)
 
-        self.harness.run('H.entities["char-2"].Armor.ArmorClass = 20')
+        self.harness.run('DOS2C_test_set_ac("char-2", 20)')
         self.harness.fire_timers()
         self.assertEqual(self.refreshes(), {"char-2": 1})
         messages = self.harness.net_messages()
@@ -150,32 +155,19 @@ class ArmorSyncTests(unittest.TestCase):
         payload = self.harness.run("return H.net_messages[#H.net_messages].payload")
         self.assertIn("char-2|55", payload)
 
-    def test_poll_refreshes_on_each_armor_input_change(self) -> None:
-        # Every input the AC breakdown reads moves a combat character's key
-        # (the poll's backstop): equipped gear, Dexterity, statuses (container
-        # or Osiris), passives.
+    def test_poll_refreshes_on_each_ac_change(self) -> None:
+        # The engine total and its breakdown are the refresh key: any change the
+        # engine applies (gear, ability, status, override) moves one of them.
         self.harness.set_component("IsInCombat", ["char-1"])
-        self.harness.run(
-            """
-            local entity = H.entities["char-1"]
-            entity.Stats = { AbilityModifiers = { 0, 0, 1, 0, 0, 0, 0 } }
-            entity.Passives = { Passives = { "Alert" } }
-            H.entities["gear-1"] = { Data = { StatsId = "ARM_Leather" }, Armor = { ArmorClass = 11 } }
-            H.entities["equip-1"] = { Equipment = { Slots = { Breast = "gear-1" } } }
-            entity.InventoryMember = { Equipment = "equip-1" }
-            """
-        )
         self.count_refreshes()
         self.harness.run("DOS2C.ArmorSync.StartPolling()")
         self.refreshes()
         changes = [
-            'H.entities["gear-1"].Data.StatsId = "ARM_Studded"',
-            'H.entities["equip-1"].Equipment.Slots.Gloves = "gear-1"',
-            'H.entities["char-1"].Stats.AbilityModifiers[3] = 3',
-            'H.entities["char-1"].Passives.Passives[2] = "Tough"',
-            'Osi.ApplyStatus("char-1", "SHIELD_OF_FAITH", 6)',
-            'H.entities["char-1"].StatusContainer = { Statuses = { { StatusId = "BLESS" } } }',
-            'H.osi_results.GetArmorClass = 17',
+            'H.ext_armor_class["char-1"].Total = 17; H.ext_armor_class["char-1"].EngineAC = 17',
+            'H.ext_armor_class["char-1"].Boosts = 2',
+            'H.ext_armor_class["char-1"].AbilityModifier = 3',
+            'H.ext_armor_class["char-1"].OverrideAC = 16',
+            'H.ext_armor_class["char-1"].Source = "components"',
         ]
         for change in changes:
             with self.subTest(change=change):
@@ -257,12 +249,12 @@ class ArmorSyncTests(unittest.TestCase):
         self.count_refreshes()
         self.harness.run("DOS2C.ArmorSync.StartPolling()")
         self.refreshes()
-        self.harness.clear_osi_calls()
+        self.harness.clear_armor_class_calls()
         sent = len(self.harness.net_messages())
         for guid in self.objects:
             self.harness.fire_listener("TurnStarted", guid)
         self.assertEqual(self.refreshes(), {})
-        self.assertEqual(len(self.harness.osi_calls("GetArmorClass")), 0)
+        self.assertEqual(len(self.harness.armor_class_calls()), 0)
         self.assertEqual(len(self.harness.net_messages()), sent)
 
     def test_turn_started_refreshes_only_the_actor(self) -> None:
@@ -331,14 +323,14 @@ class ArmorSyncTests(unittest.TestCase):
         self.harness.run("DOS2C.ArmorSync.StartPolling()")
         while self.refreshes():
             self.harness.fire_timers()
-        self.harness.clear_osi_calls()
+        self.harness.clear_armor_class_calls()
         self.harness.fire_timers()
-        checked = [call["args"][0] for call in self.harness.osi_calls("GetArmorClass")]
+        checked = [call["guid"] for call in self.harness.armor_class_calls()]
         self.assertEqual(len(checked), cap)
         self.assertTrue(set(checked) <= set(self.fighters))
         self.assertEqual(self.refreshes(), {})
         # A fighter's AC moves with no event: the backstop finds it in time.
-        self.harness.run('H.entities["fighter-7"].Armor.ArmorClass = 19')
+        self.harness.run('DOS2C_test_set_ac("fighter-7", 19)')
         polls = -(-len(self.fighters) // cap)
         for _ in range(polls):
             self.harness.fire_timers()
@@ -350,7 +342,7 @@ class ArmorSyncTests(unittest.TestCase):
         self.count_refreshes()
         self.harness.run("DOS2C.ArmorSync.StartPolling()")
         self.refreshes()
-        self.harness.run('H.entities["char-1"].Armor.ArmorClass = 22')
+        self.harness.run('DOS2C_test_set_ac("char-1", 22)')
         self.harness.fire_timers()
         self.assertEqual(self.refreshes(), {})
         events = [
@@ -358,7 +350,7 @@ class ArmorSyncTests(unittest.TestCase):
             ("Unequipped", ("item-1", "char-1"), 1),
             ("StatusApplied", ("char-1", "SHIELD_OF_FAITH", "char-1", 0), 1),
             ("StatusRemoved", ("char-1", "SHIELD", "char-1", 0), 1),
-            ("StatusApplied", ("char-1", "BURNING", "char-1", 0), 0),
+            ("StatusApplied", ("char-1", "BURNING", "char-1", 0), 1),
         ]
         for event, args, expected in events:
             with self.subTest(event=event, args=args):
@@ -366,21 +358,22 @@ class ArmorSyncTests(unittest.TestCase):
                 self.harness.fire_timers()
                 self.assertEqual(self.refreshes(), {"char-1": expected} if expected else {})
 
-    def test_status_with_ac_boosts_counts_as_an_armor_status(self) -> None:
-        self.harness.set_stat("WARDED_TEST", {"Boosts": "AC(2);Advantage(SavingThrow)"})
-        self.assertTrue(self.harness.run('return DOS2C.Armor.StatusGivesArmor("WARDED_TEST")'))
-        self.assertFalse(self.harness.run('return DOS2C.Armor.StatusGivesArmor("BURNING")'))
-
-    def test_status_with_ac_override_counts_as_an_armor_status(self) -> None:
-        # ACOverrideFormula (Mage Armor, Barkskin) also changes the AC the
-        # reduction reads (#30), so applying or removing it marks dirty too.
-        self.harness.set_stat(
-            "MAGE_ARMOR_TEST", {"Boosts": "ACOverrideFormula(13,true,Dexterity)"}, stat_type="StatusData"
-        )
-        self.harness.set_stat("BARKSKIN_TEST", {"Boosts": "ACOverrideFormula(16,false)"}, stat_type="StatusData")
-        for name in ("MAGE_ARMOR_TEST", "BARKSKIN_TEST"):
+    def test_any_status_change_marks_the_character_dirty(self) -> None:
+        # Whether a status moves AC is the engine's business; the mod must not
+        # parse status stats to decide, so every status event marks dirty.
+        self.harness.run('make_sync_character("char-1", 12)')
+        self.harness.set_component("ActionResources", ["char-1"])
+        self.harness.set_component("IsInCombat", ["char-1"])
+        self.count_refreshes()
+        self.harness.run("DOS2C.ArmorSync.StartPolling()")
+        self.refreshes()
+        for name in ("WARDED_TEST", "BURNING", "MAGE_ARMOR"):
             with self.subTest(status=name):
-                self.assertTrue(self.harness.run('return DOS2C.Armor.StatusGivesArmor("%s")' % name))
+                self.harness.fire_listener("StatusApplied", "char-1", name, "char-1", 0)
+                self.harness.fire_timers()
+                self.assertEqual(self.refreshes(), {"char-1": 1})
+                self.harness.fire_timers()
+                self.assertEqual(self.refreshes(), {})
 
     def test_session_loaded_computes_each_character_once_without_forced_timers(self) -> None:
         # Load: every character computed once (no double compute of a

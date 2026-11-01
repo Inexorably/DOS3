@@ -99,6 +99,23 @@ Ext = {
             return H.entities[handle]
         end,
         GetAllEntitiesWithComponent = function(name) return H.components[name] or {} end,
+        -- Total AC reported by the Script Extender. H.ext_armor_class maps a
+        -- guid to the info table the native call returns; a single info table
+        -- (with Total) applies to every entity.
+        GetArmorClass = function(handle)
+            local data = H.ext_armor_class
+            local guid = handle
+            if type(handle) == "table" then
+                local ok, value = pcall(function() return handle.Uuid.EntityUuid end)
+                if ok then guid = value end
+            end
+            H.armor_class_calls = H.armor_class_calls or {}
+            record(H.armor_class_calls, { guid = tostring(guid) })
+            if type(data) ~= "table" then return nil end
+            if guid and type(data[guid]) == "table" then return data[guid] end
+            if data.Total ~= nil then return data end
+            return nil
+        end,
         CreateComponent = function() return nil end,
         IsAlive = function() return true end,
     },

@@ -13,7 +13,6 @@ local A = DOS2C.Armor
 local U = DOS2C.Utils
 
 local resistances = {}
-local originalACs = {}
 local refreshedFrom = {}
 
 local function hasStatus(handle, status)
@@ -23,6 +22,8 @@ local function hasStatus(handle, status)
     local ok, result = pcall(Osi.HasStatus, guid, status)
     return ok and (result == 1 or result == true)
 end
+
+local armorClassLogged = {}
 
 -- Legacy cleanup: earlier builds applied a no-dodge status to suppress native
 -- AC. Native AC no longer affects hit chance at all, so the status is gone.
@@ -70,80 +71,6 @@ local function isPartyCharacter(handle, entity)
     return false
 end
 
-local armorClassLogged = {}
-
-local ARMOR_SLOTS = {
-    "Helmet", "Breast", "Cloak", "Gloves", "Boots",
-    "Amulet", "Ring", "Ring2", "MainHand", "OffHand",
-    "Shield", "Offhand", "Secondary",
-    "MeleeMainHand", "MeleeOffHand", "RangedMainHand", "RangedOffHand",
-}
-
-local function acFromBoosts(boosts)
-    local total = 0
-    if type(boosts) ~= "string" then return total end
-    for value in boosts:gmatch("AC%(%s*(-?%d+)%s*%)") do
-        total = total + (tonumber(value) or 0)
-    end
-    return total
-end
-
--- Native arrays include AbilityId.None at Lua index 1.
-local ABILITY_INDEX = {
-    Strength = 2, Dexterity = 3, Constitution = 4,
-    Intelligence = 5, Wisdom = 6, Charisma = 7,
-}
-
-local function signedAbilityModifier(entity, ability)
-    local stats = entity and entity.Stats
-    local index = ABILITY_INDEX[ability]
-    if not stats or not index then return 0 end
-    local ok, value = pcall(function() return stats.AbilityModifiers[index] end)
-    if not ok then return 0 end
-    return tonumber(value) or 0
-end
-
-local function abilityModifier(entity, ability)
-    return math.max(0, signedAbilityModifier(entity, ability))
-end
-
--- BG3's unarmored base: the Character stat _Base has Armor 10. Body armour
--- (an Armor stat with Slot "Breast", like _Body and ARM_Robe_Body's AC 10, or
--- an item Osiris reports in the Breast slot) replaces it, so the base only
--- counts when no worn body item gives AC.
-local UNARMORED_BASE = 10
-local BODY_SLOT = "Breast"
-
--- ACOverrideFormula replaces the unarmored base instead of adding a bonus:
---   ACOverrideFormula(13,true,Dexterity)          -> 13 + DEX  (Mage Armor)
---   ACOverrideFormula(10,true,Dexterity,Constitution) -> 10 + DEX + CON
---   ACOverrideFormula(16,false)                   -> 16        (Barkskin)
--- The ability list supplies the modifiers; when it is empty and addDex is set
--- the formula still means Dexterity.
-local function acFromOverride(boosts, entity)
-    if type(boosts) ~= "string" then return nil end
-    local base, addDex, rest =
-        boosts:match("ACOverrideFormula%(%s*(%-?%d+)%s*,%s*(%a+)%s*([^)]*)%)")
-    if not base then return nil end
-    local abilities = {}
-    for ability in (rest or ""):gmatch("%a+") do
-        abilities[#abilities + 1] = ability
-    end
-    if #abilities == 0 and addDex == "true" then abilities[1] = "Dexterity" end
-    local total = tonumber(base) or 0
-    for _, ability in ipairs(abilities) do
-        total = total + abilityModifier(entity, ability)
-    end
-    return total
-end
-
-local function statBoosts(name)
-    if not (name and Ext.Stats and Ext.Stats.Get) then return "" end
-    local ok, stat = pcall(Ext.Stats.Get, tostring(name))
-    if not ok or not stat then return "" end
-    return U.SafeGet(stat, "Boosts") or ""
-end
-
 local function component(entity, name)
     if not entity then return nil end
     local ok, value = pcall(function() return entity[name] end)
@@ -151,323 +78,96 @@ local function component(entity, name)
     return nil
 end
 
--- Named AC statuses supplement partial StatusContainer/stat reads without
--- counting a status twice.
-local STATUS_ARMOR_FALLBACK = {
-    SHIELD_OF_FAITH = 2,
-    ENR_LootStatus_SHIELD_OF_FAITH = 2,
-    ENR_Perm_SHIELD_OF_FAITH = 2,
-    SHIELD = 5,
-    ENR_LootStatus_SHIELD = 5,
-    ENR_Perm_SHIELD = 5,
-}
+-- BG3's unarmored AC. Only used when the Script Extender cannot report a total,
+-- which is a broken installation rather than a supported configuration.
+local UNARMORED_AC = 10
 
-local function activeStatusArmor(entity)
-    local total = 0
-    local override = 0
-    local seen = {}
-    local container = component(entity, "StatusContainer")
-    local statuses = container and component(container, "Statuses")
-    if statuses then
-        -- Statuses is exposed as a native collection in some BG3SE builds.
-        -- Never let an iterator/component-shape mismatch abort the armor
-        -- snapshot; fall back to the named status checks below.
-        local ok = pcall(function()
-            for _, status in ipairs(statuses) do
-                local id = status and component(status, "StatusId")
-                if id then
-                    local name = tostring(id)
-                    if not seen[name] then
-                        seen[name] = true
-                        local boosts = statBoosts(name)
-                        local bonus = acFromBoosts(boosts)
-                        if bonus == 0 then bonus = STATUS_ARMOR_FALLBACK[name] or 0 end
-                        total = total + bonus
-                        local value = acFromOverride(boosts, entity)
-                        if value and value > override then override = value end
-                    end
-                end
-            end
-        end)
-        if not ok then
-            total = 0
-            override = 0
-            seen = {}
+local acAccessReported = false
+
+local function reportArmorError(fmt, ...)
+    local ok, msg = pcall(string.format, "[DOS2C] " .. fmt, ...)
+    if not ok then msg = "[DOS2C] armor error" end
+    local printed = false
+    if Ext and Ext.Utils and Ext.Utils.PrintError then
+        printed = pcall(Ext.Utils.PrintError, msg)
+    end
+    if not printed and Ext and Ext.Utils and Ext.Utils.Print then
+        pcall(Ext.Utils.Print, msg)
+    end
+    U.Log("%s", msg)
+end
+
+-- The only source of AC: the BG3SE accessor that reports the engine's own total
+-- (eoc::ResistancesComponent::AC) - the same number the game sums up and shows on
+-- the character sheet. It already includes worn armour, the ability contribution,
+-- and every evaluated status/passive/spell/shield boost, so no AC source is
+-- enumerated here and no stat string is parsed.
+local incompleteWarned = {}
+
+local function armorClass(guid)
+    local getArmorClass = Ext and Ext.Entity and Ext.Entity.GetArmorClass
+    if not getArmorClass then
+        if not acAccessReported then
+            acAccessReported = true
+            reportArmorError("Ext.Entity.GetArmorClass is missing; install a Script Extender build that provides it. "
+                .. "Damage reduction cannot be computed from AC until then.")
         end
+        return nil
     end
-    local guid = U.GuidOf(entity)
-    for name, bonus in pairs(STATUS_ARMOR_FALLBACK) do
-        if not seen[name] and guid and hasStatus(guid, name) then total = total + bonus end
-    end
-    return total, override
-end
 
-local function activePassiveArmor(entity)
-    local total = 0
-    local override = 0
-    local container = component(entity, "Passives") or component(entity, "PassiveContainer")
-    if not container then return total, override end
-    local list = component(container, "Passives")
-    if not list then return total, override end
-    local ok = pcall(function()
-        for key, value in pairs(list) do
-            local name = type(key) == "number" and value or key
-            if name then
-                local boosts = statBoosts(name)
-                total = total + acFromBoosts(boosts)
-                local evaluated = acFromOverride(boosts, entity)
-                if evaluated and evaluated > override then override = evaluated end
-            end
+    local ok, info = pcall(getArmorClass, guid)
+    if not ok or type(info) ~= "table" then
+        if not acAccessReported then
+            acAccessReported = true
+            reportArmorError("Ext.Entity.GetArmorClass(%s) failed: %s", tostring(guid), tostring(info))
         end
-    end)
-    if not ok then return 0, 0 end
-    return total, override
+        return nil
+    end
+
+    -- "engine" is the game's own total. Anything else means the engine field was
+    -- empty and the Script Extender rebuilt the value, which cannot include AC
+    -- that lives on worn items, so the reduction derived from it is wrong.
+    if info.Source ~= "engine" and not incompleteWarned[guid] then
+        incompleteWarned[guid] = true
+        reportArmorError("AC for %s is not the engine total (source=%s, engine=%s); "
+            .. "damage reduction for this character is unreliable",
+            tostring(guid), tostring(info.Source), tostring(info.EngineAC))
+    end
+
+    return tonumber(info.Total), info
 end
 
-local function itemPassiveArmor(statsId)
-    local total = 0
-    if not (statsId and Ext.Stats and Ext.Stats.Get) then return total end
-    local ok, stat = pcall(Ext.Stats.Get, tostring(statsId))
-    if not ok or not stat then return total end
-    local passives = U.SafeGet(stat, "PassivesOnEquip")
-    if type(passives) ~= "string" then return total end
-    for passive in passives:gmatch("[^;]+") do
-        total = total + acFromBoosts(statBoosts(passive))
-    end
-    return total
-end
-
-local function manualArmorClass(handle, entity)
-    local guid = U.GuidOf(handle)
-    local gear, dex, statuses = 0, 0, 0
-    local wornBody = false
-    if not guid then return 0, 0, 0, 0 end
-
-    local function itemAc(itemEntity)
-        local armor = itemEntity and component(itemEntity, "Armor")
-        local data = itemEntity and component(itemEntity, "Data")
-        local ac = armor and tonumber(armor.ArmorClass) or 0
-        local statsId = data and data.StatsId
-        if statsId and Ext.Stats and Ext.Stats.Get then
-            local got, stat = pcall(Ext.Stats.Get, statsId)
-            if got and stat then
-                local formula = DOS2C.ArmorFormula
-                if formula then
-                    ac = formula.ArmorClassWithBoosts(ac, U.SafeGet(stat, "Boosts"))
-                end
-                if U.SafeGet(stat, "Slot") == BODY_SLOT and (ac or 0) > 0 then
-                    wornBody = true
-                end
-            end
-        end
-        ac = (ac or 0) + itemPassiveArmor(statsId)
-        return ac, armor, statsId
-    end
-
-    -- Prefer the owned inventories' equipped items: Osiris GetEquippedItem does
-    -- not return shields. Worn items sit in the character's Equipment inventory
-    -- (InventoryData.Type "Equipment"); a backpack item's EquipmentSlot is its
-    -- bag position and can fall inside 0-20, so only that inventory counts.
-    local equipFound = false
-    local owner = component(entity, "InventoryOwner")
-    local inventories = owner and component(owner, "Inventories") or {}
-    local walked = pcall(function()
-        for _, inventoryHandle in pairs(inventories) do
-            local inventory = Ext.Entity.Get(inventoryHandle)
-            local data = inventory and component(inventory, "InventoryData")
-            local worn = data and tostring(data.Type) == "Equipment"
-            local container = worn and component(inventory, "InventoryContainer")
-            for _, entry in pairs(container and component(container, "Items") or {}) do
-                local itemEntity = entry and entry.Item and Ext.Entity.Get(entry.Item) or nil
-                local member = itemEntity and component(itemEntity, "InventoryMember")
-                local slot = member and tonumber(member.EquipmentSlot) or -1
-                if slot >= 0 and slot <= 20 then
-                    local ac, armor, statsId = itemAc(itemEntity)
-                    if ac > 0 then
-                        equipFound = true
-                        gear = gear + ac
-                        if not armorClassLogged[guid] then
-                            U.Log("armor equipped %s slot=%s stats=%s ac=%s",
-                                guid, tostring(slot), tostring(statsId), tostring(ac))
-                        end
-                    end
-                end
-            end
-        end
-    end)
-    if not walked then
-        equipFound = false
-        gear = 0
-    end
-
-    if not equipFound and Osi and Osi.GetEquippedItem then
-        for _, slot in ipairs(ARMOR_SLOTS) do
-            local ok, item = pcall(Osi.GetEquippedItem, guid, slot)
-            local itemEntity = ok and item and U.EntityOf(item) or nil
-            local ac, armor, statsId = itemAc(itemEntity)
-            if ac > 0 then
-                gear = gear + ac
-                if slot == BODY_SLOT then wornBody = true end
-                if not armorClassLogged[guid] then
-                    U.Log("armor equipped fallback %s slot=%s stats=%s ac=%s",
-                        guid, slot, tostring(statsId), tostring(ac))
-                end
-            end
-        end
-    end
-
-    local stats = entity and entity.Stats
-    dex = abilityModifier(entity, "Dexterity")
-
-    local statusAc, statusOverride = activeStatusArmor(entity)
-    local passiveAc, passiveOverride = activePassiveArmor(entity)
-    statuses = statusAc
-    local override = math.max(statusOverride or 0, passiveOverride or 0)
-    -- Unarmored: 10 + Dex, where a negative Dex lowers the base (the plain Dex
-    -- term below never goes under 0).
-    local base = 0
-    if not wornBody then
-        base = UNARMORED_BASE + math.min(0, signedAbilityModifier(entity, "Dexterity"))
-    end
-    -- An override replaces the base calculation, not additive AC buffs.
-    local total = math.max(base + gear + dex, override) + statuses + passiveAc
-    return total, gear, dex, statuses + passiveAc
-end
-
-local function nativeArmorClass(handle, entity)
-    local guid = U.GuidOf(handle)
-    local componentAc = 0
-    if entity and entity.Armor then
-        componentAc = tonumber(entity.Armor.ArmorClass) or 0
-    end
-
-    -- Osi.GetArmorClass should be the total, but some BG3SE builds return only
-    -- the base score. entity.Armor.ArmorClass has the same problem. Build a
-    -- source-by-source fallback from equipment, Dexterity, and common AC
-    -- statuses when both server values collapse to the base 10.
-    local total = 0
-    if Osi and Osi.GetArmorClass and guid then
-        local ok, ac = pcall(Osi.GetArmorClass, guid)
-        total = ok and tonumber(ac) or 0
-    end
-    local best = math.max(total or 0, componentAc)
-    local manual, gear, dex, statuses = manualArmorClass(handle, entity)
-    if manual > best then best = manual end
-
-    if not armorClassLogged[guid] then
-        armorClassLogged[guid] = true
-        U.Log("armor class breakdown %s: osi=%s component=%s gear=%s dex=%s status=%s total=%s",
-            tostring(guid), tostring(total), tostring(componentAc),
-            tostring(gear), tostring(dex), tostring(statuses), tostring(best))
-    end
-
-    if best > 0 then return best, entity and entity.Armor or nil end
-    return nil, nil
-end
-
--- A cheap key of every input nativeArmorClass reads, without the per-name
--- Ext.Stats lookups (stats are fixed per name): the Osiris and component AC,
--- the equipped items (stats id + AC), Dexterity, the status ids plus named
--- Osiris statuses (the container can be partial), and the passive names.
--- nil = unreadable, so the caller refreshes.
-local function sortedJoin(list)
-    table.sort(list)
-    return table.concat(list, ",")
-end
-
+-- Refresh key: the engine total plus its diagnostic breakdown. Any AC change the
+-- engine applies to this character moves at least one of them.
 local function armorFingerprint(handle)
     local guid = U.GuidOf(handle)
-    local entity = U.EntityOf(handle)
-    if not (guid and entity) then return nil end
-    local parts = {}
-
-    local osiAc = ""
-    if Osi and Osi.GetArmorClass then
-        local ok, ac = pcall(Osi.GetArmorClass, guid)
-        osiAc = ok and tostring(ac) or "?"
-    end
-    local armor = component(entity, "Armor")
-    parts[#parts + 1] = osiAc .. "/" .. tostring(armor and armor.ArmorClass)
-
-    local member = component(entity, "InventoryMember")
-    local equipmentHandle = member and component(member, "Equipment")
-    local equipmentEntity = equipmentHandle and Ext.Entity.Get(equipmentHandle)
-    local equipment = equipmentEntity and component(equipmentEntity, "Equipment")
-    local slots = equipment and component(equipment, "Slots")
-    local items = {}
-    if slots then
-        for slot, item in pairs(slots) do
-            local itemEntity = item and Ext.Entity.Get(item) or nil
-            local itemArmor = itemEntity and component(itemEntity, "Armor")
-            local data = itemEntity and component(itemEntity, "Data")
-            items[#items + 1] = string.format("%s=%s:%s", tostring(slot),
-                tostring(data and data.StatsId), tostring(itemArmor and itemArmor.ArmorClass))
-        end
-    elseif Osi and Osi.GetEquippedItem then
-        for _, slot in ipairs(ARMOR_SLOTS) do
-            local ok, item = pcall(Osi.GetEquippedItem, guid, slot)
-            items[#items + 1] = slot .. "=" .. tostring(ok and item)
-        end
-    end
-    parts[#parts + 1] = sortedJoin(items)
-
-    local stats = component(entity, "Stats")
-    local dexOk, dex = false, nil
-    if stats then
-        dexOk, dex = pcall(function() return stats.AbilityModifiers[ABILITY_INDEX.Dexterity] end)
-    end
-    parts[#parts + 1] = dexOk and tostring(dex) or "?"
-
-    local statusIds = {}
-    local container = component(entity, "StatusContainer")
-    local statuses = container and component(container, "Statuses")
-    if statuses then
-        local ok = pcall(function()
-            for _, status in ipairs(statuses) do
-                local id = status and component(status, "StatusId")
-                if id then statusIds[#statusIds + 1] = tostring(id) end
-            end
-        end)
-        if not ok then statusIds = {} end
-    end
-    for name in pairs(STATUS_ARMOR_FALLBACK) do
-        if hasStatus(guid, name) then statusIds[#statusIds + 1] = "osi:" .. name end
-    end
-    parts[#parts + 1] = sortedJoin(statusIds)
-
-    local passiveNames = {}
-    local passives = component(entity, "Passives") or component(entity, "PassiveContainer")
-    local list = passives and component(passives, "Passives")
-    if list then
-        local ok = pcall(function()
-            for key, value in pairs(list) do
-                local name = type(key) == "number" and value or key
-                if name then passiveNames[#passiveNames + 1] = tostring(name) end
-            end
-        end)
-        if not ok then return nil end
-    end
-    parts[#parts + 1] = sortedJoin(passiveNames)
-
-    return table.concat(parts, "|")
+    if not guid then return nil end
+    local _, info = armorClass(guid)
+    if not info then return nil end
+    return string.format("%s/%s/%s/%s/%s/%s/%s", tostring(info.Total),
+        tostring(info.Source), tostring(info.EngineAC), tostring(info.Base),
+        tostring(info.AbilityModifier), tostring(info.Boosts),
+        tostring(info.OverrideAC))
 end
 
 local function computeResistance(handle)
     local cfg = DOS2C.Config
     local guid = U.GuidOf(handle)
 
-    -- Read AC before applying hit-chance suppression. The cached value still
-    -- includes gear, spells, passives, and enemy natural AC.
-    local ac = guid and originalACs[guid]
-    if not ac then
-        removeLegacyNoDodge(handle)
-        local entity = U.EntityOf(handle)
-        ac = nativeArmorClass(handle, entity)
-        if not ac or ac <= 0 then ac = 10 end
-        if guid then originalACs[guid] = ac end
-    end
+    removeLegacyNoDodge(handle)
+    local ac, info = armorClass(guid)
+    if not ac or ac <= 0 then ac = UNARMORED_AC end
     local formula = assert(DOS2C.ArmorFormula, "Shared/ArmorFormula.lua must load first")
     local percent = formula.Percent(ac, false, cfg)
+
+    if guid and not armorClassLogged[guid] then
+        armorClassLogged[guid] = true
+        U.Log("armor %s: ac=%s source=%s (engine=%s base=%s ability=%s/%s boosts=%s override=%s)",
+            tostring(guid), tostring(ac), tostring(info and info.Source),
+            tostring(info and info.EngineAC), tostring(info and info.Base),
+            tostring(info and info.AbilityModifier), tostring(info and info.AbilityModifierCap),
+            tostring(info and info.Boosts), tostring(info and info.OverrideAC))
+    end
 
     return {
         reduction = percent / 100,
@@ -883,7 +583,6 @@ end
 function A.ForceNoDodge(handle)
     local guid = U.GuidOf(handle)
     if guid then
-        originalACs[guid] = nil
         resistances[guid] = nil
     end
     removeLegacyNoDodge(handle)
@@ -891,13 +590,11 @@ function A.ForceNoDodge(handle)
     return true
 end
 
--- One computation per refresh: dropping the cached AC makes computeResistance
--- re-read it (and clear the legacy NoDodge status). A first-seen character
--- used to be computed twice here.
+-- One computation per refresh. The SE total is re-read and the legacy NoDodge
+-- status is cleared on every refresh.
 function A.Refresh(handle, quiet)
     local key = U.GuidOf(handle)
     if not key then return false end
-    originalACs[key] = nil
     local resist = computeResistance(handle)
     resistances[key] = resist
     if not quiet then
@@ -948,17 +645,6 @@ function A.IsObject(handle)
     return false
 end
 
--- True when a status can move a character's AC (the named Osiris statuses or
--- an AC(n) in its Boosts), so its StatusApplied / StatusRemoved marks the
--- character dirty; every other status is ignored.
-function A.StatusGivesArmor(status)
-    if status == nil then return false end
-    local name = tostring(status)
-    if STATUS_ARMOR_FALLBACK[name] then return true end
-    local boosts = statBoosts(name)
-    return acFromBoosts(boosts) ~= 0 or acFromOverride(boosts, nil) ~= nil
-end
-
 -- TurnStarted: refresh the actor only (it records the actor's armor key, so
 -- the poll's backstop does not refresh it again); object turns do nothing.
 function A.OnTurnStarted(character)
@@ -973,7 +659,7 @@ end
 
 function A.ResetAll()
     resistances = {}
-    originalACs = {}
+    refreshedFrom = {}
     U.Log("armor resistance cache cleared")
 end
 
@@ -1013,7 +699,7 @@ end
 if Ext.Events and Ext.Events.SessionLoaded then
     Ext.Events.SessionLoaded:Subscribe(function()
         resistances = {}
-        originalACs = {}
+        refreshedFrom = {}
         if Ext.Timer and Ext.Timer.WaitFor then
             for _, delay in ipairs({ 500, 1500, 3000 }) do
                 Ext.Timer.WaitFor(delay, function() pcall(A.PrepareAll) end)
