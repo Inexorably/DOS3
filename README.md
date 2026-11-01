@@ -9,7 +9,7 @@ champions, higher enemy health, and convenient respec access.
 | --- | --- | --- | --- |
 | DOS2 Combat Overhaul | `mods/DOS2Combat` | Required | DOS2-style AP, damage reduction, surfaces, deterministic damage, turn cooldowns, and combat stat rewrites |
 | Enemy Randomization | `mods/EnemyRandomization` | Required | Random enemy buffs, themed champions, summoning variants, and generated champion loot |
-| Enemy Health Multiplier | `mods/EnemyHealth` | Not required | Doubles base enemy health on Tactician by overriding the native difficulty boost |
+| Enemy Health Multiplier | `mods/EnemyHealth` | Not required | Quadruples base enemy health on Tactician by overriding the native difficulty boost |
 | Respec Anywhere | `mods/RespecAnywhere` | Required | Grants a hotbar Respec spell that opens Withers' native respec UI, plus a console command |
 | OrbWeaver | `mods/OrbWeaver` | Required for class testing | The Orbweaver class and its arcane orb spells: Summon Azure Orb, Ignite Orb, Orb Chain Lightning, Orb Lightning Bolt, Orb Triangulation, Orb Stone Wall, Orb Tesla Link |
 
@@ -472,10 +472,10 @@ catalog is committed so CD can package it without extracted BG3 data; local
 `HEALTHBOOST_HARDCORE` status:
 
 ```text
-IncreaseMaxHP(30%) -> IncreaseMaxHP(100%)
+IncreaseMaxHP(30%) -> IncreaseMaxHP(300%)
 ```
 
-This makes enemy base health **2×** on Tactician while preserving the native
+This makes enemy base health **4×** on Tactician while preserving the native
 Tactician attack-roll and spell-save bonuses. It has no runtime Script Extender
 code, no health markers, and no save/reload scan loop.
 
