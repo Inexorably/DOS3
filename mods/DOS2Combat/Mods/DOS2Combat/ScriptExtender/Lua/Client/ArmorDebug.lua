@@ -173,6 +173,10 @@ function D.Toggle()
     return D.Enable(not enabled)
 end
 
+function D.IsEnabled()
+    return enabled
+end
+
 function D.Start()
     return D.Enable(true)
 end
@@ -184,6 +188,21 @@ if Ext and Ext.RegisterConsoleCommand then
             pcall(Ext.Utils.Print,
                 "[DOS2C] AC widget " .. (shown and "shown" or "hidden")
                 .. " (client context; in server context this command prints the server AC table)")
+        end
+    end)
+end
+
+-- The Script Extender console defaults to the server context, where the command
+-- above does not exist. The server command relays through this channel so
+-- `!dos2c_ac` opens the window from either context.
+if Ext and Ext.Events and Ext.Events.NetMessage then
+    Ext.Events.NetMessage:Subscribe(function(ev)
+        if not (ev and ev.Channel == "DOS2C_ACToggle") then return end
+        local payload = tostring(ev.Payload or "toggle")
+        if payload == "toggle" then D.Toggle() else D.Enable(payload == "on") end
+        if Ext.Utils and Ext.Utils.Print then
+            pcall(Ext.Utils.Print,
+                "[DOS2C] AC widget " .. (D.IsEnabled() and "shown" or "hidden"))
         end
     end)
 end

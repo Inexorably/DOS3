@@ -11,25 +11,34 @@
 
     This script puts a known-good DWrite.dll into the game's bin folder:
 
-      1. If -FromPath (or a zip/DLL under vendor/bg3se or tools/bg3se) exists,
-         install that. vendor/bg3se is tracked, so a pinned build reaches every
-         clone without network access; tools/bg3se is a local override.
-      2. Otherwise download the release asset from the fork, verify its SHA256
-         when the release publishes one, and install it.
+      1. If -FromPath or -FromUrl is given, install that.
+      2. Otherwise download the release named by vendor/bg3se/pin.json (tag and
+         SHA256), so a checkout installs the exact build its mods expect without
+         committing a binary to the repository.
+      3. With no pin file, fall back to the latest release of the fork.
 
     Every candidate is validated before it is installed: it must be a real PE
     image and it must contain the GetArmorClass binding string. A build without
     the API is rejected, so this cannot silently install the wrong extender.
 
 .PARAMETER Repo
-    GitHub repository that publishes the Script Extender builds.
-    Default: Inexorably/bg3se
+    GitHub repository that publishes the Script Extender builds. Default: the
+    value in vendor/bg3se/pin.json, else Inexorably/bg3se.
 
 .PARAMETER Tag
     Release tag to install, or latest for the newest published release.
+    Default: the value in vendor/bg3se/pin.json, so a checkout installs the
+    exact build its mods were tested against.
 
 .PARAMETER FromPath
     Local .zip or .dll to install instead of downloading a release.
+
+.PARAMETER FromUrl
+    Direct URL of a .zip or .dll to install. install-release.ps1 uses this to
+    install the extender packaged with the DOS3 release.
+
+.PARAMETER ExpectedSha256
+    Optional SHA256 the downloaded package must match. Ignored for a local file.
 
 .PARAMETER GameDir
     Baldur's Gate 3 install folder (the one containing bin\bg3.exe). Detected
@@ -55,16 +64,21 @@
     .\scripts\install-script-extender.ps1 -Tag se-1.0.0-dos3
 
 .EXAMPLE
-    .\scripts\install-script-extender.ps1 -FromPath .\vendor\bg3se\BG3SE-DWrite.zip
+    .\scripts\install-script-extender.ps1 -Tag se-0.1.0-dos3
+
+.EXAMPLE
+    .\scripts\install-script-extender.ps1 -FromUrl https://example/BG3SE-DWrite.zip -ExpectedSha256 ABC123
 
 .EXAMPLE
     .\scripts\install-script-extender.ps1 -DryRun
 #>
 [CmdletBinding()]
 param(
-    [string]$Repo = 'Inexorably/bg3se',
-    [string]$Tag = 'latest',
+    [string]$Repo,
+    [string]$Tag,
     [string]$FromPath,
+    [string]$FromUrl,
+    [string]$ExpectedSha256,
     [string]$GameDir,
     [switch]$DryRun,
     [switch]$KeepStaging,
@@ -76,9 +90,9 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 2.0
 
 $RepoRoot = Split-Path -Parent $PSScriptRoot
-# vendor/bg3se is tracked, so a pinned package reaches everyone who clones DOS3.
-# tools/bg3se is gitignored and acts as a local override.
-$VendorDirs = @((Join-Path $RepoRoot 'vendor\bg3se'), (Join-Path $RepoRoot 'tools\bg3se'))
+$PinFile = Join-Path $RepoRoot 'vendor\bg3se\pin.json'
+# tools/bg3se stays a gitignored spot for a local override package.
+$LocalPackageDirs = @((Join-Path $RepoRoot 'tools\bg3se'))
 $TargetName = 'DWrite.dll'
 # The binding this fork adds; a build without it cannot drive DOS2Combat's armor.
 $RequiredBinding = 'GetArmorClass'
@@ -199,7 +213,14 @@ function Get-Release([string]$RepoName, [string]$ReleaseTag) {
     }
 }
 
-function Select-Asset($Release) {
+function Select-Asset($Release, [string]$PreferredName) {
+    # An explicit asset name from the pin wins, so the checksum always refers to
+    # the same file.
+    if ($PreferredName) {
+        $match = $Release.assets | Where-Object { $_.name -eq $PreferredName } | Select-Object -First 1
+        if ($match) { return $match }
+        throw "Release '$($Release.tag_name)' has no asset named '$PreferredName'."
+    }
     # Prefer the offline package (DWrite.dll); fall back to a bare extender DLL.
     $preferred = @('DWrite\.dll$', 'offline', 'BG3ScriptExtender\.dll$')
     foreach ($pattern in $preferred) {
@@ -222,10 +243,12 @@ function Find-LocalCandidate([string]$ExplicitPath) {
         if (-not (Test-Path -LiteralPath $ExplicitPath)) { throw "Local package not found: $ExplicitPath" }
         return (Resolve-Path -LiteralPath $ExplicitPath).Path
     }
+    return $null
+}
 
-    # A pinned build checked into the checkout wins over the network. The local
-    # (ignored) override folder is checked first, then the tracked vendor folder.
-    foreach ($dir in $VendorDirs) {
+function Find-PinnedCandidate {
+    # gitignored local override folder; the committed pin is metadata, not a blob.
+    foreach ($dir in $LocalPackageDirs) {
         if (-not (Test-Path -LiteralPath $dir)) { continue }
         $local = @(Get-ChildItem -LiteralPath $dir -File -ErrorAction SilentlyContinue |
             Where-Object { $_.Extension -in @('.zip', '.dll') } |
@@ -233,6 +256,16 @@ function Find-LocalCandidate([string]$ExplicitPath) {
         if ($local.Count -gt 0) { return $local[0].FullName }
     }
     return $null
+}
+
+function Get-Pin {
+    if (-not (Test-Path -LiteralPath $PinFile)) { return $null }
+    try {
+        return Get-Content -LiteralPath $PinFile -Raw | ConvertFrom-Json
+    }
+    catch {
+        throw "vendor\bg3se\pin.json is not valid JSON: $($_.Exception.Message)"
+    }
 }
 
 function Expand-Package([string]$PackagePath, [string]$Staging) {
@@ -303,6 +336,19 @@ $binDir = Resolve-GameBin $GameDir
 Write-Info "bin: $binDir"
 Wait-ForGameToExit $WaitForGameSeconds
 
+# The pin decides which release to install unless the caller overrides it.
+$pin = Get-Pin
+if (-not $Repo) {
+    $Repo = if ($pin -and $pin.repo) { $pin.repo } else { 'Inexorably/bg3se' }
+}
+if (-not $Tag) {
+    $Tag = if ($pin -and $pin.tag) { $pin.tag } else { 'latest' }
+}
+if (-not $ExpectedSha256 -and $pin -and $pin.sha256) {
+    $ExpectedSha256 = $pin.sha256
+}
+Write-Info "extender source: $Repo@$Tag"
+
 $staging = Join-Path ([IO.Path]::GetTempPath()) ("dos3-se-" + [Guid]::NewGuid().ToString('n').Substring(0, 8))
 $package = $null
 $source = $null
@@ -316,10 +362,27 @@ try {
         $package = $local
         $source = "local:$local"
     }
+    elseif ($FromUrl) {
+        # install-release.ps1 passes the asset packaged with the DOS3 release, so
+        # a release install does not depend on the fork being reachable.
+        Write-Step 'Downloading the packaged Script Extender'
+        Write-Info $FromUrl
+        New-Item -ItemType Directory -Force -Path $staging | Out-Null
+        $package = Join-Path $staging ([IO.Path]::GetFileName(($FromUrl -split '\?')[0]))
+        Invoke-WebRequest -Uri $FromUrl -OutFile $package -UseBasicParsing
+        $source = "url:$FromUrl"
+        $expectedHash = $ExpectedSha256
+    }
+    elseif ($pinned = Find-PinnedCandidate) {
+        Write-Step 'Using the Script Extender pinned in this checkout'
+        Write-Info $pinned
+        $package = $pinned
+        $source = "pinned:$pinned"
+    }
     else {
         Write-Step "Reading release '$Tag' from $Repo"
         $release = Get-Release $Repo $Tag
-        $asset = Select-Asset $release
+        $asset = Select-Asset $release $(if ($pin) { $pin.asset } else { $null })
         Write-Info "release $($release.tag_name): $($asset.name)"
 
         New-Item -ItemType Directory -Force -Path $staging | Out-Null
@@ -328,7 +391,11 @@ try {
         $source = "release:$($release.tag_name)/$($asset.name)"
 
         $hashAsset = Get-Sha256File $release
-        if ($hashAsset) {
+        if ($ExpectedSha256) {
+            # The pin names the expected hash; no need to fetch the sidecar.
+            $expectedHash = $ExpectedSha256
+        }
+        elseif ($hashAsset) {
             $hashPath = Join-Path $staging $hashAsset.name
             Invoke-WebRequest -Uri $hashAsset.browser_download_url -OutFile $hashPath -UseBasicParsing
             $expectedHash = ((Get-Content -LiteralPath $hashPath -TotalCount 1) -split '\s+')[0]

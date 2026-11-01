@@ -89,6 +89,31 @@ class ArmorDebugWidgetTests(unittest.TestCase):
         rows = self.harness.run("return DOS2C.ArmorDebug.Rows()")
         self.assertIn("boom", rows[0]["error"])
 
+    def test_server_toggle_message_opens_the_widget(self) -> None:
+        # The console defaults to the server context, where the client widget
+        # does not exist, so !dos2c_ac relays through a net message.
+        self.harness.run('make_character("c1", "Alice", 21)')
+        self.harness.set_component("Stats", ["c1"])
+        self.load_widget()
+        self.assertEqual(self.harness.run("return H.imgui_windows"), [])
+
+        self.harness.fire_event("NetMessage", {"Channel": "DOS2C_ACToggle", "Payload": "toggle"})
+        windows = self.harness.run("return H.imgui_windows")
+        self.assertEqual(len(windows), 1)
+        self.assertIn("AC 21", windows[0]["text"])
+        self.assertIn("AC widget shown", " ".join(self.harness.prints()))
+
+    def test_server_toggle_message_can_force_on_and_off(self) -> None:
+        self.harness.run('make_character("c1", "Alice", 21)')
+        self.harness.set_component("Stats", ["c1"])
+        self.load_widget()
+
+        self.harness.fire_event("NetMessage", {"Channel": "DOS2C_ACToggle", "Payload": "on"})
+        self.assertTrue(self.harness.run("return DOS2C.ArmorDebug.IsEnabled()"))
+        self.harness.fire_event("NetMessage", {"Channel": "DOS2C_ACToggle", "Payload": "off"})
+        self.assertFalse(self.harness.run("return DOS2C.ArmorDebug.IsEnabled()"))
+        self.assertTrue(self.harness.run("return H.imgui_windows[1].destroyed"))
+
     def test_widget_is_off_until_enabled(self) -> None:
         self.harness.run('make_character("c1", "Alice", 21)')
         self.harness.set_component("Stats", ["c1"])

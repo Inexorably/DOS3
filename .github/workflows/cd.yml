@@ -118,5 +118,5 @@ jobs:
           gh release create latest \
             --target "$COMMIT_SHA" \
             --title "DOS3 Mods - Latest" \
-            --notes "Automated build from commit ${COMMIT_URL} (CD run: ${RUN_URL}). Packaged in parallel with CI; CI status is not a release gate." \
+            --notes "Automated build from commit ${COMMIT_URL} (CD run: ${RUN_URL}). Packaged in parallel with CI; CI status is not a release gate. The mods need the Script Extender build that provides Ext.Entity.GetArmorClass: install it with scripts/install-script-extender.ps1, which downloads the release pinned in vendor/bg3se/pin.json." \
             dist/*.pak

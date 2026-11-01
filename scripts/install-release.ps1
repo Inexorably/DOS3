@@ -520,6 +520,10 @@ try {
                 $extenderArgs = @{ WaitForGameSeconds = $WaitForGameSeconds }
                 if ($DryRun) { $extenderArgs['DryRun'] = $true }
                 if ($GameDir) { $extenderArgs['GameDir'] = $GameDir }
+
+                # The extender installer resolves the build from
+                # vendor/bg3se/pin.json (tag + SHA256), so the mods and the
+                # extender stay pinned to the same release.
                 & $extender @extenderArgs
             }
             catch {

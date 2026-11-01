@@ -322,15 +322,18 @@ Known DOS2 visual references for the current test spells:
 - [x] Ship the fork's Script Extender so a DOS3 checkout gets the right build:
       `scripts/install-script-extender.ps1` installs it (validating the PE
       image and the `GetArmorClass` binding, backing up the old DLL, recording
-      provenance), `install-release.ps1` calls it, and `vendor/bg3se/` can pin a
-      package for offline installs. The fork publishes builds through
-      `.github/workflows/release.yml` (workflow_dispatch), which refuses to
-      publish a DLL without `GetArmorClass`.
+      provenance) and `install-release.ps1` calls it. The build is pinned by
+      release tag + SHA256 in `vendor/bg3se/pin.json`. The fork publishes builds
+      through `.github/workflows/release.yml` (on push, and a release on an
+      `se-*` tag), which refuses to publish a DLL without `GetArmorClass`.
 - [x] Cut the first fork release: `se-0.1.0-dos3` built on `windows-latest`
-      and published `BG3SE-DWrite.zip` + `.sha256`. The asset is pinned in
-      `vendor/bg3se/` (DLL verified to contain `GetArmorClass`), so a clone
-      installs the right extender offline with
-      `scripts/install-script-extender.ps1`.
+      and published `BG3SE-DWrite.zip` + `.sha256`; the downloaded DLL was
+      verified to contain `GetArmorClass`.
+- [x] Consume the published build: `vendor/bg3se/pin.json` records the release
+      tag and SHA256, `install-script-extender.ps1` downloads exactly that asset
+      and verifies the hash, and `install-release.ps1` runs it after the mods.
+      No extender binary is committed; the source precedence is explicit path,
+      explicit URL, local `tools/bg3se` override, then the pinned release.
 - [ ] Verify in-game that the pinned build loads and `!dos2c_ac` reports
       `src=engine` with the sheet AC. This is the end of the AC work: the
       accessor, the single AC source, and the shipped build.
