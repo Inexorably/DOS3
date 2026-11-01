@@ -35,15 +35,39 @@ function make_armor_character(guid, options)
     end
     if options.passives then entity.Passives = { Passives = options.passives } end
     if options.player then entity.Player = {} end
-    if options.equipment then entity.InventoryMember = { Equipment = options.equipment } end
+    if options.equipment then
+        entity.InventoryOwner = { Inventories = { options.equipment }, PrimaryInventory = options.equipment }
+    end
     if options.inCombat then entity.IsInCombat = {} end
     if options.combatParticipant then entity.CombatParticipant = {} end
     H.entities[guid] = entity
     return entity
 end
 
+-- Ext_Enums.ItemSlot order (Helmet = 0 ... OffHand = 20).
+local ITEM_SLOTS = {
+    "Helmet", "Breast", "Cloak", "MeleeMainHand", "MeleeOffHand",
+    "RangedMainHand", "RangedOffHand", "Ring", "Underwear", "Boots",
+    "Gloves", "Amulet", "Ring2", "Wings", "Horns", "Overhead",
+    "MusicalInstrument", "VanityBody", "VanityBoots", "MainHand", "OffHand",
+}
+H.equipped_slots = {}
+
+-- The character's Equipment inventory (InventoryData.Type "Equipment"), whose
+-- items carry InventoryMember.EquipmentSlot: the shape BG3SE exposes for
+-- equipped items.
 function make_equipment(guid, slots)
-    H.entities[guid] = { Equipment = { Slots = slots } }
+    local items = {}
+    for slot, item in pairs(slots) do
+        for index, name in ipairs(ITEM_SLOTS) do
+            if name == slot then H.equipped_slots[item] = { index - 1, guid } end
+        end
+        items[#items + 1] = { Item = item }
+    end
+    H.entities[guid] = {
+        InventoryData = { Type = "Equipment", SlotLimit = 19 },
+        InventoryContainer = { Items = items },
+    }
     return H.entities[guid]
 end
 
@@ -52,6 +76,10 @@ function make_item(guid, armor_class, stats_id)
         Armor = { ArmorClass = armor_class },
         Data = { StatsId = stats_id },
     }
+    local equipped = H.equipped_slots[guid]
+    if equipped then
+        H.entities[guid].InventoryMember = { EquipmentSlot = equipped[1], Inventory = equipped[2] }
+    end
     return H.entities[guid]
 end
 """
@@ -182,6 +210,95 @@ class ArmorTests(unittest.TestCase):
         )
         self.assertEqual(self.resist("c14")["ac"], 14)
         self.assertIn("armor equipped fallback", self.logs())
+
+    def test_equipped_shield_in_owned_inventory_feeds_gear_ac(self) -> None:
+        # BG3SE: a character has InventoryOwner.Inventories; each inventory
+        # has InventoryContainer.Items; an item's InventoryMember.EquipmentSlot
+        # is its ItemSlot (MeleeOffHand = 4) while it sits in the Equipment
+        # inventory. Osiris GetEquippedItem does not return shields.
+        self.harness.run(
+            'H.entities["inv-1"] = { InventoryData = { Type = "Equipment", SlotLimit = 19 }, '
+            'InventoryContainer = { Items = { [0] = { Item = "shield-1" } } } }'
+        )
+        self.harness.run(
+            'H.entities["inv-main"] = { InventoryData = { Type = "Main", SlotLimit = 65535 }, '
+            'InventoryContainer = { Items = { [0] = { Item = "pack-1" } } } }'
+        )
+        self.harness.run('make_item("shield-1", 2, "ARM_TestShield")')
+        self.harness.run(
+            'H.entities["shield-1"].InventoryMember = { EquipmentSlot = 4, Inventory = "inv-1" }'
+        )
+        self.harness.run('make_item("pack-1", 5, "ARM_TestPackArmor")')
+        self.harness.run(
+            'H.entities["pack-1"].InventoryMember = { EquipmentSlot = -1, Inventory = "inv-main" }'
+        )
+        self.character("c16")
+        self.harness.run(
+            'H.entities["c16"].InventoryOwner = '
+            '{ Inventories = { "inv-main", "inv-1" }, PrimaryInventory = "inv-main" }'
+        )
+        # No body armour worn: #41's unarmored base 10 + the shield 2 = 12 (the
+        # AC-5 pack item in the Main inventory never counts).
+        self.assertEqual(self.resist("c16")["ac"], 12)
+        self.assertIn("armor equipped", self.logs())
+
+    def carried_gear_character(self, guid: str, shield_equipped: bool) -> None:
+        # In game (SE log, Shadowheart on #3) a CARRIED item's
+        # InventoryMember.EquipmentSlot is NOT -1: the backpack shield
+        # reported 14 and a spare body armour 6, inside 0-20, beside the
+        # worn chain shirt (1) and shield (4). Osiris GetEquippedItem returns
+        # the chain shirt (Breast) but NOT the worn shield (master's log: only
+        # Breast 15 counted). The FIX-3-BACKPACK probe (4 party members, 0
+        # exceptions): a worn item sits in the Equipment inventory
+        # (InventoryData Type "Equipment", SlotLimit 19) with a Wielding
+        # component; every bag item sits in the Main inventory, no Wielding.
+        self.harness.run(
+            'H.entities["inv-eq"] = { InventoryData = { Type = "Equipment", SlotLimit = 19 }, '
+            'InventoryContainer = { Items = { [0] = { Item = "chain-1" }, [1] = { Item = "shield-on" } } } }'
+        )
+        self.harness.run(
+            'H.entities["inv-bp"] = { InventoryData = { Type = "Main", SlotLimit = 65535 }, '
+            'InventoryContainer = { Items = { [0] = { Item = "shield-bag" }, [1] = { Item = "body-bag" } } } }'
+        )
+        items = {"chain-1": (1, 15, "ARM_ChainShirt_Body_2", "inv-eq"),
+                 "body-bag": (6, 17, "ARM_ChainMail_Body_1", "inv-bp"),
+                 "shield-bag": (14, 2, "GOB_Priest_Shield", "inv-bp")}
+        if shield_equipped:
+            items["shield-on"] = (4, 2, "MAG_LowHP_TemporaryHP_Shield", "inv-eq")
+        for item, (slot, ac, stats_id, inventory) in items.items():
+            self.harness.run(f'make_item("{item}", {ac}, "{stats_id}")')
+            self.harness.run(
+                f'H.entities["{item}"].InventoryMember = {{ EquipmentSlot = {slot}, Inventory = "{inventory}" }}'
+            )
+            if inventory == "inv-eq":
+                self.harness.run(f'H.entities["{item}"].Wielding = {{}}')
+        # Vanilla shape: body armour's Armor stat has Slot "Breast".
+        self.harness.set_stat("ARM_ChainShirt_Body_2", {"Slot": "Breast"})
+        self.harness.set_stat("ARM_ChainMail_Body_1", {"Slot": "Breast"})
+        self.harness.run(
+            'H.osi_results["GetEquippedItem"] = function(guid, slot) '
+            'if slot == "Breast" then return "chain-1" end end'
+        )
+        self.character(guid, dex=1)
+        self.harness.run(
+            f'H.entities["{guid}"].InventoryOwner = '
+            '{ Inventories = { "inv-bp", "inv-eq" }, PrimaryInventory = "inv-bp" }'
+        )
+
+    def test_backpack_shield_and_spare_body_armour_do_not_feed_gear_ac(self) -> None:
+        # FIX-3-BACKPACK: 15 chain + 1 Dex + 2 worn shield = 18 (45 %); the
+        # bag's shield (slot 14) and spare armour (slot 6) add nothing.
+        self.carried_gear_character("c17", shield_equipped=True)
+        resist = self.resist("c17")
+        self.assertEqual(resist["ac"], 18)
+        self.assertAlmostEqual(resist["percent"], 45, delta=1)
+
+    def test_backpack_shield_does_not_feed_gear_ac_with_shield_off(self) -> None:
+        # Shield off: 15 chain + 1 Dex = 16 (35 %); the bag's shield stays out.
+        self.carried_gear_character("c18", shield_equipped=False)
+        resist = self.resist("c18")
+        self.assertEqual(resist["ac"], 16)
+        self.assertAlmostEqual(resist["percent"], 35, delta=1)
 
     def test_osi_armor_class_is_preferred(self) -> None:
         self.character("c15", ac=10)

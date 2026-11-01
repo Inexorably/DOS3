@@ -264,29 +264,40 @@ local function manualArmorClass(handle, entity)
         return ac, armor, statsId
     end
 
-    -- Prefer the actual Equipment component. Scanning the backpack for a
-    -- shield would count unequipped items and is not safe.
+    -- Prefer the owned inventories' equipped items: Osiris GetEquippedItem does
+    -- not return shields. Worn items sit in the character's Equipment inventory
+    -- (InventoryData.Type "Equipment"); a backpack item's EquipmentSlot is its
+    -- bag position and can fall inside 0-20, so only that inventory counts.
     local equipFound = false
-    local member = component(entity, "InventoryMember")
-    local equipmentHandle = member and component(member, "Equipment")
-    local equipmentEntity = equipmentHandle and Ext.Entity.Get(equipmentHandle)
-    local equipment = equipmentEntity and component(equipmentEntity, "Equipment")
-    local slots = equipment and component(equipment, "Slots")
-    if slots then
-        for slot, item in pairs(slots) do
-            local itemEntity = item and Ext.Entity.Get(item) or nil
-            if itemEntity then
-                local ac, armor, statsId = itemAc(itemEntity)
-                if ac > 0 then
-                    equipFound = true
-                    gear = gear + ac
-                    if not armorClassLogged[guid] then
-                        U.Log("armor equipped %s slot=%s stats=%s ac=%s",
-                            guid, tostring(slot), tostring(statsId), tostring(ac))
+    local owner = component(entity, "InventoryOwner")
+    local inventories = owner and component(owner, "Inventories") or {}
+    local walked = pcall(function()
+        for _, inventoryHandle in pairs(inventories) do
+            local inventory = Ext.Entity.Get(inventoryHandle)
+            local data = inventory and component(inventory, "InventoryData")
+            local worn = data and tostring(data.Type) == "Equipment"
+            local container = worn and component(inventory, "InventoryContainer")
+            for _, entry in pairs(container and component(container, "Items") or {}) do
+                local itemEntity = entry and entry.Item and Ext.Entity.Get(entry.Item) or nil
+                local member = itemEntity and component(itemEntity, "InventoryMember")
+                local slot = member and tonumber(member.EquipmentSlot) or -1
+                if slot >= 0 and slot <= 20 then
+                    local ac, armor, statsId = itemAc(itemEntity)
+                    if ac > 0 then
+                        equipFound = true
+                        gear = gear + ac
+                        if not armorClassLogged[guid] then
+                            U.Log("armor equipped %s slot=%s stats=%s ac=%s",
+                                guid, tostring(slot), tostring(statsId), tostring(ac))
+                        end
                     end
                 end
             end
         end
+    end)
+    if not walked then
+        equipFound = false
+        gear = 0
     end
 
     if not equipFound and Osi and Osi.GetEquippedItem then
