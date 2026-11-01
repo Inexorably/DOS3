@@ -72,10 +72,31 @@ class ManifestTests(unittest.TestCase):
         )
         self.assertIn("HEALTHBOOST_HARDCORE", stats)
         boosts = stats["HEALTHBOOST_HARDCORE"].get("Boosts", "")
-        self.assertIn("IncreaseMaxHP(100%)", boosts)
+        self.assertIn("IncreaseMaxHP(300%)", boosts)
         self.assertIn("RollBonus(Attack,2)", boosts)
         self.assertIn("SpellSaveDC(2)", boosts)
         self.assertNotIn("IncreaseMaxHP(30%)", boosts)
+        self.assertNotIn("IncreaseMaxHP(100%)", boosts)
+
+    def test_enemy_health_doubles_the_previous_tactician_health(self):
+        stats = parse_stats(
+            MODS
+            / "EnemyHealth"
+            / "Public"
+            / "EnemyHealth"
+            / "Stats"
+            / "Generated"
+            / "Data"
+            / "HealthBoost.txt"
+        )
+        boosts = stats["HEALTHBOOST_HARDCORE"].get("Boosts", "")
+        percents = re.findall(r"IncreaseMaxHP\((\d+)%\)", boosts)
+        self.assertEqual(len(percents), 1)
+        base_hp = 20
+        tactician_hp = base_hp * (100 + int(percents[0])) // 100
+        # Base 20: native Tactician +30% = 26, the old +100% = 40, now 80.
+        self.assertEqual(tactician_hp, 4 * base_hp)
+        self.assertEqual(tactician_hp, 2 * (base_hp * (100 + 100) // 100))
 
     def test_armor_passives_cover_full_formula_range(self):
         path = (

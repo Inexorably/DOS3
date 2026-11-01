@@ -429,6 +429,8 @@ Known DOS2 visual references for the current test spells:
       0, item use costs are not on `Object.UseCosts` in this build.
 - [ ] No repeated Script Extender log spam during a session.
 - [ ] Existing saves can be loaded without component/persistence errors.
+- [ ] EnemyHealth on Tactician: a known enemy's max HP is 4x its base
+      (`IncreaseMaxHP(300%)`), twice what the old `IncreaseMaxHP(100%)` gave.
 
 ## Enemy Randomization
 

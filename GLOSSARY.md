@@ -23,7 +23,7 @@ fields in `Public/*/Stats/Generated/Data/*.txt`.
 | **Summon band** | A generated per-level summon template and Character stat block, e.g. `ENR_Redcap_L7`. |
 | **Loot variant** | A deterministic generated item stat/root combination for a base item and rarity. |
 | **Boss tier** | Project classification (`FINAL_BOSS`, `MAJOR_BOSS`, `BOSS`) used to choose how many champion conditions an enemy receives. |
-| **Tactician health boost** | Native `HEALTHBOOST_HARDCORE` status. EnemyHealth changes its `IncreaseMaxHP` value from 30% to 100%. |
+| **Tactician health boost** | Native `HEALTHBOOST_HARDCORE` status. EnemyHealth changes its `IncreaseMaxHP` value from 30% to 300%. |
 
 ## BG3 Data Formats
 

@@ -221,7 +221,7 @@ This is intentionally a one-file stats mod:
 Public/EnemyHealth/Stats/Generated/Data/HealthBoost.txt
 ```
 
-It overrides `HEALTHBOOST_HARDCORE` with `IncreaseMaxHP(100%)`. There is no
+It overrides `HEALTHBOOST_HARDCORE` with `IncreaseMaxHP(300%)` (4x base health). There is no
 runtime health scan, marker, or Script Extender dependency. This avoids the
 component-reset races of the earlier runtime implementation.
 
