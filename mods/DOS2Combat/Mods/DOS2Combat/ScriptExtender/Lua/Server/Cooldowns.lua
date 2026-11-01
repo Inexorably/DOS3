@@ -27,6 +27,64 @@ local function cooldownTypeForTurns(turns)
     return map[turns] or map[7] or "OncePerTurn"
 end
 
+-- The script extender checks every SpellCooldownType write against the
+-- runtime enum, and that enum does not spell every label the way stat
+-- definitions do: BG3SE v33 has OncePerShortRestPerItem / UntilPerRestPerItem
+-- but no UntilShortRestPerItem / UntilRestPerItem, and writing a missing
+-- label throws "not a valid 'SpellCooldownType' enum label". So a label is
+-- matched to the runtime list by meaning: its CamelCase words without the
+-- timing words below, which the two spellings use differently.
+local TIMING_WORDS = { Until = true, Once = true, Per = true }
+
+local function labelMeaning(label)
+    local words = {}
+    for word in tostring(label):gmatch("%u%l*") do
+        if not TIMING_WORDS[word] then words[#words + 1] = word end
+    end
+    return table.concat(words, " ")
+end
+
+local runtimeLabels -- nil = not read yet, false = the runtime lists none
+
+local function runtimeCooldownLabels()
+    if runtimeLabels == nil then
+        runtimeLabels = false
+        local ok, enum = pcall(function() return Ext.Enums.SpellCooldownType end)
+        if ok and type(enum) == "table" then
+            local labels = {}
+            local found = pcall(function()
+                for key in pairs(enum) do
+                    if type(key) == "string" then labels[key] = true end
+                end
+            end)
+            if found and next(labels) ~= nil then runtimeLabels = labels end
+        end
+    end
+    return runtimeLabels or nil
+end
+
+-- The runtime label for `label`: itself when the runtime has it (or lists no
+-- labels at all), else the one runtime label with the same meaning, else nil.
+local function resolveLabel(label)
+    if type(label) ~= "string" or label == "" then return nil end
+    local labels = runtimeCooldownLabels()
+    if not labels or labels[label] then return label end
+    local meaning, match = labelMeaning(label), nil
+    for candidate in pairs(labels) do
+        if labelMeaning(candidate) == meaning then
+            if match then return nil end
+            match = candidate
+        end
+    end
+    return match
+end
+
+-- What a cooldown entry or spellbook spell may hold: the given label in the
+-- runtime's own spelling, else the plain type for the turn count.
+local function runtimeCooldownType(label, turns)
+    return resolveLabel(label) or resolveLabel(cooldownTypeForTurns(turns)) or "OncePerTurn"
+end
+
 local function normalize(name)
     return tostring(name or ""):lower()
 end
@@ -162,13 +220,13 @@ local function setNativeCooldown(entity, name, turns, cooldownType)
         return false
     end
 
+    local runtimeType = runtimeCooldownType(cooldownType, turns)
     local list = {}
     local found = false
     if comp.Cooldowns then
         for i = 1, #comp.Cooldowns do
             local entry = comp.Cooldowns[i]
             if entryMatches(entry, name) then
-                local runtimeType = cooldownType or cooldownTypeForTurns(turns)
                 entry.CooldownType = runtimeType
                 entry.CooldownType2 = runtimeType
                 entry.Cooldown = turns
@@ -182,8 +240,8 @@ local function setNativeCooldown(entity, name, turns, cooldownType)
     if not found then
         list[#list + 1] = {
             SpellId = copySpellId(spell.Id),
-            CooldownType = cooldownType or cooldownTypeForTurns(turns),
-            CooldownType2 = cooldownType or cooldownTypeForTurns(turns),
+            CooldownType = runtimeType,
+            CooldownType2 = runtimeType,
             Cooldown = turns,
             SpellCastGuid = ZERO_GUID,
         }
@@ -345,7 +403,7 @@ function C.Apply(handle, name, turns, cooldownType)
     active[guid][normalize(name)] = turns
     outOfCombatSeconds[guid] = 0
 
-    local runtimeType = cooldownType or C.GetType(name) or cooldownTypeForTurns(turns)
+    local runtimeType = runtimeCooldownType(cooldownType or C.GetType(name), turns)
     setNativeCooldown(entity, name, turns, runtimeType)
     setSpellbookCooldownType(entity, name, runtimeType)
     U.Log("cooldown applied: %s for %d turns", tostring(name), turns)
@@ -494,7 +552,7 @@ function C.ReapplyAll()
         if list then
             for name, remaining in pairs(list) do
                 setNativeCooldown(entity, name, remaining, defTypes[normalize(name)] or defTypes[baseName(normalize(name))])
-                setSpellbookCooldownType(entity, name, cooldownTypeForTurns(remaining))
+                setSpellbookCooldownType(entity, name, runtimeCooldownType(nil, remaining))
             end
         end
     end
