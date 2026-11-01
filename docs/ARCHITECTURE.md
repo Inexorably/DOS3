@@ -113,6 +113,12 @@ the same pair twice.
   tooltips only understand enum labels.
 - Out-of-combat cooldown time is six seconds per turn.
 - `Rest.lua` handles short-rest refresh and long-rest clearing.
+- `ClassResources.lua` replaces BG3's per-rest class charges. A spent charge
+  (Channel Divinity, Rage, Ki, Superiority Die, ...) regenerates one point every
+  `Config.CLASS_RESOURCE_RECHARGE_TURNS` of that character's turns, capped at the
+  resource maximum. Only the current amount moves; the definitions keep their
+  vanilla replenish type so the engine cannot refill a whole multi-charge pool
+  every turn.
 
 ### Armor and AC
 

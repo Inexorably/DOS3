@@ -95,6 +95,16 @@
 - [x] Spells that recharge on a **short rest** get a **3-turn cooldown**.
 - [x] Spells that recharge on a **long rest** get a **5-turn cooldown**.
 - [x] All non-default spells have a **minimum 1-turn cooldown**.
+- [x] Class charges no longer wait for a rest. `Server/ClassResources.lua`
+      returns one point per turn (configurable) to Channel Divinity, Channel
+      Oath, Superiority Die, Ki, Bardic Inspiration, Rage, Sorcery Point, Tides
+      of Chaos, and Lay on Hands charges. Spell slots, `ShortRestPoint`, and
+      per-rest racial/interrupt charges keep vanilla rules.
+- [ ] Verify in game that a spent Channel Divinity charge is usable again on the
+      next turn without a short rest, that Lay on Hands gains one charge per
+      turn rather than a full refill, and that the action-resource panel still
+      shows the vanilla "short rest" recharge text (the definition is
+      intentionally unchanged).
 - [x] Default attacks (`MainHandAttack`, `OffhandAttack`, `UnarmedAttack`,
       `WEAPON ATTACK`) remain cooldown-free.
 - [x] Ported DOS2 spells keep their **original DOS2 cooldowns** (Rain 6,

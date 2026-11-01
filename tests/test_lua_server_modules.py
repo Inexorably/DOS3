@@ -157,6 +157,7 @@ class Dos2CombatHarnessTests(unittest.TestCase):
         requires = harness.requires()
         self.assertIn("Server/Armor.lua", requires)
         self.assertIn("Server/Cooldowns.lua", requires)
+        self.assertIn("Server/ClassResources.lua", requires)
         self.assertIn("Server/StatsPatcher.lua", requires)
         self.assertTrue(harness.run("return DOS2C.Config.AP_MAX == 6"))
 

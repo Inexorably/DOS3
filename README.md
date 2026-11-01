@@ -163,6 +163,11 @@ Ubuntu runner because LSLib requires Windows.
 - Spells use DOS2-style level-based AP costs.
 - Non-default spells have at least a one-turn cooldown.
 - Cooldowns use DOS2-style turn counts. Out of combat, one turn is six seconds.
+- Class charges are not locked behind rests. A spent Channel Divinity, Rage,
+  Ki, Superiority Die, Bardic Inspiration, Sorcery Point, Tides of Chaos, or
+  Lay on Hands charge returns one point per turn; the spell's own turn cooldown
+  is what limits the ability. `Config.CLASS_RESOURCE_RECHARGE_TURNS` changes the
+  cadence (for example `3` for one charge every three turns).
 - Native attack rolls are removed, so weapon and spell attacks cannot miss.
 - Saving throws are removed everywhere: spell/alternate rolls, status apply and
   tick rolls, functor conditions, and `ApplyStatus` condition arguments.

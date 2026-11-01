@@ -112,33 +112,10 @@ local function normalize(name)
     return tostring(name or ""):lower()
 end
 
+-- Party detection lives in Util so the cooldown and class-charge modules share
+-- one rule.
 local function isPartyMember(handle)
-    if not (Osi and Osi.GetPartyMembers) then return true end
-    local ok, a, b, c, d = pcall(Osi.GetPartyMembers)
-    if not ok or not a then return true end
-
-    local target = U.GuidOf(handle)
-    if not target then return true end
-
-    local members
-    if type(a) == "table" then
-        members = a
-    else
-        members = { a, b, c, d }
-    end
-
-    local checked = 0
-    for _, member in ipairs(members) do
-        if member ~= nil and member ~= "" then
-            checked = checked + 1
-            if U.GuidOf(member) == target then return true end
-        end
-    end
-
-    -- If the party list is not populated yet, do not accidentally suppress
-    -- player cooldowns during session startup.
-    if checked == 0 then return true end
-    return false
+    return U.IsPartyMember(handle)
 end
 
 local function baseName(name)

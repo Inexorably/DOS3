@@ -24,6 +24,30 @@ DOS2C.Config = {
     KEEP_CLASS_RESOURCES = true, -- keep Rage/Ki/SuperiorityDie/etc. costs
     REMOVE_SPELL_SLOTS = true,   -- DOS2 has no per-rest spell slots
 
+    -- Class charges -------------------------------------------------------
+    -- BG3 restores class charges (Channel Divinity, Rage, Ki, Superiority
+    -- Die, ...) on a short or long rest. DOS2 has no per-rest charges, so a
+    -- spent charge used to lock the ability out for the whole fight. Each
+    -- charge now regenerates one point every CLASS_RESOURCE_RECHARGE_TURNS of
+    -- that character's own turns; the spell's turn cooldown is still the real
+    -- limiter. 1 = one charge per turn.
+    CLASS_RESOURCE_RECHARGE_TURNS = 1,
+    -- Resource UUIDs from Public/Shared/ActionResourceDefinitions. Only spell
+    -- charges are listed here: spell slots are removed by REMOVE_SPELL_SLOTS,
+    -- ShortRestPoint is the rest mechanic itself, and per-rest racial or
+    -- interrupt charges keep vanilla rules.
+    CLASS_RESOURCE_RECHARGE = {
+        ["028304ef-e4b7-4dfb-a7ec-cd87865cdb16"] = "ChannelDivinity",
+        ["c0503ecf-c3cd-4719-9cfd-05460a1db95a"] = "ChannelOath",
+        ["f82e9e53-1391-4555-95b3-ad52c3b8e259"] = "SuperiorityDie",
+        ["46d3d228-04e0-4a43-9a2e-78137e858c14"] = "KiPoint",
+        ["46bbeb43-9973-40fb-a11f-e386bc425a8e"] = "BardicInspiration",
+        ["6740f9f4-125d-4321-89e0-771fccd64622"] = "Rage",
+        ["46886ba5-6505-4875-a747-ac14118e1e08"] = "SorceryPoint",
+        ["733e3365-082c-4a0a-8df9-98273c23186e"] = "TidesOfChaos",
+        ["c2d059f8-7369-4701-9a4c-f85c55d04db3"] = "LayOnHandsCharge",
+    },
+
     -- Single source of truth for native cooldown enum -> numeric turns.
     -- StatsPatcher, Cooldowns, and the Python audit use these values.
     COOLDOWN_ENUMS = {

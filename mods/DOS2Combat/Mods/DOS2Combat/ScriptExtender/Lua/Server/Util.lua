@@ -99,6 +99,34 @@ function U.GuidOf(handle)
     return handle ~= nil and tostring(handle) or nil
 end
 
+-- True for a party member. The party list is empty before the session is ready,
+-- so an unpopulated list reports true rather than silently skipping players.
+function U.IsPartyMember(handle)
+    if not (Osi and Osi.GetPartyMembers) then return true end
+    local ok, a, b, c, d = pcall(Osi.GetPartyMembers)
+    if not ok or not a then return true end
+
+    local target = U.GuidOf(handle)
+    if not target then return true end
+
+    local members
+    if type(a) == "table" then
+        members = a
+    else
+        members = { a, b, c, d }
+    end
+
+    local checked = 0
+    for _, member in ipairs(members) do
+        if member ~= nil and member ~= "" then
+            checked = checked + 1
+            if U.GuidOf(member) == target then return true end
+        end
+    end
+
+    return checked == 0
+end
+
 function U.GetLevel(handle)
     if Osi and Osi.GetLevel then
         local ok, level = pcall(Osi.GetLevel, handle)
