@@ -25,7 +25,7 @@ function make_fighter(guid, engine_ac, dex, worn)
         ActionResources = {},
         Health = { MaxHp = 30, Hp = 30 },
         Armor = { ArmorClass = engine_ac },
-        Stats = { AbilityModifiers = { 0, dex, 0, 0, 0, 0 } },
+        Stats = { AbilityModifiers = { 0, 0, dex, 0, 0, 0, 0 } },
         ServerDisplayNameList = { Names = { { Name = "Fighter" } } },
     }
     if worn then
@@ -69,6 +69,11 @@ class UnarmoredBaseTests(unittest.TestCase):
             self.harness.load(module)
         self.harness.run("DOS2C.Config.CRIT_BASE_CHANCE = 0")
         self.harness.run(FACTORY)
+        self.harness.run(
+            'local get = Ext.Stats.Get; Ext.Stats.Get = function(name, level) '
+            'assert(level == nil or type(level) == "number", "level must be numeric"); '
+            'return get(name) end'
+        )
         self.harness.set_stat("SHIELD_OF_FAITH", {"Boosts": "AC(2)"}, stat_type="StatusData")
         self.harness.set_stat(
             "MAGE_ARMOR", {"Boosts": "ACOverrideFormula(13,true,Dexterity)"}, stat_type="StatusData"
@@ -212,7 +217,7 @@ class UnarmoredBaseTests(unittest.TestCase):
         self.fighter(10, 2, statuses=("SHIELD_OF_FAITH",))
         self.harness.run(
             'H.entities["f"].Passives = { Passives = { "UNARMORED_TEST" } }; '
-            'H.entities["f"].Stats.AbilityModifiers[3] = 3'
+            'H.entities["f"].Stats.AbilityModifiers[4] = 3'
         )
         self.assertEqual(self.ac_and_percent(), (17, 40))
 
@@ -248,6 +253,53 @@ class UnarmoredBaseTests(unittest.TestCase):
         )
         self.harness.fire_event_value("DealDamage", event)
         self.assertEqual(event["Hit"]["DamageList"][1]["Amount"], 70)
+
+    def test_item_estimates_do_not_replace_combined_ac_or_shield_of_faith_bonus(self) -> None:
+        self.harness.set_stat("ARM_TestBody", {"Slot": "Breast", "Boosts": ""})
+        self.harness.run(
+            'H.entities["body"] = { Armor = { ArmorClass = 13 }, Data = { StatsId = "ARM_TestBody" } }; '
+            'H.entities["shield"] = { Armor = { ArmorClass = 2 }, Data = { StatsId = "ARM_Shield" } }; '
+            'H.osi_results.GetEquippedItem = function(guid, slot) '
+            'if slot == "Breast" then return "body" elseif slot == "Shield" then return "shield" end end'
+        )
+        self.fighter(10, 1)
+        self.assertEqual(self.harness.run('return DOS2C.ArmorFormula.Percent(13, false)'), 20)
+        self.assertEqual(self.harness.run('return DOS2C.ArmorFormula.Percent(2, true)'), 10)
+        self.assertEqual(self.ac_and_percent(), (16, 35))
+        self.harness.run(
+            'H.entities["f"].StatusContainer = { Statuses = { { StatusId = "SHIELD_OF_FAITH" } } }'
+        )
+        self.harness.run('DOS2C.Armor.RefreshChanged("f")')
+        self.assertEqual(self.ac_and_percent(), (18, 45))
+        self.harness.run('H.entities["f"].StatusContainer.Statuses = {}')
+        self.harness.run('DOS2C.Armor.RefreshChanged("f")')
+        self.assertEqual(self.ac_and_percent(), (16, 35))
+
+    def test_mage_armor_status_event_refreshes_with_native_stat_api(self) -> None:
+        self.harness.load("Server/ArmorSync.lua")
+        self.fighter(10, 3)
+        self.harness.set_component("ActionResources", ["f"])
+        self.harness.run('DOS2C.ArmorSync.Pass(false)')
+        self.assertEqual(self.ac_and_percent(), (13, 20))
+        self.harness.run(
+            'H.entities["f"].StatusContainer = { Statuses = { { StatusId = "MAGE_ARMOR" } } }'
+        )
+        self.assertTrue(self.harness.run('return DOS2C.Armor.StatusGivesArmor("MAGE_ARMOR")'))
+        self.harness.fire_listener("StatusApplied", "f", "MAGE_ARMOR", "f", 0)
+        self.harness.run('DOS2C.ArmorSync.Pass(false)')
+        self.assertEqual(self.ac_and_percent(), (16, 35))
+        self.assertEqual(self.harness.run('return H.net_messages[#H.net_messages].payload'), "f|35")
+
+    def test_native_ability_array_includes_the_none_entry_before_strength(self) -> None:
+        self.fighter(10, 0)
+        self.harness.run('H.entities["f"].Stats.AbilityModifiers = { 0, -1, 3, 2, 4, 1, 0 }')
+        self.assertEqual(self.ac_and_percent(), (13, 20))
+        self.harness.run('H.entities["f"].Stats.AbilityModifiers[3] = 4')
+        self.assertTrue(self.harness.run('return DOS2C.Armor.RefreshChanged("f")'))
+        self.assertEqual(self.ac_and_percent(), (14, 25))
+        self.harness.run('H.entities["f"].Stats.AbilityModifiers[3] = 5')
+        self.assertTrue(self.harness.run('return DOS2C.Armor.RefreshChanged("f")'))
+        self.assertEqual(self.ac_and_percent(), (15, 30))
 
     def test_negative_dexterity_lowers_the_unarmored_base(self) -> None:
         # Dex -1 unarmored: 10 - 1 = 9, as the engine says; the base must not

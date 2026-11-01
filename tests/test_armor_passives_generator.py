@@ -51,7 +51,25 @@ class ArmorPassivesTests(unittest.TestCase):
         entries = dict(self.mod.read_loca(self.mod.LOCA))
         self.assertEqual(len(entries), 202)
         self.assertEqual(entries[self.mod.handle("DOS2C_ArmorInfo_R37/name")],
-                         "Damage Reduction: 37%")
+                         "Item DR estimate: 37%")
+        self.assertIn("These item percentages do not stack", entries[
+            self.mod.handle("DOS2C_ArmorInfo_R37/desc")
+        ])
+
+    def test_main_updates_existing_labels_without_losing_unrelated_localization(self) -> None:
+        name = self.mod.handle("DOS2C_ArmorInfo_R10/name")
+        desc = self.mod.handle("DOS2C_ArmorInfo_R10/desc")
+        self.mod.write_loca(self.mod.LOCA, [
+            ("h_keep", "Unrelated"),
+            (name, "Damage Reduction: 10%"),
+            (desc, "Gear grants 10% damage reduction."),
+        ])
+        self.mod.main()
+        entries = self.mod.read_loca(self.mod.LOCA)
+        self.assertEqual(len(entries), 203)
+        self.assertEqual(dict(entries)[name], "Item DR estimate: 10%")
+        self.assertIn("not an additional reduction", dict(entries)[desc])
+        self.assertEqual(dict(entries)["h_keep"], "Unrelated")
 
     def test_main_is_idempotent(self) -> None:
         self.mod.main()

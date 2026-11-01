@@ -82,8 +82,14 @@ def main() -> None:
             'data "Properties" "Highlighted"',
             '',
         ])
-        loca_entries.append((name_handle, f"Damage Reduction: {percent}%"))
-        loca_entries.append((desc_handle, f"Gear grants {percent}% damage reduction."))
+        loca_entries.append((name_handle, f"Item DR estimate: {percent}%"))
+        loca_entries.append((
+            desc_handle,
+            "Estimate from this item's AC alone, not an additional reduction or the character's total. "
+            "AC from equipment, abilities and buffs (including Shield of Faith) is combined before "
+            "damage reduction is calculated. These item percentages do not stack. "
+            "Hover the character to see total damage reduction.",
+        ))
 
     OUT.write_text("\n".join(lines), encoding="utf-8")
 
@@ -96,6 +102,8 @@ def main() -> None:
             or (text.startswith("Gear grants ") and "physical armor" in text)
         )
     ]
+    replacements = dict(loca_entries)
+    existing = [(key, replacements.get(key, text)) for key, text in existing]
     known = {key for key, _ in existing}
     for key, text in loca_entries:
         if key not in known:

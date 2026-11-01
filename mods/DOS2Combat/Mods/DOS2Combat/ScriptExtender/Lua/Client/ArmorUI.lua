@@ -113,7 +113,9 @@ local function hoveredItemEntity()
                     local handle = entry and entry.Tooltip
                     if handle then
                         local entity = Ext.Entity.Get(handle)
-                        if entity and entity.Armor then return entity end
+                        -- Characters also have Armor; their component is not a total-DR tooltip.
+                        if entity and entity.Armor and not entity.Stats
+                            and not values[guidOf(entity)] then return entity end
                     end
                 end
             end
@@ -130,7 +132,7 @@ local function itemArmorText(entity)
     local ac = tonumber(armor.ArmorClass) or 0
     local statsId = entity.Data and entity.Data.StatsId
     if statsId and Ext.Stats and Ext.Stats.Get then
-        local ok, stat = pcall(Ext.Stats.Get, statsId, "Armor")
+        local ok, stat = pcall(Ext.Stats.Get, statsId)
         if ok and stat then
             ac = tonumber(stat.ArmorClass) or ac
             ac = formula.ArmorClassWithBoosts(ac, stat.Boosts)
@@ -138,7 +140,7 @@ local function itemArmorText(entity)
     end
     local percent = formula.Percent(ac, armor.Shield, DOS2C.Config)
     if percent <= 0 then return "" end
-    return string.format("Damage Reduction: %d%%", math.floor(percent + 0.5))
+    return string.format("Item DR estimate: %d%%", math.floor(percent + 0.5))
 end
 
 local function hoveredGuid()
@@ -271,10 +273,10 @@ local function updateHoveredArmor()
         local value = guid and values[guid]
         local text = ""
         local item = hoveredItemEntity()
-        if item then
-            text = itemArmorText(item)
-        elseif value then
+        if value then
             text = string.format("Damage Reduction: %d%%", math.floor((value.percent or 0) + 0.5))
+        elseif item then
+            text = itemArmorText(item)
         end
         if guid ~= lastTargetGuid then
             lastTargetGuid = guid

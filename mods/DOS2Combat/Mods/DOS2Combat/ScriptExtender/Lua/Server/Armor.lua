@@ -88,9 +88,10 @@ local function acFromBoosts(boosts)
     return total
 end
 
+-- Native arrays include AbilityId.None at Lua index 1.
 local ABILITY_INDEX = {
-    Strength = 1, Dexterity = 2, Constitution = 3,
-    Intelligence = 4, Wisdom = 5, Charisma = 6,
+    Strength = 2, Dexterity = 3, Constitution = 4,
+    Intelligence = 5, Wisdom = 6, Charisma = 7,
 }
 
 local function signedAbilityModifier(entity, ability)
@@ -136,9 +137,9 @@ local function acFromOverride(boosts, entity)
     return total
 end
 
-local function statBoosts(name, statType)
+local function statBoosts(name)
     if not (name and Ext.Stats and Ext.Stats.Get) then return "" end
-    local ok, stat = pcall(Ext.Stats.Get, tostring(name), statType)
+    local ok, stat = pcall(Ext.Stats.Get, tostring(name))
     if not ok or not stat then return "" end
     return U.SafeGet(stat, "Boosts") or ""
 end
@@ -178,7 +179,7 @@ local function activeStatusArmor(entity)
                     local name = tostring(id)
                     if not seen[name] then
                         seen[name] = true
-                        local boosts = statBoosts(name, "StatusData")
+                        local boosts = statBoosts(name)
                         local bonus = acFromBoosts(boosts)
                         if bonus == 0 then bonus = STATUS_ARMOR_FALLBACK[name] or 0 end
                         total = total + bonus
@@ -212,7 +213,7 @@ local function activePassiveArmor(entity)
         for key, value in pairs(list) do
             local name = type(key) == "number" and value or key
             if name then
-                local boosts = statBoosts(name, "PassiveData")
+                local boosts = statBoosts(name)
                 total = total + acFromBoosts(boosts)
                 local evaluated = acFromOverride(boosts, entity)
                 if evaluated and evaluated > override then override = evaluated end
@@ -226,12 +227,12 @@ end
 local function itemPassiveArmor(statsId)
     local total = 0
     if not (statsId and Ext.Stats and Ext.Stats.Get) then return total end
-    local ok, stat = pcall(Ext.Stats.Get, tostring(statsId), "Armor")
+    local ok, stat = pcall(Ext.Stats.Get, tostring(statsId))
     if not ok or not stat then return total end
     local passives = U.SafeGet(stat, "PassivesOnEquip")
     if type(passives) ~= "string" then return total end
     for passive in passives:gmatch("[^;]+") do
-        total = total + acFromBoosts(statBoosts(passive, "PassiveData"))
+        total = total + acFromBoosts(statBoosts(passive))
     end
     return total
 end
@@ -248,7 +249,7 @@ local function manualArmorClass(handle, entity)
         local ac = armor and tonumber(armor.ArmorClass) or 0
         local statsId = data and data.StatsId
         if statsId and Ext.Stats and Ext.Stats.Get then
-            local got, stat = pcall(Ext.Stats.Get, statsId, "Armor")
+            local got, stat = pcall(Ext.Stats.Get, statsId)
             if got and stat then
                 local formula = DOS2C.ArmorFormula
                 if formula then
@@ -402,7 +403,7 @@ local function armorFingerprint(handle)
     local stats = component(entity, "Stats")
     local dexOk, dex = false, nil
     if stats then
-        dexOk, dex = pcall(function() return stats.AbilityModifiers[2] end)
+        dexOk, dex = pcall(function() return stats.AbilityModifiers[ABILITY_INDEX.Dexterity] end)
     end
     parts[#parts + 1] = dexOk and tostring(dex) or "?"
 
@@ -943,7 +944,7 @@ function A.StatusGivesArmor(status)
     if status == nil then return false end
     local name = tostring(status)
     if STATUS_ARMOR_FALLBACK[name] then return true end
-    local boosts = statBoosts(name, "StatusData")
+    local boosts = statBoosts(name)
     return acFromBoosts(boosts) ~= 0 or acFromOverride(boosts, nil) ~= nil
 end
 

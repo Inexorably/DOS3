@@ -131,6 +131,14 @@ the same pair twice.
 - Armor is a single percentage damage-reduction stat; it does not deplete.
 - `ArmorSync` sends a compact `guid|reduction%` snapshot to the client;
   client code must not reimplement the formula with independent constants.
+  A character's `Armor` component is not an item tooltip: character hover
+  always prefers the server snapshot, even if a stale item tooltip is present.
+- Armor stat reads call `Ext.Stats.Get(name)`; its optional second argument is
+  a numeric level, not a stat-type filter. Armor ability indices account for
+  the native `None` entry at Lua index 1 (`Dexterity` is index 3).
+- Equipment tooltip passives are labeled `Item DR estimate`, not total DR or
+  stackable grants. AC buffs update the character total without adding another
+  per-item notable feature.
 
 ## Enemy Randomization Data Flow
 
