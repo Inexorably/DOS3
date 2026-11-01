@@ -93,14 +93,25 @@ local ABILITY_INDEX = {
     Intelligence = 4, Wisdom = 5, Charisma = 6,
 }
 
-local function abilityModifier(entity, ability)
+local function signedAbilityModifier(entity, ability)
     local stats = entity and entity.Stats
     local index = ABILITY_INDEX[ability]
     if not stats or not index then return 0 end
     local ok, value = pcall(function() return stats.AbilityModifiers[index] end)
     if not ok then return 0 end
-    return math.max(0, tonumber(value) or 0)
+    return tonumber(value) or 0
 end
+
+local function abilityModifier(entity, ability)
+    return math.max(0, signedAbilityModifier(entity, ability))
+end
+
+-- BG3's unarmored base: the Character stat _Base has Armor 10. Body armour
+-- (an Armor stat with Slot "Breast", like _Body and ARM_Robe_Body's AC 10, or
+-- an item Osiris reports in the Breast slot) replaces it, so the base only
+-- counts when no worn body item gives AC.
+local UNARMORED_BASE = 10
+local BODY_SLOT = "Breast"
 
 -- ACOverrideFormula replaces the unarmored base instead of adding a bonus:
 --   ACOverrideFormula(13,true,Dexterity)          -> 13 + DEX  (Mage Armor)
@@ -221,6 +232,7 @@ end
 local function manualArmorClass(handle, entity)
     local guid = U.GuidOf(handle)
     local gear, dex, statuses = 0, 0, 0
+    local wornBody = false
     if not guid then return 0, 0, 0, 0 end
 
     local function itemAc(itemEntity)
@@ -234,6 +246,9 @@ local function manualArmorClass(handle, entity)
                 local formula = DOS2C.ArmorFormula
                 if formula then
                     ac = formula.ArmorClassWithBoosts(ac, U.SafeGet(stat, "Boosts"))
+                end
+                if U.SafeGet(stat, "Slot") == BODY_SLOT and (ac or 0) > 0 then
+                    wornBody = true
                 end
             end
         end
@@ -273,6 +288,7 @@ local function manualArmorClass(handle, entity)
             local ac, armor, statsId = itemAc(itemEntity)
             if ac > 0 then
                 gear = gear + ac
+                if slot == BODY_SLOT then wornBody = true end
                 if not armorClassLogged[guid] then
                     U.Log("armor equipped fallback %s slot=%s stats=%s ac=%s",
                         guid, slot, tostring(statsId), tostring(ac))
@@ -288,7 +304,13 @@ local function manualArmorClass(handle, entity)
     local passiveAc, passiveOverride = activePassiveArmor(entity)
     statuses = statusAc
     local override = math.max(statusOverride or 0, passiveOverride or 0)
-    local total = gear + dex + statuses + passiveAc
+    -- Unarmored: 10 + Dex, where a negative Dex lowers the base (the plain Dex
+    -- term below never goes under 0).
+    local base = 0
+    if not wornBody then
+        base = UNARMORED_BASE + math.min(0, signedAbilityModifier(entity, "Dexterity"))
+    end
+    local total = base + gear + dex + statuses + passiveAc
     if override > total then total = override end
     return total, gear, dex, statuses + passiveAc
 end
