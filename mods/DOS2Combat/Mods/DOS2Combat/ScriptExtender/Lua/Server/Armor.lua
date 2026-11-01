@@ -150,7 +150,8 @@ local function component(entity, name)
     return nil
 end
 
--- Named AC statuses read through Osiris when the StatusContainer gives no AC.
+-- Named AC statuses supplement partial StatusContainer/stat reads without
+-- counting a status twice.
 local STATUS_ARMOR_FALLBACK = {
     SHIELD_OF_FAITH = 2,
     ENR_LootStatus_SHIELD_OF_FAITH = 2,
@@ -163,6 +164,7 @@ local STATUS_ARMOR_FALLBACK = {
 local function activeStatusArmor(entity)
     local total = 0
     local override = 0
+    local seen = {}
     local container = component(entity, "StatusContainer")
     local statuses = container and component(container, "Statuses")
     if statuses then
@@ -173,23 +175,28 @@ local function activeStatusArmor(entity)
             for _, status in ipairs(statuses) do
                 local id = status and component(status, "StatusId")
                 if id then
-                    local boosts = statBoosts(id, "StatusData")
-                    total = total + acFromBoosts(boosts)
-                    local value = acFromOverride(boosts, entity)
-                    if value and value > override then override = value end
+                    local name = tostring(id)
+                    if not seen[name] then
+                        seen[name] = true
+                        local boosts = statBoosts(name, "StatusData")
+                        local bonus = acFromBoosts(boosts)
+                        if bonus == 0 then bonus = STATUS_ARMOR_FALLBACK[name] or 0 end
+                        total = total + bonus
+                        local value = acFromOverride(boosts, entity)
+                        if value and value > override then override = value end
+                    end
                 end
             end
         end)
         if not ok then
             total = 0
             override = 0
+            seen = {}
         end
     end
-    if total == 0 then
-        local guid = U.GuidOf(entity)
-        for name, bonus in pairs(STATUS_ARMOR_FALLBACK) do
-            if guid and hasStatus(guid, name) then total = total + bonus end
-        end
+    local guid = U.GuidOf(entity)
+    for name, bonus in pairs(STATUS_ARMOR_FALLBACK) do
+        if not seen[name] and guid and hasStatus(guid, name) then total = total + bonus end
     end
     return total, override
 end
@@ -310,8 +317,8 @@ local function manualArmorClass(handle, entity)
     if not wornBody then
         base = UNARMORED_BASE + math.min(0, signedAbilityModifier(entity, "Dexterity"))
     end
-    local total = base + gear + dex + statuses + passiveAc
-    if override > total then total = override end
+    -- An override replaces the base calculation, not additive AC buffs.
+    local total = math.max(base + gear + dex, override) + statuses + passiveAc
     return total, gear, dex, statuses + passiveAc
 end
 
@@ -348,8 +355,8 @@ end
 
 -- A cheap key of every input nativeArmorClass reads, without the per-name
 -- Ext.Stats lookups (stats are fixed per name): the Osiris and component AC,
--- the equipped items (stats id + AC), Dexterity, the status ids (or the named
--- Osiris statuses when the container gives none) and the passive names.
+-- the equipped items (stats id + AC), Dexterity, the status ids plus named
+-- Osiris statuses (the container can be partial), and the passive names.
 -- nil = unreadable, so the caller refreshes.
 local function sortedJoin(list)
     table.sort(list)
@@ -411,10 +418,8 @@ local function armorFingerprint(handle)
         end)
         if not ok then statusIds = {} end
     end
-    if #statusIds == 0 then
-        for name in pairs(STATUS_ARMOR_FALLBACK) do
-            if hasStatus(guid, name) then statusIds[#statusIds + 1] = "osi:" .. name end
-        end
+    for name in pairs(STATUS_ARMOR_FALLBACK) do
+        if hasStatus(guid, name) then statusIds[#statusIds + 1] = "osi:" .. name end
     end
     parts[#parts + 1] = sortedJoin(statusIds)
 
