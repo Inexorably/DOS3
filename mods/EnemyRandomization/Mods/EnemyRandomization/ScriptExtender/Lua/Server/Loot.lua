@@ -155,6 +155,52 @@ local function templateMatches(eventTemplate, expected)
     return actual == expected or (expected ~= "" and actual:sub(-#expected) == expected)
 end
 
+-- Osi.GetTemplate returns "Name_<uuid>"; templateMatches compares by suffix.
+local function itemTemplateId(entity, item)
+    local ok, id = pcall(function() return entity.ServerItem.Template.Id end)
+    if ok and id and tostring(id) ~= "" then return tostring(id) end
+    if item and Osi and Osi.GetTemplate then
+        local osiOk, template = pcall(Osi.GetTemplate, item)
+        if osiOk and template and tostring(template) ~= "" then return tostring(template) end
+    end
+    return nil
+end
+
+-- The stats the item's own root template gives it (what an untouched item has).
+local function itemTemplateStats(entity, templateId)
+    local ok, stats = pcall(function() return entity.ServerItem.Template.Stats end)
+    if ok and stats and tostring(stats) ~= "" then return tostring(stats) end
+    if templateId and Ext and Ext.Template then
+        local uuid = templateId:match("(%x+%-%x+%-%x+%-%x+%-%x+)$") or templateId
+        for _, getter in ipairs({ "GetRootTemplate", "GetTemplate" }) do
+            local fn = Ext.Template[getter]
+            if fn then
+                local tOk, template = pcall(fn, uuid)
+                local sOk, value = pcall(function() return template and template.Stats end)
+                if tOk and sOk and value and tostring(value) ~= "" then return tostring(value) end
+            end
+        end
+    end
+    return nil
+end
+
+local function isEquipped(item)
+    if not (item and Osi and Osi.IsEquipped) then return false end
+    local ok, result = pcall(Osi.IsEquipped, item)
+    return ok and (result == 1 or result == true)
+end
+
+-- Only the item TemplateAddTo created for this entry may get the catalog stats:
+-- never an equipped item and never one of another (or an unreadable) template.
+local function isQueuedLoot(item, entry, template)
+    if isEquipped(item) then return false end
+    if not template and Ext and Ext.Entity and Ext.Entity.Get then
+        local ok, entity = pcall(Ext.Entity.Get, item)
+        if ok and entity then template = itemTemplateId(entity, item) end
+    end
+    return template ~= nil and template ~= "" and templateMatches(template, entry.variant.template)
+end
+
 local function parseQueryItem(a, b)
     if type(a) == "string" and a ~= "" then return a end
     if type(b) == "string" and b ~= "" then return b end
@@ -203,10 +249,15 @@ local function logItemInfo(item)
         tostring(item), tostring(statsId), tostring(armor), tostring(weapon))
 end
 
-local function applyItem(item, entry)
+local function applyItem(item, entry, template)
     local variant = entry.variant
     if not item or item == "" then
         log("loot event had no item GUID for template %s", tostring(variant and variant.template))
+        return false
+    end
+    if not isQueuedLoot(item, entry, template) then
+        log("loot item refused (equipped or not the queued template): item=%s root=%s",
+            tostring(item), tostring(variant and variant.template))
         return false
     end
 
@@ -310,7 +361,7 @@ local function onTemplateAdded(template, item, owner, source)
     for i, entry in ipairs(pending) do
         if entry.target == ownerText and templateMatches(template, entry.variant.template) then
             table.remove(pending, i)
-            local ok, err = pcall(applyItem, item, entry)
+            local ok, err = pcall(applyItem, item, entry, template)
             if not ok then log("loot item apply error: %s", tostring(err)) end
             return
         end
@@ -386,12 +437,15 @@ local function onInventoryMember(entity, quiet)
     end
 
     local itemInventoryGuid = inventoryGuidOf(member.Inventory)
+    local template = itemTemplateId(entity, tostring(itemGuid))
     for i, entry in ipairs(pending) do
         local sameOwner = entry.target == ownerGuid
         local sameInventory = entry.targetInventory ~= nil and entry.targetInventory == itemInventoryGuid
-        if sameOwner or sameInventory then
+        -- The owner alone is not enough: the owner's own (equipped) gear is in
+        -- the same inventory. Match the queued template too.
+        if (sameOwner or sameInventory) and isQueuedLoot(tostring(itemGuid), entry, template) then
             table.remove(pending, i)
-            local applied, err = pcall(applyItem, tostring(itemGuid), entry)
+            local applied, err = pcall(applyItem, tostring(itemGuid), entry, template)
             if not applied then log("loot inventory member apply error: %s", tostring(err)) end
             return true
         end
@@ -778,6 +832,74 @@ function L.SpawnAtPlayer(rarity, count, boss)
     return spawned, nil
 end
 
+-- Save repair: older builds could write a catalog stat onto an item that was
+-- not the queued loot (an enemy's equipped Scale Mail became a helmet stat and
+-- the engine crash-looped). An item is BROKEN iff its StatsId is an ENR_Loot_
+-- stat whose RootTemplate is not the item's own template. Repair = write the
+-- template's own stats back; delete the item only if that fails. ENR's own loot
+-- (stat RootTemplate == item template) is never touched.
+local function sweepItem(entity, counts)
+    local readOk, statsId = pcall(function() return entity.Data.StatsId end)
+    statsId = readOk and statsId and tostring(statsId) or ""
+    if statsId:sub(1, 9) ~= "ENR_Loot_" then return end
+    counts.enr = counts.enr + 1
+
+    local root = nil
+    if Ext and Ext.Stats and Ext.Stats.Get then
+        local statOk, stat = pcall(Ext.Stats.Get, statsId)
+        local rootOk, value = pcall(function() return stat and stat.RootTemplate end)
+        if statOk and rootOk and value and tostring(value) ~= "" then root = tostring(value) end
+    end
+    local guid = guidOf(entity)
+    local template = itemTemplateId(entity, guid)
+    if not (root and template) then
+        counts.unknown = counts.unknown + 1
+        return
+    end
+    if templateMatches(template, root) then return end
+
+    counts.broken = counts.broken + 1
+    local own = itemTemplateStats(entity, template)
+    if own and own ~= statsId then
+        local wrote = pcall(function()
+            entity.Data.StatsId = own
+            entity:Replicate("Data")
+        end)
+        local afterOk, after = pcall(function() return entity.Data.StatsId end)
+        if wrote and afterOk and tostring(after) == own then
+            counts.repaired = counts.repaired + 1
+            log("loot save sweep repaired: item=%s template=%s %s -> %s",
+                tostring(guid), template, statsId, own)
+            return
+        end
+    end
+    if guid and Osi and Osi.RequestDelete and pcall(Osi.RequestDelete, guid) then
+        counts.deleted = counts.deleted + 1
+        log("loot save sweep deleted (no repair): item=%s template=%s stats=%s",
+            tostring(guid), template, statsId)
+        return
+    end
+    counts.errors = counts.errors + 1
+end
+
+function L.SweepBrokenItems()
+    local counts = { items = 0, enr = 0, broken = 0, repaired = 0, deleted = 0, unknown = 0, errors = 0 }
+    if not (Ext and Ext.Entity and Ext.Entity.GetAllEntitiesWithComponent) then return counts end
+    local ok, entities = pcall(Ext.Entity.GetAllEntitiesWithComponent, "ServerItem")
+    if not ok or type(entities) ~= "table" then return counts end
+    for _, entity in ipairs(entities) do
+        counts.items = counts.items + 1
+        local swept, err = pcall(sweepItem, entity, counts)
+        if not swept then
+            counts.errors = counts.errors + 1
+            log("loot save sweep error: %s", tostring(err))
+        end
+    end
+    notify("loot save sweep: items %d enr %d broken %d repaired %d deleted %d unknown %d errors %d",
+        counts.items, counts.enr, counts.broken, counts.repaired, counts.deleted, counts.unknown, counts.errors)
+    return counts
+end
+
 local function registerCommands()
     if not (Ext and Ext.RegisterConsoleCommand) then return end
     local function handler(_, arg1, arg2)
@@ -832,6 +954,13 @@ function L.Init()
                 logStatInfo(sample.stats)
             end)
         end
+    end
+    -- Repair every loaded save before play (the host's and the friends' saves).
+    if Ext and Ext.Events and Ext.Events.SessionLoaded then
+        Ext.Events.SessionLoaded:Subscribe(function()
+            local ok, err = pcall(L.SweepBrokenItems)
+            if not ok then log("loot save sweep failed: %s", tostring(err)) end
+        end)
     end
     registerCommands()
     startDeadPoll()
