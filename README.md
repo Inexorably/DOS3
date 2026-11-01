@@ -29,11 +29,13 @@ difficulty system so it stacks naturally with the other mods.
   .\scripts\install-script-extender.ps1        # or install-script-extender.cmd
   ```
 
-  The installer validates the package before copying (real PE image, and the
-  `GetArmorClass` binding present), backs up the existing `DWrite.dll`, and
-  records what it installed in `bin\ScriptExtender.dos3.json`. To make a
-  checkout fully offline, drop the release zip in `vendor/bg3se` — see
-  [vendor/bg3se/README.md](vendor/bg3se/README.md).
+  The installer reads [vendor/bg3se/pin.json](vendor/bg3se/pin.json), downloads
+  that exact published release, verifies its SHA256, and validates the payload
+  (real PE image, and the `GetArmorClass` binding present) before copying. It
+  backs up the existing `DWrite.dll` and records what it installed in
+  `bin\ScriptExtender.dos3.json`. No extender binary is committed to this
+  repository, so a checkout always fetches the build the pin names.
+
 - The armour has no second AC implementation to fall back on: `Total` is the
   engine's own `eoc::ResistancesComponent::AC` (the character sheet value). The
   Script Extender warns, and the mod logs an error, if that engine field is

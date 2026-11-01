@@ -100,6 +100,13 @@ class ScriptExtenderInstallerTests(unittest.TestCase):
         self.assertIn("ExpectedSha256", script)
         self.assertIn("Checksum mismatch", script)
 
+    def test_readme_describes_the_pin_not_a_committed_zip(self) -> None:
+        readme = read(ROOT / "README.md")
+        self.assertIn("vendor/bg3se/pin.json", readme)
+        # The old instruction told people to drop a zip into vendor/; that is
+        # wrong now and would leave an untracked blob behind.
+        self.assertNotIn("drop the release zip", readme)
+
     def test_pin_metadata_is_valid_and_matches_the_documented_tag(self) -> None:
         import json
 
