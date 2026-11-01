@@ -64,7 +64,9 @@ ENR_SKIP_GENERATION=1 ./scripts/build.sh EnemyRandomization
 ```
 
 CI does source validation and tests on Ubuntu. CD packages the mods on Windows
-and replaces the single latest GitHub release.
+and replaces the single latest GitHub release. CD starts on the same `master`
+push as CI and runs in parallel with it: packaging must not wait for, or be
+gated by, a green CI run.
 
 ## Editing Rules
 

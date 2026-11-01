@@ -1,17 +1,16 @@
 name: CD
 
+# Runs in parallel with CI on every push to master instead of gating on a
+# completed CI run: release latency matters more than a green build gate here,
+# and a red CI run must not block packaging.
 on:
-  workflow_run:
-    workflows:
-      - CI
-    types:
-      - completed
+  push:
     branches:
       - master
+  workflow_dispatch:
 
 permissions:
   contents: write
-  actions: read
 
 concurrency:
   group: cd-latest
@@ -20,22 +19,21 @@ concurrency:
 jobs:
   discover-mods:
     name: Discover mods
-    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'
     runs-on: ubuntu-latest
     outputs:
       mods: ${{ steps.mods.outputs.mods }}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.workflow_run.head_sha }}
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Build mod matrix
+      # Read the repository tree through the API so packaging can start without
+      # waiting for a checkout or a Python toolchain install.
+      - name: Discover mods from the repository tree
         id: mods
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          python -c "import json, pathlib; print(json.dumps(sorted(p.name for p in pathlib.Path('mods').iterdir() if (p / 'info.json').is_file())))" > /tmp/mods.json
+          gh api "repos/${GITHUB_REPOSITORY}/git/trees/${GITHUB_SHA}?recursive=1" > /tmp/tree.json
+          jq -ce 'if .truncated then error("repository tree was truncated; cannot discover mods") else [.tree[] | select(.type == "blob") | .path | select(startswith("mods/") and endswith("/info.json")) | split("/") | select(length == 3) | .[1]] | unique | sort end' \
+            /tmp/tree.json > /tmp/mods.json
           echo "mods=$(cat /tmp/mods.json)" >> "$GITHUB_OUTPUT"
 
   package:
@@ -49,9 +47,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: ${{ github.sha }}
+
+      # Shared across the matrix so only the first job pays for the download.
+      - name: Cache LSLib
+        id: lslib-cache
+        uses: actions/cache@v4
+        with:
+          path: tools/lslib
+          key: lslib-1.20.4
 
       - name: Download LSLib
+        if: steps.lslib-cache.outputs.cache-hit != 'true'
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path tools/lslib | Out-Null
@@ -72,6 +79,7 @@ jobs:
           name: pak-${{ matrix.mod }}
           path: dist/${{ matrix.mod }}.pak
           if-no-files-found: error
+          retention-days: 1
 
   release:
     name: Update latest release
@@ -80,7 +88,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: ${{ github.sha }}
 
       - name: Download packaged mods
         uses: actions/download-artifact@v4
@@ -92,8 +100,9 @@ jobs:
       - name: Replace latest release
         env:
           GH_TOKEN: ${{ github.token }}
-          COMMIT_SHA: ${{ github.event.workflow_run.head_sha }}
-          RUN_URL: ${{ github.event.workflow_run.html_url }}
+          COMMIT_SHA: ${{ github.sha }}
+          COMMIT_URL: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           # Keep exactly one release: the latest complete build.
           gh release delete latest --yes --cleanup-tag || true
@@ -109,5 +118,5 @@ jobs:
           gh release create latest \
             --target "$COMMIT_SHA" \
             --title "DOS3 Mods - Latest" \
-            --notes "Automated build from commit ${COMMIT_SHA} (CI run: ${RUN_URL})" \
+            --notes "Automated build from commit ${COMMIT_URL} (CD run: ${RUN_URL}). Packaged in parallel with CI; CI status is not a release gate." \
             dist/*.pak

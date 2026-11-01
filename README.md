@@ -143,9 +143,11 @@ GitHub Actions runs:
 
 - **CI** on Ubuntu: a dynamic matrix with one validation job per discovered mod,
   the shared full test suite, Ruff + Mypy, and LuaLS diagnostics/type checking.
-- **CD** after a successful `master` CI run: a Windows packaging matrix builds
-  all discovered mods with LSLib and replaces the single **latest** GitHub
-  release with the new `.pak` assets.
+- **CD** on every `master` push, running in parallel with CI rather than waiting
+  for it: a Windows packaging matrix builds all discovered mods with LSLib and
+  replaces the single **latest** GitHub release with the new `.pak` assets.
+  CD does not gate on CI success, so a release can be published from a red CI
+  run.
 
 CD keeps only one release, tagged `latest`; previous release assets and tags are
 deleted before the new release is created. Packaging is not run on a clean

@@ -416,8 +416,12 @@ Use `ENR_SKIP_GENERATION=1` when `.analysis` is unavailable.
 
 `.github/workflows/cd.yml`:
 
-- runs after a successful master CI run
-- packages all discovered mods on `windows-latest` with LSLib
+- runs in parallel with CI on every push to `master` (and on manual dispatch);
+  it does not wait for or gate on CI success
+- discovers mods from the repository tree over the API, so packaging starts
+  without a checkout
+- packages all discovered mods on `windows-latest` with LSLib, with the LSLib
+  download cached across the matrix
 - uploads artifacts
 - deletes old releases and recreates the single `latest` release with `.pak`
   assets
