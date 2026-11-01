@@ -1,0 +1,46 @@
+#!/bin/sh
+# Keep agent co-author trailers out of this repository's history.
+#
+# Enabled per checkout with:
+#   git config core.hooksPath .githooks
+#
+# The trailer is stripped rather than rejected so a normal commit still
+# succeeds; the notice below says the message was changed.
+
+message="$1"
+
+if [ -z "$message" ] || [ ! -f "$message" ]; then
+    exit 0
+fi
+
+if ! grep -q -i '^Co-authored-by:[[:space:]]*Copilot[[:space:]]*<' "$message"; then
+    exit 0
+fi
+
+tmp="$message.trim"
+if ! awk '
+    {
+        line = $0
+        if (line ~ /^[Cc]o-[Aa]uthored-[Bb]y:[[:space:]]*[Cc]opilot[[:space:]]*</) {
+            dropped = 1
+            next
+        }
+        body[++count] = line
+    }
+    END {
+        while (count > 0 && body[count] ~ /^[[:space:]]*$/) {
+            count--
+        }
+        for (i = 1; i <= count; i++) {
+            print body[i]
+        }
+        exit dropped ? 0 : 1
+    }
+' "$message" > "$tmp"; then
+    rm -f "$tmp"
+    exit 0
+fi
+
+mv "$tmp" "$message"
+echo "commit-msg: stripped a Co-authored-by: Copilot trailer from the message" >&2
+exit 0

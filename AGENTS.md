@@ -94,6 +94,23 @@ gated by, a green CI run.
 - Update `TODO.md` when a fix is implemented but still needs in-game
   verification; do not mark runtime behavior verified without a game session.
 
+## Commits
+
+- **Never add a `Co-authored-by` trailer.** Do not credit Copilot, Claude, or
+  any other tool in a commit message, and do not add `Signed-off-by` unless the
+  user asks for it. The author on the commit is the only attribution wanted.
+- A versioned `.githooks/commit-msg` hook strips any `Co-authored-by` payload
+  that names Copilot, so a forgotten trailer is removed before the commit
+  object exists. Enable it once per checkout:
+
+  ```bash
+  git config core.hooksPath .githooks
+  ```
+
+  `--no-verify` bypasses the hook; do not use it for ordinary commits.
+- Do not rewrite or force-push history to remove trailers that are already
+  published.
+
 ## BG3SE / Lua Pitfalls
 
 - BG3SE server Lua has no normal `os` library. Use `Ext.Timer.WaitFor` or an
