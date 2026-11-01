@@ -182,6 +182,10 @@ Ubuntu runner because LSLib requires Windows.
 - Enemy AC is converted into damage reduction instead of remaining as hit
   avoidance. AC overrides such as Mage Armor, Barkskin, Unarmored Defense, and
   Draconic Resilience are evaluated into the same reduction value.
+- Character hover shows the server's **total** damage reduction. Equipment's
+  `Item DR estimate` notable features/tooltips describe each item in isolation;
+  their percentages **do not add together**. Shield of Faith adds +2 AC to the
+  combined calculation, not a separate damage-reduction notable feature.
 
 ![AC to damage reduction](docs/armor-resistance.png)
 

@@ -158,7 +158,7 @@ class ArmorSyncTests(unittest.TestCase):
         self.harness.run(
             """
             local entity = H.entities["char-1"]
-            entity.Stats = { AbilityModifiers = { 0, 1 } }
+            entity.Stats = { AbilityModifiers = { 0, 0, 1, 0, 0, 0, 0 } }
             entity.Passives = { Passives = { "Alert" } }
             H.entities["gear-1"] = { Data = { StatsId = "ARM_Leather" }, Armor = { ArmorClass = 11 } }
             H.entities["equip-1"] = { Equipment = { Slots = { Breast = "gear-1" } } }
@@ -171,7 +171,7 @@ class ArmorSyncTests(unittest.TestCase):
         changes = [
             'H.entities["gear-1"].Data.StatsId = "ARM_Studded"',
             'H.entities["equip-1"].Equipment.Slots.Gloves = "gear-1"',
-            'H.entities["char-1"].Stats.AbilityModifiers[2] = 3',
+            'H.entities["char-1"].Stats.AbilityModifiers[3] = 3',
             'H.entities["char-1"].Passives.Passives[2] = "Tough"',
             'Osi.ApplyStatus("char-1", "SHIELD_OF_FAITH", 6)',
             'H.entities["char-1"].StatusContainer = { Statuses = { { StatusId = "BLESS" } } }',

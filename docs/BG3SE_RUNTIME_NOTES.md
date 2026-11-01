@@ -683,6 +683,34 @@ Two consequences, both applied in `Randomizer.lua`:
 `!enemyrandom_reset` clears the record along with the marker so it still forces a
 re-roll.
 
+## Armor follow-up: client readout and source-verified API shapes (2026-10-31)
+
+`Extender Runtime 2026-11-01 03-55-36.log` reports a valid snapshot alongside
+`armor text set: Damage Reduction: 20%` for a hovered character.
+The installed package's `Server/Armor.lua` SHA-256 matched the merged #44
+source, so this was not explained by a stale local package alone.
+
+A Lua regression reproduced the display error: the picking helper exposes the
+character in `Tooltip`, and characters also have `Armor`. The item-tooltip path
+converted the character's base AC 13 to 20%, masking server snapshots of 35%
+and 45%. Character totals now take priority over item estimates. This is a
+source/harness reproduction, not a new in-game verification of the fix.
+
+Two additional corrections are **upstream-source-verified**, not newly sampled
+from a running server:
+
+- [`Ext.Stats.Get`](https://github.com/Norbyte/bg3se/blob/778f9c207919a931410b2dfc5c360e99d106e8f8/BG3Extender/Lua/Libs/Stats.inl)
+  takes a name, an optional numeric level, and an optional warning boolean.
+  Passing `"Armor"`, `"StatusData"`, or `"PassiveData"` as its second argument
+  is not a type filter. Armor's guarded calls masked these failures; its tests
+  now reject nonnumeric level arguments.
+- The native `Stats.AbilityModifiers` array has seven entries, including
+  `AbilityId.None` first: Lua indices 2/3/4 are Strength/Dexterity/Constitution.
+  See the upstream
+  [component test fixture](https://github.com/Norbyte/bg3se/blob/778f9c207919a931410b2dfc5c360e99d106e8f8/BG3Extender/LuaScripts/Tests/CharacterComponentTests.lua).
+  Armor's previous six-entry fixtures hid this offset; the armor calculation
+  and its cache fingerprint now read Dexterity at index 3.
+
 ## Maintenance rule
 
 Whenever a runtime-only API/arity/enum is discovered:

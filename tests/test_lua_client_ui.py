@@ -19,6 +19,11 @@ function make_client_character(guid, options)
         Health = {},
         DisplayName = { Name = options.name or "Test" },
     }
+    if options.item then
+        entity.Health = nil
+    else
+        entity.Stats = {}
+    end
     if options.armor then
         entity.Armor = {
             ArmorClass = options.armor,
@@ -70,6 +75,11 @@ class ArmorUiTests(unittest.TestCase):
         ):
             self.harness.load(module)
         self.harness.run(ENTITY_FACTORY)
+        self.harness.run(
+            'local get = Ext.Stats.Get; Ext.Stats.Get = function(name, level) '
+            'assert(level == nil or type(level) == "number", "level must be numeric"); '
+            'return get(name) end'
+        )
 
     def logs(self) -> str:
         return " ".join(self.harness.prints())
@@ -132,13 +142,56 @@ class ArmorUiTests(unittest.TestCase):
 
     def test_tick_reports_item_tooltip_armor(self) -> None:
         self.harness.run(
-            'make_client_character("item-1", { armor = 18, statsId = "ARM_ClientItem" })'
+            'make_client_character("item-1", { armor = 18, statsId = "ARM_ClientItem", item = true })'
         )
         self.harness.set_stat("ARM_ClientItem", {"ArmorClass": "18", "Boosts": "AC(2)"})
         self.install_ui("item-1")
         self.tick(30)
         self.assertIn("armor hover target=item-1", self.logs())
-        self.assertIn("armor fallback window active: Damage Reduction:", self.logs())
+        self.assertIn("armor fallback window active: Item DR estimate:", self.logs())
+
+    def test_character_armor_component_never_overrides_the_server_total(self) -> None:
+        self.harness.run('make_client_character("hero", { armor = 13 })')
+        self.install_ui("hero")
+        self.harness.fire_event(
+            "NetMessage", {"Channel": "DOS2C_Armor", "Payload": "hero|35"}
+        )
+        self.tick(30)
+        self.assertIn("armor text set: Damage Reduction: 35%", self.logs())
+        self.harness.fire_event(
+            "NetMessage", {"Channel": "DOS2C_Armor", "Payload": "hero|45"}
+        )
+        self.tick(30)
+        self.assertIn("armor text set: Damage Reduction: 45%", self.logs())
+        self.assertNotIn("armor text set: Damage Reduction: 20%", self.logs())
+
+    def test_character_without_snapshot_does_not_show_an_item_estimate(self) -> None:
+        self.harness.run('make_client_character("hero", { armor = 13 })')
+        self.install_ui("hero")
+        self.tick(30)
+        self.assertNotIn("armor fallback window active", self.logs())
+
+    def test_character_snapshot_wins_over_a_stale_item_tooltip(self) -> None:
+        self.harness.run(
+            'make_client_character("hero"); '
+            'make_client_character("old-item", { armor = 13, item = true })'
+        )
+        self.install_ui("hero")
+        self.harness.run('H.picking.Inner.Inner[2] = { Tooltip = H.entities["old-item"] }')
+        self.harness.fire_event(
+            "NetMessage", {"Channel": "DOS2C_Armor", "Payload": "hero|45"}
+        )
+        self.tick(30)
+        self.assertIn("armor text set: Damage Reduction: 45%", self.logs())
+
+    def test_item_estimate_uses_stat_ac_and_boosts_with_native_get_signature(self) -> None:
+        self.harness.run(
+            'make_client_character("item", { armor = 10, statsId = "ARM_Boosted", item = true })'
+        )
+        self.harness.set_stat("ARM_Boosted", {"ArmorClass": 13, "Boosts": "AC(1)"})
+        self.install_ui("item")
+        self.tick(30)
+        self.assertIn("armor fallback window active: Item DR estimate: 25%", self.logs())
 
     def test_tick_without_picking_helper_is_safe(self) -> None:
         self.install_ui(None)

@@ -314,6 +314,16 @@ Known DOS2 visual references for the current test spells:
       status without double-counting, and fingerprint fallback status changes
       even with a nonempty container. Lua regressions cover apply/remove,
       override stacking, actual damage, and the server-to-client snapshot.
+- [x] Follow up #43: character `Armor` components were mistaken for items,
+      letting a local 20% estimate override an authoritative 35%/45% snapshot.
+      Prefer the server total and exclude characters from the item-tooltip
+      path; regressions reproduce the stuck-at-20% display before the fix.
+- [x] Fix armor stat reads passing a type string as `Ext.Stats.Get`'s numeric
+      level argument, and correct armor's native ability-array indices (the
+      first entry is `None`). Regression fixtures now enforce those API shapes.
+- [x] Rename equipment notable features/tooltips to `Item DR estimate` and
+      explain that these percentages do not stack or represent character totals.
+      Regenerate localization with replacement of existing keyed strings.
 - [ ] Verify #43 in-game: reproduce the reported AC 16 -> 18 / DR 30% -> 20%
       case with the same equipment and buffs, then confirm Shield of Faith
       increases DR and expiry restores the previous value (also with Mage

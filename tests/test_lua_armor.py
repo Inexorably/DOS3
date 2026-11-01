@@ -27,7 +27,7 @@ function make_armor_character(guid, options)
         return self[name]
     end
     if options.ac then entity.Armor = { ArmorClass = options.ac } end
-    if options.dex then entity.Stats = { AbilityModifiers = { 0, options.dex } } end
+    if options.dex then entity.Stats = { AbilityModifiers = { 0, 0, options.dex, 0, 0, 0, 0 } } end
     if options.statuses then
         local list = {}
         for _, status in ipairs(options.statuses) do list[#list + 1] = { StatusId = status } end
@@ -354,7 +354,7 @@ class ArmorTests(unittest.TestCase):
         )
         self.harness.run(
             "local e = make_armor_character('monk', _opts) "
-            "e.Stats.AbilityModifiers = { 0, 3, 4, 0, 0, 0 }"
+            "e.Stats.AbilityModifiers = { 0, 0, 3, 4, 0, 0, 0 }"
         )
         self.assertEqual(self.resist("monk")["ac"], 17)
 
