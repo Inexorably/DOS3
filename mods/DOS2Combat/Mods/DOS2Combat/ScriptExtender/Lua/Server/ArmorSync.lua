@@ -115,10 +115,11 @@ local function buildPayload(chars, read, applyNames)
         local resist = read(guid)
         if resist then
             local percent = math.floor((tonumber(resist.percent) or 0) + 0.5)
-            parts[#parts + 1] = string.format("%s|%d", guid, percent)
+            local ac = math.floor((tonumber(resist.ac) or 0) + 0.5)
+            parts[#parts + 1] = string.format("%s|%d|%d", guid, percent, ac)
             if applyNames then
                 local base = originalDisplayName(entity, guid)
-                local text = string.format("%s  [DR %d%%]", base, percent)
+                local text = string.format("%s  [DR %d%% AC %d]", base, percent, ac)
                 if setRuntimeDisplayName(entity, guid, text) then
                     named = named + 1
                 end

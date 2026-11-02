@@ -309,12 +309,11 @@ Known DOS2 visual references for the current test spells:
       game's own `eoc::ResistancesComponent::AC`. Every per-source AC parser in
       `Armor.lua` (Boosts text, status/passive/equipment/Osiris walks, the
       override parser, `StatusGivesArmor`) has been deleted; AC has one source.
-- [x] Client IMGUI sanity checker: `Client/ArmorDebug.lua` lists every
-      character's `Total`, its reduction, and engine/base/ability/boosts/
-      override. Off by default; `!dos2c_ac` toggles it and works from either
-      console context (the server command relays to the client and prints the
-      server table). An entity whose engine AC is zero is shown as unavailable;
-      there is no substitute value.
+- [x] The hover readout carries both numbers on one line,
+      `Damage Reduction: N% (AC: X)`; the server snapshot sends `guid|percent|ac`
+      so the client never recomputes AC. The separate AC IMGUI window was
+      removed: one overlay shows the figures. `!dos2c_ac` still prints the
+      server-side breakdown for diagnosis.
 - [x] Verified in a live game: every character logs `source=engine` with varied
       real totals (7-25), so `eoc::ResistancesComponent.AC` is populated on the
       server. Remaining: confirm `Total` matches the character sheet for a

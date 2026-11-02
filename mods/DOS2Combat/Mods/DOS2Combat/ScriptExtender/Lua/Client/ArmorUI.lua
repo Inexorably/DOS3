@@ -57,6 +57,7 @@ local function parse(payload)
         if guid and guid ~= "" then
             values[guid] = {
                 percent = tonumber(fields[2]) or 0,
+                ac = tonumber(fields[3]) or 0,
             }
         end
     end
@@ -274,7 +275,8 @@ local function updateHoveredArmor()
         local text = ""
         local item = hoveredItemEntity()
         if value then
-            text = string.format("Damage Reduction: %d%%", math.floor((value.percent or 0) + 0.5))
+            text = string.format("Damage Reduction: %d%% (AC: %d)",
+                math.floor((value.percent or 0) + 0.5), math.floor((value.ac or 0) + 0.5))
         elseif item then
             text = itemArmorText(item)
         end

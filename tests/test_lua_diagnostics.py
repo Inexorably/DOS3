@@ -120,9 +120,6 @@ class DiagnosticsTests(unittest.TestCase):
 
         logs = self.logs()
         self.assertIn("AC from Ext.Entity.GetArmorClass (server)", logs)
-        # The console defaults to the server context, so the command also tells
-        # the client to open the AC widget.
-        self.assertIn("DOS2C_ACToggle", [m["channel"] for m in self.harness.net_messages()])
         self.assertIn("AC=21", logs)
         self.assertIn("available=true", logs)
         self.assertIn("base=16", logs)

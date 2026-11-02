@@ -40,8 +40,9 @@ difficulty system so it stacks naturally with the other mods.
   returns the engine's own `eoc::ResistancesComponent::AC` (the character sheet
   value). If that field is ever empty the Script Extender warns, the mod logs an
   error, and no damage reduction is applied - no value is substituted.
-  `!dos2c_ac` prints every character's AC and breakdown in the server console and
-  toggles an IMGUI window (off by default) with the same figures client-side.
+  The hover readout shows both figures on one line,
+  `Damage Reduction: N% (AC: X)`, and `!dos2c_ac` prints every character's AC and
+  breakdown in the server console.
 - BG3 Mod Manager or the in-game Mods menu.
 - Python 3.12 only for the test suite and mod generators.
 - LSLib/`Divine.exe` is downloaded automatically by `scripts/build.sh` if it is missing. Packaging is Windows-oriented.

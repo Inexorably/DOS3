@@ -72,17 +72,7 @@ end)
 -- Server-side sanity check for Ext.Entity.GetArmorClass, which is what the
 -- damage-reduction rule actually reads. The client IMGUI window shows the
 -- client's copy; this prints the authoritative server values.
-register("dos2c_ac", function(_, mode)
-    -- This command exists in the server context, which is the console's default,
-    -- and the widget is client-side. Relay the toggle so `!dos2c_ac` works
-    -- without switching context, then print the authoritative table.
-    local payload = tostring(mode or "toggle")
-    if Ext and Ext.Net and Ext.Net.BroadcastMessage then
-        pcall(Ext.Net.BroadcastMessage, "DOS2C_ACToggle", payload)
-        printLine("[DOS2C] AC widget " .. (payload == "off" and "hidden" or "shown")
-            .. " on connected clients")
-    end
-
+register("dos2c_ac", function()
     printLine("[DOS2C] AC from Ext.Entity.GetArmorClass (server)")
     local ok, entities = pcall(Ext.Entity.GetAllEntitiesWithComponent, "Stats")
     if not ok or type(entities) ~= "table" then

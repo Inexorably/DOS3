@@ -93,7 +93,7 @@ class ArmorUiTests(unittest.TestCase):
         self.harness.set_component("DisplayName", ["char-1"])
         self.harness.fire_event(
             "NetMessage",
-            {"Channel": "DOS2C_Armor", "Payload": "char-1|42.4;char-2|10"},
+            {"Channel": "DOS2C_Armor", "Payload": "char-1|42.4|20;char-2|10|12"},
         )
         self.assertIn("armor snapshot values=2", self.logs())
         self.assertIn("armor snapshot received for 1 characters", self.logs())
@@ -133,12 +133,12 @@ class ArmorUiTests(unittest.TestCase):
         self.harness.run('make_client_character("char-3")')
         self.harness.set_component("DisplayName", ["char-3"])
         self.harness.fire_event(
-            "NetMessage", {"Channel": "DOS2C_Armor", "Payload": "char-3|55"}
+            "NetMessage", {"Channel": "DOS2C_Armor", "Payload": "char-3|55|21"}
         )
         self.install_ui("char-3")
         self.tick(30)
         self.assertIn("armor hover target=char-3", self.logs())
-        self.assertIn("Damage Reduction: 55%", self.logs())
+        self.assertIn("Damage Reduction: 55% (AC: 21)", self.logs())
 
     def test_tick_reports_item_tooltip_armor(self) -> None:
         self.harness.run(
@@ -154,16 +154,16 @@ class ArmorUiTests(unittest.TestCase):
         self.harness.run('make_client_character("hero", { armor = 13 })')
         self.install_ui("hero")
         self.harness.fire_event(
-            "NetMessage", {"Channel": "DOS2C_Armor", "Payload": "hero|35"}
+            "NetMessage", {"Channel": "DOS2C_Armor", "Payload": "hero|35|18"}
         )
         self.tick(30)
-        self.assertIn("armor text set: Damage Reduction: 35%", self.logs())
+        self.assertIn("armor text set: Damage Reduction: 35% (AC: 18)", self.logs())
         self.harness.fire_event(
-            "NetMessage", {"Channel": "DOS2C_Armor", "Payload": "hero|45"}
+            "NetMessage", {"Channel": "DOS2C_Armor", "Payload": "hero|45|20"}
         )
         self.tick(30)
-        self.assertIn("armor text set: Damage Reduction: 45%", self.logs())
-        self.assertNotIn("armor text set: Damage Reduction: 20%", self.logs())
+        self.assertIn("armor text set: Damage Reduction: 45% (AC: 20)", self.logs())
+        self.assertNotIn("armor text set: Damage Reduction: 20% (AC: 13)", self.logs())
 
     def test_character_without_snapshot_does_not_show_an_item_estimate(self) -> None:
         self.harness.run('make_client_character("hero", { armor = 13 })')
@@ -179,10 +179,10 @@ class ArmorUiTests(unittest.TestCase):
         self.install_ui("hero")
         self.harness.run('H.picking.Inner.Inner[2] = { Tooltip = H.entities["old-item"] }')
         self.harness.fire_event(
-            "NetMessage", {"Channel": "DOS2C_Armor", "Payload": "hero|45"}
+            "NetMessage", {"Channel": "DOS2C_Armor", "Payload": "hero|45|20"}
         )
         self.tick(30)
-        self.assertIn("armor text set: Damage Reduction: 45%", self.logs())
+        self.assertIn("armor text set: Damage Reduction: 45% (AC: 20)", self.logs())
 
     def test_item_estimate_uses_stat_ac_and_boosts_with_native_get_signature(self) -> None:
         self.harness.run(
@@ -207,10 +207,10 @@ class ArmorUiTests(unittest.TestCase):
         self.harness.run('make_client_character("char-4")')
         self.install_ui("char-4", node=True)
         self.harness.fire_event(
-            "NetMessage", {"Channel": "DOS2C_Armor", "Payload": "char-4|12"}
+            "NetMessage", {"Channel": "DOS2C_Armor", "Payload": "char-4|12|16"}
         )
         self.tick(30)
-        self.assertIn("armor text set: Damage Reduction: 12%", self.logs())
+        self.assertIn("armor text set: Damage Reduction: 12% (AC: 16)", self.logs())
 
 
 @unittest.skipUnless(HAVE_LUPA, "lupa is not installed")

@@ -75,7 +75,7 @@ class ArmorSyncTests(unittest.TestCase):
         self.assertIn("armor overhead names: 1 characters updated", self.logs())
         call = self.harness.osi_calls("SetDisplayName")[0]
         self.assertEqual(call["args"][0], "char-1")
-        self.assertIn("[DR 55%]", call["args"][1])
+        self.assertIn("[DR 55% AC 20]", call["args"][1])
 
     def test_broadcast_sends_payload_once(self) -> None:
         self.harness.run("DOS2C.ArmorSync.Broadcast(true)")
@@ -408,7 +408,8 @@ class ArmorSyncTests(unittest.TestCase):
         first = self.refreshes()
         self.assertEqual(len(first), 2 + 1 + cap)
         self.assertTrue({"fighter-1", "fighter-2", "bystander-1"} <= set(first))
-        self.assertEqual(self.last_payload().count("|"), len(first))
+        # Each entry is guid|percent|ac, so two separators per character.
+        self.assertEqual(self.last_payload().count("|"), 2 * len(first))
         self.harness.fire_timers()
         self.assertEqual(len(self.refreshes()), 4)
 
