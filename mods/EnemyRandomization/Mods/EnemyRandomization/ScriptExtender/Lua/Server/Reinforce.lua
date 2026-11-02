@@ -170,8 +170,15 @@ local function spawnAt(guid, template, index, count)
     if not ok or not x then return nil end
     local radius = tonumber(C.REINFORCE_SPAWN_OFFSET) or 1.5
     local angle = (2 * math.pi * index) / count
-    local created, spawned = pcall(Osi.CreateAt, template,
-        x + radius * math.cos(angle), y, z + radius * math.sin(angle), 0, 1, "")
+    -- CreateAt does not snap to the ground, so the ring point is resolved
+    -- against the navmesh; otherwise spawns hang in the air or sit in walls.
+    local found, px, py, pz = pcall(Osi.FindValidPosition,
+        x + radius * math.cos(angle), y, z + radius * math.sin(angle), 3.0, guid, 1)
+    if not found or not px then
+        log("reinforce: no valid position near %s", tostring(guid))
+        return nil
+    end
+    local created, spawned = pcall(Osi.CreateAt, template, px, py, pz, 0, 1, "")
     if not created or not spawned or tostring(spawned) == "" then
         log("reinforce: CreateAt failed template=%s", tostring(template))
         return nil

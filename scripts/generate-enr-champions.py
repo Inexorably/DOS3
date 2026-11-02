@@ -760,7 +760,11 @@ def summon_properties(guids, item):
             # A single spell can raise `count` creatures. Each needs a distinct
             # stack name or the engine treats them as one stack and caps the rest.
             stack = item['stack'] if count == 1 else '%s%d' % (item['stack'], index)
-            branch.append("GROUND:IF(%s):Summon(%s,-1,Projectile_AiHelper_Summon_Weak,,,'%s',UNSUMMON_ABLE)" % (
+            # The AI values a summon only through this helper's stand-in buff,
+            # which stays fixed while PackAI's Tactician archetypes roughly
+            # double attack and kill scores. The Weak helper lost every time,
+            # so champions use vanilla's Strong one (AI_HELPER_BUFF_LARGE).
+            branch.append("GROUND:IF(%s):Summon(%s,-1,Projectile_AiHelper_Summon_Strong,,,'%s',UNSUMMON_ABLE)" % (
                 level_condition(level), guids[(item['tag'], level)], stack))
     return ';'.join(branch)
 

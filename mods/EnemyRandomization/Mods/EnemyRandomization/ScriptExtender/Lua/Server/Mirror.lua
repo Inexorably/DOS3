@@ -121,7 +121,14 @@ local function spawnClone(guid)
         return nil
     end
     local offset = tonumber(C.MIRROR_SPAWN_OFFSET) or 1.5
-    local created, clone = pcall(Osi.CreateAt, template, x + offset, y, z, 0, 1, "")
+    -- CreateAt does not snap to the ground: an offset past a ledge or into a
+    -- wall leaves the clone floating, so ask the navmesh for a valid spot.
+    local found, px, py, pz = pcall(Osi.FindValidPosition, x + offset, y, z, 3.0, guid, 1)
+    if not found or not px then
+        log("mirror: no valid position near %s", guid)
+        return nil
+    end
+    local created, clone = pcall(Osi.CreateAt, template, px, py, pz, 0, 1, "")
     if not created or not clone or tostring(clone) == "" then
         log("mirror: CreateAt failed for %s template=%s", guid, template)
         return nil

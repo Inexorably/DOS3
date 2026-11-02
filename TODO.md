@@ -825,3 +825,7 @@ nothing left here to keep in sync.
       Use at most one form per item, likely Legendary-only, and verify model,
       equipment, spellcasting, removal, and save/reload behavior before
       adding them to the normal random condition pool.
+
+- [ ] Verify in game: Mirror clones and reinforcements land on the ground (spawn point resolved with `Osi.FindValidPosition`) instead of floating above ledges/walls.
+- [ ] Verify in game with PackAI on Tactician: summoning champions cast their summons now that `ENR_Summon_*` uses `Projectile_AiHelper_Summon_Strong`. If they still never cast, the next step is a custom helper projectile that applies `AI_HELPER_BUFF_MASSIVE`.
+- [ ] `scripts/generate-enr-champions.py` regenerates wrong data on this machine (every summon gets 10 in all abilities and no passives, and Divine fails with the relative `ROOT`). Fix before the next regeneration.
