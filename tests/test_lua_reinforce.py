@@ -743,6 +743,8 @@ class WavePickWindowTests(unittest.TestCase):
         self.harness.run("ER.WavePick.Show(_payload)")
         # The harness has no clock, so the frame-count arm delay applies.
         self.advance_frames(30)
+        self.harness.fire_event_value("MouseButtonInput", self.harness.lua.eval(
+            "{ Button = 1, Pressed = true }"))
         self.harness.run("H.imgui_windows[1].buttons[2].OnClick()")
         posted = self.harness.run("local m = H.server_messages[1] return { m.channel, m.payload }")
         self.assertEqual(posted, ["ENR_WavePick", f"{COMBAT}\tspectator"])
@@ -754,6 +756,16 @@ class WavePickWindowTests(unittest.TestCase):
         self.harness.run("H.imgui_windows[1].buttons[1].OnClick()")
         self.assertEqual(self.harness.run("return #H.server_messages"), 0)
         self.assertFalse(self.harness.run("return H.imgui_windows[1].destroyed or false"))
+
+    def test_middle_click_does_not_pick(self) -> None:
+        # Panning the camera with the middle button picked a card.
+        self.harness.lua.globals()["_payload"] = self.PAYLOAD
+        self.harness.run("ER.WavePick.Show(_payload)")
+        self.advance_frames(30)
+        self.harness.fire_event_value("MouseButtonInput", self.harness.lua.eval(
+            "{ Button = 2, Pressed = true }"))
+        self.harness.run("H.imgui_windows[1].buttons[1].OnClick()")
+        self.assertEqual(self.harness.run("return #H.server_messages"), 0)
 
     def test_parse_offer_reads_combat_and_options(self) -> None:
         self.harness.lua.globals()["_payload"] = self.PAYLOAD

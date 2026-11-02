@@ -98,6 +98,13 @@ local openedAt = nil
 local openedTick = 0
 local ticks = 0
 
+-- IMGUI buttons fire OnClick for any mouse button, so panning the camera with
+-- the middle button picked a card. The last button pressed is recorded from
+-- MouseButtonInput (SDL numbering: 1 = left) and only a left click picks.
+local LEFT_BUTTON = 1
+---@type integer|nil
+local lastButton = nil
+
 local function try(fn) pcall(fn) end
 
 local function log(fmt, ...)
@@ -293,6 +300,10 @@ local function sendPick(combat, key)
     local shown = seconds and string.format("%.2fs", seconds) or string.format("%d frames", ticks - openedTick)
     if not M.Armed() then
         log("ignored click on %s %s after opening", key, shown)
+        return
+    end
+    if lastButton ~= LEFT_BUTTON then
+        log("ignored click on %s: mouse button %s is not the left button", key, tostring(lastButton))
         return
     end
     log("picked %s %s after opening", key, shown)
@@ -563,6 +574,14 @@ if Ext and Ext.Events and Ext.Events.NetMessage then
             close()
         end
     end)
+end
+
+if Ext and Ext.Events and Ext.Events.MouseButtonInput then
+    Ext.Events.MouseButtonInput:Subscribe(function(ev)
+        if ev and ev.Pressed then lastButton = ev.Button end
+    end)
+else
+    log("error: Ext.Events.MouseButtonInput is unavailable; Choose buttons cannot pick")
 end
 
 -- Count frames (for the click arm delay) and refresh the countdown a few

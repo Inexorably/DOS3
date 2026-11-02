@@ -155,6 +155,7 @@ Ext = {
         StatsLoaded = channel("StatsLoaded"),
         Tick = channel("Tick"),
         NetMessage = channel("NetMessage"),
+        MouseButtonInput = channel("MouseButtonInput"),
         DealDamage = channel("DealDamage"),
         BeforeDealDamage = channel("BeforeDealDamage"),
         ModuleLoad = channel("ModuleLoad"),

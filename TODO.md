@@ -662,6 +662,9 @@ nothing left here to keep in sync.
 - [x] EnemyRandomization skips every item (`ServerItem`), not just
       `OBJ_Wall_Of_Stone`: candles in a room joined combat, were buffed, and
       crashed multiplayer clients. The `NEVER_BUFF_STATS` list was removed.
+- [ ] Verify the Reinforcements Choose button picks only on a left click:
+      middle-button camera panning over a card must not pick it. Confirms that
+      `Ext.Events.MouseButtonInput` fires on the client and reports left as 1.
 - [ ] Verify in multiplayer: entering a room with candles starts combat without
       the candles getting buffs or champion auras, and clients do not crash.
 - [x] Fix a crash on cast: writing the `Health` component and calling
