@@ -294,12 +294,25 @@ Known DOS2 visual references for the current test spells:
       dice, so `Hit.DamageList` is empty and `Hit.Damage` is zero when the
       handler runs. The reduction maths is correct but there is nothing to
       scale.
-- [ ] Fixing it needs a hook that has both the target and computed damage.
-      `BeforeDealDamage` (`esv::StatsSystem::ThrowDamageEvent`) has the damage
-      but exposes only `Hit`/`Attack`, no target; `DealtDamage` has the target
-      but fires after the damage is applied. Closing this needs the target
-      exposed on `BeforeDealDamage` in the fork (its `void* temp5` parameter is
-      the unnamed candidate), not a second handler in the mod.
+- [ ] Fixing it needs a hook with both the target and computed damage. None of
+      the exposed events has both:
+      | Event | Target | Damage at that moment |
+      |---|---|---|
+      | `DealDamage` (used now) | yes | no, functor has not rolled |
+      | `BeforeDealDamage` | no (`Hit`/`Attack` only) | yes |
+      | `DealtDamage` | yes | yes, but already applied |
+      | `ExecuteFunctor` | no (exposed as base `ContextData`) | `hit` not exposed |
+- [ ] The viable SE change: `AttackTargetContextData` already holds `Caster`,
+      `Target` and `Hit` together. `FunctorEventHooks::OnFunctorExecute<TParams>`
+      is templated on the concrete params type and receives `HitResult* hit`, so
+      the fork can expose the derived target plus the accumulating hit on
+      `ExecuteFunctor` instead of the base `ContextData*`. Do not guess at the
+      unnamed `void* temp5` in `esv::StatsSystem::ThrowDamageEvent`: `HitDesc`
+      has no target field and `Inflicter` is the attacker (`attackerOf` in
+      `Armor.lua` already relies on that), so reinterpreting it would be a guess.
+- [ ] This needs a build and a live combat session to verify; neither is
+      available in the working environment, which is why the mod still points at
+      `DealDamage` rather than a speculative replacement.
 - [x] `!dos2c_damage` reports hits vs damage reduced, and the debug line now
       prints every candidate damage field, so the next combat session identifies
       which field is populated instead of guessing.
