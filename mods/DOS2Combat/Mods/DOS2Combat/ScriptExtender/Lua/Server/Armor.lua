@@ -226,6 +226,27 @@ local function applyPercentReduction(list, reduction)
     return reduced
 end
 
+-- The non-empty damage lists of a BeforeDealDamage event, Hit first.
+local function damageLists(hit, sums)
+    local lists = {}
+    for _, owner in ipairs({ hit, sums }) do
+        local list = owner and owner.DamageList
+        if list and #list > 0 then lists[#lists + 1] = list end
+    end
+    return lists
+end
+
+-- Keep TotalDamageDone in step with a scaled DamageList on Hit and DamageSums.
+local function scaleTotals(hit, sums, factor)
+    for _, owner in ipairs({ hit, sums }) do
+        local total = owner and tonumber(owner.TotalDamageDone)
+        if total and total > 0 then
+            local scaled = math.max(0, math.floor(total * factor + 0.5))
+            pcall(function() owner.TotalDamageDone = scaled end)
+        end
+    end
+end
+
 -- Some BG3SE damage paths expose the computed damage through Hit.Damage
 -- before Hit.DamageList is populated. Apply the same percentage to those
 -- totals as a fallback.
@@ -297,8 +318,8 @@ local function attackerOf(ev, hit)
     for _, ref in ipairs({ hit.Inflicter, hit.InflicterOwner }) do
         if ref then return ref end
     end
-    if ev and ev.Attack then
-        for _, ref in ipairs({ ev.Attack.Inflicter, ev.Attack.InflicterOwner }) do
+    if ev and ev.DamageSums then
+        for _, ref in ipairs({ ev.DamageSums.Inflicter, ev.DamageSums.InflicterOwner }) do
             if ref then return ref end
         end
     end
@@ -323,7 +344,7 @@ local function isAttackDamage(ev, hit)
     if spellAttack > 0 then return true end
     if cause == 6 or cause == 7 or cause == 10 then return true end
     if with == 1 or with == 2 or with == 3 or with == 4 then return true end
-    return ev and ev.Attack ~= nil or false
+    return false
 end
 
 local function critChanceFor(attacker)
@@ -423,33 +444,37 @@ local function applyAttackRollDamageModifier(ev, hit)
     local flat = attackRollFlatBonus(attacker)
     local changed = false
     if flat > 0 then
-        local added = addFlatDamage(hit, flat)
+        local added = addFlatDamage(hit, flat, ev.DamageSums)
         U.Log("attack-roll flat damage +%d (%d applied)", flat, added)
         changed = true
     end
     if multiplier ~= 1.0 then
-        local added = multiplyDamage(hit, multiplier)
+        local added = multiplyDamage(hit, multiplier, ev.DamageSums)
         U.Log("attack-roll damage modifier x%.2f (+%d)", multiplier, added)
         changed = true
     end
     return changed
 end
 
-multiplyDamage = function(hit, multiplier)
+multiplyDamage = function(hit, multiplier, sums)
     if not hit or not multiplier or multiplier == 1 then return 0 end
-    local list = hit.DamageList
+    local lists = damageLists(hit, sums)
     local changed = 0
-    if list and #list > 0 then
+    for index, list in ipairs(lists) do
+        local listChanged = 0
         for i = 1, #list do
             local pair = list[i]
             local amount = tonumber(pair and pair.Amount) or 0
             if amount > 0 then
                 local scaled = math.floor(amount * multiplier + 0.5)
                 local ok = pcall(function() pair.Amount = scaled end)
-                if ok then changed = changed + (scaled - amount) end
+                if ok then listChanged = listChanged + (scaled - amount) end
             end
         end
+        -- Both lists describe the same damage; report the change once.
+        if index == 1 then changed = listChanged end
     end
+    if #lists > 0 then scaleTotals(hit, sums, multiplier) end
 
     local damage = hit.Damage
     if damage then
@@ -467,10 +492,11 @@ end
 
 -- Add a flat amount to a hit. The largest damage pair carries the bonus so
 -- the total stays correct without inventing a new damage type.
-addFlatDamage = function(hit, amount)
+addFlatDamage = function(hit, amount, sums)
     if not hit or not amount or amount <= 0 then return 0 end
-    local list = hit.DamageList
-    if list and #list > 0 then
+    local lists = damageLists(hit, sums)
+    local added = 0
+    for _, list in ipairs(lists) do
         local target, best = nil, 0
         for i = 1, #list do
             local pair = list[i]
@@ -479,10 +505,18 @@ addFlatDamage = function(hit, amount)
                 target, best = pair, value
             end
         end
-        if target then
-            local ok = pcall(function() target.Amount = best + amount end)
-            if ok then return amount end
+        if target and pcall(function() target.Amount = best + amount end) then
+            added = amount
         end
+    end
+    if added > 0 then
+        for _, owner in ipairs({ hit, sums }) do
+            local total = owner and tonumber(owner.TotalDamageDone)
+            if total and total > 0 then
+                pcall(function() owner.TotalDamageDone = total + amount end)
+            end
+        end
+        return added
     end
 
     local damage = hit.Damage
@@ -518,7 +552,7 @@ local function applyCriticalMultiplier(ev, hit)
     end
 
     if not critical then return false end
-    local added = multiplyDamage(hit, multiplier)
+    local added = multiplyDamage(hit, multiplier, ev.DamageSums)
     U.Log("critical hit multiplier x%.2f applied (+%d)", multiplier, added)
     return true
 end
@@ -550,15 +584,20 @@ local function resistDamage(ev)
     if reduction <= 0 then return end
 
     local hit = ev.Hit
-    local list = hit.DamageList
-    if (not list or #list == 0) and ev.Attack then
-        list = ev.Attack.DamageList
-    end
+    -- BeforeDealDamage carries the computed damage twice: per hit on
+    -- Hit.DamageList and as the attack's totals on DamageSums (there is no
+    -- Attack field on this event). Both describe the same damage, so both are
+    -- scaled by the same percent; scaling only one leaves the other applied.
+    local sums = ev.DamageSums
+    local lists = damageLists(hit, sums)
 
-    local before = damageTotal(list)
-    local reduced
-    if list and #list > 0 then
-        reduced = applyPercentReduction(list, reduction)
+    local before, reduced = 0, 0
+    if #lists > 0 then
+        for _, list in ipairs(lists) do
+            before = math.max(before, damageTotal(list))
+            reduced = math.max(reduced, applyPercentReduction(list, reduction))
+        end
+        scaleTotals(hit, sums, 1 - reduction)
     else
         reduced = applyPercentReductionToStats(hit, reduction)
     end
@@ -574,13 +613,13 @@ local function resistDamage(ev)
         -- Damage was expected here and is still empty. Name every candidate field
         -- so the next session shows which one the engine populates.
         U.Log("armor: no damage reduced for target %s (reduction=%.0f%% "
-            .. "hit.damage_list=%d attack.damage_list=%d hit.total=%s attack.total=%s "
+            .. "hit.damage_list=%d sums.damage_list=%d hit.total=%s sums.total=%s "
             .. "hit.damage.total=%s hit.damage.final=%s original=%s absorbed=%s)",
             tostring(U.GuidOf(ev.Target)), reduction * 100,
-            list and #list or 0,
-            ev.Attack and ev.Attack.DamageList and #ev.Attack.DamageList or 0,
+            hit.DamageList and #hit.DamageList or 0,
+            sums and sums.DamageList and #sums.DamageList or 0,
             tostring(hit.TotalDamageDone),
-            tostring(ev.Attack and ev.Attack.TotalDamageDone),
+            tostring(sums and sums.TotalDamageDone),
             tostring(hit.Damage and hit.Damage.TotalDamage),
             tostring(hit.Damage and hit.Damage.FinalDamage),
             tostring(hit.OriginalDamageValue),
@@ -595,7 +634,7 @@ local function resistDamage(ev)
     -- the damage that actually lands, after armor and criticals.
     local incoming = incomingDamageMultiplier(ev.Target)
     if incoming ~= 1.0 then
-        local delta = multiplyDamage(hit, incoming)
+        local delta = multiplyDamage(hit, incoming, ev.DamageSums)
         U.Log("incoming damage modifier x%.2f (%+d)", incoming, delta)
     end
 end
