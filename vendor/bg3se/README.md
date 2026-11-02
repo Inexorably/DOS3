@@ -10,9 +10,9 @@ installer downloads the pinned asset and refuses anything whose SHA256 differs.
 ```json
 {
   "repo": "Inexorably/bg3se",
-  "tag": "se-0.2.0-dos3",
+  "tag": "se-0.3.0-dos3",
   "asset": "BG3SE-DWrite.zip",
-  "sha256": "52B71B90..."
+  "sha256": "8794DF8B..."
 }
 ```
 
@@ -47,6 +47,6 @@ gh release download se-0.2.0-dos3 -R Inexorably/bg3se -p '*.sha256' -O -
 
 | Pinned tag | Built from | Verified |
 |------------|------------|----------|
-| `se-0.2.0-dos3` | `c913bc99` | checksum matches, `DWrite.dll` contains `GetArmorClass` |
+| `se-0.3.0-dos3` | `e25e1f18` | checksum matches, `DWrite.dll` contains `GetArmorClass`; `BeforeDealDamage` carries `Target` |
 
 [fork]: https://github.com/Inexorably/bg3se

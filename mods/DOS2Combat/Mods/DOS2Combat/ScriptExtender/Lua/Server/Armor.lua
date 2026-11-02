@@ -525,11 +525,17 @@ end
 
 local function resistDamage(ev)
     local cfg = DOS2C.Config
-    if not ev or not ev.Target or not ev.Hit then return end
+    if not ev or not ev.Hit then return end
 
     -- Counted before every filter so "the event never fires" is distinguishable
     -- from "it fires and we skip the target".
     damageStats.hits = damageStats.hits + 1
+
+    -- Target is empty when the damage did not come from a DealDamageFunctor.
+    if not ev.Target or not U.GuidOf(ev.Target) then
+        damageStats.noTarget = (damageStats.noTarget or 0) + 1
+        return
+    end
 
     if not cfg.ARMOR_ENABLED then return end
 
@@ -565,10 +571,8 @@ local function resistDamage(ev)
         end)
         U.Log("damage reduction %.0f%% reduced %d damage", reduction * 100, reduced)
     elseif cfg.DEBUG then
-        -- Log every candidate field: the DealDamage event fires from
-        -- DealDamageFunctor::ApplyDamage before the functor computes its dice, so
-        -- this is usually all zeroes. Naming the fields makes that obvious
-        -- instead of looking like a target-selection problem.
+        -- Damage was expected here and is still empty. Name every candidate field
+        -- so the next session shows which one the engine populates.
         U.Log("armor: no damage reduced for target %s (reduction=%.0f%% "
             .. "hit.damage_list=%d attack.damage_list=%d hit.total=%s attack.total=%s "
             .. "hit.damage.total=%s hit.damage.final=%s original=%s absorbed=%s)",
@@ -763,15 +767,18 @@ function A.DamageStats()
     return damageStats
 end
 
-if Ext.Events and Ext.Events.DealDamage then
-    Ext.Events.DealDamage:Subscribe(function(ev)
+if Ext.Events and Ext.Events.BeforeDealDamage then
+    -- BeforeDealDamage fires after the damage is computed and before it is
+    -- applied, and the fork exposes the target on it. DealDamage (used before)
+    -- fires earlier, when DamageList is still empty, so nothing could be scaled.
+    Ext.Events.BeforeDealDamage:Subscribe(function(ev)
         local ok, err = pcall(resistDamage, ev)
         if not ok then reportArmorError("armor damage handler error: %s", tostring(err)) end
     end, { Priority = 90 })
-else
-    -- Without this event nothing reduces damage at all. Say so instead of
-    -- running with the rule silently disabled.
-    reportArmorError("Ext.Events.DealDamage is missing; damage reduction is NOT applied. "
+elseif Ext.Events and Ext.Events.DealDamage then
+    -- Older Script Extender: reduction cannot work here, so say so rather than
+    -- subscribing to an event that never carries damage.
+    reportArmorError("Ext.Events.BeforeDealDamage is missing; damage reduction is NOT applied. "
         .. "Install a Script Extender build that provides it.")
 end
 

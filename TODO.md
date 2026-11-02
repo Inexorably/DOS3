@@ -287,35 +287,25 @@ Known DOS2 visual references for the current test spells:
 
 ## Damage reduction application
 
-- [ ] **Damage reduction never reduced anything.** Every historical log shows
+- [x] **Found why reduction never applied.** Every historical log showed
       `armor: no damage reduced ... damage total=0 final=0`: 463 attempts, zero
       successes. `Ext.Events.DealDamage` is thrown from
-      `stats::DealDamageFunctor::ApplyDamage` *before* the functor computes its
-      dice, so `Hit.DamageList` is empty and `Hit.Damage` is zero when the
-      handler runs. The reduction maths is correct but there is nothing to
-      scale.
-- [ ] Fixing it needs a hook with both the target and computed damage. None of
-      the exposed events has both:
-      | Event | Target | Damage at that moment |
-      |---|---|---|
-      | `DealDamage` (used now) | yes | no, functor has not rolled |
-      | `BeforeDealDamage` | no (`Hit`/`Attack` only) | yes |
-      | `DealtDamage` | yes | yes, but already applied |
-      | `ExecuteFunctor` | no (exposed as base `ContextData`) | `hit` not exposed |
-- [ ] The viable SE change: `AttackTargetContextData` already holds `Caster`,
-      `Target` and `Hit` together. `FunctorEventHooks::OnFunctorExecute<TParams>`
-      is templated on the concrete params type and receives `HitResult* hit`, so
-      the fork can expose the derived target plus the accumulating hit on
-      `ExecuteFunctor` instead of the base `ContextData*`. Do not guess at the
-      unnamed `void* temp5` in `esv::StatsSystem::ThrowDamageEvent`: `HitDesc`
-      has no target field and `Inflicter` is the attacker (`attackerOf` in
-      `Armor.lua` already relies on that), so reinterpreting it would be a guess.
-- [ ] This needs a build and a live combat session to verify; neither is
-      available in the working environment, which is why the mod still points at
-      `DealDamage` rather than a speculative replacement.
-- [x] `!dos2c_damage` reports hits vs damage reduced, and the debug line now
-      prints every candidate damage field, so the next combat session identifies
-      which field is populated instead of guessing.
+      `stats::DealDamageFunctor::ApplyDamage` *before* the functor rolls its dice,
+      so `Hit.DamageList` is empty and `Hit.Damage` is zero when the handler ran.
+- [x] No native percentage source exists to sidestep it: the engine's
+      `DamageReduction` boost only supports `Flat` (subtract N) and `Half`
+      (halve), verified against the shipped stats.
+- [x] Script Extender `se-0.3.0-dos3` exposes `Target` on `BeforeDealDamage`.
+      That event fires from `esv::StatsSystem::ThrowDamageEvent` after the damage
+      is computed and before it is applied, and the target is carried over from
+      the enclosing `ApplyDamage` call. It is empty when the damage did not come
+      through that functor, which the mod counts and skips.
+- [x] `Armor.lua` subscribes to `BeforeDealDamage` instead of `DealDamage`, and
+      reports an error if the event is missing rather than running inert.
+- [ ] **Verify in-game that damage is actually reduced.** Hit a character, then
+      `!dos2c_damage`: expect `total reduced` to exceed 0 and matching values in
+      the debug line. If `noTarget` grows instead, the damage is not routed
+      through `DealDamageFunctor` and the SE needs a different hook.
 
 ## Armor AC
 

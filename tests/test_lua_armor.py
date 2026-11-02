@@ -3,6 +3,7 @@ from __future__ import annotations
 import unittest
 
 from .lua_harness import LuaModHarness
+from .support import MODS
 
 try:
     import lupa  # noqa: F401
@@ -199,6 +200,35 @@ class ArmorTests(unittest.TestCase):
         self.assertEqual(again, [])
 
     # ---------------------------------------------------------------- damage path
+    def test_reduction_subscribes_to_before_deal_damage(self) -> None:
+        # DealDamage fires before the functor rolls, so it can never scale
+        # damage; BeforeDealDamage is the only event with computed values.
+        script = (
+            MODS / "DOS2Combat/Mods/DOS2Combat/ScriptExtender/Lua/Server/Armor.lua"
+        ).read_text(encoding="utf-8")
+        self.assertIn("Ext.Events.BeforeDealDamage:Subscribe", script)
+        self.assertNotIn("Ext.Events.DealDamage:Subscribe", script)
+        self.assertIn("damage reduction is NOT applied", script)
+
+    def test_damage_without_a_target_is_counted_and_skipped(self) -> None:
+        # BeforeDealDamage has no target when the damage did not come through
+        # DealDamageFunctor; that must be visible, not silently dropped.
+        self.character("victim", ac=20)
+        event = self.harness.raw(
+            """
+            return {
+                Hit = { DamageList = { { Amount = 100 } }, CauseType = 6, ArmorAbsorption = 0 },
+            }
+            """
+        )
+        self.harness.fire_event_value("BeforeDealDamage", event)
+
+        stats = self.harness.run("return DOS2C.Armor.DamageStats()")
+        self.assertEqual(stats["hits"], 1)
+        self.assertEqual(stats["reduced"], 0)
+        self.assertEqual(stats["noTarget"], 1)
+        self.assertEqual(event["Hit"]["DamageList"][1]["Amount"], 100)
+
     def test_damage_stats_record_what_was_reduced(self) -> None:
         # "Is reduction actually applied?" must be answerable, not inferred from
         # the absence of log lines.
@@ -211,7 +241,7 @@ class ArmorTests(unittest.TestCase):
             }
             """
         )
-        self.harness.fire_event_value("DealDamage", event)
+        self.harness.fire_event_value("BeforeDealDamage", event)
 
         stats = self.harness.run("return DOS2C.Armor.DamageStats()")
         self.assertEqual(stats["hits"], 1)
@@ -231,7 +261,7 @@ class ArmorTests(unittest.TestCase):
             }
             """
         )
-        self.harness.fire_event_value("DealDamage", event)
+        self.harness.fire_event_value("BeforeDealDamage", event)
 
         stats = self.harness.run("return DOS2C.Armor.DamageStats()")
         self.assertEqual(stats["hits"], 1)
@@ -251,7 +281,7 @@ class ArmorTests(unittest.TestCase):
             }
             """
         )
-        self.harness.fire_event_value("DealDamage", event)
+        self.harness.fire_event_value("BeforeDealDamage", event)
         self.assertIn("damage reduction", self.logs())
         self.assertEqual(event["Hit"]["DamageList"][1]["Amount"], 45)
         self.assertEqual(event["Hit"]["DamageList"][2]["Amount"], 18)
@@ -260,7 +290,7 @@ class ArmorTests(unittest.TestCase):
     def test_deal_damage_skips_non_characters_and_disabled_armor(self) -> None:
         self.character("door", ac=20, actionResources=False)
         self.harness.fire_event(
-            "DealDamage",
+            "BeforeDealDamage",
             {"Target": "door", "Hit": {"DamageList": [{"Amount": 10}]}},
         )
         self.assertNotIn("damage reduction", self.logs())
@@ -269,7 +299,7 @@ class ArmorTests(unittest.TestCase):
         self.harness.run("DOS2C.Config.ARMOR_ENABLED = false")
         try:
             self.harness.fire_event(
-                "DealDamage", {"Target": "victim2", "Hit": {"DamageList": [{"Amount": 10}]}}
+                "BeforeDealDamage", {"Target": "victim2", "Hit": {"DamageList": [{"Amount": 10}]}}
             )
         finally:
             self.harness.run("DOS2C.Config.ARMOR_ENABLED = true")
@@ -285,7 +315,7 @@ class ArmorTests(unittest.TestCase):
             }
             """
         )
-        self.harness.fire_event_value("DealDamage", event)
+        self.harness.fire_event_value("BeforeDealDamage", event)
         self.assertIn("damage reduction", self.logs())
         self.assertEqual(event["Hit"]["Damage"]["FinalDamage"], 45)
 
@@ -305,7 +335,7 @@ class ArmorTests(unittest.TestCase):
             }
             """
         )
-        self.harness.fire_event_value("DealDamage", event)
+        self.harness.fire_event_value("BeforeDealDamage", event)
         self.assertEqual(event["Hit"]["Damage"]["FinalDamagePerType"]["Fire"], 18)
 
     def test_deal_damage_applies_critical_multiplier(self) -> None:
@@ -325,7 +355,7 @@ class ArmorTests(unittest.TestCase):
             }
             """
         )
-        self.harness.fire_event_value("DealDamage", event)
+        self.harness.fire_event_value("BeforeDealDamage", event)
         self.assertIn("critical hit multiplier", self.logs())
 
     def test_attack_advantage_scales_damage(self) -> None:
@@ -342,7 +372,7 @@ class ArmorTests(unittest.TestCase):
             """
         )
         try:
-            self.harness.fire_event_value("DealDamage", event)
+            self.harness.fire_event_value("BeforeDealDamage", event)
         finally:
             self.harness.run("DOS2C.Config.ATTACK_ADVANTAGE_STATUSES = nil")
         self.assertIn("attack-roll damage modifier x1.25", self.logs())
@@ -364,7 +394,7 @@ class ArmorTests(unittest.TestCase):
             """
         )
         try:
-            self.harness.fire_event_value("DealDamage", event)
+            self.harness.fire_event_value("BeforeDealDamage", event)
         finally:
             self.harness.run("DOS2C.Config.ATTACK_DISADVANTAGE_PASSIVES = nil")
         self.assertIn("attack-roll damage modifier x0.75", self.logs())
@@ -383,7 +413,7 @@ class ArmorTests(unittest.TestCase):
             """
         )
         try:
-            self.harness.fire_event_value("DealDamage", event)
+            self.harness.fire_event_value("BeforeDealDamage", event)
         finally:
             self.harness.run("DOS2C.Config.INCOMING_DISADVANTAGE_STATUSES = nil")
         self.assertIn("incoming damage modifier x0.85", self.logs())
@@ -402,7 +432,7 @@ class ArmorTests(unittest.TestCase):
             """
         )
         try:
-            self.harness.fire_event_value("DealDamage", event)
+            self.harness.fire_event_value("BeforeDealDamage", event)
         finally:
             self.harness.run("DOS2C.Config.INCOMING_ADVANTAGE_STATUSES = nil")
         self.assertIn("incoming damage modifier x1.15", self.logs())
@@ -421,7 +451,7 @@ class ArmorTests(unittest.TestCase):
             """
         )
         try:
-            self.harness.fire_event_value("DealDamage", event)
+            self.harness.fire_event_value("BeforeDealDamage", event)
         finally:
             self.harness.run("DOS2C.Config.ATTACK_ROLL_DAMAGE_BONUS = nil")
         self.assertIn("attack-roll flat damage +2", self.logs())

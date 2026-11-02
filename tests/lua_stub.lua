@@ -156,6 +156,7 @@ Ext = {
         Tick = channel("Tick"),
         NetMessage = channel("NetMessage"),
         DealDamage = channel("DealDamage"),
+        BeforeDealDamage = channel("BeforeDealDamage"),
         ModuleLoad = channel("ModuleLoad"),
         LevelGameplayStarted = channel("LevelGameplayStarted"),
     },
