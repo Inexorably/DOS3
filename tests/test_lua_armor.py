@@ -82,7 +82,7 @@ class ArmorTests(unittest.TestCase):
             self.set_ac(guid, ac)
 
     def set_ac(self, guid: str, total: int, **fields) -> None:
-        info = {"Total": total, "Source": "engine", "EngineAC": total}
+        info = {"Total": total, "Available": total != 0, "EngineAC": total}
         info.update(fields)
         self.harness.run("H.ext_armor_class = H.ext_armor_class or {}")
         self.harness.lua.globals()["_ac"] = self.harness.to_lua(info)
@@ -102,11 +102,13 @@ class ArmorTests(unittest.TestCase):
         self.assertAlmostEqual(resist["percent"], 55, delta=1)
         self.assertIn("armor reduction init", self.logs())
 
-    def test_get_defaults_to_ac_ten_without_sources(self) -> None:
+    def test_no_ac_means_no_reduction(self) -> None:
+        # Without an AC there is no reduction; nothing is assumed.
         self.character("c2")
         resist = self.resist("c2")
-        self.assertEqual(resist["ac"], 10)
-        self.assertAlmostEqual(resist["percent"], 5, delta=1)
+        self.assertEqual(resist["ac"], 0)
+        self.assertEqual(resist["percent"], 0)
+        self.assertIn("GetArmorClass(c2) failed", self.logs())
 
     def test_get_caches_the_result(self) -> None:
         self.character("c3", ac=15)
@@ -174,30 +176,27 @@ class ArmorTests(unittest.TestCase):
         self.assertAlmostEqual(resist["percent"], 55, delta=1)
         self.assertIn("ac=20", self.logs())
 
-    def test_missing_script_extender_accessor_reports_and_uses_the_base(self) -> None:
+    def test_missing_script_extender_accessor_reports_and_applies_nothing(self) -> None:
         self.character("c17")
         self.harness.run("Ext.Entity.GetArmorClass = nil")
         resist = self.resist("c17")
-        self.assertEqual(resist["ac"], 10)
+        self.assertEqual(resist["ac"], 0)
+        self.assertEqual(resist["percent"], 0)
         self.assertIn("GetArmorClass is missing", self.logs())
 
-    def test_zero_total_falls_back_to_the_unarmored_base(self) -> None:
-        self.character("c18")
-        self.set_ac("c18", 0)
-        self.assertEqual(self.resist("c18")["ac"], 10)
-
-    def test_a_rebuilt_total_is_reported_as_unreliable(self) -> None:
-        # The Script Extender rebuilds the total when the engine field is empty;
-        # that value cannot include worn item AC, so it must be loud, not silent,
-        # and reported once per character.
-        self.character("c19", ac=10)
-        self.set_ac("c19", 15, Source="components", EngineAC=0)
-        self.assertEqual(self.resist("c19")["ac"], 15)
-        self.assertIn("not the engine total", self.logs())
+    def test_unavailable_ac_gives_no_reduction(self) -> None:
+        # No substitute AC: the engine has none, so nothing is applied and the
+        # reason is reported once rather than hidden behind a guessed value.
+        self.character("c19")
+        self.set_ac("c19", 0)
+        resist = self.resist("c19")
+        self.assertEqual(resist["ac"], 0)
+        self.assertEqual(resist["percent"], 0)
+        self.assertIn("AC is unavailable", self.logs())
         before = len(self.harness.prints())
         self.harness.run('DOS2C.Armor.Refresh("c19")')
-        errors = [line for line in self.harness.prints()[before:] if "not the engine total" in line]
-        self.assertEqual(errors, [])
+        again = [line for line in self.harness.prints()[before:] if "AC is unavailable" in line]
+        self.assertEqual(again, [])
 
     # ---------------------------------------------------------------- damage path
     def test_deal_damage_reduces_damage_list(self) -> None:

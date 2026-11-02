@@ -5,9 +5,8 @@
 -- value came from. It exists to confirm Ext.Entity.GetArmorClass against the
 -- character sheet in-game; it feeds no rule.
 --
--- Rows flagged "engine" are the game's own total. "rebuilt" means the engine
--- field was empty and the Script Extender reconstructed the value, which cannot
--- include AC that lives on worn items - treat those rows as suspect.
+-- Every row is the engine's own total. An entity whose engine AC is zero is
+-- reported as unavailable rather than shown with a substitute value.
 --
 -- Off by default; !dos2c_ac in the client console toggles it.
 
@@ -76,7 +75,7 @@ function D.Rows()
             row.error = "call failed: " .. tostring(info)
         else
             row.total = tonumber(info.Total)
-            row.source = tostring(info.Source)
+            row.available = info.Available and true or false
             row.engine = tonumber(info.EngineAC)
             row.base = tonumber(info.Base)
             row.ability = tostring(info.Ability)
@@ -85,7 +84,6 @@ function D.Rows()
             row.boosts = tonumber(info.Boosts)
             row.override = tonumber(info.OverrideAC)
             row.percent = percentOf(row.total)
-            if row.source ~= "engine" then row.warning = "rebuilt, not the engine total" end
         end
         rows[#rows + 1] = row
     end
@@ -98,13 +96,15 @@ function D.Text()
     for _, row in ipairs(D.Rows()) do
         if row.error then
             lines[#lines + 1] = string.format("%s: %s", row.name, row.error)
+        elseif not row.available then
+            -- No substitute value: say the engine has none.
+            lines[#lines + 1] = string.format("%s: AC unavailable (engine=0)", row.name)
         else
             lines[#lines + 1] = string.format(
-                "%s  AC %d  DR %d%%  src=%s engine=%d base=%d %s %d/%d boosts=%d override=%d%s",
-                row.name, row.total or -1, row.percent or -1, row.source,
+                "%s  AC %d  DR %d%%  engine=%d base=%d %s %d/%d boosts=%d override=%d",
+                row.name, row.total or 0, row.percent or 0,
                 row.engine or 0, row.base or 0, row.ability,
-                row.modifier or 0, row.cap or 0, row.boosts or 0, row.override or 0,
-                row.warning and ("  [" .. row.warning .. "]") or "")
+                row.modifier or 0, row.cap or 0, row.boosts or 0, row.override or 0)
         end
     end
     if #lines == 1 then lines[2] = "no characters found" end

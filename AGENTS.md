@@ -94,6 +94,23 @@ gated by, a green CI run.
 - Update `TODO.md` when a fix is implemented but still needs in-game
   verification; do not mark runtime behavior verified without a game session.
 
+## No Hedges
+
+- **Never add a fallback, secondary implementation, or "keep the old path
+  just in case" branch.** When a reliable source of truth exists (for example
+  `Ext.Entity.GetArmorClass` returning the engine's own AC), use it and nothing
+  else. A second path hides failures in the first one, doubles the surface to
+  debug, and silently keeps computing wrong numbers.
+- Report failure loudly instead: log an error once and return "unavailable".
+  Do not substitute a plausible default (an assumed AC, a stock value, a rebuilt
+  estimate) to keep the pipeline running.
+- The same applies to tooling: no "try the local copy, else the network, else
+  latest" chains, no asset-name pattern matching when the pin names the file, no
+  silent `latest` when a pin is missing. If the pinned input is absent, stop and
+  say so.
+- Guidance previously added that contradicts this (for example AC fallbacks in
+  `Armor.lua`) has been removed; do not reintroduce it.
+
 ## Commits
 
 - **Never add a `Co-authored-by` trailer.** Do not credit Copilot, Claude, or

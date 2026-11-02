@@ -22,7 +22,7 @@ function make_character(guid, name, ac, info)
     H.entities[guid] = entity
     H.ext_armor_class = H.ext_armor_class or {}
     H.ext_armor_class[guid] = info
-        or { Total = ac, Source = "engine", EngineAC = ac }
+        or { Total = ac, Available = true, EngineAC = ac }
     return entity
 end
 """
@@ -49,25 +49,25 @@ class ArmorDebugWidgetTests(unittest.TestCase):
         rows = self.harness.run("return DOS2C.ArmorDebug.Rows()")
         self.assertEqual([row["name"] for row in rows], ["Alice", "Bob"])
         self.assertEqual(rows[0]["total"], 21)
-        self.assertEqual(rows[0]["source"], "engine")
+        self.assertTrue(rows[0]["available"])
         # AC 21 sits on the taper: more than the 55% anchor, less than AC 30.
         self.assertGreater(rows[0]["percent"], 55)
         self.assertEqual(rows[1]["percent"], 5)
         self.assertEqual(sorted(self.harness.armor_class_calls(), key=str)[0]["guid"], "c1")
 
-    def test_rebuilt_total_is_flagged(self) -> None:
+    def test_unavailable_ac_is_reported_not_substituted(self) -> None:
         self.harness.run(
-            'make_character("c1", "Alice", 15,'
-            ' { Total = 15, Source = "components", EngineAC = 0, Boosts = 5 })'
+            'make_character("c1", "Alice", 0, { Total = 0, Available = false, EngineAC = 0 })'
         )
         self.harness.set_component("Stats", ["c1"])
         self.load_widget()
 
         rows = self.harness.run("return DOS2C.ArmorDebug.Rows()")
-        self.assertEqual(rows[0]["warning"], "rebuilt, not the engine total")
+        self.assertFalse(rows[0]["available"])
         text = self.harness.run("return DOS2C.ArmorDebug.Text()")
-        self.assertIn("rebuilt, not the engine total", text)
-        self.assertIn("src=components", text)
+        self.assertIn("AC unavailable", text)
+        # No invented AC value for an entity the engine cannot describe.
+        self.assertNotIn("AC 10", text)
 
     def test_missing_accessor_is_reported_not_hidden(self) -> None:
         self.harness.run('make_character("c1", "Alice", 21)')

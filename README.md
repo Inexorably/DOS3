@@ -36,13 +36,12 @@ difficulty system so it stacks naturally with the other mods.
   `bin\ScriptExtender.dos3.json`. No extender binary is committed to this
   repository, so a checkout always fetches the build the pin names.
 
-- The armour has no second AC implementation to fall back on: `Total` is the
-  engine's own `eoc::ResistancesComponent::AC` (the character sheet value). The
-  Script Extender warns, and the mod logs an error, if that engine field is
-  empty, because a rebuilt value cannot see worn item AC. Two diagnostics report
-  it: `!dos2c_ac` in the server console prints every character's AC and
-  breakdown, and the same command in the client console toggles an IMGUI window
-  listing each character's total AC, reduction, and where the total came from.
+- The armour has one AC source and no fallback: `Ext.Entity.GetArmorClass`
+  returns the engine's own `eoc::ResistancesComponent::AC` (the character sheet
+  value). If that field is ever empty the Script Extender warns, the mod logs an
+  error, and no damage reduction is applied - no value is substituted.
+  `!dos2c_ac` prints every character's AC and breakdown in the server console and
+  toggles an IMGUI window (off by default) with the same figures client-side.
 - BG3 Mod Manager or the in-game Mods menu.
 - Python 3.12 only for the test suite and mod generators.
 - LSLib/`Divine.exe` is downloaded automatically by `scripts/build.sh` if it is missing. Packaging is Windows-oriented.

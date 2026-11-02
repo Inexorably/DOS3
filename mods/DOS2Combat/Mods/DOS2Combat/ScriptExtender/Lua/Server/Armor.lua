@@ -80,10 +80,6 @@ local function component(entity, name)
     return nil
 end
 
--- BG3's unarmored AC. Only used when the Script Extender cannot report a total,
--- which is a broken installation rather than a supported configuration.
-local UNARMORED_AC = 10
-
 local acAccessReported = false
 
 local function reportArmorError(fmt, ...)
@@ -103,7 +99,7 @@ end
 -- (eoc::ResistancesComponent::AC) - the same number the game sums up and shows on
 -- the character sheet. It already includes worn armour, the ability contribution,
 -- and every evaluated status/passive/spell/shield boost, so no AC source is
--- enumerated here and no stat string is parsed.
+-- enumerated here, no stat string is parsed, and there is no substitute value.
 local incompleteWarned = {}
 
 local function armorClass(guid)
@@ -126,14 +122,15 @@ local function armorClass(guid)
         return nil
     end
 
-    -- "engine" is the game's own total. Anything else means the engine field was
-    -- empty and the Script Extender rebuilt the value, which cannot include AC
-    -- that lives on worn items, so the reduction derived from it is wrong.
-    if info.Source ~= "engine" and not incompleteWarned[guid] then
-        incompleteWarned[guid] = true
-        reportArmorError("AC for %s is not the engine total (source=%s, engine=%s); "
-            .. "damage reduction for this character is unreliable",
-            tostring(guid), tostring(info.Source), tostring(info.EngineAC))
+    -- No fallback: if the engine has no AC for this entity, say so and give no
+    -- reduction rather than inventing a number.
+    if not info.Available or not tonumber(info.Total) then
+        if not incompleteWarned[guid] then
+            incompleteWarned[guid] = true
+            reportArmorError("AC is unavailable for %s (engine=%s); no damage reduction is applied",
+                tostring(guid), tostring(info.EngineAC))
+        end
+        return nil, info
     end
 
     return tonumber(info.Total), info
@@ -146,8 +143,8 @@ local function armorFingerprint(handle)
     if not guid then return nil end
     local _, info = armorClass(guid)
     if not info then return nil end
-    return string.format("%s/%s/%s/%s/%s/%s/%s", tostring(info.Total),
-        tostring(info.Source), tostring(info.EngineAC), tostring(info.Base),
+    return string.format("%s/%s/%s/%s/%s/%s", tostring(info.Total),
+        tostring(info.EngineAC), tostring(info.Base),
         tostring(info.AbilityModifier), tostring(info.Boosts),
         tostring(info.OverrideAC))
 end
@@ -158,23 +155,23 @@ local function computeResistance(handle)
 
     removeLegacyNoDodge(handle)
     local ac, info = armorClass(guid)
-    if not ac or ac <= 0 then ac = UNARMORED_AC end
     local formula = assert(DOS2C.ArmorFormula, "Shared/ArmorFormula.lua must load first")
-    local percent = formula.Percent(ac, false, cfg)
+    -- No AC means no reduction: the error above already reported why.
+    local percent = ac and formula.Percent(ac, false, cfg) or 0
 
     if guid and not armorClassLogged[guid] then
         armorClassLogged[guid] = true
-        U.Log("armor %s: ac=%s source=%s (engine=%s base=%s ability=%s/%s boosts=%s override=%s)",
-            tostring(guid), tostring(ac), tostring(info and info.Source),
-            tostring(info and info.EngineAC), tostring(info and info.Base),
-            tostring(info and info.AbilityModifier), tostring(info and info.AbilityModifierCap),
-            tostring(info and info.Boosts), tostring(info and info.OverrideAC))
+        U.Log("armor %s: ac=%s (engine=%s base=%s ability=%s/%s boosts=%s override=%s)",
+            tostring(guid), tostring(ac), tostring(info and info.EngineAC),
+            tostring(info and info.Base), tostring(info and info.AbilityModifier),
+            tostring(info and info.AbilityModifierCap), tostring(info and info.Boosts),
+            tostring(info and info.OverrideAC))
     end
 
     return {
         reduction = percent / 100,
         percent = percent,
-        ac = ac,
+        ac = ac or 0,
     }
 end
 

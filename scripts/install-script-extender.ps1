@@ -9,33 +9,21 @@
     (Inexorably/bg3se). A stock Norbyte BG3SE does not have that API, so the
     armour rule would report "GetArmorClass is missing" at runtime.
 
-    This script puts a known-good DWrite.dll into the game's bin folder:
+    This script puts the pinned DWrite.dll into the game's bin folder. The build
+    is defined in one place, vendor/bg3se/pin.json (repo, tag, asset, SHA256);
+    there is no other source and no "latest" guess. Pass -FromPath or -FromUrl
+    only to override it deliberately, for example to test a local build.
 
-      1. If -FromPath or -FromUrl is given, install that.
-      2. Otherwise download the release named by vendor/bg3se/pin.json (tag and
-         SHA256), so a checkout installs the exact build its mods expect without
-         committing a binary to the repository.
-      3. With no pin file, fall back to the latest release of the fork.
-
-    Every candidate is validated before it is installed: it must be a real PE
-    image and it must contain the GetArmorClass binding string. A build without
-    the API is rejected, so this cannot silently install the wrong extender.
-
-.PARAMETER Repo
-    GitHub repository that publishes the Script Extender builds. Default: the
-    value in vendor/bg3se/pin.json, else Inexorably/bg3se.
-
-.PARAMETER Tag
-    Release tag to install, or latest for the newest published release.
-    Default: the value in vendor/bg3se/pin.json, so a checkout installs the
-    exact build its mods were tested against.
+    Before anything is copied the payload is validated: it must be a real PE
+    image and contain the GetArmorClass binding, and its SHA256 must match. A
+    build without the API is rejected, so the wrong extender cannot be installed.
 
 .PARAMETER FromPath
     Local .zip or .dll to install instead of downloading a release.
 
 .PARAMETER FromUrl
-    Direct URL of a .zip or .dll to install. install-release.ps1 uses this to
-    install the extender packaged with the DOS3 release.
+    Direct URL of a .zip or .dll to install instead of the pinned release. Pair
+    it with -ExpectedSha256; an unverified download is refused.
 
 .PARAMETER ExpectedSha256
     Optional SHA256 the downloaded package must match. Ignored for a local file.
@@ -61,12 +49,6 @@
     .\scripts\install-script-extender.ps1
 
 .EXAMPLE
-    .\scripts\install-script-extender.ps1 -Tag se-1.0.0-dos3
-
-.EXAMPLE
-    .\scripts\install-script-extender.ps1 -Tag se-0.1.0-dos3
-
-.EXAMPLE
     .\scripts\install-script-extender.ps1 -FromUrl https://example/BG3SE-DWrite.zip -ExpectedSha256 ABC123
 
 .EXAMPLE
@@ -74,8 +56,6 @@
 #>
 [CmdletBinding()]
 param(
-    [string]$Repo,
-    [string]$Tag,
     [string]$FromPath,
     [string]$FromUrl,
     [string]$ExpectedSha256,
@@ -91,8 +71,6 @@ Set-StrictMode -Version 2.0
 
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 $PinFile = Join-Path $RepoRoot 'vendor\bg3se\pin.json'
-# tools/bg3se stays a gitignored spot for a local override package.
-$LocalPackageDirs = @((Join-Path $RepoRoot 'tools\bg3se'))
 $TargetName = 'DWrite.dll'
 # The binding this fork adds; a build without it cannot drive DOS2Combat's armor.
 $RequiredBinding = 'GetArmorClass'
@@ -199,12 +177,7 @@ function Resolve-GameBin([string]$ExplicitDir) {
 }
 
 function Get-Release([string]$RepoName, [string]$ReleaseTag) {
-    $uri = if ($ReleaseTag -eq 'latest') {
-        "https://api.github.com/repos/$RepoName/releases/latest"
-    }
-    else {
-        "https://api.github.com/repos/$RepoName/releases/tags/$ReleaseTag"
-    }
+    $uri = "https://api.github.com/repos/$RepoName/releases/tags/$ReleaseTag"
     try {
         return Invoke-RestMethod -Uri $uri -Headers $ApiHeaders -UseBasicParsing
     }
@@ -213,53 +186,23 @@ function Get-Release([string]$RepoName, [string]$ReleaseTag) {
     }
 }
 
-function Select-Asset($Release, [string]$PreferredName) {
-    # An explicit asset name from the pin wins, so the checksum always refers to
-    # the same file.
-    if ($PreferredName) {
-        $match = $Release.assets | Where-Object { $_.name -eq $PreferredName } | Select-Object -First 1
-        if ($match) { return $match }
-        throw "Release '$($Release.tag_name)' has no asset named '$PreferredName'."
-    }
-    # Prefer the offline package (DWrite.dll); fall back to a bare extender DLL.
-    $preferred = @('DWrite\.dll$', 'offline', 'BG3ScriptExtender\.dll$')
-    foreach ($pattern in $preferred) {
-        foreach ($asset in $Release.assets) {
-            if ($asset.name -match $pattern) { return $asset }
-        }
-    }
-    throw "Release '$($Release.tag_name)' has no DWrite.dll or BG3ScriptExtender.dll asset."
+function Select-Asset($Release, [string]$AssetName) {
+    # The pin names the exact asset, so the recorded SHA256 always refers to it.
+    $match = $Release.assets | Where-Object { $_.name -eq $AssetName } | Select-Object -First 1
+    if ($match) { return $match }
+    throw "Release '$($Release.tag_name)' has no asset named '$AssetName'."
 }
 
-function Get-Sha256File($Release) {
-    foreach ($asset in $Release.assets) {
-        if ($asset.name -match '\.sha256$') { return $asset }
-    }
-    return $null
-}
-
-function Find-LocalCandidate([string]$ExplicitPath) {
-    if ($ExplicitPath) {
-        if (-not (Test-Path -LiteralPath $ExplicitPath)) { throw "Local package not found: $ExplicitPath" }
-        return (Resolve-Path -LiteralPath $ExplicitPath).Path
-    }
-    return $null
-}
-
-function Find-PinnedCandidate {
-    # gitignored local override folder; the committed pin is metadata, not a blob.
-    foreach ($dir in $LocalPackageDirs) {
-        if (-not (Test-Path -LiteralPath $dir)) { continue }
-        $local = @(Get-ChildItem -LiteralPath $dir -File -ErrorAction SilentlyContinue |
-            Where-Object { $_.Extension -in @('.zip', '.dll') } |
-            Sort-Object Name -Descending)
-        if ($local.Count -gt 0) { return $local[0].FullName }
-    }
-    return $null
+function Resolve-LocalPath([string]$ExplicitPath) {
+    if (-not (Test-Path -LiteralPath $ExplicitPath)) { throw "Local package not found: $ExplicitPath" }
+    return (Resolve-Path -LiteralPath $ExplicitPath).Path
 }
 
 function Get-Pin {
-    if (-not (Test-Path -LiteralPath $PinFile)) { return $null }
+    # Required: without it there is no defined build to install.
+    if (-not (Test-Path -LiteralPath $PinFile)) {
+        throw "No pin file at $PinFile; cannot tell which Script Extender build to install."
+    }
     try {
         return Get-Content -LiteralPath $PinFile -Raw | ConvertFrom-Json
     }
@@ -338,16 +281,7 @@ Wait-ForGameToExit $WaitForGameSeconds
 
 # The pin decides which release to install unless the caller overrides it.
 $pin = Get-Pin
-if (-not $Repo) {
-    $Repo = if ($pin -and $pin.repo) { $pin.repo } else { 'Inexorably/bg3se' }
-}
-if (-not $Tag) {
-    $Tag = if ($pin -and $pin.tag) { $pin.tag } else { 'latest' }
-}
-if (-not $ExpectedSha256 -and $pin -and $pin.sha256) {
-    $ExpectedSha256 = $pin.sha256
-}
-Write-Info "extender source: $Repo@$Tag"
+Write-Info "pinned build: $($pin.repo)@$($pin.tag)"
 
 $staging = Join-Path ([IO.Path]::GetTempPath()) ("dos3-se-" + [Guid]::NewGuid().ToString('n').Substring(0, 8))
 $package = $null
@@ -355,17 +289,16 @@ $source = $null
 $expectedHash = $null
 
 try {
-    $local = Find-LocalCandidate $FromPath
-    if ($local) {
-        Write-Step 'Using a local Script Extender package'
-        Write-Info $local
-        $package = $local
-        $source = "local:$local"
+    # Three explicit inputs, no cascade: a file, a URL, or the pin. Nothing is
+    # tried "just in case", so the installed build is always the one asked for.
+    if ($FromPath) {
+        Write-Step 'Installing the local package'
+        $package = Resolve-LocalPath $FromPath
+        Write-Info $package
+        $source = "path:$package"
     }
     elseif ($FromUrl) {
-        # install-release.ps1 passes the asset packaged with the DOS3 release, so
-        # a release install does not depend on the fork being reachable.
-        Write-Step 'Downloading the packaged Script Extender'
+        Write-Step 'Downloading the given package'
         Write-Info $FromUrl
         New-Item -ItemType Directory -Force -Path $staging | Out-Null
         $package = Join-Path $staging ([IO.Path]::GetFileName(($FromUrl -split '\?')[0]))
@@ -373,45 +306,27 @@ try {
         $source = "url:$FromUrl"
         $expectedHash = $ExpectedSha256
     }
-    elseif ($pinned = Find-PinnedCandidate) {
-        Write-Step 'Using the Script Extender pinned in this checkout'
-        Write-Info $pinned
-        $package = $pinned
-        $source = "pinned:$pinned"
-    }
     else {
-        Write-Step "Reading release '$Tag' from $Repo"
-        $release = Get-Release $Repo $Tag
-        $asset = Select-Asset $release $(if ($pin) { $pin.asset } else { $null })
-        Write-Info "release $($release.tag_name): $($asset.name)"
+        Write-Step "Downloading $($pin.asset) from $($pin.repo)@$($pin.tag)"
+        $release = Get-Release $pin.repo $pin.tag
+        $asset = Select-Asset $release $pin.asset
+        Write-Info $asset.browser_download_url
 
         New-Item -ItemType Directory -Force -Path $staging | Out-Null
         $package = Join-Path $staging $asset.name
         Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $package -UseBasicParsing
-        $source = "release:$($release.tag_name)/$($asset.name)"
-
-        $hashAsset = Get-Sha256File $release
-        if ($ExpectedSha256) {
-            # The pin names the expected hash; no need to fetch the sidecar.
-            $expectedHash = $ExpectedSha256
-        }
-        elseif ($hashAsset) {
-            $hashPath = Join-Path $staging $hashAsset.name
-            Invoke-WebRequest -Uri $hashAsset.browser_download_url -OutFile $hashPath -UseBasicParsing
-            $expectedHash = ((Get-Content -LiteralPath $hashPath -TotalCount 1) -split '\s+')[0]
-        }
-        else {
-            Write-Warn "release has no .sha256 asset; installing without a published checksum"
-        }
+        $source = "pin:$($pin.tag)/$($asset.name)"
+        $expectedHash = $pin.sha256
     }
 
-    if ($expectedHash) {
-        $actual = (Get-FileHash -LiteralPath $package -Algorithm SHA256).Hash
-        if ($actual -ne $expectedHash) {
-            throw "Checksum mismatch for $package (expected $expectedHash, got $actual)"
-        }
-        Write-Info 'checksum verified'
+    if (-not $expectedHash) {
+        throw "No SHA256 for $package; refusing to install an unverified extender."
     }
+    $actual = (Get-FileHash -LiteralPath $package -Algorithm SHA256).Hash
+    if ($actual -ne $expectedHash) {
+        throw "Checksum mismatch for $package (expected $expectedHash, got $actual)"
+    }
+    Write-Info 'checksum verified'
 
     Write-Step 'Validating the extender build'
     $dll = Expand-Package $package $staging

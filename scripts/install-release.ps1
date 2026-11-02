@@ -510,30 +510,21 @@ try {
     }
 
     # The mods need the fork's Script Extender (Ext.Entity.GetArmorClass), so a
-    # fresh install is incomplete without it. A missing extender is a warning,
-    # not a failure: the packages are already installed at this point.
+    # fresh install is incomplete without it. Failure is fatal rather than a
+    # warning: shipping mods whose armor silently cannot work is worse than
+    # stopping and saying why.
     if (-not $SkipScriptExtender) {
         $extender = Join-Path $PSScriptRoot 'install-script-extender.ps1'
-        if (Test-Path -LiteralPath $extender) {
-            try {
-                Write-Step 'Installing the Script Extender build DOS3 needs'
-                $extenderArgs = @{ WaitForGameSeconds = $WaitForGameSeconds }
-                if ($DryRun) { $extenderArgs['DryRun'] = $true }
-                if ($GameDir) { $extenderArgs['GameDir'] = $GameDir }
-
-                # The extender installer resolves the build from
-                # vendor/bg3se/pin.json (tag + SHA256), so the mods and the
-                # extender stay pinned to the same release.
-                & $extender @extenderArgs
-            }
-            catch {
-                Write-Warn "Script Extender was not installed: $($_.Exception.Message)"
-                Write-Warn 'Run scripts\install-script-extender.ps1 yourself; armor damage reduction needs it.'
-            }
+        if (-not (Test-Path -LiteralPath $extender)) {
+            throw "install-script-extender.ps1 is missing next to this script; DOS2Combat's armor needs that extender build."
         }
-        else {
-            Write-Warn "install-script-extender.ps1 not found next to this script; armor needs that extender build."
-        }
+        Write-Step 'Installing the Script Extender build DOS3 needs'
+        $extenderArgs = @{ WaitForGameSeconds = $WaitForGameSeconds }
+        if ($DryRun) { $extenderArgs['DryRun'] = $true }
+        if ($GameDir) { $extenderArgs['GameDir'] = $GameDir }
+        # The extender installer resolves the build from vendor/bg3se/pin.json.
+        & $extender @extenderArgs
+        if ($LASTEXITCODE -ne 0) { throw "Script Extender install failed: $LASTEXITCODE" }
     }
 
     Write-Host ''

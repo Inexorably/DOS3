@@ -23,7 +23,7 @@ function make_sync_character(guid, ac, options)
     if ac then
         entity.Health = { MaxHp = 30, Hp = 30 }
         H.ext_armor_class = H.ext_armor_class or {}
-        H.ext_armor_class[guid] = { Total = ac, Source = "engine", EngineAC = ac }
+        H.ext_armor_class[guid] = { Total = ac, Available = true, EngineAC = ac }
     end
     H.entities[guid] = entity
     return entity
@@ -32,7 +32,7 @@ end
 -- Test-only: change the AC the Script Extender reports for a character.
 function DOS2C_test_set_ac(guid, total)
     H.ext_armor_class = H.ext_armor_class or {}
-    H.ext_armor_class[guid] = { Total = total, Source = "engine", EngineAC = total }
+    H.ext_armor_class[guid] = { Total = total, Available = true, EngineAC = total }
 end
 """
 
@@ -167,7 +167,7 @@ class ArmorSyncTests(unittest.TestCase):
             'H.ext_armor_class["char-1"].Boosts = 2',
             'H.ext_armor_class["char-1"].AbilityModifier = 3',
             'H.ext_armor_class["char-1"].OverrideAC = 16',
-            'H.ext_armor_class["char-1"].Source = "components"',
+            'H.ext_armor_class["char-1"].Base = 12',
         ]
         for change in changes:
             with self.subTest(change=change):

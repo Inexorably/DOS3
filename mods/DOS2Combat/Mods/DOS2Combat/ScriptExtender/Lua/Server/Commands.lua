@@ -101,9 +101,9 @@ register("dos2c_ac", function(_, mode)
             else
                 local resist = DOS2C.Armor.Cached(guid)
                 printLine(string.format(
-                    "[DOS2C]   %s AC=%s DR=%s%% src=%s engine=%s base=%s %s %s/%s boosts=%s override=%s",
+                    "[DOS2C]   %s AC=%s DR=%s%% available=%s engine=%s base=%s %s %s/%s boosts=%s override=%s",
                     tostring(guid), tostring(info.Total),
-                    tostring(resist and resist.percent or "?"), tostring(info.Source),
+                    tostring(resist and resist.percent or "?"), tostring(info.Available),
                     tostring(info.EngineAC), tostring(info.Base), tostring(info.Ability),
                     tostring(info.AbilityModifier), tostring(info.AbilityModifierCap),
                     tostring(info.Boosts), tostring(info.OverrideAC)))

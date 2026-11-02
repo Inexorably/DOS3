@@ -310,15 +310,15 @@ Known DOS2 visual references for the current test spells:
       `Armor.lua` (Boosts text, status/passive/equipment/Osiris walks, the
       override parser, `StatusGivesArmor`) has been deleted; AC has one source.
 - [x] Client IMGUI sanity checker: `Client/ArmorDebug.lua` lists every
-      character's `Total`, its reduction, and `Source`/engine/base/ability/
-      boosts/override. Off by default; `!dos2c_ac` in the client console
-      toggles it (the same command in the server console prints the server
-      table). Rows built from a rebuilt total are flagged.
-- [ ] Verify in-game with the AC widget that `Source` is `"engine"` and `Total`
-      equals the character sheet for a geared and buffed character (the
-      reported 21 AC case), on both server and client. If a row is flagged
-      "rebuilt", `eoc::ResistancesComponent.AC` is empty on that side and the
-      AC accessor must be extended before the value can be trusted.
+      character's `Total`, its reduction, and engine/base/ability/boosts/
+      override. Off by default; `!dos2c_ac` toggles it and works from either
+      console context (the server command relays to the client and prints the
+      server table). An entity whose engine AC is zero is shown as unavailable;
+      there is no substitute value.
+- [x] Verified in a live game: every character logs `source=engine` with varied
+      real totals (7-25), so `eoc::ResistancesComponent.AC` is populated on the
+      server. Remaining: confirm `Total` matches the character sheet for a
+      geared and buffed character (the reported 21 AC case).
 - [x] Ship the fork's Script Extender so a DOS3 checkout gets the right build:
       `scripts/install-script-extender.ps1` installs it (validating the PE
       image and the `GetArmorClass` binding, backing up the old DLL, recording

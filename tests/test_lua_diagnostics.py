@@ -111,7 +111,7 @@ class DiagnosticsTests(unittest.TestCase):
     def test_ac_command_prints_the_script_extender_breakdown(self) -> None:
         self.harness.run(
             'H.ext_armor_class = { ["host-guid"] = { Total = 21, Source = "engine",'
-            ' EngineAC = 21, Base = 16, Ability = "Dexterity", AbilityModifier = 1,'
+            ' EngineAC = 21, Available = true, Base = 16, Ability = "Dexterity", AbilityModifier = 1,'
             " AbilityModifierCap = 2, Boosts = 4, OverrideAC = 16 } }"
         )
         self.harness.run('H.entities["host-guid"].Health = { MaxHp = 30, Hp = 30 }')
@@ -124,7 +124,7 @@ class DiagnosticsTests(unittest.TestCase):
         # the client to open the AC widget.
         self.assertIn("DOS2C_ACToggle", [m["channel"] for m in self.harness.net_messages()])
         self.assertIn("AC=21", logs)
-        self.assertIn("src=engine", logs)
+        self.assertIn("available=true", logs)
         self.assertIn("base=16", logs)
         self.assertIn("boosts=4", logs)
 

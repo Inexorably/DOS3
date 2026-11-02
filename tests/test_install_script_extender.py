@@ -33,9 +33,8 @@ class InstallReleaseExtenderTests(unittest.TestCase):
         script = read(ROOT / "scripts" / "install-release.ps1")
         self.assertIn("install-script-extender.ps1", script)
         self.assertIn("SkipScriptExtender", script)
-        # A missing extender warns rather than aborting: the .pak files are
-        # already installed by then.
-        self.assertIn("Script Extender was not installed", script)
+        # A failed extender install must abort rather than leave armor dead.
+        self.assertIn("Script Extender install failed", script)
 
     def test_release_installer_relies_on_the_pin(self) -> None:
         # The extender step must not duplicate pin logic; the installer owns it.
@@ -43,6 +42,12 @@ class InstallReleaseExtenderTests(unittest.TestCase):
         self.assertIn("install-script-extender.ps1", script)
         self.assertNotIn("BG3SE-DWrite.zip", script)
         self.assertIn("pin.json", script)
+
+    def test_release_installer_does_not_swallow_extender_failure(self) -> None:
+        # A failed extender install must abort, not warn: armor would be dead.
+        script = read(ROOT / "scripts" / "install-release.ps1")
+        self.assertNotIn("Script Extender was not installed", script)
+        self.assertIn("Script Extender install failed", script)
 
 
 class ScriptExtenderInstallerTests(unittest.TestCase):
@@ -90,14 +95,27 @@ class ScriptExtenderInstallerTests(unittest.TestCase):
         ]
         self.assertEqual(binaries, [])
 
-    def test_explicit_url_outranks_the_pinned_package(self) -> None:
-        # install-release.ps1 passes the release asset; an explicit source must
-        # win over the checkout's pinned copy so the two cannot disagree.
+    def test_no_fallback_chain(self) -> None:
+        # One definition of the build: -FromPath, -FromUrl, or the pin. No local
+        # override folder, no asset-name guessing, no silent "latest".
         script = read(INSTALLER)
-        url_branch = script.index("elseif ($FromUrl)")
-        pinned_branch = script.index("elseif ($pinned = Find-PinnedCandidate)")
-        self.assertLess(url_branch, pinned_branch)
-        self.assertIn("ExpectedSha256", script)
+        for gone in (
+            "Find-PinnedCandidate",
+            "LocalPackageDirs",
+            "tools\\bg3se",
+            "releases/latest",
+            "$ReleaseTag -eq 'latest'",
+        ):
+            with self.subTest(gone=gone):
+                self.assertNotIn(gone, script)
+        self.assertIn("$pin.repo", script)
+        self.assertIn("$pin.tag", script)
+        self.assertIn("$pin.sha256", script)
+        self.assertIn("$pin.asset", script)
+
+    def test_unverified_download_is_refused(self) -> None:
+        script = read(INSTALLER)
+        self.assertIn("refusing to install an unverified extender", script)
         self.assertIn("Checksum mismatch", script)
 
     def test_readme_describes_the_pin_not_a_committed_zip(self) -> None:
@@ -124,11 +142,10 @@ class ScriptExtenderInstallerTests(unittest.TestCase):
         self.assertIn("Wait-ForGameToExit", script)
         self.assertIn("Get-Process", script)
 
-    def test_installer_tolerates_a_missing_checksum_asset(self) -> None:
-        # A fork release may not publish a .sha256; that must warn, not fail.
+    def test_missing_pin_is_fatal(self) -> None:
+        # No pin means no defined build; stop instead of guessing.
         script = read(INSTALLER)
-        self.assertIn("no .sha256 asset", script)
-        self.assertIn("Checksum mismatch", script)
+        self.assertIn("No pin file at", script)
 
     def test_installer_does_not_hardcode_a_sha_or_tag(self) -> None:
         script = read(INSTALLER)
