@@ -282,42 +282,32 @@ Known DOS2 visual references for the current test spells:
       empty.
 - [x] CC gating is intentionally skipped for now.
 - [x] Short/long-rest hooks reset cooldown state and reduction caches.
-- [ ] Verify gear-to-reduction values and the StatsDamage fallback in-game.
-- [x] Keep the real item AC for display/reduction and suppress its native
-      hit-chance contribution.
-- [ ] Verify gear AC no longer changes hit chance and item tooltips show `%`
-      reduction.
+- [ ] Verify gear-to-reduction values and the StatsDamage path in-game.
+- [ ] Verify item tooltips show `%` reduction.
 
-## Armor AC debugging
+## Armor AC
 
-- [x] Add source-by-source AC diagnostics (Osi total, Armor component,
-      equipped gear, Dexterity, SHIELD, and SHIELD_OF_FAITH).
-- [x] Add a manual AC fallback when both Osi and the Armor component report
-      only base 10.
-- [x] Parse generic `AC(N)` bonuses from item `Boosts`, item
-      `PassivesOnEquip`, active statuses, and active passives instead of
-      hardcoding Shield of Faith.
-- [x] Replace inventory shield guessing with the character's
-      `InventoryMember.Equipment.Slots` ECS data; `Osi.GetEquippedItem` is
-      only a fallback.
+AC has exactly one source: `Ext.Entity.GetArmorClass`, which reports the engine's
+`eoc::ResistancesComponent::AC`. Nothing in `Armor.lua` parses AC, walks
+equipment, or substitutes a value; the code that did was deleted, so there is
+nothing left here to keep in sync.
+
 - [ ] Verify the reported 21 AC case (16 armor + 1 Dexterity + 2 shield +
       2 Shield of Faith) reports 59%, and that item hover and character hover
       stay aligned after equipment changes.
 - [x] `Osi.GetArmorClass` and `entity.Armor.ArmorClass` both returned 0/10 in
       this BG3SE build. Resolved by adding `Ext.Entity.GetArmorClass` to the
       Script Extender (`C:\Users\Shawn\Documents\bg3se`), which returns the
-      game's own `eoc::ResistancesComponent::AC`. Every per-source AC parser in
-      `Armor.lua` (Boosts text, status/passive/equipment/Osiris walks, the
-      override parser, `StatusGivesArmor`) has been deleted; AC has one source.
+      game's own `eoc::ResistancesComponent::AC`. Every per-source AC parser has
+      been deleted; AC has one source.
 - [x] The hover readout carries both numbers on one line,
       `Damage Reduction: N% (AC: X)`; the server snapshot sends `guid|percent|ac`
       so the client never recomputes AC. The separate AC IMGUI window was
       removed: one overlay shows the figures. `!dos2c_ac` still prints the
       server-side breakdown for diagnosis.
-- [x] Verified in a live game: every character logs `source=engine` with varied
-      real totals (7-25), so `eoc::ResistancesComponent.AC` is populated on the
-      server. Remaining: confirm `Total` matches the character sheet for a
-      geared and buffed character (the reported 21 AC case).
+- [x] Verified in a live game: every character reported the engine total with
+      varied values (7-25), so `eoc::ResistancesComponent.AC` is populated on the
+      server and is not merely the base 10.
 - [x] Ship the fork's Script Extender so a DOS3 checkout gets the right build:
       `scripts/install-script-extender.ps1` installs it (validating the PE
       image and the `GetArmorClass` binding, backing up the old DLL, recording
@@ -325,17 +315,17 @@ Known DOS2 visual references for the current test spells:
       release tag + SHA256 in `vendor/bg3se/pin.json`. The fork publishes builds
       through `.github/workflows/release.yml` (on push, and a release on an
       `se-*` tag), which refuses to publish a DLL without `GetArmorClass`.
-- [x] Cut the first fork release: `se-0.1.0-dos3` built on `windows-latest`
-      and published `BG3SE-DWrite.zip` + `.sha256`; the downloaded DLL was
-      verified to contain `GetArmorClass`.
+- [x] Fork releases build on `windows-latest` and publish `BG3SE-DWrite.zip`
+      plus `.sha256`; the current pin is `se-0.2.0-dos3` and the downloaded DLL
+      was verified to contain `GetArmorClass`.
 - [x] Consume the published build: `vendor/bg3se/pin.json` records the release
-      tag and SHA256, `install-script-extender.ps1` downloads exactly that asset
-      and verifies the hash, and `install-release.ps1` runs it after the mods.
-      No extender binary is committed; the source precedence is explicit path,
-      explicit URL, local `tools/bg3se` override, then the pinned release.
-- [ ] Verify in-game that the pinned build loads and `!dos2c_ac` reports
-      `src=engine` with the sheet AC. This is the end of the AC work: the
-      accessor, the single AC source, and the shipped build.
+      tag and SHA256, `install-script-extender.ps1` takes exactly one of
+      `-FromPath`, `-FromUrl` or the pin, and `install-release.ps1` runs it after
+      the mods. No extender binary is committed.
+- [ ] Verify in-game that the pinned build loads and the hover readout shows the
+      sheet AC next to the reduction (`Damage Reduction: N% (AC: X)`). This is
+      the end of the AC work: the accessor, the single AC source, and the
+      shipped build.
 - [x] Evaluate `ACOverrideFormula` sources such as Mage Armor, Barkskin, and
       Unarmored Defense before adding status/passive AC bonuses; Shield of
       Faith now adds to the selected base instead of being swallowed by it.

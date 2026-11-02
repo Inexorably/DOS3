@@ -40,11 +40,11 @@ Diagnostics
 Verify
 ```
 
-`StatsPatcher` loads before `Armor` because armor needs to read the original AC
-before hit-chance suppression and before generated armor tooltip passives are
-requested. `Armor.lua` owns the damage event; `ArmorSync.lua` publishes the
-server snapshot to clients. Client Lua owns only presentation (`CooldownUI`,
-`ArmorUI`).
+`StatsPatcher` loads before `Armor` because generated armor tooltip passives
+must be requested before the reduction values are read. `Armor.lua` owns the
+damage event and reads AC from `Ext.Entity.GetArmorClass`; `ArmorSync.lua`
+publishes the server snapshot (`guid|percent|ac`) to clients. Client Lua owns
+only presentation (`CooldownUI`, `ArmorUI`).
 
 ### Enemy Randomization server
 
@@ -80,8 +80,10 @@ Server/Loot
    because changing only `Weapon` stats does not rebuild saved weapon components.
 4. `Cooldowns` tracks numeric turn cooldowns per caster and writes temporary
    `SpellBookCooldowns` entries for native UI/state.
-5. `Armor` caches original AC, suppresses its hit-chance contribution, derives
-   one percentage damage-reduction value, and applies it in the damage event.
+5. `Armor` reads the engine's total AC (`Ext.Entity.GetArmorClass`), derives one
+   percentage damage-reduction value, and applies it in the damage event. There
+   is no AC parsing and no substitute value: an entity with no engine AC gets no
+   reduction.
 
 Important: some stat fields are expression objects rather than strings. In
 particular, `SpellRoll` may be a table; use the raw attribute path when clearing
@@ -122,26 +124,21 @@ the same pair twice.
 
 ### Armor and AC
 
-- Native AC is read before conversion so all sources, including Barkskin,
-  Mage Armor, gear, and passives, contribute to armor.
-- `ACOverrideFormula` is evaluated explicitly (`base + listed ability
-  modifiers`) and competes with the gear/base/Dexterity calculation before
-  additive status/passive AC bonuses are applied, so Shield of Faith still
-  adds AC alongside Mage Armor or Unarmored Defense.
-- Named AC-status fallbacks supplement partial status-container/stat reads
-  per status, never counting the same status twice. The armor fingerprint
-  includes these Osiris status checks even when the container is nonempty.
+- AC has exactly one source: `Ext.Entity.GetArmorClass`, which returns the
+  engine's own `eoc::ResistancesComponent::AC`. That already includes worn
+  armour, the ability contribution, and every evaluated status/passive/spell/
+  shield boost, so `AC(N)` and `ACOverrideFormula` sources (Mage Armor,
+  Barkskin, Unarmored Defense) need no parsing here.
+- There is no substitute value. When the engine reports no AC the accessor sets
+  `Available = false`, `Armor.lua` logs an error once and applies no reduction,
+  and the hover readout shows no number.
 - Attack rolls are removed entirely, so native AC never reintroduces hit
-  chance and no suppression status is needed. Legacy `DOS2C_NoDodge` copies
-  are still removed from existing saves.
+  chance. Legacy `DOS2C_NoDodge` copies are still removed from existing saves.
 - Armor is a single percentage damage-reduction stat; it does not deplete.
-- `ArmorSync` sends a compact `guid|reduction%` snapshot to the client;
+- `ArmorSync` sends a compact `guid|reduction%|ac` snapshot to the client;
   client code must not reimplement the formula with independent constants.
   A character's `Armor` component is not an item tooltip: character hover
   always prefers the server snapshot, even if a stale item tooltip is present.
-- Armor stat reads call `Ext.Stats.Get(name)`; its optional second argument is
-  a numeric level, not a stat-type filter. Armor ability indices account for
-  the native `None` entry at Lua index 1 (`Dexterity` is index 3).
 - Equipment tooltip passives are labeled `Item DR estimate`, not total DR or
   stackable grants. AC buffs update the character total without adding another
   per-item notable feature.
@@ -160,7 +157,6 @@ enemy enters combat
   -> determine boss tier
   -> apply the required number of non-duplicate champions
   -> grant statuses/passives/spells
-  -> refresh no-dodge suppression
   -> cache champion statuses for loot
 ```
 

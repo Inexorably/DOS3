@@ -19,15 +19,15 @@ installer downloads the pinned asset and refuses anything whose SHA256 differs.
 ## Installing
 
 ```powershell
-# uses pin.json
+# installs the pinned release
 .\scripts\install-script-extender.ps1
-
-# or a specific release
-.\scripts\install-script-extender.ps1 -Tag se-0.1.0-dos3
 
 # or a file you already have, for a fully offline install
 .\scripts\install-script-extender.ps1 -FromPath .\BG3SE-DWrite.zip
 ```
+
+To install a different release, change `tag` (and `sha256`) in `pin.json`; the
+installer reads the build from there and nowhere else.
 
 Either way the payload is validated before anything is copied: it must be a real
 PE image and contain the `GetArmorClass` binding. The replaced `DWrite.dll` is

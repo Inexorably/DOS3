@@ -21,7 +21,7 @@ tuning rather than dead content.
 | Loot conditions filtered and dead loot spells excluded | Done. Loot uses the shared list and `UNUSABLE_LOOT_SPELLS`. |
 | `ENR_Perm_*` keeps passives, auras, and safe functors | Done. `permanent_wrapper_fields` copies `ArmorOfAgathys`, the Elk aura, and resource/heal functors. |
 | Deterministic replacements for dead boosts | Done for Bless, Bane, Blur, Resistance, True Strike, Warding Flare, Aura of Protection, Patient Defense, Precision Attack, Heroism, Magic Weapon, Sacred Weapon, Faerie Fire. |
-| `ACOverrideFormula` support | Done in `Armor.lua`, with tests for Mage Armor, Barkskin, and Unarmored Defense. |
+| AC sources | Done by reading the engine. `Ext.Entity.GetArmorClass` returns `eoc::ResistancesComponent::AC`, which already includes `AC(N)` and `ACOverrideFormula` sources, so `Armor.lua` parses nothing. |
 | Incoming `AttackTarget` conversion | Done. `INCOMING_*` maps and multipliers apply after armor. |
 | Flat attack-roll bonuses become damage | Done. `ATTACK_ROLL_DAMAGE_BONUS` / `_PASSIVES`. |
 | Condition-aware advantage conversion | Done. `IF(...)`-gated tokens are not converted. |
@@ -43,7 +43,7 @@ tuning rather than dead content.
 | Bonus actions removed | `REMOVE_BONUS_ACTIONS` | `BonusActionPoint` resource, bonus-action boosts, and bonus-action `SpellData` / `Object.UseCosts`. | Fast Hands, War Magic, War Priest, Curving Shot, Mind Sanctuary |
 | Concentration removed | `REMOVE_CONCENTRATION` | `IsConcentration`, `ConcentrationSpellID`, and concentration checks. | War Caster, Focused Conjuration, Mage Slayer, Hex/Hunter's Mark persistence |
 | Spell slots removed from spells | `REMOVE_SPELL_SLOTS` | Slot costs on `SpellData`. Character slot resources and `InterruptData` costs are not removed. | Arcane Recovery, Font of Magic, spell-slot gear |
-| AC converted to damage reduction | `ARMOR_ENABLED` | Native AC as a hit-chance stat. Only literal `AC(N)` boosts feed the reduction path. | Mage Armor, Barkskin, Unarmored Defense, Draconic Resilience |
+| AC converted to damage reduction | `ARMOR_ENABLED` | Native AC as a hit-chance stat. The engine's total AC feeds the reduction path, so every AC source counts. | None; all AC sources still apply |
 | Damage ranges compressed | `COMPRESS_DAMAGE_RANGES` | Full dice spreads. | Not dead; tooltips must match the compressed range |
 
 Two important nuances:
@@ -63,11 +63,11 @@ Two important nuances:
 | --- | --- | --- |
 | Enemy Randomization random buff pool | 86 generated entries | 27 dead, 9 partial/rework, 3 already retired, 47 usable |
 | Enemy Randomization configured-but-dropped buffs | 5 | Never enter the pool because they have no `Boosts` |
-| Non-summoning champion boons | 15 champions | 7 use a dead `BLESS`, `BARKSKIN`, or `MAGE_ARMOR` |
+| Non-summoning champion boons | 15 champions | 5 use a dead `BLESS` |
 | Champion-granted spells | 15 non-summon spells | 1 unusable, 3 AI-unreliable, 6 overtuned by concentration removal |
 | Loot conditions | 95 configured conditions | Uses a superset of the dead buff list |
 | Vanilla passives scanned | 1,827 entries | 73 reference saving throws, 55 attack-roll modifiers, 15 spell slots, 11 bonus actions, 3 AC overrides |
-| Internal DOS2Combat stubs | 12 notable | `DOS2C_NoDodge` is dead, `InterruptData` is unpatched, and docs are stale |
+| Internal DOS2Combat stubs | 11 notable | `DOS2C_NoDodge` is dead and `InterruptData` is unpatched |
 
 ## 1. Enemy Randomization random buff pool
 
@@ -94,7 +94,7 @@ native buffs therefore lose half their payload before DOS2 rules even apply.
 | Buff | Native payload | Why it does nothing under DOS2Combat | Proposed replacement |
 | --- | --- | --- | --- |
 | `AURA_OF_PROTECTION_BUFF` | `RollBonus(SavingThrow, CHA);RollBonus(DeathSavingThrow, CHA)` | Saving throws are removed and these boosts are stripped. | Grant 5% damage reduction per Charisma modifier, capped at 15%. |
-| `BARKSKIN` | `ACOverrideFormula(16,false)` | `Armor.lua` only parses `AC(N)`; `ACOverrideFormula` is not converted. If `Osi.GetArmorClass` returns the override it may feed reduction, but the repo's own TODO calls that accessor unreliable. | Add AC-override support, or rewrite as `AC(5)` / a resistance. |
+| `BARKSKIN` | `ACOverrideFormula(16,false)` | Works: the engine applies the override and `Ext.Entity.GetArmorClass` reports the resulting total. | None. |
 | `BLESS` | `RollBonus(Attack,1d4);RollBonus(SavingThrow,1d4);RollBonus(DeathSavingThrow,1d4)` | Saving-throw parts are stripped. `RollBonus(Attack)` is not one of the tokens converted to damage. | `CharacterWeaponDamage(1d4)` (or +15% damage) and a small save-independent effect. |
 | `BLUR` | `IF(not Tagged('BLINDSIGHT', context.Source)):Disadvantage(AttackTarget)` | `AttackTarget` disadvantage is not converted. Attackers no longer roll. | 15% incoming damage reduction while not incapacitated. |
 | `BULLS_STRENGTH` | `Advantage(Ability, Strength);CarryCapacityMultiplier(2.0)` | Ability checks and carry capacity only. | `Ability(Strength,2)` if a combat benefit is wanted, otherwise retire. |
@@ -107,7 +107,7 @@ native buffs therefore lose half their payload before DOS2 rules even apply.
 | `FRIENDS` | `Advantage(SourceDialogue,Charisma)`; status groups include Charmed | Social only, and the game marks it as a negative status. | Remove from all positive pools. |
 | `GUIDANCE` | `RollBonus(SkillCheck,1d4);RollBonus(RawAbility,1d4)` | Ability checks only. | Move to utility loot. |
 | `LIGHT` | `GameplayLight(7.5,false,0.1)` | Cosmetic. | Move to utility loot. |
-| `MAGE_ARMOR` | `ACOverrideFormula(13,true,Dexterity)` | Not parsed by the manual AC path; it only works if the engine total AC already includes the override, which the repo's own diagnostics call unreliable. | Add AC-override support, or rewrite as `AC(4)`. |
+| `MAGE_ARMOR` | `ACOverrideFormula(13,true,Dexterity)` | Works: the engine applies the override and the accessor reports the resulting total. | None. |
 | `MULTIATTACKDEFENSE` | `IF(HasStatus('MULTIATTACKDEFENSE_TECHNICAL',context.Target)):RollBonus(Attack,-4)` | The attack-roll penalty is inert, and the status is defensive. | Retire; it is not a positive buff. |
 | `OWLS_WISDOM` | `Advantage(Ability, Wisdom)` | Ability checks only. | `Ability(Wisdom,2)` if casting damage should scale, otherwise retire. |
 | `PASS_WITHOUT_TRACE` | `Skill(Stealth, 10)` | Stealth is out of combat. | Move to utility loot. |
@@ -214,8 +214,8 @@ statuses, passives, and spells directly.
 | the Hunt | `BLESS` | Same. `AID` and `PackTactics` still work. | Replace `BLESS`; keep `AID` and `PackTactics`. |
 | War | `BLESS` | Same. `AID` and `Thunderwave` work. | Replace `BLESS`. |
 | the Sun | `BLESS` | Same. `RESISTANCE_RADIANT` and `Sunbeam` work. | Replace `BLESS`. |
-| the Wild | `BARKSKIN` | AC override is not converted. `PackTactics` works via the advantage conversion. | Replace `BARKSKIN` with `AC(4)` or a resistance. |
-| the Arcane | `MAGE_ARMOR` | AC override is not converted. `SHIELD` still gives `AC(5)`. | Replace `MAGE_ARMOR` with `AC(4)` or `SHIELD` only. |
+| the Wild | `BARKSKIN` | Works: the engine applies the override and the accessor reports it. `PackTactics` works via the advantage conversion. | Keep. |
+| the Arcane | `MAGE_ARMOR` | Works: the engine applies the override. `SHIELD` still gives `AC(5)`. | Keep. |
 | Resilience | `CRYSTALSKIN`, `MUDMEPHIT_HARD` | Both work: resistances and `AC(3)+IncreaseMaxHP(5)`. | Keep. |
 | Lightning | `RESISTANCE_LIGHTNING`, `ElementalAdept_Lightning`, `Target_CallLightning` | All work. | Keep. |
 | Fire, Frost, Venom, Death, Thunder, Mind | Resistance plus a damage spell | Work. | Keep. |
@@ -262,8 +262,8 @@ same pattern applies to lower-profile variants.
 | Bardic Inspiration | `BARDIC_INSPIRATION` grants dice for attack/save interrupts | Both uses are gone; the die is unusable. | Convert the die to +1d6 damage or temporary HP. |
 | Cutting Words | `Interrupt_CuttingWords` adjusts attack/save rolls | Never triggers without rolls. | Reaction damage reduction or a debuff. |
 | `Target_FaerieFire` | `Advantage(AttackTarget)` plus invisibility immunity | The advantage half is inert; the invisibility immunity remains. | Add a damage-taken penalty or keep only the invisibility counter. |
-| `Target_MageArmor` | `ACOverrideFormula(13,true,Dexterity)` | Not converted by the manual AC path. | Add AC-override support or `AC(4)`. |
-| `Target_Barkskin` | `ACOverrideFormula(16,false)` | Same. | Add AC-override support or `AC(5)`. |
+| `Target_MageArmor` | `ACOverrideFormula(13,true,Dexterity)` | Works: reported by the engine total. | Keep. |
+| `Target_Barkskin` | `ACOverrideFormula(16,false)` | Works: reported by the engine total. | Keep. |
 | `Target_ProtectionFromEvilAndGood` | Type-based `Disadvantage(AttackTarget)` plus immunities | Advantage half inert; immunities work. | Add damage reduction against those types. |
 | `Target_BeaconOfHope` | Save advantages plus `MaximizeHealing(Incoming)` | Saves inert; healing amplification works. | Keep for healers; document the reduced scope. |
 | `Target_Heroism` | Fear immunity plus `OnApply`/`Tick` temporary HP | Works when cast as a spell because it uses the native status. | Keep. |
@@ -317,7 +317,7 @@ A scan of the extracted passive data (`1,827` unique names) found:
 | Attack-roll modifiers (`Advantage(AttackRoll)`, `Advantage/Disadvantage(AttackTarget)`, `RollBonus(...WeaponAttack)`, `WeaponAttackRollBonus`, `SourceAdvantageOnAttack`, ignore-penalty tokens) | 55 |
 | Spell-slot resources | 15 |
 | Bonus actions | 11 |
-| `ACOverrideFormula` | 3 |
+| `ACOverrideFormula` | 3 (all still apply: the engine computes them) |
 
 Not every entry is dead: `Advantage(AttackRoll)` entries are converted to +25%
 damage, and some passives have a second live effect. The following are the
@@ -327,7 +327,7 @@ class-relevant cases that are dead, half-dead, or now overtuned.
 
 | Passive | Native effect | DOS2 result | Proposed change |
 | --- | --- | --- | --- |
-| `UnarmouredDefence_Barbarian` | `ACOverrideFormula(10,true,Dexterity,Constitution)` | Not converted; no AC benefit. | Parse `ACOverrideFormula` in `Armor.lua`. |
+| `UnarmouredDefence_Barbarian` | `ACOverrideFormula(10,true,Dexterity,Constitution)` | Works: the engine applies it and the accessor reports the total. | None. |
 | `DangerSense` | `Advantage(SavingThrow,Dexterity)` | Saves removed; stripped. | +10% damage reduction against Dexterity/AoE damage. |
 | `RecklessAttack` interrupt | `OnPostRoll` reroll with advantage | Never triggers; the `Target_RecklessAttack` spell still attacks normally. | Remove the interrupt; make the spell a +damage attack with no downside. |
 | `GreatWeaponMaster_BonusDamage` | `RollBonus(MeleeWeaponAttack,-5);CharacterWeaponDamage(10)` | Attack penalty is inert; the +10 damage remains. | Add an AP cost or cooldown, or reduce to +5. |
@@ -374,7 +374,7 @@ class-relevant cases that are dead, half-dead, or now overtuned.
 
 | Passive | Native effect | DOS2 result | Proposed change |
 | --- | --- | --- | --- |
-| `UnarmoredDefense_Monk` | `ACOverrideFormula(10,true,Dexterity,Wisdom)` | Not converted. | Parse `ACOverrideFormula`. |
+| `UnarmoredDefense_Monk` | `ACOverrideFormula(10,true,Dexterity,Wisdom)` | Works: the engine applies it. | None. |
 | Flurry of Blows, Patient Defense, Step of the Wind | Bonus-action spells | `rebuildCosts` converts them to AP; verify costs. | Keep and add tests. |
 | `DeflectMissiles` | Reaction damage reduction | Works. | Keep. |
 | `Evasion` | `AreaDamageEvade()` | Tied to saving throws; likely dead. | Convert to 50% area-damage reduction. |
@@ -413,7 +413,7 @@ class-relevant cases that are dead, half-dead, or now overtuned.
 
 | Passive | Native effect | DOS2 result | Proposed change |
 | --- | --- | --- | --- |
-| `DraconicResilience` | `ACOverrideFormula(13,true,Dexterity)` | Not converted. | Parse `ACOverrideFormula`. |
+| `DraconicResilience` | `ACOverrideFormula(13,true,Dexterity)` | Works: the engine applies it. | None. |
 | `Metamagic_Heightened` | `ModifySavingThrowDisadvantage()` | Stripped; still costs 3 Sorcery Points. | Convert to +damage or AP reduction. |
 | `Metamagic_Quickened` | Replaces a bonus action with an action | Works. | Keep and test. |
 | `FontOfMagic` | Converts sorcery points to spell slots | Slots are not spent by spells. | Convert points to AP. |
@@ -423,7 +423,7 @@ class-relevant cases that are dead, half-dead, or now overtuned.
 
 | Passive | Native effect | DOS2 result | Proposed change |
 | --- | --- | --- | --- |
-| `ArmorOfShadows` | Casts Mage Armor | AC override is not converted. | Use `AC(3)` instead. |
+| `ArmorOfShadows` | Casts Mage Armor | Works: the engine applies the override. | None. |
 | `DarkOnesOwnLuck` | `RollBonus(SkillCheck/RawAbility)` | Ability checks only. | +damage or damage reduction. |
 | `EldritchMaster` | Restores pact slots | Slots are not spent by spells. | AP or cooldown reset. |
 | Pact Magic | Slot-based casting | Slot costs are removed; the feature has no identity. | Keep spells AP-based; retire slot-recovery riders. |
@@ -501,7 +501,6 @@ Proposed changes:
 | Item | Finding | Proposed change |
 | --- | --- | --- |
 | `DOS2C_NoDodge` | The status is defined with `AC(-100);ACOverrideFormula(10,false)`, but no code applies it. `Armor.lua` only removes legacy copies. | Delete the status, or implement the suppression path and use it. Rename `ForceNoDodge` to `RefreshArmor`. |
-| README armor text | Says a hidden no-dodge status cancels AC from statuses, spells, and passives. The code does not apply it. | Update README and `docs/ARCHITECTURE.md`, or implement the claim. |
 | `Config.BUFFS` fallback | Contains `BLESS` and `BARKSKIN`, both dead. | Update the fallback to the usable list or remove the fallback entirely. |
 | `recordCombatModifiers` | Ignores conditionals; does not catch `AttackTarget`, `SourceAdvantageOnAttack`, `RollBonus(Attack)`, or `WeaponAttackRollBonus`. | Extend the token set and add incoming-damage mappings; at minimum document the condition blindness. |
 | `stripDeadSavingThrowBoosts` | Strips `Advantage/Disadvantage/RollBonus(SavingThrow*)` and `ModifySavingThrowDisadvantage`, but not `ProficiencyBonus(SavingThrow, ...)` or `Advantage(Concentration)`. | Add those tokens and a test. |
@@ -525,7 +524,7 @@ issues.
 | Wrapper generation | `ENR_Perm_*` drops `Passives`, `AuraStatuses`, `AuraRadius`, and functors. | The buff table only looked at the native status. | Fix the generator before judging individual buffs. |
 | Bonus-action conditions | War Magic and War Priest statuses remove themselves via `RemoveConditions`. | `stripBonusActionBoosts` only edits `Boosts`. | Patch conditions and functors. |
 | Saving-throw proficiency | `ProficiencyBonus(SavingThrow, ...)` and `Advantage(Concentration)` survive the strip. | The strip function only targets explicit advantage/roll-bonus tokens. | Extend the token set. |
-| AC overrides | `ACOverrideFormula` is not parsed by `Armor.lua`. | The audit initially assumed all AC became reduction. | Add override support and tests. |
+| AC overrides | Resolved: `Armor.lua` no longer parses AC at all. | The audit assumed a per-source parser was needed. | None; the engine total covers overrides. |
 | Interrupts | `InterruptData` is never patched. | The audit focused on `SpellData`, `StatusData`, and `PassiveData`. | Add `patchInterrupt`. |
 | Conditional conversion | `Advantage(AttackRoll)` is recorded without its condition, so Pack Tactics, Assassinate, Sentinel, and Divine Sense become unconditional +25% damage. | The damage conversion looked correct at a glance. | Make conversion condition-aware or document the simplification. |
 | Reactions | Shield, Warding Flare, Cutting Words, and Precision Attack are gated on attack rolls. | They are implemented as interrupts, not spells. | Rework or retire them. |
@@ -535,7 +534,6 @@ issues.
 | Overtuned content | GWM/Sharpshooter are pure +10 damage; Divine Smite is cheap; Haste has no lethargy; Mind Blast is 1 AP on a 1-turn cooldown. | The audit was looking for dead content, not balance regressions. | Schedule a balance pass. |
 | Champion spells | Fungal Infestation needs a class resource; Animate Dead needs a corpse; Mind Blast has no level. | The champion table looked only at names and effects. | Fix the Horde list and add level/cooldown data. |
 | Fallback list | `Config.BUFFS` still contains dead `BLESS` and `BARKSKIN`. | It is only used when generated data fails to load. | Update or remove it. |
-| Documentation | README and `ARCHITECTURE.md` still describe the retired no-dodge status. | The code changed after the docs. | Update both. |
 
 ## 9. Proposed implementation plan
 
@@ -560,7 +558,7 @@ issues.
 
 ### P1: make the rules layer complete
 
-7. Extend `recordCombatModifiers` and `Armor.lua` to handle:
+7. Extend `recordCombatModifiers` to handle:
    - `Advantage(AttackTarget)` / `Disadvantage(AttackTarget)` as incoming
      damage multipliers;
    - `SourceAdvantageOnAttack`;
@@ -570,12 +568,7 @@ issues.
    Prefer an explicit condition evaluator or a curated map over recording the
    whole status/passive name; otherwise Pack Tactics and similar passives
    become unconditional.
-8. Add `ACOverrideFormula` parsing to `Armor.lua`:
-   - `ACOverrideFormula(base, addDex, ...)` must compute the same value the
-     engine would, and feed the percentage reduction path.
-   - Add unit tests for Mage Armor, Barkskin, Unarmored Defense, and Draconic
-     Resilience.
-9. Patch `InterruptData`:
+8. Patch `InterruptData`:
    - convert `BonusActionPoint` costs to `ActionPoint`;
    - convert or strip `SpellSlotsGroup` costs;
    - strip conditions that require `HasInterruptedAttack`,
@@ -670,9 +663,8 @@ In-game checks after the changes:
 | Bonus-action boosts are stripped from `Boosts` only | `stripBonusActionBoosts` in `StatsPatcher.lua` |
 | Item use costs are patched | `patchObject` in `StatsPatcher.lua` |
 | Interrupt data is not patched | no `Interrupt` reference in `StatsPatcher.lua` |
-| AC parsing only handles `AC(N)` | `acFromBoosts` in `Armor.lua` |
+| AC comes from the engine, not from parsing | `Armor.lua` reads `Ext.Entity.GetArmorClass` |
 | Advantage conversion ignores conditions | `recordCombatModifiers` and `attackDamageMultiplier` |
 | Champion wrappers copy only Boosts | `scripts/generate-enr-champions.py` permanent status block |
 | Loot conditions are a superset | `CONDITIONS` in `scripts/generate-enr-loot.py` |
 | No-dodge status is never applied | `EnemyArmor.txt`, `removeLegacyNoDodge` in `Armor.lua` |
-| Docs still mention no-dodge suppression | `README.md` and `docs/ARCHITECTURE.md` armor sections |
