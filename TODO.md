@@ -659,6 +659,11 @@ nothing left here to keep in sync.
       them by stat id (`NEVER_BUFF_STATS`). A marker status was used first, but
       applying a status to a spawned object is a native call that crashed the game,
       so props are identified by `entity.Data.StatsId` instead.
+- [x] EnemyRandomization skips every item (`ServerItem`), not just
+      `OBJ_Wall_Of_Stone`: candles in a room joined combat, were buffed, and
+      crashed multiplayer clients. The `NEVER_BUFF_STATS` list was removed.
+- [ ] Verify in multiplayer: entering a room with candles starts combat without
+      the candles getting buffs or champion auras, and clients do not crash.
 - [x] Fix a crash on cast: writing the `Health` component and calling
       `entity:Replicate("Health")` on a spawned object killed the game. The 5-point
       maximum now comes from an `OBJ_Wall_Of_Stone` stat override (`Vitality 5`);

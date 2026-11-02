@@ -357,13 +357,11 @@ called to set current HP, and to report a failure if the call is rejected.
 
 Wall pieces are not combatants, but the engine puts them in the combat component
 set, so EnemyRandomization adopted them: they were buffed and, given
-`CHAMPION_HP_MULTIPLIER` 1.5, showed 30 and 45 hit points. It therefore skips any
-entity whose stat id appears in `Config.NEVER_BUFF_STATS` (which lists
-`OBJ_Wall_Of_Stone`) before either the buff or champion layer runs.
-
-Exclusion is by **stat id**, not by a marker status: applying a status to a spawned
-object is a native call that is not safe (it crashed here), and reading
-`entity.Data.StatsId` is what EnemyRandomization already does elsewhere.
+`CHAMPION_HP_MULTIPLIER` 1.5, showed 30 and 45 hit points. The same happened to
+breakable level props such as candles, and in multiplayer it crashed the clients.
+EnemyRandomization therefore skips any entity with a `ServerItem` component before
+either the buff or champion layer runs. Items get no statuses: applying a status
+to a spawned object is a native call that is not safe (it crashed here).
 
 The wall records its **node orbs**. Charging collapses the wall only when the
 charged orb is one of those nodes, which is why a wall raised through A and C
