@@ -199,6 +199,44 @@ class ArmorTests(unittest.TestCase):
         self.assertEqual(again, [])
 
     # ---------------------------------------------------------------- damage path
+    def test_damage_stats_record_what_was_reduced(self) -> None:
+        # "Is reduction actually applied?" must be answerable, not inferred from
+        # the absence of log lines.
+        self.character("victim", ac=20)
+        event = self.harness.raw(
+            """
+            return {
+                Target = "victim",
+                Hit = { DamageList = { { Amount = 100 } }, CauseType = 6, ArmorAbsorption = 0 },
+            }
+            """
+        )
+        self.harness.fire_event_value("DealDamage", event)
+
+        stats = self.harness.run("return DOS2C.Armor.DamageStats()")
+        self.assertEqual(stats["hits"], 1)
+        self.assertEqual(stats["reduced"], 55)
+        self.assertEqual(stats["last"]["before"], 100)
+        self.assertEqual(stats["last"]["reduced"], 55)
+
+    def test_damage_stats_count_events_that_are_skipped(self) -> None:
+        # A door has no ActionResources, so nothing is reduced - but the event
+        # firing must still be visible, or the two cases look identical.
+        self.character("door", ac=20, actionResources=False)
+        event = self.harness.raw(
+            """
+            return {
+                Target = "door",
+                Hit = { DamageList = { { Amount = 100 } }, CauseType = 6, ArmorAbsorption = 0 },
+            }
+            """
+        )
+        self.harness.fire_event_value("DealDamage", event)
+
+        stats = self.harness.run("return DOS2C.Armor.DamageStats()")
+        self.assertEqual(stats["hits"], 1)
+        self.assertEqual(stats["reduced"], 0)
+
     def test_deal_damage_reduces_damage_list(self) -> None:
         self.character("victim", ac=20)
         event = self.harness.raw(

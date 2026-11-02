@@ -2,6 +2,7 @@
 -- In the Script Extender console:
 --   !dos2c_armor [guid]        print percentage damage reduction
 --   !dos2c_ac                  print every character's AC and where it came from
+--   !dos2c_damage              has damage reduction fired? hits and damage reduced
 --   !dos2c_setarmor 40         override host damage reduction (%)
 --   !dos2c_resetarmor          clear and recompute reduction caches
 --   !dos2c_patch               re-apply the stat patch pass
@@ -72,6 +73,21 @@ end)
 -- Server-side sanity check for Ext.Entity.GetArmorClass, which is what the
 -- damage-reduction rule actually reads. The client IMGUI window shows the
 -- client's copy; this prints the authoritative server values.
+register("dos2c_damage", function()
+    local stats = DOS2C.Armor.DamageStats()
+    local last = stats.last
+    printLine(string.format(
+        "[DOS2C] damage events seen: %d; total reduced: %d%s",
+        stats.hits, stats.reduced,
+        last and string.format("; last hit %.0f damage reduced by %d (%.0f%%)",
+            last.before or 0, last.reduced or 0, (last.reduction or 0) * 100) or ""))
+    if stats.hits == 0 then
+        printLine("[DOS2C]   no damage event has fired yet; reduction is untested in this session")
+    elseif stats.reduced == 0 then
+        printLine("[DOS2C]   events fire but nothing was reduced: check the target's AC and ARMOR_ENABLED")
+    end
+end)
+
 register("dos2c_ac", function()
     printLine("[DOS2C] AC from Ext.Entity.GetArmorClass (server)")
     local ok, entities = pcall(Ext.Entity.GetAllEntitiesWithComponent, "Stats")

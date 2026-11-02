@@ -125,6 +125,25 @@ class DiagnosticsTests(unittest.TestCase):
         self.assertIn("base=16", logs)
         self.assertIn("boosts=4", logs)
 
+    def test_damage_command_reports_untested_when_no_hit_fired(self) -> None:
+        self.harness.run_console("dos2c_damage")
+        self.assertIn("no damage event has fired yet", self.logs())
+
+    def test_damage_command_reports_the_reduction(self) -> None:
+        self.harness.run(
+            """
+            local s = DOS2C.Armor.DamageStats()
+            s.hits = 3
+            s.reduced = 120
+            s.last = { before = 100, reduced = 55, reduction = 0.55 }
+            """
+        )
+        self.harness.run_console("dos2c_damage")
+        logs = self.logs()
+        self.assertIn("damage events seen: 3", logs)
+        self.assertIn("total reduced: 120", logs)
+        self.assertIn("last hit 100 damage reduced by 55 (55%)", logs)
+
     def test_ac_command_reports_a_missing_accessor(self) -> None:
         self.harness.run('H.entities["host-guid"].Health = { MaxHp = 30, Hp = 30 }')
         self.harness.set_component("Stats", ["host-guid"])

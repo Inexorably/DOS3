@@ -17,6 +17,10 @@ local U = DOS2C.Utils
 local resistances = {}
 local refreshedFrom = {}
 
+-- Counters so "is reduction actually being applied?" is answerable from the
+-- console after one hit, instead of inferred from the absence of log lines.
+local damageStats = { hits = 0, reduced = 0, last = nil }
+
 local function hasStatus(handle, status)
     if not (Osi and Osi.HasStatus) then return false end
     local guid = U.GuidOf(handle)
@@ -187,6 +191,15 @@ local function getResistance(handle)
             key, tonumber(resist.percent) or 0, tonumber(resist.ac) or 0)
     end
     return resist, key
+end
+
+local function damageTotal(list)
+    local total = 0
+    if type(list) ~= "table" then return total end
+    for i = 1, #list do
+        total = total + (tonumber(list[i] and list[i].Amount) or 0)
+    end
+    return total
 end
 
 local function applyPercentReduction(list, reduction)
@@ -512,8 +525,13 @@ end
 
 local function resistDamage(ev)
     local cfg = DOS2C.Config
-    if not cfg.ARMOR_ENABLED then return end
     if not ev or not ev.Target or not ev.Hit then return end
+
+    -- Counted before every filter so "the event never fires" is distinguishable
+    -- from "it fires and we skip the target".
+    damageStats.hits = damageStats.hits + 1
+
+    if not cfg.ARMOR_ENABLED then return end
 
     local entity = U.EntityOf(ev.Target)
     -- Only characters carry ActionResources; skip doors, surfaces, items, etc.
@@ -531,6 +549,7 @@ local function resistDamage(ev)
         list = ev.Attack.DamageList
     end
 
+    local before = damageTotal(list)
     local reduced
     if list and #list > 0 then
         reduced = applyPercentReduction(list, reduction)
@@ -539,6 +558,8 @@ local function resistDamage(ev)
     end
 
     if reduced > 0 then
+        damageStats.reduced = damageStats.reduced + reduced
+        damageStats.last = { before = before, reduced = reduced, reduction = reduction }
         pcall(function()
             hit.ArmorAbsorption = (tonumber(hit.ArmorAbsorption) or 0) + reduced
         end)
@@ -726,11 +747,20 @@ if Ext.Entity and Ext.Entity.OnCreate then
     end)
 end
 
+function A.DamageStats()
+    return damageStats
+end
+
 if Ext.Events and Ext.Events.DealDamage then
     Ext.Events.DealDamage:Subscribe(function(ev)
         local ok, err = pcall(resistDamage, ev)
-        if not ok then U.Log("armor damage handler error: %s", tostring(err)) end
+        if not ok then reportArmorError("armor damage handler error: %s", tostring(err)) end
     end, { Priority = 90 })
+else
+    -- Without this event nothing reduces damage at all. Say so instead of
+    -- running with the rule silently disabled.
+    reportArmorError("Ext.Events.DealDamage is missing; damage reduction is NOT applied. "
+        .. "Install a Script Extender build that provides it.")
 end
 
 if Ext.Osiris and Ext.Osiris.RegisterListener then
