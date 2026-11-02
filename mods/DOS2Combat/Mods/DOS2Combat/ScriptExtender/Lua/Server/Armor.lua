@@ -565,10 +565,22 @@ local function resistDamage(ev)
         end)
         U.Log("damage reduction %.0f%% reduced %d damage", reduction * 100, reduced)
     elseif cfg.DEBUG then
-        U.Log("armor: no damage reduced for target %s (reduction=%.0f%% damage total=%s final=%s)",
+        -- Log every candidate field: the DealDamage event fires from
+        -- DealDamageFunctor::ApplyDamage before the functor computes its dice, so
+        -- this is usually all zeroes. Naming the fields makes that obvious
+        -- instead of looking like a target-selection problem.
+        U.Log("armor: no damage reduced for target %s (reduction=%.0f%% "
+            .. "hit.damage_list=%d attack.damage_list=%d hit.total=%s attack.total=%s "
+            .. "hit.damage.total=%s hit.damage.final=%s original=%s absorbed=%s)",
             tostring(U.GuidOf(ev.Target)), reduction * 100,
+            list and #list or 0,
+            ev.Attack and ev.Attack.DamageList and #ev.Attack.DamageList or 0,
+            tostring(hit.TotalDamageDone),
+            tostring(ev.Attack and ev.Attack.TotalDamageDone),
             tostring(hit.Damage and hit.Damage.TotalDamage),
-            tostring(hit.Damage and hit.Damage.FinalDamage))
+            tostring(hit.Damage and hit.Damage.FinalDamage),
+            tostring(hit.OriginalDamageValue),
+            tostring(hit.ArmorAbsorption))
     end
 
     -- Native critical metadata is converted into a final-damage multiplier.

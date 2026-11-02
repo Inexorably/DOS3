@@ -285,6 +285,25 @@ Known DOS2 visual references for the current test spells:
 - [ ] Verify gear-to-reduction values and the StatsDamage path in-game.
 - [ ] Verify item tooltips show `%` reduction.
 
+## Damage reduction application
+
+- [ ] **Damage reduction never reduced anything.** Every historical log shows
+      `armor: no damage reduced ... damage total=0 final=0`: 463 attempts, zero
+      successes. `Ext.Events.DealDamage` is thrown from
+      `stats::DealDamageFunctor::ApplyDamage` *before* the functor computes its
+      dice, so `Hit.DamageList` is empty and `Hit.Damage` is zero when the
+      handler runs. The reduction maths is correct but there is nothing to
+      scale.
+- [ ] Fixing it needs a hook that has both the target and computed damage.
+      `BeforeDealDamage` (`esv::StatsSystem::ThrowDamageEvent`) has the damage
+      but exposes only `Hit`/`Attack`, no target; `DealtDamage` has the target
+      but fires after the damage is applied. Closing this needs the target
+      exposed on `BeforeDealDamage` in the fork (its `void* temp5` parameter is
+      the unnamed candidate), not a second handler in the mod.
+- [x] `!dos2c_damage` reports hits vs damage reduced, and the debug line now
+      prints every candidate damage field, so the next combat session identifies
+      which field is populated instead of guessing.
+
 ## Armor AC
 
 AC has exactly one source: `Ext.Entity.GetArmorClass`, which reports the engine's

@@ -84,7 +84,8 @@ register("dos2c_damage", function()
     if stats.hits == 0 then
         printLine("[DOS2C]   no damage event has fired yet; reduction is untested in this session")
     elseif stats.reduced == 0 then
-        printLine("[DOS2C]   events fire but nothing was reduced: check the target's AC and ARMOR_ENABLED")
+        printLine("[DOS2C]   the DealDamage event fires but carries no damage to reduce "
+            .. "(seeded from DealDamageFunctor::ApplyDamage before dice are rolled)")
     end
 end)
 
