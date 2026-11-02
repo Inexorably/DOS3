@@ -134,6 +134,18 @@ class RandomizerTests(unittest.TestCase):
         self.assertFalse(self.harness.run('return ER.Randomizer.ApplyTo("player1")'))
         self.assertEqual(self.applied_statuses("player1"), set())
 
+    def test_party_database_entries_are_skipped_by_their_uuid(self) -> None:
+        # DB_Players rows are prefixed GUIDs while entities are named by their
+        # bare UUID; a client character without a Player component must still be
+        # recognised as a party member.
+        self.harness.set_db(
+            "DB_Players", ["Elves_Female_High_Player_81d9950a-9486-3d59-f665-eb559788811b"]
+        )
+        self.make_enemy("81d9950a-9486-3d59-f665-eb559788811b", health=100)
+        self.assertFalse(
+            self.harness.run('return ER.Randomizer.ApplyTo("81d9950a-9486-3d59-f665-eb559788811b")')
+        )
+
     def test_summons_are_skipped(self) -> None:
         self.make_enemy("summon1", summon=True)
         self.assertFalse(self.harness.run('return ER.Randomizer.ApplyTo("summon1")'))

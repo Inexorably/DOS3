@@ -9,6 +9,7 @@ H.timers = H.timers or {}
 H.prints = H.prints or {}
 H.osi_calls = H.osi_calls or {}
 H.osi_results = H.osi_results or {}
+H.osi_db = H.osi_db or {}
 H.entity_oncreate = H.entity_oncreate or {}
 H.event_handlers = H.event_handlers or {}
 H.entities = H.entities or {}
@@ -252,6 +253,17 @@ OSI_STATEFUL = {
 
 Osi = setmetatable({}, {
     __index = function(_, name)
+        if name:sub(1, 3) == "DB_" then
+            -- Osiris databases are queried as Osi.DB_Name:Get(...); each row is
+            -- an array of argument values, so H.osi_db.DB_Players is a list of
+            -- one-element rows.
+            return {
+                Get = function(_, ...)
+                    record(H.osi_calls, { name = name .. ":Get", args = {} })
+                    return H.osi_db[name]
+                end,
+            }
+        end
         return function(...)
             record(H.osi_calls, { name = name, args = { ... } })
             local configured = H.osi_results[name]

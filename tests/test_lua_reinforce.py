@@ -228,13 +228,33 @@ class ReinforceTests(ReinforceFixture):
         placed = self.harness.run('return #ER.Reinforce.ApplyChampions("combat-1", _statuses)')
         self.assertEqual(placed, 0)
 
-    def party(self) -> None:
-        self.harness.run('H.osi_results.GetAllPartyMembers = { "p1", "p2", "p3", "p4" }')
+    def party(self, *members: str) -> None:
+        self.harness.set_db("DB_Players", list(members) or ["p1", "p2", "p3", "p4"])
 
     def boons(self, tier: int) -> list[list]:
         return self.harness.run(
             f"local out = {{}} for _, b in ipairs(ER.Reinforce.RollBoons({tier})) do "
             "out[#out + 1] = { b.player, b.status, b.champion and 1 or 0 } end return out"
+        )
+
+    def test_party_members_come_from_the_engine_party_database(self) -> None:
+        # The DOS2 party queries are not in this BG3 build; the party is
+        # DB_Players. A leftover GetPartyMembers/GetHostCharacter result must
+        # not shrink the boon pool back to the host.
+        self.harness.run(
+            'H.osi_results.GetPartyMembers = { "old-host" } '
+            'H.osi_results.GetAllPartyMembers = { "old-host" } '
+            'H.osi_results.GetHostCharacter = "old-host"'
+        )
+        # The shapes the engine's DB actually holds: a host avatar and a
+        # prefixed companion.
+        self.party(
+            "Elves_Female_High_Player_81d9950a-9486-3d59-f665-eb559788811b",
+            "S_Player_Laezel_58a69333-40bf-8358-1d17-fff240d7fb12",
+        )
+        self.assertEqual(
+            self.harness.run("return ER.Randomizer.PartyMembers()"),
+            ["58a69333-40bf-8358-1d17-fff240d7fb12", "81d9950a-9486-3d59-f665-eb559788811b"],
         )
 
     def test_boon_counts_follow_the_tier(self) -> None:
@@ -263,8 +283,16 @@ class ReinforceTests(ReinforceFixture):
         self.assertFalse(any(str(spell).startswith("ENR_Summon_") for spell in spells or []))
 
     def test_boons_are_capped_by_party_size(self) -> None:
-        self.harness.run('H.osi_results.GetAllPartyMembers = { "p1" }')
+        self.party("p1")
         self.assertEqual(len(self.boons(5)), 1)
+
+    def test_boons_go_to_every_party_member_not_only_the_host(self) -> None:
+        # A four-character party spread over two players: repeated rolls must
+        # reach every character, not just the host's avatar.
+        members = ("host", "client-1", "client-2", "client-3")
+        self.party(*members)
+        recipients = {row[0] for _ in range(60) for row in self.boons(3)}
+        self.assertEqual(recipients, set(members))
 
     def test_boons_are_removed_when_the_fight_ends(self) -> None:
         self.harness.run(
@@ -547,8 +575,8 @@ class WavePickTests(ReinforceFixture):
     def test_load_resolves_an_offer_whose_fight_goes_on_without_its_trigger(self) -> None:
         # The trigger left the fight (dead), the party still fights in it: resolved as before.
         self.offer()
+        self.harness.set_db("DB_Players", ["hero"])
         self.harness.run(
-            'H.osi_results.GetAllPartyMembers = { "hero" } '
             f'H.osi_results.CombatGetGuidFor = function(id) if id == "hero" then return "{COMBAT}" end end '
             'H.entities["grunt"].IsInCombat = false'
         )

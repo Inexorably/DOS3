@@ -711,6 +711,37 @@ from a running server:
   Armor's previous six-entry fixtures hid this offset; the armor calculation
   and its cache fingerprint now read Dexterity at index 3.
 
+## The party is DB_Players, not GetPartyMembers (2026-11-02 run)
+
+`Osi.GetPartyMembers` and `Osi.GetAllPartyMembers` are DOS2 Osiris names; this
+BG3 build has neither. `Osi` resolves names lazily, so the guarded `pcall`s did
+not throw where anyone noticed - the lookups simply produced nothing, and the
+only party member left was `Osi.GetHostCharacter()`. `Extender Runtime
+2026-10-30 21-37-39.log` shows the resulting one-character party, and both
+reinforcement boons of that fight landing on that same GUID:
+
+```text
+[DOS2C] [DOS2C][VERIFY] party count=1 host=81d9950a-9486-3d59-f665-eb559788811b
+[ENR] reinforce 54fcc648-...: boon ENR_CHAMPION_VITALITY -> 81d9950a-...
+[ENR] reinforce 54fcc648-...: boon ENR_Perm_DAYLIGHT -> 81d9950a-...
+```
+
+`Osiris Runtime 2026-11-02 00-29-16.log` has no `GetPartyMembers` or
+`GetAllPartyMembers` line at all, while the `DB_Players` fact dump lists the
+whole party - the host avatar beside a companion:
+
+```text
+DBase contents of DB_Players( (CHARACTER)_ )
+Elves_Female_High_Player_81d9950a-9486-3d59-f665-eb559788811b
+S_Player_Laezel_58a69333-40bf-8358-1d17-fff240d7fb12
+```
+
+`EnemyRandomization`'s `Randomizer.partySet` now reads
+`Osi.DB_Players:Get(nil)` (one row per character, `row[1]` is the GUID), which
+is what the reinforcement boons, the offer's fight check and the "never
+randomize a party member" guard all need. The same DOS2 names are still used by
+`DOS2Combat`, `RespecAnywhere` and `OrbWeaver`; they are outside this fix.
+
 ## Maintenance rule
 
 Whenever a runtime-only API/arity/enum is discovered:

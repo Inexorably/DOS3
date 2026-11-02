@@ -33,6 +33,13 @@ local function guidOf(entity)
     return nil
 end
 
+-- The bare UUID inside a GUID ("S_Player_...-<uuid>" or a template-prefixed
+-- "Elves_Female_High_Player_<uuid>"), which is how this mod names characters.
+local function uuidOf(guid)
+    local text = tostring(guid or "")
+    return text:match("(%x+%-%x+%-%x+%-%x+%-%x+)$") or text
+end
+
 -- Osi.HasStatus is not reliable in this build. After a save reload it reported
 -- "no" for ENR_* markers that were still on the entity, so every reload applied
 -- a second random buff, rescaled champion health again and rolled a new
@@ -156,27 +163,20 @@ local function cleanupRemovedBuffs(guid, live)
     return removed
 end
 
+-- The party is the engine's DB_Players Osiris database, one row per character
+-- ("S_Player_...-<uuid>" or a template-prefixed host avatar). Keys are bare
+-- UUIDs so `isParty` can match the GUIDs this mod works with. The DOS2 party
+-- queries (GetPartyMembers, GetAllPartyMembers) are not in this build, so
+-- looking for them left the host character as the only "party member": buffs and
+-- reinforcement boons then went to the host every time instead of to the whole
+-- party, clients included.
 local function partySet()
     local set = {}
-    local function add(value)
-        if type(value) == "table" then
-            for _, item in ipairs(value) do add(item) end
-            return
-        end
-        if value and tostring(value) ~= "" then set[tostring(value)] = true end
-    end
-
-    if Osi and Osi.GetPartyMembers then
-        local ok, a, b, c, d = pcall(Osi.GetPartyMembers)
-        if ok then add(a); add(b); add(c); add(d) end
-    end
-    if Osi and Osi.GetAllPartyMembers then
-        local ok, values = pcall(Osi.GetAllPartyMembers)
-        if ok then add(values) end
-    end
-    if Osi and Osi.GetHostCharacter then
-        local ok, host = pcall(Osi.GetHostCharacter)
-        if ok then add(host) end
+    local ok, rows = pcall(function() return Osi.DB_Players:Get(nil) end)
+    if not (ok and type(rows) == "table") then return set end
+    for _, row in ipairs(rows) do
+        local guid = type(row) == "table" and row[1] or nil
+        if guid and tostring(guid) ~= "" then set[uuidOf(guid)] = true end
     end
     return set
 end
@@ -772,14 +772,15 @@ function R.GrantChampionEffects(guid, champion, opts)
 end
 
 -- Party member GUIDs (bare UUIDs, no duplicates), for reinforcement boons.
+-- Reported once when the party list is empty, so a boon that silently went
+-- nowhere is visible in the log instead of looking like a working roll.
+local partyEmptyLogged = false
 function R.PartyMembers()
-    local out, seen = {}, {}
-    for guid in pairs(partySet()) do
-        local id = tostring(guid):match("(%x+%-%x+%-%x+%-%x+%-%x+)$") or tostring(guid)
-        if not seen[id] then
-            seen[id] = true
-            out[#out + 1] = id
-        end
+    local out = {}
+    for id in pairs(partySet()) do out[#out + 1] = id end
+    if #out == 0 and not partyEmptyLogged then
+        partyEmptyLogged = true
+        log("party is empty: DB_Players returned no rows, so party boons cannot roll")
     end
     table.sort(out)
     return out

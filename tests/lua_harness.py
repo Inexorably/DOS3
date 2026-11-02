@@ -119,6 +119,15 @@ class LuaModHarness:
     def set_osi_result(self, name: str, value: Any) -> None:
         self.lua.globals().H["osi_results"][name] = self.to_lua(value)
 
+    def set_db(self, name: str, values: list[Any]) -> None:
+        """Fill an Osiris database: each row is an array of its columns."""
+        rows = self.lua.table()
+        for index, value in enumerate(values, start=1):
+            row = self.lua.table()
+            row[1] = self.to_lua(value)
+            rows[index] = row
+        self.lua.globals().H["osi_db"][name] = rows
+
     def to_lua(self, value: Any) -> Any:
         """Convert Python lists/dicts into Lua tables so ipairs/pairs see them."""
         if isinstance(value, dict):

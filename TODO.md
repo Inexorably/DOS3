@@ -593,6 +593,12 @@ nothing left here to keep in sync.
       `ResumeCombat` restarts turns; the timeout and `!enemyrandom_pick` work;
       and in multiplayer only one pick is accepted (every client currently
       sees the window).
+- [x] Read the party from `Osi.DB_Players` instead of the DOS2
+      `GetPartyMembers`/`GetAllPartyMembers` queries, which this build does not
+      have: they returned nothing, so every reinforcement boon went to the host.
+- [ ] Verify reinforcement boons in game: a Legendary card's boons land on
+      different party members (chat log per recipient), a second player's
+      character can receive one, and the buffs are removed at `CombatEnded`.
 
 
 ## Summon economy
