@@ -188,6 +188,85 @@ class CooldownTests(unittest.TestCase):
         self.harness.run('DOS2C.Cooldowns.Apply("c5", "Spell_NoComp", 2)')
         self.assertIn("no SpellBookCooldowns component", " ".join(self.harness.prints()))
 
+    # -------------------------------------------------------- linked variants
+    def test_linked_variant_cast_covers_the_container_and_its_children(self) -> None:
+        # Chromatic Orb, Hex, Command, ... live in the spellbook as one
+        # container; casting one child must charge the whole skill, so the
+        # cooldown entry exists for the variant the engine reports as well as
+        # for the container the hotbar shows.
+        self.define("Orb_Fire", 3)
+        self.define("Orb_Cold", 3)
+        self.character("v1", spells=["Orb_Container"])
+        self.harness.run(
+            'DOS2C.Cooldowns.SetGroup("Orb_Container", { "Orb_Fire", "Orb_Cold" })'
+        )
+        self.harness.run('DOS2C.Cooldowns.OnSpellCast("v1", "Orb_Fire")')
+
+        entries = {entry["prototype"]: entry for entry in self.cooldown_entries("v1")}
+        self.assertEqual(set(entries), {"Orb_Container", "Orb_Fire", "Orb_Cold"})
+        for entry in entries.values():
+            self.assertEqual(entry["turns"], 3)
+            self.assertEqual(entry["kind"], "UntilShortRest")
+        self.assertEqual(
+            self.spellbook_types("v1")["Orb_Container"], "UntilShortRest"
+        )
+
+    def test_linked_variants_share_one_counter(self) -> None:
+        self.define("Orb_Fire", 3)
+        self.define("Orb_Cold", 3)
+        self.character("v2", spells=["Orb_Container"])
+        self.harness.run(
+            'DOS2C.Cooldowns.SetGroup("Orb_Container", { "Orb_Fire", "Orb_Cold" })'
+        )
+        self.harness.run('DOS2C.Cooldowns.OnSpellCast("v2", "Orb_Fire")')
+        self.harness.run('DOS2C.Cooldowns.OnSpellCast("v2", "Orb_Cold")')
+
+        self.assertEqual(self.harness.run('return DOS2C.Cooldowns.Dump("v2")'), "orb_container=3")
+        self.assertEqual(len(self.cooldown_entries("v2")), 3)
+
+    def test_linked_variant_cooldown_expires_for_every_member(self) -> None:
+        self.define("Orb_Fire", 1)
+        self.character("v3", spells=["Orb_Container"])
+        self.harness.run('DOS2C.Cooldowns.SetGroup("Orb_Container", { "Orb_Fire" })')
+        self.harness.run('DOS2C.Cooldowns.OnSpellCast("v3", "Orb_Fire")')
+        self.assertEqual(len(self.cooldown_entries("v3")), 2)
+
+        self.harness.run('DOS2C.Cooldowns.OnTurnStarted("v3")')
+        self.assertEqual(self.cooldown_entries("v3"), [])
+        self.assertEqual(self.harness.run('return DOS2C.Cooldowns.Dump("v3")'), "none")
+        self.assertEqual(self.spellbook_types("v3")["Orb_Container"], "Default")
+
+    def test_a_child_without_its_own_definition_uses_the_container_cooldown(self) -> None:
+        # Only the container needs a definition: a variant that has no
+        # SpellData cooldown of its own still charges the skill's cooldown
+        # instead of falling back to zero (no cooldown at all).
+        self.define("Orb_Container", 5)
+        self.harness.run('DOS2C.Cooldowns.SetGroup("Orb_Container", { "Orb_Fire" })')
+        self.assertEqual(self.harness.run('return DOS2C.Cooldowns.Get("Orb_Fire")'), 5)
+        self.assertEqual(self.harness.run('return DOS2C.Cooldowns.Get("Orb_Unknown")'), 0)
+
+    def test_group_key_maps_a_level_suffixed_variant_to_its_container(self) -> None:
+        self.harness.run('DOS2C.Cooldowns.SetGroup("Orb_Container", { "Orb_Fire" })')
+        self.assertEqual(
+            self.harness.run('return DOS2C.Cooldowns.GroupKey("Orb_Fire_3")'),
+            "orb_container",
+        )
+        self.assertEqual(
+            self.harness.run('return DOS2C.Cooldowns.GroupKey("Spell_Plain")'),
+            "spell_plain",
+        )
+
+    def test_exact_prototype_wins_over_a_shared_prefix(self) -> None:
+        # Target_Command is a container whose children start with its name.
+        # Loose prefix matching used to charge the container instead of the
+        # variant that was cast.
+        self.character("v4", spells=["Target_Command", "Target_Command_Halt"])
+        self.harness.run('DOS2C.Cooldowns.Apply("v4", "Target_Command_Halt", 2)')
+        self.assertEqual(
+            [entry["prototype"] for entry in self.cooldown_entries("v4")],
+            ["Target_Command_Halt"],
+        )
+
     # ------------------------------------------------------------------ turn tick
     def test_turn_started_counts_down_and_expires(self) -> None:
         self.define("Spell_Tick", 2, "OncePerTurnNoRealtime")
@@ -351,6 +430,66 @@ class CooldownTests(unittest.TestCase):
         self.harness.set_osi_result("IsInCombat", 1)
         self.harness.fire_timers()
         self.assertEqual(self.cooldown_entries("c19")[0]["turns"], 2)
+
+
+@unittest.skipUnless(HAVE_LUPA, "lupa is not installed")
+class LinkedSpellGroupRegistrationTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.harness = LuaModHarness("DOS2Combat")
+        for module in (
+            "Server/Config.lua",
+            "Server/Util.lua",
+            "Server/Cooldowns.lua",
+            "Server/StatsPatcher.lua",
+        ):
+            self.harness.load(module)
+
+    def patch(self) -> None:
+        self.harness.set_stat(
+            "Projectile_Test_Orb",
+            {
+                "Level": 1,
+                "UseCosts": "ActionPoint:1",
+                "ContainerSpells": "Projectile_Test_Orb_Fire;Projectile_Test_Orb_Cold",
+            },
+            "SpellData",
+        )
+        self.harness.set_stat(
+            "Projectile_Test_Orb_Fire",
+            {
+                "Level": 1,
+                "UseCosts": "ActionPoint:1",
+                "SpellContainerID": "Projectile_Test_Orb",
+            },
+            "SpellData",
+        )
+        self.harness.run("DOS2C.Stats.PatchAll(false)")
+
+    def test_container_and_child_stats_register_one_group(self):
+        self.patch()
+        for child in ("Projectile_Test_Orb_Fire", "Projectile_Test_Orb_Cold"):
+            self.assertEqual(
+                self.harness.run(f'return DOS2C.Cooldowns.GroupKey("{child}")'),
+                "projectile_test_orb",
+            )
+        self.assertEqual(
+            self.harness.run(
+                "local containers, children = DOS2C.Cooldowns.GroupInfo() "
+                "return containers .. ':' .. children"
+            ),
+            "1:2",
+        )
+        self.assertIn("linked spell groups: 1 containers, 2 children", " ".join(self.harness.prints()))
+
+    def test_stats_without_container_fields_do_not_register(self):
+        self.harness.set_stat(
+            "Spell_Standalone", {"Level": 1, "UseCosts": "ActionPoint:1"}, "SpellData"
+        )
+        self.harness.run("DOS2C.Stats.PatchAll(false)")
+        self.assertEqual(
+            self.harness.run('return DOS2C.Cooldowns.GroupKey("Spell_Standalone")'),
+            "spell_standalone",
+        )
 
 
 if __name__ == "__main__":

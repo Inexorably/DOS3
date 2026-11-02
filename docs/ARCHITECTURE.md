@@ -109,6 +109,11 @@ the same pair twice.
 ### Cooldowns and turns
 
 - `Cooldowns` maintains per-character/per-spell counters.
+- Linked spell containers (Chromatic Orb, Hex, Command, ...) are one spellbook
+  entry that casts a child spell. `StatsPatcher` registers each group from
+  `ContainerSpells`/`SpellContainerID`; `Cooldowns` keys the counter by the
+  container and stamps an entry for the container and every child, so whichever
+  spell the engine consults is blocked.
 - `SpellBookCooldowns` is the native representation used for UI and hard
   blocking.
 - The client `CooldownUI` shows the numeric remaining turns because native

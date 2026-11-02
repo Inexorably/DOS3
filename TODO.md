@@ -134,6 +134,18 @@
       and that no other variant can be applied while it is active.
 - [x] Replace native cooldown enum text through the `Tooltips.xaml` override;
       the hotbar now renders numeric 2/3/4/5/6-turn labels.
+- [x] Linked spell containers (Chromatic Orb, Hex, Command, Enhance Ability,
+      Bestow Curse, Lay on Hands, ...) share one counter: `StatsPatcher`
+      registers the group from `ContainerSpells`/`SpellContainerID` and
+      `Cooldowns` stamps the container plus every child, because the cast event
+      reports the child while the spellbook only holds the container.
+- [ ] Verify in game that Chromatic Orb: Fire and the other five variants go on
+      the same cooldown, show it in the hotbar, and clear together on the
+      caster's next turn.
+- [ ] Spells that are not in the caster's `SpellBook` still get no cooldown at
+      all (`cooldown: spell <name> not found in spellbook` in the log, e.g.
+      `CC_BallCharge`, `CC_BallCharge_Ignite`, and most NPC abilities). A
+      `SpellBookCooldowns` entry needs a spellbook spell to copy its id from.
 
 ## Runtime event wiring
 

@@ -1016,9 +1016,33 @@ local function neutralizeSavingThrowFields(stat, fields)
     return changed
 end
 
+-- A linked spell container (Chromatic Orb, Hex, Command, Enhance Ability, ...)
+-- is one spellbook entry that casts one of several child spells. The cooldown
+-- module needs the group up front so casting a child charges the whole skill.
+local function registerSpellGroup(name, stat)
+    local cooldowns = DOS2C.Cooldowns
+    if not (cooldowns and cooldowns.SetGroup) then return end
+
+    local container = U.SafeGet(stat, "SpellContainerID")
+    if type(container) == "string" and container ~= "" then
+        cooldowns.SetGroup(container, { name })
+    end
+
+    local children = U.SafeGet(stat, "ContainerSpells")
+    if type(children) == "string" and children ~= "" then
+        local list = {}
+        for raw in children:gmatch("[^;]+") do
+            local child = raw:gsub("^%s+", ""):gsub("%s+$", "")
+            if child ~= "" then list[#list + 1] = child end
+        end
+        cooldowns.SetGroup(name, list)
+    end
+end
+
 local function patchSpell(name, stat)
     local cfg = DOS2C.Config
     local level = levelFor(name, stat)
+    registerSpellGroup(name, stat)
     local apCost = costForSpell(name, level)
     local changed = patchAstralKnowledge(name, stat)
     changed = patchConcentration(name, stat) or changed
@@ -2088,6 +2112,10 @@ function S.PatchAll(runtime)
         compressedTotal, tonumber(DOS2C.Config.DAMAGE_RANGE_COMPRESSION) or 0)
     U.Log("native cast limits converted on %d spell fields (%d could not be cleared)",
         convertedLimits, unconvertedLimits)
+    if DOS2C.Cooldowns and DOS2C.Cooldowns.GroupInfo then
+        local containers, children = DOS2C.Cooldowns.GroupInfo()
+        U.Log("linked spell groups: %d containers, %d children", containers, children)
+    end
     U.Log("cost and resource fields rewritten: %d (%d rejected the write)",
         costFieldsRewritten, costFieldsFailed)
     auditBonusActionCosts()

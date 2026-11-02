@@ -139,6 +139,72 @@ local function namesMatch(a, b)
     return prefixAtBoundary(bb, ba) or prefixAtBoundary(ba, bb)
 end
 
+-- Linked variants -------------------------------------------------------------
+--
+-- A container spell (Chromatic Orb, Hex, Command, Enhance Ability, ...) is the
+-- only entry in the spellbook; the cast event reports the child that was
+-- chosen. The engine keeps a linked spell's cooldown on the child, and vanilla
+-- data carries the same limit on the container and on every child (see
+-- Projectile_ChromaticOrb_BookOfAncientSecrets), so one skill needs one shared
+-- counter that is stamped onto every spell in the group.
+local groups = {}   -- normalized container -> { child stat name, ... }
+local groupOf = {}  -- normalized child -> normalized container
+
+-- Children keep their stat spelling: the cooldown entry has to name the spell
+-- the engine knows, not a lower-cased key.
+function C.SetGroup(container, children)
+    if type(container) ~= "string" or container == "" then return end
+    local key = normalize(container)
+    local list = groups[key]
+    if not list then
+        list = {}
+        groups[key] = list
+    end
+    local known = {}
+    for _, existing in ipairs(list) do known[normalize(existing)] = true end
+    for _, child in ipairs(children or {}) do
+        if type(child) == "string" and child ~= "" then
+            local childKey = normalize(child)
+            if childKey ~= key then
+                groupOf[childKey] = key
+                if not known[childKey] then
+                    known[childKey] = true
+                    list[#list + 1] = child
+                end
+            end
+        end
+    end
+end
+
+local function groupOfName(name)
+    local key = normalize(name)
+    return groupOf[key] or groupOf[baseName(key)]
+end
+
+-- The container that owns `name`'s cooldown counter, else `name` itself.
+function C.GroupKey(name)
+    return groupOfName(name) or normalize(name)
+end
+
+-- The normalized group key first, then the children in their stat spelling.
+local function groupMembers(key)
+    local members = { key }
+    local children = groups[key]
+    if children then
+        for _, child in ipairs(children) do members[#members + 1] = child end
+    end
+    return members
+end
+
+local function groupInfo()
+    local containers, children = 0, 0
+    for _, list in pairs(groups) do
+        containers = containers + 1
+        children = children + #list
+    end
+    return containers, children
+end
+
 local function spellName(value)
     if type(value) == "string" then return value end
     local ok, proto = pcall(function() return value.Prototype end)
@@ -160,17 +226,22 @@ local function findSpell(entity, name)
 
     local target = normalize(name)
     local targetBase = baseName(name)
+    local loose = nil
     for _, spell in ipairs(book.Spells) do
         local id = spell.Id
         if id and id.Prototype then
             local proto = normalize(id.Prototype)
-            if proto == target or baseName(proto) == targetBase
-                or namesMatch(proto, target) then
-                return spell
+            -- An exact prototype always wins: a loose match would report the
+            -- cooldown against the wrong spell when a caster holds several
+            -- spellbook entries that share a name prefix (linked variants).
+            if proto == target then return spell end
+            if loose == nil and (baseName(proto) == targetBase
+                or namesMatch(proto, target)) then
+                loose = spell
             end
         end
     end
-    return nil
+    return loose
 end
 
 local function copySpellId(id)
@@ -207,50 +278,113 @@ local function entryMatches(entry, name)
     return namesMatch(id.Prototype, name)
 end
 
-local function setNativeCooldown(entity, name, turns, cooldownType)
-    local spell = findSpell(entity, name)
-    if not spell then
-        U.Log("cooldown: spell %s not found in spellbook", tostring(name))
-        return false
+-- The spell id the engine blocks for `name`. A linked-container child never
+-- appears in the spellbook (the book holds the container), so its id is built
+-- from the container's entry with the child prototype substituted: that is the
+-- shape the game itself uses when it blocks one variant.
+local function cooldownSpellId(entity, name, quiet)
+    if groupOfName(name) ~= nil then
+        local container = findSpell(entity, C.GroupKey(name))
+        if container then
+            local id = copySpellId(container.Id)
+            id.Prototype = name
+            return id
+        end
     end
 
+    local spell = findSpell(entity, name)
+    if spell then return copySpellId(spell.Id) end
+
+    if not quiet then
+        U.Log("cooldown: spell %s not found in spellbook", tostring(name))
+    end
+    return nil
+end
+
+-- The ids of every spell that shares `key`'s cooldown. A linked-container
+-- child is absent from the spellbook but still needs an entry: that entry is
+-- what blocks the variant the player actually cast.
+local function groupSpellIds(entity, key)
+    local ids = {}
+    for _, member in ipairs(groupMembers(key)) do
+        local id = cooldownSpellId(entity, member, member ~= key)
+        if id then ids[#ids + 1] = { name = member, id = id } end
+    end
+    return ids
+end
+
+-- Update every entry of one group in a single write. The component holds the
+-- whole cooldown list, so stamping members one at a time would rewrite and
+-- replicate it once per variant.
+local function setNativeCooldowns(entity, spellIds, turns, runtimeType)
     local comp = getCooldownComponent(entity)
     if not comp then
         U.Log("cooldown: no SpellBookCooldowns component")
         return false
     end
 
-    local runtimeType = runtimeCooldownType(cooldownType, turns)
+    local wanted = {}
+    for _, item in ipairs(spellIds) do wanted[normalize(item.name)] = item.id end
+
+    local updated = {} -- wanted name -> the entry has been stamped
+    local taken = {}   -- entry index already stamped
     local list = {}
-    local found = false
+
     if comp.Cooldowns then
+        local function stamp(entry, name, index)
+            entry.CooldownType = runtimeType
+            entry.CooldownType2 = runtimeType
+            entry.Cooldown = turns
+            entry.SpellCastGuid = ZERO_GUID
+            updated[name] = true
+            taken[index] = true
+        end
+
+        -- An exact prototype wins, so a container entry is never consumed by
+        -- one of its children (their names share the container's prefix).
         for i = 1, #comp.Cooldowns do
             local entry = comp.Cooldowns[i]
-            if entryMatches(entry, name) then
-                entry.CooldownType = runtimeType
-                entry.CooldownType2 = runtimeType
-                entry.Cooldown = turns
-                entry.SpellCastGuid = ZERO_GUID
-                found = true
-            end
-            list[#list + 1] = entry
+            local proto = entry and entry.SpellId and entry.SpellId.Prototype
+            local key = proto and normalize(proto) or nil
+            if key and wanted[key] and not updated[key] then stamp(entry, key, i) end
         end
+
+        -- Then the shared-name fallback for creature variants
+        -- (Projectile_FireBolt cast, Projectile_FireBolt_Goblin in the book).
+        for i = 1, #comp.Cooldowns do
+            local entry = comp.Cooldowns[i]
+            local proto = entry and entry.SpellId and entry.SpellId.Prototype
+            if proto and not taken[i] then
+                for name in pairs(wanted) do
+                    if not updated[name] and namesMatch(proto, name) then
+                        stamp(entry, name, i)
+                        break
+                    end
+                end
+            end
+        end
+
+        for i = 1, #comp.Cooldowns do list[#list + 1] = comp.Cooldowns[i] end
     end
 
-    if not found then
-        list[#list + 1] = {
-            SpellId = copySpellId(spell.Id),
-            CooldownType = runtimeType,
-            CooldownType2 = runtimeType,
-            Cooldown = turns,
-            SpellCastGuid = ZERO_GUID,
-        }
+    for _, item in ipairs(spellIds) do
+        local key = normalize(item.name)
+        if not updated[key] then
+            list[#list + 1] = {
+                SpellId = item.id,
+                CooldownType = runtimeType,
+                CooldownType2 = runtimeType,
+                Cooldown = turns,
+                SpellCastGuid = ZERO_GUID,
+            }
+            updated[key] = true
+        end
     end
 
     return writeCooldowns(entity, comp, list)
 end
 
-local function clearNativeCooldown(entity, name)
+local function clearNativeCooldown(entity, names)
     local comp = entity and entity.SpellBookCooldowns
     if not comp or not comp.Cooldowns then return false end
 
@@ -258,7 +392,14 @@ local function clearNativeCooldown(entity, name)
     local removed = false
     for i = 1, #comp.Cooldowns do
         local entry = comp.Cooldowns[i]
-        if entryMatches(entry, name) then
+        local matched = false
+        for _, name in ipairs(names) do
+            if entryMatches(entry, name) then
+                matched = true
+                break
+            end
+        end
+        if matched then
             removed = true
         else
             list[#list + 1] = entry
@@ -300,6 +441,37 @@ local function restoreSpellbookCooldownType(entity, name)
         pcall(function() entity:Replicate("SpellBook") end)
     end
     originals[guid][key] = nil
+end
+
+-- Stamp one shared counter onto every spell of the group: the cooldown entry
+-- the engine reads for the cast variant, and the container's own spellbook
+-- entry that greys out the hotbar slot.
+local function applyCooldown(entity, key, turns, cooldownType)
+    local runtimeType = runtimeCooldownType(cooldownType, turns)
+    local spellIds = groupSpellIds(entity, key)
+    if #spellIds > 0 then
+        setNativeCooldowns(entity, spellIds, turns, runtimeType)
+    end
+
+    -- Every variant resolves to the same spellbook entry, so stamp it once.
+    local stamped = {}
+    for _, member in ipairs(groupMembers(key)) do
+        local spell = findSpell(entity, member)
+        local proto = spell and prototypeOf(spell)
+        local identity = proto and normalize(proto)
+        if identity and not stamped[identity] then
+            stamped[identity] = true
+            setSpellbookCooldownType(entity, member, runtimeType)
+        end
+    end
+end
+
+local function clearCooldown(entity, key)
+    local members = groupMembers(key)
+    clearNativeCooldown(entity, members)
+    for _, member in ipairs(members) do
+        restoreSpellbookCooldownType(entity, member)
+    end
 end
 
 local function normalizeSpellbook(entity)
@@ -378,16 +550,34 @@ function C.Set(name, turns, cooldownType)
     end
 end
 
-function C.GetType(name)
+-- A linked variant answers to its container's definition when it has none of
+-- its own: the container is the spell the caster actually knows, so it holds
+-- the cooldown the skill was given.
+local function typeFor(name)
     local key = normalize(name)
-    return defTypes[key] or defTypes[baseName(key)]
+    local kind = defTypes[key] or defTypes[baseName(key)]
+    if kind ~= nil then return kind end
+    local owner = groupOfName(name)
+    return owner and defTypes[owner] or nil
+end
+
+function C.GetType(name)
+    return typeFor(name)
+end
+
+-- Linked-group diagnostics for the verification dump.
+function C.GroupInfo()
+    return groupInfo()
 end
 
 function C.Get(name)
     local key = normalize(name)
     local turns = defs[key]
     if turns ~= nil then return turns end
-    return defs[baseName(key)] or 0
+    turns = defs[baseName(key)]
+    if turns ~= nil then return turns end
+    local owner = groupOfName(name)
+    return owner and defs[owner] or 0
 end
 
 function C.GetFor(handle, name)
@@ -399,13 +589,14 @@ function C.Apply(handle, name, turns, cooldownType)
     local guid = U.GuidOf(handle)
     if not entity or not guid then return false end
 
+    -- Linked variants share one counter: casting Chromatic Orb: Thunder puts
+    -- the container and every other orb on the same cooldown.
+    local key = C.GroupKey(name)
     active[guid] = active[guid] or {}
-    active[guid][normalize(name)] = turns
+    active[guid][key] = turns
     outOfCombatSeconds[guid] = 0
 
-    local runtimeType = runtimeCooldownType(cooldownType or C.GetType(name), turns)
-    setNativeCooldown(entity, name, turns, runtimeType)
-    setSpellbookCooldownType(entity, name, runtimeType)
+    applyCooldown(entity, key, turns, cooldownType or C.GetType(name))
     U.Log("cooldown applied: %s for %d turns", tostring(name), turns)
     return true
 end
@@ -452,12 +643,11 @@ function C.OnTurnStarted(handle)
         remaining = remaining - 1
         if remaining <= 0 then
             list[name] = nil
-            clearNativeCooldown(entity, name)
-            restoreSpellbookCooldownType(entity, name)
+            clearCooldown(entity, name)
             U.Log("cooldown expired: %s", tostring(name))
         else
             list[name] = remaining
-            setNativeCooldown(entity, name, remaining, defTypes[normalize(name)] or defTypes[baseName(normalize(name))])
+            applyCooldown(entity, name, remaining, typeFor(name))
             U.Log("cooldown tick: %s %d turns left", tostring(name), remaining)
         end
     end
@@ -491,12 +681,11 @@ local function tickOutOfCombat()
                         remaining = remaining - 1
                         if remaining <= 0 then
                             list[name] = nil
-                            clearNativeCooldown(entity, name)
-                            restoreSpellbookCooldownType(entity, name)
+                            clearCooldown(entity, name)
                             U.Log("out-of-combat cooldown expired: %s", tostring(name))
                         else
                             list[name] = remaining
-                            setNativeCooldown(entity, name, remaining, defTypes[normalize(name)] or defTypes[baseName(normalize(name))])
+                            applyCooldown(entity, name, remaining, typeFor(name))
                             U.Log("out-of-combat cooldown tick: %s %d turns left",
                                 tostring(name), remaining)
                         end
@@ -518,8 +707,7 @@ local function clearCharacter(entity)
     local list = active[guid]
     if list then
         for name in pairs(list) do
-            clearNativeCooldown(entity, name)
-            restoreSpellbookCooldownType(entity, name)
+            clearCooldown(entity, name)
         end
     end
     active[guid] = nil
@@ -551,8 +739,7 @@ function C.ReapplyAll()
         local list = guid and active[guid]
         if list then
             for name, remaining in pairs(list) do
-                setNativeCooldown(entity, name, remaining, defTypes[normalize(name)] or defTypes[baseName(normalize(name))])
-                setSpellbookCooldownType(entity, name, runtimeCooldownType(nil, remaining))
+                applyCooldown(entity, name, remaining, typeFor(name))
             end
         end
     end
