@@ -141,6 +141,8 @@ class ScriptExtenderInstallerTests(unittest.TestCase):
         script = read(INSTALLER)
         self.assertIn("Wait-ForGameToExit", script)
         self.assertIn("Get-Process", script)
+        # A dry run writes nothing, so a running game must not block it.
+        self.assertIn("if (-not $DryRun) { Wait-ForGameToExit", script)
 
     def test_missing_pin_is_fatal(self) -> None:
         # No pin means no defined build; stop instead of guessing.

@@ -1,9 +1,9 @@
 {
   "repo": "Inexorably/bg3se",
-  "tag": "se-0.1.0-dos3",
+  "tag": "se-0.2.0-dos3",
   "asset": "BG3SE-DWrite.zip",
-  "sha256": "57E223D90F22C0E7431ED50860EEEF5274A2AB3DC8ECED034B1F4B8AE3CE3500",
+  "sha256": "52B71B907BB57CB3D0869A31CBD34EEA73C12AD4936510D8AFAF39C783E8953F",
   "binding": "Ext.Entity.GetArmorClass",
   "pinnedAt": "2026-11-01",
-  "builtFrom": "4e5c577750abb9cf7b33bf4636d854a7adb2d194"
+  "builtFrom": "c913bc99"
 }

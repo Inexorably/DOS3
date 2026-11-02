@@ -277,7 +277,8 @@ function Install-Dll([string]$SourceDll, [string]$BinDir, [string]$Source) {
 Write-Step 'Resolving Baldur''s Gate 3'
 $binDir = Resolve-GameBin $GameDir
 Write-Info "bin: $binDir"
-Wait-ForGameToExit $WaitForGameSeconds
+# A dry run writes nothing, so a running game does not matter.
+if (-not $DryRun) { Wait-ForGameToExit $WaitForGameSeconds }
 
 # The pin decides which release to install unless the caller overrides it.
 $pin = Get-Pin
