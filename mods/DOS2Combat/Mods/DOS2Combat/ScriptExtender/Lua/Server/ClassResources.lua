@@ -19,16 +19,18 @@ local R = DOS2C.ClassResources
 local U = DOS2C.Utils
 
 local turnCounters = {} -- character guid -> turns seen since the last recharge
+local oddShapeLogged = {} -- resource key -> true once its zero-length entry was logged
 
 -- BG3SE exposes the Resource map values as a Lua table, an Array userdata, or a
 -- single entry userdata. Normalize all three to a Lua list.
-local function entryList(value)
+local function entryList(value, key)
     if value == nil then return {} end
     if type(value) == "table" then
         if value[1] == nil and value.ResourceUUID ~= nil then return { value } end
         return value
     end
 
+    -- A single ActionResourceEntry userdata has no length.
     local okLen, len = pcall(function() return #value end)
     if not okLen or not tonumber(len) then return { value } end
 
@@ -39,7 +41,15 @@ local function entryList(value)
     end
     if #list > 0 then return list end
 
-    -- A single ActionResourceEntry userdata.
+    -- An empty Array answers `#` with 0 and throws on a field read. A value
+    -- that answers 0 yet reads a ResourceUUID is a single entry, not a list.
+    local okUuid = pcall(function() return value.ResourceUUID end)
+    if not okUuid then return list end
+    local logKey = tostring(key)
+    if not oddShapeLogged[logKey] then
+        oddShapeLogged[logKey] = true
+        U.Log("class resource %s: length 0 but reads as one entry; treating it as one entry", logKey)
+    end
     return { value }
 end
 
@@ -69,7 +79,7 @@ function R.Recharge(entity)
     local known = DOS2C.Config.CLASS_RESOURCE_RECHARGE or {}
     local changed = 0
     for key, value in pairs(resources) do
-        for _, entry in ipairs(entryList(value)) do
+        for _, entry in ipairs(entryList(value, key)) do
             local name = known[resourceUuid(key, entry)]
             if name then
                 local amount = tonumber(entry.Amount) or 0

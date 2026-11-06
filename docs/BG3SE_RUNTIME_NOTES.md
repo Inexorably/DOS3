@@ -742,6 +742,26 @@ is what the reinforcement boons, the offer's fight check and the "never
 randomize a party member" guard all need. The same DOS2 names are still used by
 `DOS2Combat`, `RespecAnywhere` and `OrbWeaver`; they are outside this fix.
 
+## `ActionResources.Resources` can hold an empty Array (2026-11-01 session)
+
+`confirmed`. The values of `entity.ActionResources.Resources` are `Array`
+userdata: `#` works, a number index works, a string index throws. One party
+character logged this on every one of its turn starts (16 times in one session):
+
+```text
+[DOS2C] class resource recharge error: ClassResources.lua:53: bad argument #2 to '__index' (number expected, got string)
+```
+
+A map key can hold an Array with zero entries. `entryList` took an empty Array
+for a single entry and returned the Array itself, so `entry.ResourceUUID` threw
+and the rest of that turn's recharge pass (and its `Replicate`) was skipped.
+Why the key is empty is not known. `ClassResources.entryList` and
+`StatsPatcher.entryList` now return an empty list for it. A value whose `#` is
+0 but which still reads a `ResourceUUID` stays a single entry, and
+`ClassResources` logs `class resource <key>: length 0 but reads as one entry`
+once per key. Tests: `se_array` / `se_entry` in `tests/test_lua_class_resources.py` build
+real userdata with these shapes.
+
 ## Maintenance rule
 
 Whenever a runtime-only API/arity/enum is discovered:

@@ -3,6 +3,7 @@ from __future__ import annotations
 import unittest
 
 from .lua_harness import LuaModHarness
+from .test_lua_class_resources import SE_SHAPES
 
 try:
     import lupa  # noqa: F401
@@ -427,6 +428,25 @@ class StatsPatcherTests(unittest.TestCase):
             'return DOS2C.Config.ATTACK_ROLL_DAMAGE_BONUS_PASSIVES["PASSIVE_AllIn"]'
         )
         self.assertIsNone(bonus)
+
+    def test_ap_is_found_beside_an_empty_resource_array(self) -> None:
+        # BG3SE Resources values are Array userdata; an empty one sits before
+        # the AP list here (integer keys keep the pairs order fixed).
+        self.harness.run(SE_SHAPES)
+        self.harness.run(
+            """
+            ap_entry = { ResourceId = 0, ResourceUUID = "e0a3ba3f-a8e2-4b1f-9b0e-0a4b0d2f0b11",
+                Amount = 0, MaxAmount = 6 }
+            local entity = {
+                Uuid = { EntityUuid = "ap9" },
+                ActionResources = { Resources = { se_array({}), se_array({ ap_entry }) } },
+            }
+            function entity:Replicate(component) end
+            H.entities["ap9"] = entity
+            """
+        )
+        self.harness.run('DOS2C.Stats.OnTurnStarted("ap9")')
+        self.assertEqual(self.harness.run("return ap_entry.Amount"), 4)
 
 
 if __name__ == "__main__":
