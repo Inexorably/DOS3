@@ -775,26 +775,68 @@ local function patchTooltipRiders(name, stat)
     return false
 end
 
+-- SpellFlags as a list of flag names, from any shape it comes back in: text
+-- ("A;B"), a Lua list, or an array proxy that only answers # and [i]. nil when
+-- the field cannot be read as a list.
+local function spellFlagList(value)
+    if type(value) == "string" then
+        local parts = {}
+        for raw in value:gmatch("[^;]+") do
+            local token = raw:gsub("^%s+", ""):gsub("%s+$", "")
+            if token ~= "" then parts[#parts + 1] = token end
+        end
+        return parts
+    end
+    if type(value) ~= "table" and type(value) ~= "userdata" then return nil end
+    local ok, parts = pcall(function()
+        local out = {}
+        for i = 1, #value do
+            local flag = value[i]
+            if flag ~= nil then out[#out + 1] = tostring(flag) end
+        end
+        return out
+    end)
+    if ok then return parts end
+    return nil
+end
+
+local function hasConcentrationFlag(flags)
+    for _, flag in ipairs(flags or {}) do
+        if flag:lower() == "isconcentration" then return true end
+    end
+    return false
+end
+
 local function patchConcentration(name, stat)
     local cfg = DOS2C.Config
     if not cfg.REMOVE_CONCENTRATION then return false end
 
     local changed = false
-    -- SpellFlags is an enum bitfield at runtime, so a plain string read returns
-    -- an object and the old type check skipped the flag strip. Route it through
-    -- the raw accessors, which is what the engine actually writes.
-    local flags, flagsRaw = readFieldText(stat, "SpellFlags")
-    if flags then
-        local parts = {}
-        for raw in flags:gmatch("[^;]+") do
-            local token = raw:gsub("^%s+", ""):gsub("%s+$", "")
-            if token ~= "" and token:lower() ~= "isconcentration" then
-                parts[#parts + 1] = token
-            end
+    -- SpellFlags is an enum flag list at runtime: BG3SE returns a list of flag
+    -- names, not text, and v33 has no GetRawAttribute to turn it into text, so
+    -- reading it through readFieldText skipped the strip on every spell. Read
+    -- the list as it is, write the list back, and check that the flag is gone;
+    -- if the engine kept it, write the "A;B" text through SetRawAttribute.
+    local current = U.SafeGet(stat, "SpellFlags")
+    local flags = spellFlagList(current) or {}
+    if hasConcentrationFlag(flags) then
+        local kept = {}
+        for _, flag in ipairs(flags) do
+            if flag:lower() ~= "isconcentration" then kept[#kept + 1] = flag end
         end
-        local updated = table.concat(parts, ";")
-        if updated ~= flags and writeFieldText(stat, "SpellFlags", updated, flagsRaw) then
+        local function gone()
+            local now = spellFlagList(U.SafeGet(stat, "SpellFlags"))
+            return now ~= nil and not hasConcentrationFlag(now)
+        end
+        local written = U.SafeSet(stat, "SpellFlags", type(current) == "string" and table.concat(kept, ";") or kept)
+            and gone()
+        if not written then
+            written = writeFieldText(stat, "SpellFlags", table.concat(kept, ";"), true) and gone()
+        end
+        if written then
             changed = true
+        else
+            U.Log("could not remove IsConcentration from %s", tostring(name))
         end
     end
 
