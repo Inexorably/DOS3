@@ -1531,6 +1531,14 @@ local function entryList(value)
         if #list > 0 then return list end
     end
 
+    -- An empty Array answers `#` with 0 and throws on a field read; it holds no
+    -- entries. A value that answers 0 yet reads a ResourceUUID stays one entry.
+    local okLen, len = pcall(function() return #value end)
+    if okLen and tonumber(len) == 0 then
+        local okUuid = pcall(function() return value.ResourceUUID end)
+        if not okUuid then return {} end
+    end
+
     -- A single ActionResourceEntry userdata.
     return { value }
 end
