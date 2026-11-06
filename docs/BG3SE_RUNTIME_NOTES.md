@@ -617,6 +617,45 @@ path never did. `StatsPatcher` now reads and writes through
 string, and logs `damage ranges compressed on <n> stat fields` so one game
 session proves whether the runtime stats were rewritten.
 
+## Stats outlive the Lua state across save loads in one game process (2026-11-01 logs)
+
+The stats store is built once per game process, at module load; BG3SE rebuilds
+the server Lua state on every save load. A second or third load in the same
+process therefore sees the stats exactly as the previous pass left them, while
+every Lua table (`compressedFields`, `nativeCooldownInfo`, the cooldown
+definitions) starts empty. In the SE logs of three-load sessions the reload
+passes reported 0 characters / 0 armor / 0 cost fields rewritten (those patchers
+saw their own output) but "damage ranges compressed on 14051 stat fields" again:
+compression is not a fixed point (1d12 -> 1d4+4 -> 1d4+5 -> 1d4+6).
+
+The server `StatsLoaded` hook does not run on a save load: the server Lua state
+is created after stats load, so `PatchAll` runs only from `SessionLoaded`. The
+client's `StatsLoaded` runs once per process (one client cost-mirror line per
+log, whatever the number of loads).
+
+`StatsPatcher.lua` now keeps a memo file (`Shared/PatchOnce.lua`, Ext.IO path
+`DOS2Combat/stats_patch_memo.json`): a few (stat, field, before, after) samples
+of what the first pass wrote, the changed stat names and the native cast limits.
+When every sample still reads its "after" text, the pass knows this process
+already patched the store. Not yet measured in game.
+
+`SpellData.Cooldown` reads back as its `SpellCooldownType` label: writing
+`0` (Default) reads `"None"`, which is the cleared state. Counting `"None"` as a
+failed clear logged one "could not clear Cooldown" line per spell per load and
+then wrote `"OncePerTurn"` as a fallback; that fallback is gone.
+
+The host's hotbar tooltip does not read the live stat. On the host the client
+and the server share one stats store (the client cost mirror's writes are seen
+by the server pass: 186 item use costs before it, 0 after), yet after the
+SessionLoaded compression and its Sync the tooltip still showed vanilla dice
+(Inflict Wounds 3d10, not 1d10+11): it reads a copy the client built when the
+stats loaded. So the damage rule (`Shared/DamageRule.lua`: tooltip derivation,
+ported rescale, range compression, flattening) runs at client `StatsLoaded`
+(`Client/DamageCompression.lua`, memo `DOS2Combat/client_damage_memo.json`),
+and the server pass runs it only when that memo does not hold in the store (a
+VM without a client). Running it on both sides of one store would compress
+every range twice. Not yet measured in game.
+
 ## The IsInCombat component is stale after a save reload (2026-10-30 04:05 run)
 
 Reloading a save inside a running game leaves `IsInCombat` component instances on

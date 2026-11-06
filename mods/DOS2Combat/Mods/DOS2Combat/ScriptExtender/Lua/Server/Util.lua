@@ -52,31 +52,6 @@ function U.SafeSet(stat, field, value)
     return true
 end
 
--- Replace NdM(+K/-K) with the deterministic average.
--- Examples: 1d4+1 -> 3, 8d6 -> 28, d20 -> 10.
-function U.FlattenDice(value)
-    if type(value) ~= "string" or value == "" then return value end
-    local ok, out = pcall(function()
-        local text = value:gsub("(%d*)d(%d+)([%+%-]%d+)", function(count, sides, mod)
-            local n = tonumber(count) or 1
-            local m = tonumber(sides) or 0
-            local total = math.floor(n * (m + 1) / 2 + 0.5) + (tonumber(mod) or 0)
-            if total < 0 then total = 0 end
-            return tostring(total)
-        end)
-        text = text:gsub("(%d*)d(%d+)", function(count, sides)
-            local n = tonumber(count) or 1
-            local m = tonumber(sides) or 0
-            local total = math.floor(n * (m + 1) / 2 + 0.5)
-            if total < 0 then total = 0 end
-            return tostring(total)
-        end)
-        return text
-    end)
-    if ok then return out end
-    return value
-end
-
 -- Accept either an Osiris GUID string or an EntityHandle userdata.
 function U.EntityOf(handle)
     if handle == nil then return nil end
@@ -314,188 +289,17 @@ function U.NeutralizeRolls(value, removeAttack, removeSaving)
     return value
 end
 
--- Return the highest average damage expression in a stats string.
--- Used only for cooldown balancing, not for actual damage calculation.
-function U.MaxDiceAverage(value)
-    if type(value) ~= "string" or value == "" then return 0 end
-    local best = 0
-    local function consider(count, sides, mod)
-        local n = tonumber(count) or 1
-        local m = tonumber(sides) or 0
-        local bonus = tonumber(mod) or 0
-        local avg = n * (m + 1) / 2 + bonus
-        if avg > best then best = avg end
+-- The damage-string rule lives in Shared/DamageRule.lua: the client runs the
+-- same rule at its StatsLoaded. These names keep the server's callers working.
+local function rule()
+    if not DOS2C.DamageRule and Ext and Ext.Require then
+        Ext.Require("Shared/DamageRule.lua")
     end
-    for count, sides, mod in value:gmatch("(%d*)d(%d+)([%+%-]%d+)") do
-        consider(count, sides, mod)
-    end
-    for count, sides in value:gmatch("(%d*)d(%d+)") do
-        consider(count, sides, nil)
-    end
-    return best
+    return assert(DOS2C.DamageRule, "Shared/DamageRule.lua must load before Server/Util.lua")
 end
 
--- Parse a simple additive damage expression such as "1d12", "2d6+3" or
--- "1d6+1d4" into its minimum, maximum and whether it contains dice.
-local function parseDamageExpression(expr)
-    if type(expr) ~= "string" then return nil end
-    local s = expr:gsub("%s+", "")
-    if s == "" then return nil end
-
-    local i = 1
-    local min, max = 0, 0
-    local sawDice = false
-    while i <= #s do
-        local sign = 1
-        local ch = s:sub(i, i)
-        if ch == "+" or ch == "-" then
-            sign = ch == "-" and -1 or 1
-            i = i + 1
-        end
-        if i > #s then return nil end
-
-        local rest = s:sub(i)
-        local token = rest:match("^%d*d%d+")
-        if token then
-            local countText, sidesText = token:match("^(%d*)d(%d+)$")
-            local count = tonumber(countText) or 1
-            local sides = tonumber(sidesText) or 0
-            if count <= 0 or sides <= 0 then return nil end
-            local lo, hi = count, count * sides
-            if sign < 0 then
-                min = min - hi
-                max = max - lo
-            else
-                min = min + lo
-                max = max + hi
-            end
-            sawDice = true
-            i = i + #token
-        else
-            local num = rest:match("^%d+")
-            if not num then return nil end
-            local value = (tonumber(num) or 0) * sign
-            min = min + value
-            max = max + value
-            i = i + #num
-        end
-
-        if i <= #s then
-            local nextChar = s:sub(i, i)
-            if nextChar ~= "+" and nextChar ~= "-" then return nil end
-        end
-    end
-
-    return min, max, sawDice
-end
-
-local RANGE_DICE = { 4, 6, 8, 10, 12, 20, 100 }
-
-local function buildRangeExpression(min, max)
-    if max < min then return nil end
-    local count = max - min + 1
-    if count <= 1 then return tostring(min) end
-
-    local offset = min - 1
-    local sides
-    for _, candidate in ipairs(RANGE_DICE) do
-        if candidate >= count then
-            sides = candidate
-            break
-        end
-    end
-    if not sides then
-        -- BG3 dice sizes are limited; use multiple d100s for very wide ranges.
-        local dice = math.max(1, math.ceil(count / 100))
-        local base = tostring(dice) .. "d100"
-        if offset > 0 then return base .. "+" .. tostring(offset) end
-        if offset < 0 then return base .. "-" .. tostring(-offset) end
-        return base
-    end
-
-    local base = "1d" .. tostring(sides)
-    if offset > 0 then
-        return base .. "+" .. tostring(offset)
-    elseif offset < 0 then
-        return base .. "-" .. tostring(-offset)
-    end
-    return base
-end
-
-local function compressDamageExpression(expr, ratio)
-    local min, max, sawDice = parseDamageExpression(expr)
-    if not (min and max and sawDice) then return expr end
-    ratio = tonumber(ratio) or 0.3333
-    if ratio <= 0 or ratio >= 1 then return expr end
-
-    local originalCount = max - min + 1
-    local newCount = math.max(1, math.ceil(originalCount * ratio))
-    if newCount >= originalCount then return expr end
-
-    local center = (min + max) / 2
-    local newMin = math.floor(center - (newCount - 1) / 2 + 0.5)
-    local newMax = newMin + newCount - 1
-    if newMin < 0 then
-        newMax = newMax - newMin
-        newMin = 0
-    end
-    return buildRangeExpression(newMin, newMax) or expr
-end
-
-local DAMAGE_FUNCTORS = {
-    "DealDamage",
-    "DamageBonus",
-    "WeaponDamage",
-    "CharacterWeaponDamage",
-    "CharacterUnarmedDamage",
-    "EntityThrowDamage",
-    "WeaponDamageDieOverride",
-}
-
--- Compress every damage-roll functor, not only DealDamage. Some BG3 damage
--- riders use DamageBonus/CharacterWeaponDamage/WeaponDamage, and their
--- tooltip DescriptionParams use the same functor names.
-function U.CompressDamageFunctors(value, ratio)
-    if type(value) ~= "string" or value == "" then return value end
-    local out = value
-    for _, fn in ipairs(DAMAGE_FUNCTORS) do
-        local ok, updated = pcall(function()
-            return (out:gsub("%f[%a]" .. fn .. "%(%s*([^,%)]+)%s*([,)])",
-                function(expr, delimiter)
-                    return fn .. "(" .. compressDamageExpression(expr, ratio) .. delimiter
-                end))
-        end)
-        if ok then out = updated end
-    end
-    return out
-end
-
--- Also handle plain damage fields such as Weapon.Damage = "1d8".
-function U.CompressDamageValue(value, ratio)
-    if type(value) ~= "string" or value == "" then return value end
-    local out = U.CompressDamageFunctors(value, ratio)
-    if out ~= value then return out end
-    return compressDamageExpression(value, ratio)
-end
-
--- Rescale the damage expression inside DealDamage(...) calls. Used only for
--- ported DOS2 spells. Dice expressions are converted to an equivalent range
--- before scaling so this works even when dice flattening is disabled.
-function U.ScaleDealDamage(value, scale)
-    if type(value) ~= "string" or value == "" or not scale or scale == 1 then
-        return value
-    end
-    local ok, out = pcall(function()
-        return (value:gsub("DealDamage%(%s*([^,%(%)]+)%s*,", function(expr)
-            local min, max, sawDice = parseDamageExpression(expr)
-            if not min or not max then return "DealDamage(" .. expr .. "," end
-            local scaledMin = math.max(1, math.floor(min * scale + 0.5))
-            local scaledMax = math.max(scaledMin, math.floor(max * scale + 0.5))
-            if not sawDice then return "DealDamage(" .. tostring(scaledMin) .. "," end
-            return "DealDamage(" .. (buildRangeExpression(scaledMin, scaledMax)
-                or tostring(scaledMin)) .. ","
-        end))
-    end)
-    if ok then return out end
-    return value
-end
+function U.FlattenDice(value) return rule().FlattenDice(value) end
+function U.MaxDiceAverage(value) return rule().MaxDiceAverage(value) end
+function U.CompressDamageFunctors(value, ratio) return rule().CompressDamageFunctors(value, ratio) end
+function U.CompressDamageValue(value, ratio) return rule().CompressDamageValue(value, ratio) end
+function U.ScaleDealDamage(value, scale) return rule().ScaleDealDamage(value, scale) end

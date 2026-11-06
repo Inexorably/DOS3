@@ -3,6 +3,14 @@
 -- cooldown readout and (later) the armor/AP UI.
 
 Ext.Require("Shared/ArmorFormula.lua")
+-- The damage rule runs here too, at client StatsLoaded: the tooltip reads what
+-- the client built before the server's SessionLoaded pass. Server/Config.lua
+-- is plain data (the same knobs on both sides).
+Ext.Require("Server/Config.lua")
+Ext.Require("Shared/StatText.lua")
+Ext.Require("Shared/DamageRule.lua")
+Ext.Require("Shared/PatchOnce.lua")
+Ext.Require("Client/DamageCompression.lua")
 Ext.Require("Client/BonusActionCosts.lua")
 Ext.Require("Client/CooldownUI.lua")
 Ext.Require("Client/ArmorUI.lua")
