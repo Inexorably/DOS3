@@ -35,37 +35,35 @@ local nativeCooldownInfo = {}
 -- otherwise become 1d2+5).
 local compressedFields = setmetatable({}, { __mode = "k" })
 
-local DAMAGE_FIELDS = {
-    "SpellProperties",
-    "SpellSuccess",
-    "SpellFail",
-    "TooltipDamageList",
-    "DescriptionParams",
-    "TooltipUpcastDescriptionParams",
-    "ExtraDescriptionParams",
-    "OriginSpellSuccess",
-    "OriginSpellFail",
-    "Damage",
-}
+-- The stats store outlives the Lua state: BG3 keeps it for the whole game
+-- process while BG3SE rebuilds Lua on every save load, so `compressedFields`
+-- is empty again on a reload while the stats are still compressed. The memo
+-- (Shared/PatchOnce.lua) tells a reload that this process already patched the
+-- store; the damage chain (ported rescale + compression) then writes nothing.
+local MEMO_PATH = "DOS2Combat/stats_patch_memo.json"
+local memo = nil
+local alreadyPatched = false
+local changedStats = {}
+local currentStatName = nil
+-- Native cast limits the first pass of this process cleared, from the memo.
+local rememberedNatives = {}
 
-local STATUS_DAMAGE_FIELDS = {
-    "OnTickSuccess",
-    "OnTickFail",
-    "TickFunctors",
-    "OnApplyFunctors",
-    "OnApplySuccess",
-    "OnApplyFail",
-    "OnRemoveFunctors",
-    "DescriptionParams",
-    "Boosts",
-}
+local function sampleWrite(field, before, after)
+    if memo then memo:Sample(currentStatName, field, before, after) end
+end
 
-local PASSIVE_DAMAGE_FIELDS = {
-    "StatsFunctors",
-    "Properties",
-    "Boosts",
-    "DescriptionParams",
-}
+-- The damage rule and its field lists (Shared/DamageRule.lua) are shared with
+-- the client, which runs the rule at its StatsLoaded.
+local function shared(key, file)
+    if not DOS2C[key] and Ext and Ext.Require then Ext.Require(file) end
+    return assert(DOS2C[key], file .. " must load before Server/StatsPatcher.lua")
+end
+local R = shared("DamageRule", "Shared/DamageRule.lua")
+
+-- True when the stats store already holds the damage rule's output: this
+-- process patched it before, or the host's client ran the rule on the shared
+-- store at its StatsLoaded. The rule then writes nothing (no second compression).
+local damageDone = false
 
 local function isWeaponAttack(name)
     if not name then return false end
@@ -280,111 +278,22 @@ local function patchCharacter(stat)
     return applied
 end
 
--- BG3SE exposes expression-backed fields (SpellSuccess, SpellProperties,
--- SpellFail, Boosts, ...) as `Array<stats::FunctorGroup>` objects once the stat
--- comes from the runtime table, not as strings. A plain type check therefore
--- skipped every field that actually rolls damage: only the tooltip strings were
--- ever compressed, so damage stayed at full spread. GetRawAttribute returns the
--- underlying expression text and SetRawAttribute writes it back.
---
--- Feature detection must not index the stats object bare: BG3SE v33 (Oct 24
--- 2026 build) has SetRawAttribute but no GetRawAttribute, and indexing a stats
--- object for a property it lacks THROWS ("Property does not exist:
--- stats::Object::GetRawAttribute") after logging "has no attribute named" for
--- that stat. Unguarded, that aborted the patch of every spell, status and
--- passive entry (`0 spells ... 0 passives`). The lookup runs inside pcall, and a
--- method that threw once is remembered as missing: methods belong to the stats
--- object type, so asking again per stat would only repeat the log line.
-local missingStatMethods = {}
-
-local function statMethod(stat, name)
-    if not stat or missingStatMethods[name] then return nil end
-    local ok, method = pcall(function() return stat[name] end)
-    if not ok then
-        missingStatMethods[name] = true
-        return nil
-    end
-    return method
-end
-
-local function rawField(stat, field)
-    if not statMethod(stat, "GetRawAttribute") then return nil end
-    local ok, value = pcall(function() return stat:GetRawAttribute(field) end)
-    if ok and type(value) == "string" and value ~= "" then return value end
-    return nil
-end
-
-local function writeRawField(stat, field, value)
-    if not statMethod(stat, "SetRawAttribute") then return false end
-    local ok, result = pcall(function() return stat:SetRawAttribute(field, value) end)
-    return ok and result ~= false
-end
-
--- Field lists are per stat type: reading a field the type does not define logs
--- "has no attribute named" once per stat even inside pcall (the cost audit alone
--- logged ~45,000 such lines on one load). When the SE lists a type's attributes
--- (Ext.Stats.GetModifierAttributes, {name = type}), a field the list lacks is
--- not read at all. No list (older SE, unknown type, an error) = read as before.
-local typeAttributes = {}
+-- Expression-aware field text, per stat type (Shared/StatText.lua): the client
+-- damage hook reads the store through the same reader.
+local fieldText = shared("StatText", "Shared/StatText.lua").New(U.SafeGet, U.SafeSet)
 local currentStatType = nil
 
-local function attributesOf(statType)
-    if statType == nil then return nil end
-    local known = typeAttributes[statType]
-    if known ~= nil then return known or nil end
-    known = false
-    local list = Ext and Ext.Stats and Ext.Stats.GetModifierAttributes
-    if list then
-        local ok, attributes = pcall(list, statType)
-        if ok and attributes ~= nil then
-            local set, any = {}, false
-            pcall(function()
-                for name in pairs(attributes) do
-                    if type(name) == "string" then
-                        set[name] = true
-                        any = true
-                    end
-                end
-            end)
-            if any then known = set end
-        end
-    end
-    typeAttributes[statType] = known
-    return known or nil
+local function statMethod(stat, name)
+    return fieldText:Method(stat, name)
 end
 
-local function typeDefines(field)
-    local attributes = attributesOf(currentStatType)
-    return attributes == nil or attributes[field] == true
-end
-
--- Reads `field` as text, preferring the plain attribute and falling back to the
--- raw expression. The second return says whether the raw form must be used.
--- Only expression objects trigger the raw read: a nil or empty plain value means
--- the stat has no expression there, and probing every empty field of every stat
--- would cost tens of thousands of native calls during the patch pass.
+-- Reads `field` as text; the second return says whether the raw form must be used.
 local function readFieldText(stat, field)
-    if not typeDefines(field) then return nil, false end
-    local plain = U.SafeGet(stat, field)
-    if type(plain) == "string" and plain ~= "" then return plain, false end
-    if type(plain) == "table" or type(plain) == "userdata" then
-        local raw = rawField(stat, field)
-        if raw then return raw, true end
-    end
-    return nil, false
+    return fieldText:Read(stat, field, currentStatType)
 end
 
 local function writeFieldText(stat, field, value, raw)
-    if raw then return writeRawField(stat, field, value) end
-    return U.SafeSet(stat, field, value)
-end
-
-local function flattenField(stat, field, changed)
-    local original, raw = readFieldText(stat, field)
-    if not original then return changed end
-    local flat = U.FlattenDice(original)
-    if flat ~= original and writeFieldText(stat, field, flat, raw) then changed = true end
-    return changed
+    return fieldText:Write(stat, field, value, raw)
 end
 
 -- Counts fields whose damage range was actually rewritten, so a game session
@@ -398,17 +307,26 @@ local compressedTotal = 0
 local convertedLimits = 0
 local unconvertedLimits = 0
 
+-- A cast-limit field reads back as its enum label: SpellData.Cooldown written
+-- with SpellCooldownType.Default (0) reads "None". "None" is the cleared
+-- state, so a field that already reads it is left alone, and a clear that
+-- reads it back succeeded.
+local function isCleared(value)
+    return value == nil or value == "" or value == "None"
+end
+
 local function clearStatField(stat, field, spellName, replacement)
     local before, raw = readFieldText(stat, field)
-    if not before or before == "" then return false end
+    if isCleared(before) then return false end
     if replacement ~= nil then
         U.SafeSet(stat, field, replacement)
     else
         writeFieldText(stat, field, "", raw)
     end
     local after = readFieldText(stat, field)
-    if after == nil or after == "" then
+    if isCleared(after) then
         convertedLimits = convertedLimits + 1
+        sampleWrite(field, before, after)
         return true
     end
     unconvertedLimits = unconvertedLimits + 1
@@ -440,6 +358,7 @@ local function rewriteCostFieldImpl(stat, field, label, transform, fallback)
     local actual = readFieldText(stat, field)
     if actual == after then
         costFieldsRewritten = costFieldsRewritten + 1
+        sampleWrite(field, before, actual)
         return true
     end
     costFieldsFailed = costFieldsFailed + 1
@@ -450,46 +369,34 @@ end
 
 rewriteCostField = rewriteCostFieldImpl
 
-local function compressField(stat, field, changed, direct)
-    local state = compressedFields[stat]
-    if state and state[field] then return changed end
-
-    local original, raw = readFieldText(stat, field)
-    if not original then return changed end
-
-    local cfg = DOS2C.Config
-    local compressed = direct
-        and U.CompressDamageValue(original, cfg.DAMAGE_RANGE_COMPRESSION)
-        or U.CompressDamageFunctors(original, cfg.DAMAGE_RANGE_COMPRESSION)
-    if compressed ~= original and writeFieldText(stat, field, compressed, raw) then
-        state = state or {}
+-- The damage rule's writes as this pass counts and samples them.
+local damageIO = {
+    get = U.SafeGet,
+    set = U.SafeSet,
+    read = function(stat, field) return readFieldText(stat, field) end,
+    write = function(stat, field, value, raw) return writeFieldText(stat, field, value, raw) end,
+    done = function(stat, field)
+        local state = compressedFields[stat]
+        return state ~= nil and state[field] == true
+    end,
+    wrote = function(stat, field, before, after, kind)
+        if kind ~= "compress" then return end
+        local state = compressedFields[stat] or {}
         state[field] = true
         compressedFields[stat] = state
         compressedTotal = compressedTotal + 1
-        changed = true
-    end
-    return changed
+        sampleWrite(field, before, after)
+    end,
+    log = function(...) return U.Log(...) end,
+}
+
+-- The damage rule on one stat, unless the store already holds its output.
+local function damageChain(statType, name, stat)
+    if damageDone then return false end
+    return R.Run(statType, name, stat, damageIO, DOS2C.Config)
 end
 
-local function patchCharacterDamage(stat)
-    local cfg = DOS2C.Config
-    if not cfg.COMPRESS_DAMAGE_RANGES then return false end
-    return compressField(stat, "DefaultBoosts", false, false)
-end
-
-local function levelFor(name, stat)
-    local level = tonumber(U.SafeGet(stat, "Level"))
-    -- Trust an explicit Level 0 before the name suffix: a cantrip variant can
-    -- have a _3 suffix without actually being a level-3 spell.
-    if level ~= nil then
-        if level >= 0 then return level end
-    end
-    local suffix = name and name:match("_(%d)$")
-    if suffix then return tonumber(suffix) end
-    -- Most SpellData entries omit Level. They are not cantrips (those have an
-    -- explicit Level 0), so treat them as level 1 rather than level 0.
-    return 1
-end
+local levelFor = R.LevelFor
 
 local CLASS_RESOURCES = {
     Rage = true, KiPoint = true, SuperiorityDie = true,
@@ -504,17 +411,6 @@ local function hasClassResource(costs)
         if name and CLASS_RESOURCES[name] then return true end
     end
     return false
-end
-
-local function estimateDamage(stat)
-    local best = 0
-    for _, field in ipairs({ "SpellSuccess", "SpellProperties", "TooltipDamageList", "SpellFail" }) do
-        local value = U.SafeGet(stat, field)
-        if type(value) == "string" and value ~= "" then
-            best = math.max(best, U.MaxDiceAverage(value))
-        end
-    end
-    return best
 end
 
 local SURFACE_FUNCTORS = {
@@ -534,25 +430,37 @@ local function hasSurfaceEffect(stat)
     return false
 end
 
-local function portedDamageScale(stat, level)
-    local cfg = DOS2C.Config
-    local damage = estimateDamage(stat)
-    if damage <= 0 then return 1 end
-
-    local hp = cfg.COOLDOWN_HP_BY_LEVEL[level + 1] or 15
-    local target = hp * cfg.PORTED_DAMAGE_HP_RATIO
-    local scale = target / damage
-    return math.max(cfg.PORTED_DAMAGE_MIN_SCALE,
-        math.min(cfg.PORTED_DAMAGE_MAX_SCALE, scale))
+-- The native limits are read before the pass clears them. On a store this
+-- process already patched they are cleared already, so they come from the
+-- memo; a spell missing from it had no native limit.
+local function rememberNativeCooldown(name, stat)
+    if nativeCooldownInfo[name] ~= nil then return end
+    if alreadyPatched then
+        nativeCooldownInfo[name] = rememberedNatives[name] or {}
+        return
+    end
+    nativeCooldownInfo[name] = {
+        Cooldown = U.SafeGet(stat, "Cooldown"),
+        RechargeValues = U.SafeGet(stat, "RechargeValues"),
+    }
 end
 
-local function rememberNativeCooldown(name, stat)
-    if nativeCooldownInfo[name] == nil then
-        nativeCooldownInfo[name] = {
-            Cooldown = U.SafeGet(stat, "Cooldown"),
-            RechargeValues = U.SafeGet(stat, "RechargeValues"),
-        }
+-- The native limits worth keeping for a reload: text values that are not the
+-- cleared state.
+local function nativesForMemo()
+    local out = {}
+    for name, info in pairs(nativeCooldownInfo) do
+        local entry, any = {}, false
+        for _, field in ipairs({ "Cooldown", "RechargeValues" }) do
+            local value = info[field]
+            if type(value) == "string" and not isCleared(value) then
+                entry[field] = value
+                any = true
+            end
+        end
+        if any then out[name] = entry end
     end
+    return out
 end
 
 local function rechargeToTurns(value)
@@ -684,21 +592,7 @@ local CASTING_TARGET_ARGS = {
     ITEM = true,
 }
 
-local function balancedTooltipCall(text, start)
-    local open = text:find("(", start, true)
-    if not open then return nil end
-    local depth = 0
-    for i = open, #text do
-        local ch = text:sub(i, i)
-        if ch == "(" then
-            depth = depth + 1
-        elseif ch == ")" then
-            depth = depth - 1
-            if depth == 0 then return text:sub(start, i) end
-        end
-    end
-    return nil
-end
+local balancedTooltipCall = R.BalancedCall
 
 local function splitTooltipArgs(text)
     local args = {}
@@ -764,71 +658,6 @@ local function scaleCastingDamageCalls(value, token)
         pos = start + #call
     end
     return table.concat(out)
-end
-
-local function damageCallsIn(value)
-    local calls = {}
-    if type(value) ~= "string" or value == "" then return calls end
-    local pos = 1
-    while true do
-        local start = value:find("DealDamage", pos, true)
-        if not start then break end
-        local call = balancedTooltipCall(value, start)
-        if call then
-            calls[#calls + 1] = call
-            pos = start + #call
-        else
-            pos = start + #"DealDamage"
-        end
-    end
-    return calls
-end
-
--- Some native weapon actions provide SpellSuccess damage but no
--- TooltipDamageList. Without a damage line their tooltips show no range.
--- Derive the missing display field from the actual damage functors.
-local function ensureTooltipDamage(stat)
-    local tooltip = U.SafeGet(stat, "TooltipDamageList")
-    if type(tooltip) == "string" and tooltip ~= "" then return false end
-
-    local calls = {}
-    for _, field in ipairs({ "SpellSuccess", "SpellProperties", "DescriptionParams" }) do
-        for _, call in ipairs(damageCallsIn(U.SafeGet(stat, field))) do
-            local exists = false
-            for _, existing in ipairs(calls) do
-                if existing == call then exists = true; break end
-            end
-            if not exists then calls[#calls + 1] = call end
-        end
-    end
-    if #calls == 0 then return false end
-    return U.SafeSet(stat, "TooltipDamageList", table.concat(calls, ";"))
-end
-
-local function simplifyWeaponTooltip(stat)
-    local tooltip = U.SafeGet(stat, "TooltipDamageList")
-    if type(tooltip) ~= "string" or tooltip == "" then return false end
-    if not (tooltip:find("LevelMapValue", 1, true) or tooltip:find("max%(")
-        or tooltip:find("%+")) then
-        return false
-    end
-
-    local simple = {}
-    for _, field in ipairs({ "SpellProperties", "SpellSuccess" }) do
-        for _, call in ipairs(damageCallsIn(U.SafeGet(stat, field))) do
-            local weapon = call:find("MainMeleeWeapon", 1, true)
-                or call:find("MainRangedWeapon", 1, true)
-            local complex = call:find("LevelMapValue", 1, true)
-                or call:find("max%(") or call:find("%+")
-            if weapon and not complex then
-                simple[#simple + 1] = call
-            end
-        end
-    end
-    if #simple == 0 then return false end
-    local updated = table.concat(simple, ";")
-    if updated == tooltip then return false end
-    return U.SafeSet(stat, "TooltipDamageList", updated)
 end
 
 local function patchCastingAbilityTooltips(name, stat)
@@ -1044,22 +873,20 @@ local function patchSpell(name, stat)
     local level = levelFor(name, stat)
     registerSpellGroup(name, stat)
     local apCost = costForSpell(name, level)
-    local changed = patchAstralKnowledge(name, stat)
+    -- The damage rule runs first: on the host the client already ran it on
+    -- the shared store, so every later step reads the same text either way.
+    local changed = damageChain("SpellData", name, stat)
+    changed = patchAstralKnowledge(name, stat) or changed
     changed = patchConcentration(name, stat) or changed
     changed = neutralizeSavingThrowFields(stat, SPELL_SAVE_FIELDS) or changed
     changed = patchTooltipRiders(name, stat) or changed
-    changed = ensureTooltipDamage(stat) or changed
-    changed = simplifyWeaponTooltip(stat) or changed
 
     local costs = U.SafeGet(stat, "UseCosts")
     rememberNativeCooldown(name, stat)
-    local damageScale = 1
-    if cfg.PORTED_DAMAGE_RESCALE and name:match("^DOS2C_") then
-        damageScale = portedDamageScale(stat, level)
-    end
-    local explicitCooldown = U.SafeGet(stat, "Cooldown")
+    local native = nativeCooldownInfo[name] or {}
+    local explicitCooldown = native.Cooldown
     local explicitTurns = explicitCooldownToTurns(explicitCooldown, cfg)
-    local recharge = U.SafeGet(stat, "RechargeValues")
+    local recharge = native.RechargeValues
     local cooldown = cooldownForSpell(name, stat, level)
     spellLevels[name] = level
     local cooldownType = runtimeCooldownType(explicitCooldown, explicitTurns, cooldown, recharge)
@@ -1076,17 +903,10 @@ local function patchSpell(name, stat)
     -- "Must take a Short Rest." with no turn cooldown at all.
     if cfg.CONVERT_NATIVE_COOLDOWNS then
         if clearStatField(stat, "RechargeValues", name) then changed = true end
-        local currentCooldown = U.SafeGet(stat, "Cooldown")
-        if currentCooldown ~= nil and currentCooldown ~= "" then
-            -- SpellCooldownType.Default is enum value 0: no native limit, so the
-            -- numeric overlay is the only limiter left. Fall back to the enum
-            -- label if the field rejects the numeric value.
-            if clearStatField(stat, "Cooldown", name, 0) then
-                changed = true
-            elseif U.SafeSet(stat, "Cooldown", "OncePerTurn") then
-                changed = true
-            end
-        end
+        -- SpellCooldownType.Default is enum value 0: no native limit, so the
+        -- numeric overlay is the only limiter left. A clear that fails is
+        -- logged; it never writes another native limit in its place.
+        if clearStatField(stat, "Cooldown", name, 0) then changed = true end
     end
 
     if type(costs) == "string" and costs ~= "" then
@@ -1190,33 +1010,6 @@ local function patchSpell(name, stat)
         end
     end
 
-    -- Ported spells are rescaled first so the compressed range is built around
-    -- the final target damage.
-    if damageScale ~= 1 then
-        for _, field in ipairs(DAMAGE_FIELDS) do
-            local value = U.SafeGet(stat, field)
-            if type(value) == "string" and value ~= "" then
-                local scaled = U.ScaleDealDamage(value, damageScale)
-                if scaled ~= value and U.SafeSet(stat, field, scaled) then
-                    changed = true
-                end
-            end
-        end
-        U.Log("ported damage scale: %s x%.3f", tostring(name), damageScale)
-    end
-
-    if cfg.COMPRESS_DAMAGE_RANGES then
-        for _, field in ipairs(DAMAGE_FIELDS) do
-            changed = compressField(stat, field, changed, field == "Damage")
-        end
-    end
-
-    if cfg.FLATTEN_DAMAGE_DICE then
-        for _, field in ipairs(DAMAGE_FIELDS) do
-            changed = flattenField(stat, field, changed)
-        end
-    end
-
     -- Scale tooltips after damage compression/flattening so the displayed base
     -- range and the relative casting multiplier stay aligned.
     changed = patchCastingAbilityTooltips(name, stat) or changed
@@ -1261,19 +1054,8 @@ end
 
 local function patchWeapon(stat)
     local cfg = DOS2C.Config
-    local changed = neutralizeSavingThrowFields(stat, WEAPON_SAVE_FIELDS)
-    if not (cfg.COMPRESS_DAMAGE_RANGES or cfg.FLATTEN_WEAPON_DICE) then
-        return changed
-    end
-
-    for _, field in ipairs({ "Damage", "VersatileDamage", "WeaponFunctors", "DefaultBoosts" }) do
-        if cfg.COMPRESS_DAMAGE_RANGES then
-            changed = compressField(stat, field, changed, field == "Damage" or field == "VersatileDamage")
-        end
-        if cfg.FLATTEN_WEAPON_DICE then
-            changed = flattenField(stat, field, changed)
-        end
-    end
+    local changed = damageChain("Weapon", nil, stat)
+    if neutralizeSavingThrowFields(stat, WEAPON_SAVE_FIELDS) then changed = true end
     return changed
 end
 
@@ -1620,7 +1402,8 @@ local function patchBlindedRange(name, stat)
 end
 
 local function patchStatusDamage(name, stat)
-    local changed = neutralizeSavingThrowFields(stat, STATUS_SAVE_FIELDS)
+    local changed = damageChain("StatusData", name, stat)
+    if neutralizeSavingThrowFields(stat, STATUS_SAVE_FIELDS) then changed = true end
     if stripDeadSavingThrowBoosts(stat) then changed = true end
     if stripBonusActionBoosts(stat, "Boosts") then changed = true end
     if patchBonusActionFields(stat, STATUS_BONUS_FIELDS) then changed = true end
@@ -1631,25 +1414,16 @@ local function patchStatusDamage(name, stat)
     if patchHasteLethargy(name, stat) then changed = true end
     if patchSlowActionPoint(name, stat) then changed = true end
     if patchAttackDisadvantage(stat) then changed = true end
-    if DOS2C.Config.COMPRESS_DAMAGE_RANGES then
-        for _, field in ipairs(STATUS_DAMAGE_FIELDS) do
-            changed = compressField(stat, field, changed, false)
-        end
-    end
     return changed
 end
 
 local function patchPassiveDamage(name, stat)
-    local changed = neutralizeSavingThrowFields(stat, PASSIVE_SAVE_FIELDS)
+    local changed = damageChain("PassiveData", name, stat)
+    if neutralizeSavingThrowFields(stat, PASSIVE_SAVE_FIELDS) then changed = true end
     if stripDeadSavingThrowBoosts(stat) then changed = true end
     if stripBonusActionBoosts(stat, "Boosts") then changed = true end
     if patchBonusActionFields(stat, PASSIVE_BONUS_FIELDS) then changed = true end
     if recordCombatModifiers(name, stat, true) then changed = true end
-    if DOS2C.Config.COMPRESS_DAMAGE_RANGES then
-        for _, field in ipairs(PASSIVE_DAMAGE_FIELDS) do
-            changed = compressField(stat, field, changed, false)
-        end
-    end
     return changed
 end
 
@@ -1684,7 +1458,9 @@ local function eachStat(statType, handler)
         local got, stat = pcall(Ext.Stats.Get, name)
         if got and stat then
             -- A malformed or unsupported entry must not abort the entire pass.
+            currentStatName = name
             local handled, changedOrError = pcall(handler, name, stat)
+            currentStatName = nil
             if not handled then
                 errors = errors + 1
                 if errors <= 20 then
@@ -1693,6 +1469,7 @@ local function eachStat(statType, handler)
                 end
             elseif changedOrError then
                 count = count + 1
+                changedStats[name] = true
             end
         end
     end
@@ -1752,6 +1529,14 @@ local function entryList(value)
             if ok and entry ~= nil then list[#list + 1] = entry end
         end
         if #list > 0 then return list end
+    end
+
+    -- An empty Array answers `#` with 0 and throws on a field read; it holds no
+    -- entries. A value that answers 0 yet reads a ResourceUUID stays one entry.
+    local okLen, len = pcall(function() return #value end)
+    if okLen and tonumber(len) == 0 then
+        local okUuid = pcall(function() return value.ResourceUUID end)
+        if not okUuid then return {} end
     end
 
     -- A single ActionResourceEntry userdata.
@@ -2033,52 +1818,120 @@ local function auditBonusActionCosts()
         found > 0 and (": " .. table.concat(names, ", ")) or "")
 end
 
+local function statText(name, field)
+    local got, stat = pcall(Ext.Stats.Get, name)
+    if not (got and stat) then return nil end
+    local outer = currentStatType
+    currentStatType = nil
+    local value = readFieldText(stat, field)
+    currentStatType = outer
+    return value
+end
+
+-- Per-phase wall time of the pass, for the load-screen cost (MonotonicTime is
+-- in milliseconds). No clock = no numbers, never a guessed one.
+local function phaseClock()
+    local clock = Ext.Utils and Ext.Utils.MonotonicTime
+    local phases = {}
+    local started = clock and clock() or nil
+    local last = started
+    return {
+        mark = function(label)
+            if not clock then return end
+            local now = clock()
+            phases[#phases + 1] = string.format("%s %d", label, math.floor(now - last + 0.5))
+            last = now
+        end,
+        report = function(kind, synced)
+            if not clock then
+                U.Log("patch pass (%s): timing unavailable (no Ext.Utils.MonotonicTime); %d stats synced",
+                    kind, synced)
+                return
+            end
+            U.Log("patch pass (%s): %d ms (%s; %d stats synced)", kind,
+                math.floor(clock() - started + 0.5), table.concat(phases, ", "), synced)
+        end,
+    }
+end
+
 function S.PatchAll(runtime)
     if not (Ext and Ext.Stats) then return end
 
-    local nCharacters = eachStat("Character", function(_, stat)
+    local clock = phaseClock()
+    memo = DOS2C.PatchOnce and DOS2C.PatchOnce.New(MEMO_PATH, statText, U.Log) or nil
+    alreadyPatched = memo ~= nil and memo:Patched()
+    local remembered = (memo and alreadyPatched) and memo:Data() or {}
+    rememberedNatives = type(remembered.natives) == "table" and remembered.natives or {}
+    local clientMemo = DOS2C.PatchOnce and DOS2C.PatchOnce.New(R.CLIENT_MEMO_PATH, statText, U.Log) or nil
+    local clientRan = clientMemo ~= nil and clientMemo:Patched()
+    damageDone = alreadyPatched or clientRan
+    if clientRan and not alreadyPatched then
+        U.Log("damage rule: the client already ran it on this stats store; the server pass skips it")
+    end
+    changedStats = {}
+
+    local nCharacters = eachStat("Character", function(name, stat)
+        local damage = damageChain("Character", name, stat)
         local ap = patchCharacter(stat)
-        local damage = patchCharacterDamage(stat)
         return ap or damage
     end)
+    clock.mark("Character")
     local nWeapons = eachStat("Weapon", function(_, stat)
         return patchWeapon(stat)
     end)
+    clock.mark("Weapon")
     local nArmor = eachStat("Armor", function(name, stat)
         return patchArmor(name, stat)
     end)
+    clock.mark("Armor")
     local nStatuses = eachStat("StatusData", function(name, stat)
         return patchStatusDamage(name, stat)
     end)
+    clock.mark("StatusData")
     local nPassives = eachStat("PassiveData", function(name, stat)
         return patchPassiveDamage(name, stat)
     end)
+    clock.mark("PassiveData")
     local nObjects = eachStat("Object", function(_, stat)
         return patchObject(stat)
     end)
+    clock.mark("Object")
     local nInterrupts = eachStat("InterruptData", function(name, stat)
         return patchInterrupt(name, stat)
     end)
+    clock.mark("InterruptData")
 
     collectTooltipRiders()
     local nSpells = eachStat("SpellData", function(name, stat)
         return patchSpell(name, stat)
     end)
+    clock.mark("SpellData")
 
+    -- The stats this process changed: this pass's changes plus, on a store
+    -- that was already patched, the first pass's (kept in the memo).
+    for _, name in ipairs(type(remembered.changed) == "table" and remembered.changed or {}) do
+        changedStats[name] = true
+    end
+    local changedNames = {}
+    for name in pairs(changedStats) do changedNames[#changedNames + 1] = name end
+    table.sort(changedNames)
+
+    local synced = 0
     if runtime then
         -- Stats changes made after module load must be replicated to clients.
-        for _, statType in ipairs({ "Character", "SpellData", "Weapon", "Armor", "StatusData", "PassiveData", "Object", "InterruptData" }) do
-            local ok, names = pcall(Ext.Stats.GetStats, statType)
-            if ok and type(names) == "table" then
-                for _, name in ipairs(names) do
-                    local got, stat = pcall(Ext.Stats.Get, name)
-                    if got and stat and statMethod(stat, "Sync") then
-                        pcall(function() stat:Sync() end)
-                    end
-                end
+        -- Only the stats this process changed: an untouched stat has nothing
+        -- to replicate. A reload Syncs the same set again, so a peer that
+        -- joined since the first load still receives every patched stat.
+        for _, name in ipairs(changedNames) do
+            local got, stat = pcall(Ext.Stats.Get, name)
+            if got and stat and statMethod(stat, "Sync") then
+                pcall(function() stat:Sync() end)
+                synced = synced + 1
             end
         end
     end
+    clock.mark("Sync")
+    if memo then memo:Save({ changed = changedNames, natives = nativesForMemo() }) end
 
     local cdHist = {}
     local cdCount = 0
@@ -2119,6 +1972,7 @@ function S.PatchAll(runtime)
     U.Log("cost and resource fields rewritten: %d (%d rejected the write)",
         costFieldsRewritten, costFieldsFailed)
     auditBonusActionCosts()
+    clock.report(alreadyPatched and "already patched in this process" or "fresh stats", synced)
 end
 
 if Ext.Events and Ext.Events.StatsLoaded then

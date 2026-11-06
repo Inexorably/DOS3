@@ -4,8 +4,11 @@
 
 Ext.Require("Shared/ArmorFormula.lua")
 Ext.Require("Server/Config.lua")
+Ext.Require("Shared/StatText.lua")
+Ext.Require("Shared/DamageRule.lua")
 Ext.Require("Server/Util.lua")
 Ext.Require("Server/Cooldowns.lua")
+Ext.Require("Shared/PatchOnce.lua")
 Ext.Require("Server/ClassResources.lua")
 Ext.Require("Server/StatsPatcher.lua")
 Ext.Require("Server/WeaponRuntime.lua")

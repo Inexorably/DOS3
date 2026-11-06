@@ -55,6 +55,39 @@ function amount_of(guid, uuid)
 end
 """
 
+# BG3SE map values such as ActionResources.Resources[uuid] are Array userdata,
+# not Lua tables: `#` works, a number index works, and any string index throws
+# the error below. se_array(items) builds a real userdata with that shape;
+# se_entry(fields) builds a single entry userdata whose `#` answers 0.
+SE_SHAPES = """
+function se_array(items)
+    local u = python.eval('object()')
+    debug.setmetatable(u, {
+        __len = function() return #items end,
+        __index = function(_, k)
+            if type(k) ~= 'number' then
+                error("bad argument #2 to '__index' (number expected, got string)")
+            end
+            return items[k]
+        end,
+    })
+    return u
+end
+
+function se_entry(fields)
+    local u = python.eval('object()')
+    debug.setmetatable(u, {
+        __len = function() return 0 end,
+        __index = function(_, k)
+            if type(k) == 'number' then return nil end
+            return fields[k]
+        end,
+        __newindex = function(_, k, v) fields[k] = v end,
+    })
+    return u, fields
+end
+"""
+
 
 @unittest.skipUnless(HAVE_LUPA, "lupa is not installed")
 class ClassResourceTests(unittest.TestCase):
@@ -65,6 +98,7 @@ class ClassResourceTests(unittest.TestCase):
         for module in ("Server/Config.lua", "Server/Util.lua", "Server/ClassResources.lua"):
             self.harness.load(module)
         self.harness.run(FACTORY)
+        self.harness.run(SE_SHAPES)
 
     def character(self, guid: str, *resources) -> None:
         pieces = ", ".join(
@@ -190,6 +224,63 @@ class ClassResourceTests(unittest.TestCase):
         self.harness.run("DOS2C.ClassResources.Reset()")
         self.turn("c9")
         self.assertEqual(self.amount("c9", CHANNEL_DIVINITY), 0)
+
+    # BG3SE hands Resources values out as Array userdata. An empty one (a map
+    # key with no entries left) used to be taken for a single entry, and its
+    # ResourceUUID read threw "bad argument #2 to '__index'" every turn start.
+    def se_character(self, guid: str, resources_lua: str) -> None:
+        self.harness.run(
+            f"""
+            local entity = {{
+                Uuid = {{ EntityUuid = '{guid}' }},
+                ActionResources = {{ Resources = {resources_lua} }},
+                replicated = {{}},
+            }}
+            function entity:Replicate(component)
+                self.replicated[#self.replicated + 1] = component
+            end
+            H.entities['{guid}'] = entity
+            """
+        )
+
+    def test_an_empty_resource_array_is_skipped_without_error(self) -> None:
+        self.se_character("e1", f"{{ ['{CHANNEL_DIVINITY}'] = se_array({{}}) }}")
+        self.assertEqual(
+            self.harness.run("return DOS2C.ClassResources.Recharge(H.entities['e1'])"), 0
+        )
+        self.turn("e1")
+        self.assertEqual(self.harness.run("return #H.entities['e1'].replicated"), 0)
+
+    def test_an_empty_array_beside_channel_divinity_still_refills_and_replicates(self) -> None:
+        self.harness.run(
+            f"cd_entry = {{ ResourceUUID = '{CHANNEL_DIVINITY}', Amount = 0, MaxAmount = 1 }}"
+        )
+        self.se_character(
+            "e2",
+            f"{{ ['{SUPERIORITY_DIE}'] = se_array({{}}), ['{CHANNEL_DIVINITY}'] = se_array({{ cd_entry }}) }}",
+        )
+        self.turn("e2")
+        self.assertEqual(self.harness.run("return cd_entry.Amount"), 1)
+        self.assertEqual(
+            self.harness.run("return H.entities['e2'].replicated[1]"), "ActionResources"
+        )
+
+    def test_a_single_entry_whose_length_is_zero_still_recharges_and_logs_once(self) -> None:
+        self.harness.run(
+            f"lone, lone_fields = se_entry({{ ResourceUUID = '{CHANNEL_DIVINITY}', Amount = 0, MaxAmount = 2 }})"
+        )
+        self.se_character("e3", f"{{ ['{CHANNEL_DIVINITY}'] = lone }}")
+        self.turn("e3")
+        self.turn("e3")
+        self.assertEqual(self.harness.run("return lone_fields.Amount"), 2)
+        odd = [line for line in self.harness.prints() if "length 0 but reads as one entry" in line]
+        self.assertEqual(len(odd), 1)
+        self.assertIn(CHANNEL_DIVINITY, odd[0])
+
+    def test_a_plain_empty_array_is_not_logged(self) -> None:
+        self.se_character("e4", f"{{ ['{CHANNEL_DIVINITY}'] = se_array({{}}) }}")
+        self.turn("e4")
+        self.assertFalse([line for line in self.harness.prints() if "reads as one entry" in line])
 
 
 if __name__ == "__main__":

@@ -617,6 +617,45 @@ path never did. `StatsPatcher` now reads and writes through
 string, and logs `damage ranges compressed on <n> stat fields` so one game
 session proves whether the runtime stats were rewritten.
 
+## Stats outlive the Lua state across save loads in one game process (2026-11-01 logs)
+
+The stats store is built once per game process, at module load; BG3SE rebuilds
+the server Lua state on every save load. A second or third load in the same
+process therefore sees the stats exactly as the previous pass left them, while
+every Lua table (`compressedFields`, `nativeCooldownInfo`, the cooldown
+definitions) starts empty. In the SE logs of three-load sessions the reload
+passes reported 0 characters / 0 armor / 0 cost fields rewritten (those patchers
+saw their own output) but "damage ranges compressed on 14051 stat fields" again:
+compression is not a fixed point (1d12 -> 1d4+4 -> 1d4+5 -> 1d4+6).
+
+The server `StatsLoaded` hook does not run on a save load: the server Lua state
+is created after stats load, so `PatchAll` runs only from `SessionLoaded`. The
+client's `StatsLoaded` runs once per process (one client cost-mirror line per
+log, whatever the number of loads).
+
+`StatsPatcher.lua` now keeps a memo file (`Shared/PatchOnce.lua`, Ext.IO path
+`DOS2Combat/stats_patch_memo.json`): a few (stat, field, before, after) samples
+of what the first pass wrote, the changed stat names and the native cast limits.
+When every sample still reads its "after" text, the pass knows this process
+already patched the store. Not yet measured in game.
+
+`SpellData.Cooldown` reads back as its `SpellCooldownType` label: writing
+`0` (Default) reads `"None"`, which is the cleared state. Counting `"None"` as a
+failed clear logged one "could not clear Cooldown" line per spell per load and
+then wrote `"OncePerTurn"` as a fallback; that fallback is gone.
+
+The host's hotbar tooltip does not read the live stat. On the host the client
+and the server share one stats store (the client cost mirror's writes are seen
+by the server pass: 186 item use costs before it, 0 after), yet after the
+SessionLoaded compression and its Sync the tooltip still showed vanilla dice
+(Inflict Wounds 3d10, not 1d10+11): it reads a copy the client built when the
+stats loaded. So the damage rule (`Shared/DamageRule.lua`: tooltip derivation,
+ported rescale, range compression, flattening) runs at client `StatsLoaded`
+(`Client/DamageCompression.lua`, memo `DOS2Combat/client_damage_memo.json`),
+and the server pass runs it only when that memo does not hold in the store (a
+VM without a client). Running it on both sides of one store would compress
+every range twice. Not yet measured in game.
+
 ## The IsInCombat component is stale after a save reload (2026-10-30 04:05 run)
 
 Reloading a save inside a running game leaves `IsInCombat` component instances on
@@ -711,6 +750,26 @@ from a running server:
   Armor's previous six-entry fixtures hid this offset; the armor calculation
   and its cache fingerprint now read Dexterity at index 3.
 
+## Hit enum fields are enum objects, not numbers (2026-11-02 runs)
+
+`BeforeDealDamage`'s `Hit.CauseType`, `Hit.HitWith` and `Hit.SpellAttackType`
+are enums. BG3SE returns enum properties as userdata with `Label`, `Value` and
+`EnumName` (upstream `Docs/API.md`, "Enum values"), and `tonumber()` of a
+userdata is `nil`. `Armor.lua`'s attack check read them with `tonumber(...) or
+0`, so every hit read as cause 0 and the critical roll, the attack-roll
+modifiers and the flat attack-roll bonus never ran: `critical roll` lines = 16
+in 213 `damage reduction ... reduced` lines on f0d991d / 29dc8cb (the check
+still had an `ev.Attack` fallback), 0 in 123 on eb308bb / b570d48. `Armor.lua` now reads the
+numeric value (`.Value`; a label string through `Ext.Enums`; a number as is).
+Status: `confirmed` for "not a number" (the log counts); the exact numbers per
+label are the ones the existing checks use, not re-sampled.
+
+The same run logs `DEPRECATED: Reading property
+esv::lua::BeforeDealDamageEventParams.DamageSums that has been renamed to
+Attack`, so `ev.Attack` is the event's attack desc on this build;
+`attackerOf` reads `Attack` first, then `DamageSums`, each field in a `pcall`
+(an attack desc throws "Property does not exist" on a field it lacks).
+
 ## The party is DB_Players, not GetPartyMembers (2026-11-02 run)
 
 `Osi.GetPartyMembers` and `Osi.GetAllPartyMembers` are DOS2 Osiris names; this
@@ -742,6 +801,7 @@ is what the reinforcement boons, the offer's fight check and the "never
 randomize a party member" guard all need. The same DOS2 names are still used by
 `DOS2Combat`, `RespecAnywhere` and `OrbWeaver`; they are outside this fix.
 
+
 `DOS2Combat` now reads the same database (`Utils.PartySet`, used by
 `Utils.IsPartyMember` and Armor's `isPartyCharacter`). Its old rule was "an
 empty party list means everyone is party", so with no DOS2 query every
@@ -756,6 +816,26 @@ Randomization buffed and Armor gave a 20% reduction) comes
 only. Enemy cooldown overrides (`ENEMY_COOLDOWN_OVERRIDES`) were skipped the
 same way. `RespecAnywhere`, `OrbWeaver` and `DOS2Combat`'s `Bedroll`,
 `SurfaceSpells`, `Verify` and `Diagnostics` still use the DOS2 names.
+
+## `ActionResources.Resources` can hold an empty Array (2026-11-01 session)
+
+`confirmed`. The values of `entity.ActionResources.Resources` are `Array`
+userdata: `#` works, a number index works, a string index throws. One party
+character logged this on every one of its turn starts (16 times in one session):
+
+```text
+[DOS2C] class resource recharge error: ClassResources.lua:53: bad argument #2 to '__index' (number expected, got string)
+```
+
+A map key can hold an Array with zero entries. `entryList` took an empty Array
+for a single entry and returned the Array itself, so `entry.ResourceUUID` threw
+and the rest of that turn's recharge pass (and its `Replicate`) was skipped.
+Why the key is empty is not known. `ClassResources.entryList` and
+`StatsPatcher.entryList` now return an empty list for it. A value whose `#` is
+0 but which still reads a `ResourceUUID` stays a single entry, and
+`ClassResources` logs `class resource <key>: length 0 but reads as one entry`
+once per key. Tests: `se_array` / `se_entry` in `tests/test_lua_class_resources.py` build
+real userdata with these shapes.
 
 ## Maintenance rule
 

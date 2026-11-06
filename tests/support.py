@@ -110,6 +110,24 @@ def lua_runtime():
             Utils = { Print = function() end },
         }
         Osi = {}
+        -- BG3SE resolves Ext.Require against the mod's Lua root: here, the
+        -- root of the nearest mod file on the call stack.
+        Ext.Require = function(relative)
+            local level = 2
+            while debug.getinfo(level, "S") do
+                local source = debug.getinfo(level, "S").source or ""
+                local root = source:match("^@(.*/ScriptExtender/Lua)/")
+                if root then
+                    local full = root .. "/" .. relative
+                    local handle = assert(io.open(full, "rb"), "missing Lua module: " .. full)
+                    local text = handle:read("*a")
+                    handle:close()
+                    return assert(load(text, "@" .. full))()
+                end
+                level = level + 1
+            end
+            error("Ext.Require: no mod file on the call stack for " .. relative)
+        end
         """
     )
     if lua_coverage_enabled():
