@@ -711,6 +711,26 @@ from a running server:
   Armor's previous six-entry fixtures hid this offset; the armor calculation
   and its cache fingerprint now read Dexterity at index 3.
 
+## Hit enum fields are enum objects, not numbers (2026-11-02 runs)
+
+`BeforeDealDamage`'s `Hit.CauseType`, `Hit.HitWith` and `Hit.SpellAttackType`
+are enums. BG3SE returns enum properties as userdata with `Label`, `Value` and
+`EnumName` (upstream `Docs/API.md`, "Enum values"), and `tonumber()` of a
+userdata is `nil`. `Armor.lua`'s attack check read them with `tonumber(...) or
+0`, so every hit read as cause 0 and the critical roll, the attack-roll
+modifiers and the flat attack-roll bonus never ran: `critical roll` lines = 16
+in 213 `damage reduction ... reduced` lines on f0d991d / 29dc8cb (the check
+still had an `ev.Attack` fallback), 0 in 123 on eb308bb / b570d48. `Armor.lua` now reads the
+numeric value (`.Value`; a label string through `Ext.Enums`; a number as is).
+Status: `confirmed` for "not a number" (the log counts); the exact numbers per
+label are the ones the existing checks use, not re-sampled.
+
+The same run logs `DEPRECATED: Reading property
+esv::lua::BeforeDealDamageEventParams.DamageSums that has been renamed to
+Attack`, so `ev.Attack` is the event's attack desc on this build;
+`attackerOf` reads `Attack` first, then `DamageSums`, each field in a `pcall`
+(an attack desc throws "Property does not exist" on a field it lacks).
+
 ## The party is DB_Players, not GetPartyMembers (2026-11-02 run)
 
 `Osi.GetPartyMembers` and `Osi.GetAllPartyMembers` are DOS2 Osiris names; this
