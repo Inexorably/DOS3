@@ -460,12 +460,26 @@ class ArmorTests(unittest.TestCase):
         self.character("enemy-a", ac=16, combatParticipant=True)
         self.character("enemy-b", ac=16, inCombat=True)
         self.character("party-a", ac=16, player=True, combatParticipant=True)
-        self.harness.set_osi_result("GetPartyMembers", ["party-a"])
+        self.harness.set_db("DB_Players", ["party-a"])
         self.harness.set_component("CombatParticipant", ["enemy-a", "party-a"])
         self.harness.set_component("IsInCombat", ["enemy-b"])
         count = self.harness.run("return DOS2C.Armor.PrepareAll()")
         self.assertEqual(count, 3)
         self.assertIn("armor prepare: 3 combatants checked", self.logs())
+
+    def test_prepare_all_reads_the_party_from_db_players(self) -> None:
+        # In game GetPartyMembers does not exist; with no party entry every
+        # combatant counted as party and no enemy armor was prepared.
+        party = "11111111-2222-3333-4444-555555555555"
+        enemy = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+        self.character(enemy, ac=16, combatParticipant=True)
+        self.character(party, ac=16, combatParticipant=True)
+        self.harness.remove_osi("GetPartyMembers", "GetAllPartyMembers")
+        self.harness.set_db("DB_Players", [f"Humans_Male_Player_{party}"])
+        self.harness.set_component("CombatParticipant", [enemy, party])
+        self.harness.run("return DOS2C.Armor.PrepareAll()")
+        self.assertIn(f"armor {enemy}: ac=16", self.logs())
+        self.assertNotIn(f"armor {party}: ac=", self.logs())
 
     def test_session_loaded_schedules_preparation(self) -> None:
         self.character("enemy-c", ac=16, combatParticipant=True)

@@ -77,29 +77,41 @@ end
 -- True for a party member. The party list is empty before the session is ready,
 -- so an unpopulated list reports true rather than silently skipping players.
 function U.IsPartyMember(handle)
-    if not (Osi and Osi.GetPartyMembers) then return true end
-    local ok, a, b, c, d = pcall(Osi.GetPartyMembers)
-    if not ok or not a then return true end
+    local party = U.PartySet()
+    if next(party) == nil then return true end
 
     local target = U.GuidOf(handle)
     if not target then return true end
+    return party[U.UuidOf(target)] == true
+end
 
-    local members
-    if type(a) == "table" then
-        members = a
-    else
-        members = { a, b, c, d }
-    end
+-- The bare UUID at the end of a GUID ("S_Player_...-<uuid>" or a
+-- template-prefixed "Elves_Female_High_Player_<uuid>").
+function U.UuidOf(guid)
+    local text = tostring(guid or "")
+    return text:match("(%x+%-%x+%-%x+%-%x+%-%x+)$") or text
+end
 
-    local checked = 0
-    for _, member in ipairs(members) do
-        if member ~= nil and member ~= "" then
-            checked = checked + 1
-            if U.GuidOf(member) == target then return true end
+-- The party is the engine's DB_Players Osiris database, one row per character
+-- (row[1] is the GUID), keyed by bare UUID. The DOS2 queries GetPartyMembers /
+-- GetAllPartyMembers are not in this build: reading them found no party, and
+-- the rule above then counted every character, enemies included, as party.
+-- Reported once when the database has no rows.
+local partyEmptyLogged = false
+function U.PartySet()
+    local set = {}
+    local ok, rows = pcall(function() return Osi.DB_Players:Get(nil) end)
+    if ok and type(rows) == "table" then
+        for _, row in ipairs(rows) do
+            local guid = type(row) == "table" and row[1] or nil
+            if guid and tostring(guid) ~= "" then set[U.UuidOf(guid)] = true end
         end
     end
-
-    return checked == 0
+    if next(set) == nil and not partyEmptyLogged then
+        partyEmptyLogged = true
+        U.Log("party is empty: DB_Players returned no rows, so every character counts as party")
+    end
+    return set
 end
 
 function U.GetLevel(handle)
