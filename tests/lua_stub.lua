@@ -249,6 +249,10 @@ OSI_STATEFUL = {
         local entity = H.entities[guid]
         return (entity and (entity.Player or entity.UserAvatar)) and 1 or 0
     end,
+    -- A flat navmesh: the asked point is already a valid spot, so Mirror and
+    -- Reinforce spawn where they aimed. Set H.osi_results.FindValidPosition
+    -- to move the point or to return nil (no valid spot).
+    FindValidPosition = function(x, y, z) return x, y, z end,
 }
 
 Osi = setmetatable({}, {
