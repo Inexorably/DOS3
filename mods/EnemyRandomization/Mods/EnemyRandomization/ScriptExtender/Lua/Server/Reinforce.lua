@@ -9,8 +9,13 @@
 -- to the enemies in the fight (M.CombatAnchors), each placed in a small
 -- ring around its anchor.
 --
--- Combats and reinforcements are tracked in PersistentVars so a reload never
--- rolls a combat twice and the Randomizer never rolls a reinforcement.
+-- A fight is reinforced at most once. The fact lives on the fight's units as
+-- the permanent hidden marker ENR_REINFORCE_ROLLED (on the enemy that rolled,
+-- applied before the roll, and on every wave member), and every wave member
+-- carries ENR_REINFORCEMENT, so the Randomizer never rolls it. PersistentVars
+-- only caches both facts: in game the vars came back empty after a load, and
+-- the fight was offered a second wave. The rolled marker is taken off the
+-- fight's units when it ends, so a survivor can roll in its next fight.
 
 ER = ER or {}
 ER.Reinforce = ER.Reinforce or {}
@@ -38,9 +43,44 @@ local function registry()
     return PersistentVars.ENR_ReinforcedCombats, PersistentVars.ENR_Reinforcements
 end
 
+local ROLLED_MARKER = "ENR_REINFORCE_ROLLED"
+local MEMBER_MARKER = "ENR_REINFORCEMENT"
+
+-- Whether `status` is on the unit: the Randomizer's reader (the engine's
+-- StatusContainer or Osi.HasStatus) when it is loaded, else Osi.HasStatus.
+local function hasLiveStatus(guid, status, live)
+    if ER.Randomizer and ER.Randomizer.HasStatus then
+        local ok, present = pcall(ER.Randomizer.HasStatus, guid, status, live)
+        return ok and present == true
+    end
+    if not (Osi and Osi.HasStatus) then return false end
+    local ok, result = pcall(Osi.HasStatus, guid, status)
+    return ok and (result == 1 or result == true)
+end
+
+local function liveOf(guid)
+    if not (ER.Randomizer and ER.Randomizer.LiveStatuses) then return nil end
+    local ok, live = pcall(ER.Randomizer.LiveStatuses, guid)
+    return ok and live or nil
+end
+
+local function mark(guid, status)
+    if Osi and Osi.ApplyStatus then pcall(Osi.ApplyStatus, guid, status, -1, 1) end
+end
+
+-- Set below: puts a reinforcement into its fight's roster once per session.
+local noteReinforcement
+
 function M.IsReinforcement(guid)
     local _, spawned = registry()
-    return spawned[uuidOf(guid)] == true
+    local id = uuidOf(guid)
+    local known = spawned[id] == true
+    if not known and guid and hasLiveStatus(guid, MEMBER_MARKER) then
+        spawned[id] = true
+        known = true
+    end
+    if known and noteReinforcement then noteReinforcement(guid) end
+    return known
 end
 
 local function clamp01(value)
@@ -224,6 +264,24 @@ local function noteEnemy(combat, id, info)
     roster.list[#roster.list + 1] = info
 end
 
+-- After a load the roster is empty and the Randomizer skips reinforcements,
+-- so a reinforcement joins its fight's roster the first time it is seen (for
+-- champion targets, the kill command and the end-of-fight cleanup).
+local rosteredReinforcements = {}
+noteReinforcement = function(guid)
+    local id = uuidOf(guid)
+    if rosteredReinforcements[id] then return end
+    rosteredReinforcements[id] = true
+    local combat = combatKey(guid, nil)
+    if not combat then return end
+    local entity = nil
+    if Ext and Ext.Entity and Ext.Entity.Get then
+        local ok, value = pcall(Ext.Entity.Get, guid)
+        if ok then entity = value end
+    end
+    noteEnemy(combat, id, { level = levelOf(entity), boss = false, reinforcement = true })
+end
+
 function M.NoteEnemy(guid, entity, isBoss)
     if not guid or M.IsReinforcement(guid) then return end
     local combat = combatKey(guid, entity)
@@ -285,6 +343,8 @@ local function spawnWave(guid, wave, level, combat, tier, count)
         local unit = spawnAt(anchor, template, slot, perAnchor)
         if unit then
             spawned[uuidOf(unit)] = true
+            mark(unit, MEMBER_MARKER)
+            mark(unit, ROLLED_MARKER)
             out[#out + 1] = unit
             noteEnemy(combat, uuidOf(unit), { level = level, boss = false, reinforcement = true, wave = wave.key })
             if ER.Mirror and ER.Mirror.JoinCombat then
@@ -613,15 +673,27 @@ local function championEntry(status)
     return nil
 end
 
+-- Whether a champion status (any Config.CHAMPIONS status) is live on the
+-- unit. The roster's in-memory flag is not proof: a load empties the roster
+-- while the unit keeps its champion.
+local function isLiveChampion(id)
+    local live = liveOf(id)
+    for _, entry in ipairs(C.CHAMPIONS or {}) do
+        if entry.status and hasLiveStatus(id, entry.status, live) then return true end
+    end
+    return false
+end
+
 -- Places a card's champions on different living members of the fight's
 -- roster (enemies and the reinforcements just spawned), never on a clone or
--- an enemy that is already a champion. Mirrors goes only where Mirror may
+-- a unit with a champion status live on it. Mirrors goes only where Mirror may
 -- clone (never a boss), and clones at once. Returns the placements made.
 function M.ApplyChampions(combat, statuses)
     local targets = {}
     for _, enemy in ipairs(M.Roster(combat)) do
-        if not enemy.champion and osiValue("IsDead", enemy.id) ~= 1
-            and not (ER.Mirror and ER.Mirror.IsClone and ER.Mirror.IsClone(enemy.id)) then
+        if osiValue("IsDead", enemy.id) ~= 1
+            and not (ER.Mirror and ER.Mirror.IsClone and ER.Mirror.IsClone(enemy.id))
+            and not isLiveChampion(enemy.id) then
             targets[#targets + 1] = enemy
         end
     end
@@ -629,16 +701,17 @@ function M.ApplyChampions(combat, statuses)
         local swap = math.random(index)
         targets[index], targets[swap] = targets[swap], targets[index]
     end
-    local placed = {}
+    local placed, taken = {}, {}
     for _, status in ipairs(statuses or {}) do
         local entry = championEntry(status)
         local mirrors = status == C.MIRROR_CHAMPION
         for _, enemy in ipairs(targets) do
-            local fits = not enemy.champion and not (mirrors and (enemy.boss
+            local fits = not taken[enemy.id] and not (mirrors and (enemy.boss
                 or not (ER.Mirror and ER.Mirror.CanMirror and ER.Mirror.CanMirror(enemy.id, nil))))
             if entry and fits and ER.Randomizer and ER.Randomizer.ApplyChampionTo
                 and ER.Randomizer.ApplyChampionTo(enemy.id, entry) then
                 enemy.champion = status
+                taken[enemy.id] = true
                 placed[#placed + 1] = { status = status, id = enemy.id }
                 if mirrors and ER.Mirror and ER.Mirror.Consider then
                     pcall(ER.Mirror.Consider, enemy.id, nil, false, true)
@@ -932,6 +1005,43 @@ local function offerWaves(guid, entity, combat)
     return keys
 end
 
+-- The unit of the fight keyed `combat` that carries the rolled marker, or nil:
+-- `guid` first, then the fight's roster, then every unit in combat whose fight
+-- is `combat` (after a load the roster only holds the units scanned so far).
+function M.RolledMarkerIn(combat, guid)
+    if guid and hasLiveStatus(guid, ROLLED_MARKER) then return uuidOf(guid) end
+    for _, enemy in ipairs(M.Roster(combat)) do
+        if hasLiveStatus(enemy.id, ROLLED_MARKER) then return enemy.id end
+    end
+    if not (Ext and Ext.Entity and Ext.Entity.GetAllEntitiesWithComponent) then return nil end
+    local seen = {}
+    for _, component in ipairs({ "IsInCombat", "CombatParticipant" }) do
+        local ok, entities = pcall(Ext.Entity.GetAllEntitiesWithComponent, component)
+        for _, entity in ipairs(ok and type(entities) == "table" and entities or {}) do
+            local okId, id = pcall(function() return entity.Uuid.EntityUuid end)
+            id = okId and id and tostring(id) or nil
+            if id and not seen[id] then
+                seen[id] = true
+                if combatKey(id, entity) == combat and hasLiveStatus(id, ROLLED_MARKER) then return uuidOf(id) end
+            end
+        end
+    end
+    return nil
+end
+
+-- Takes the rolled marker off the units of the fight keyed `combat` (its
+-- roster), so a survivor that joins a later fight can roll there. Returns how
+-- many units were cleared.
+function M.ClearRolledMarkers(combat)
+    local cleared = 0
+    for _, enemy in ipairs(M.Roster(combat)) do
+        if Osi and Osi.RemoveStatus and pcall(Osi.RemoveStatus, enemy.id, ROLLED_MARKER) then
+            cleared = cleared + 1
+        end
+    end
+    return cleared
+end
+
 -- Without REINFORCE_PICK this returns the spawned guids; with it, the offered
 -- wave keys. Returns nil when nothing happened.
 function M.Consider(guid, entity, isBoss)
@@ -943,9 +1053,16 @@ function M.Consider(guid, entity, isBoss)
     if not combat then return nil end
     local combats = registry()
     if combats[combat] then return nil end
+    local marked = M.RolledMarkerIn(combat, guid)
+    if marked then
+        combats[combat] = true
+        log("reinforce %s: already rolled (%s on %s), not rolled again", combat, ROLLED_MARKER, marked)
+        return nil
+    end
 
     -- Mark before rolling so a failed or interrupted roll is never retried.
     combats[combat] = true
+    mark(guid, ROLLED_MARKER)
     if math.random() > clamp01(C.REINFORCE_CHANCE) then return nil end
 
     if C.REINFORCE_PICK then return offerWaves(guid, entity, combat) end
@@ -1101,8 +1218,58 @@ if Ext and Ext.Events and Ext.Events.NetMessage then
     end)
 end
 
+-- Root-cause print (always on, one line each): what this mod's PersistentVars
+-- hold right before a save and right after a load, as keys and entry counts
+-- only (never the values). In game the vars came back empty after a load;
+-- these two lines show whether the save had them. The tail says whether
+-- Mods.EnemyRandomization.PersistentVars (the table the extender saves) is
+-- the table this code writes.
+function M.VarsSummary()
+    local vars = PersistentVars
+    local parts = {}
+    if type(vars) == "table" then
+        for key, value in pairs(vars) do
+            local size = nil
+            if type(value) == "table" then
+                size = 0
+                for _ in pairs(value) do size = size + 1 end
+            end
+            parts[#parts + 1] = string.format("%s=%s", tostring(key), size and tostring(size) or type(value))
+        end
+        table.sort(parts)
+    else
+        parts[1] = "PersistentVars is " .. type(vars)
+    end
+    local modTable = "missing"
+    -- Looked up by name: the global table of every mod's table, which the
+    -- type checker does not know.
+    local globals, modsKey = _G, "Mods"
+    local okMods, own = pcall(function() return globals[modsKey].EnemyRandomization end)
+    if not okMods then own = nil end
+    if type(own) == "table" then
+        modTable = rawget(own, "PersistentVars") == vars and "same table" or "a different table"
+    end
+    return string.format("%s (Mods.EnemyRandomization.PersistentVars: %s)",
+        #parts > 0 and table.concat(parts, ", ") or "none", modTable)
+end
+
+local function printVars(when)
+    local ok, text = pcall(M.VarsSummary)
+    if Ext and Ext.Utils and Ext.Utils.Print then
+        pcall(Ext.Utils.Print, string.format("%s vars %s: %s", C.LOG_PREFIX, when, ok and text or tostring(text)))
+    end
+end
+
+if Ext and Ext.Events and Ext.Events.GameStateChanged then
+    Ext.Events.GameStateChanged:Subscribe(function(ev)
+        local ok, state = pcall(function() return tostring(ev.ToState) end)
+        if ok and state == "Save" then printVars("before save") end
+    end)
+end
+
 if Ext and Ext.Events and Ext.Events.SessionLoaded then
     Ext.Events.SessionLoaded:Subscribe(function()
+        printVars("after load")
         pcall(M.ResolveStaleOffers)
     end)
 end
@@ -1115,6 +1282,7 @@ if Ext and Ext.Osiris and Ext.Osiris.RegisterListener then
     pcall(Ext.Osiris.RegisterListener, "CombatEnded", 1, "after", function(combat)
         pcall(M.RemoveBoons, tostring(combat))
         pcall(M.OnCombatEnded, tostring(combat))
+        pcall(M.ClearRolledMarkers, tostring(combat))
     end)
 end
 

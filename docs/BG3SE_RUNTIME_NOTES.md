@@ -708,8 +708,10 @@ branches that exist for exactly this case (`adopted existing buff`,
 Two consequences, both applied in `Randomizer.lua`:
 
 - Read the statuses from the ECS instead. `entity.StatusContainer.Statuses`
-  entries expose `StatusId`/`StackId`; `Armor.lua` already reads that component
-  for AC statuses. `hasStatus` now treats either source as proof and logs the
+  is a map from the status entity to its id (`eoc::status::ContainerComponent`,
+  `HashMap<EntityHandle, FixedString>`), so it is walked with `pairs` and the
+  value is the status id; `ipairs` over it finds nothing, which left this
+  check blind. `hasStatus` now treats either source as proof and logs the
   first six disagreements as
   `status <name> on <guid>: Osi.HasStatus=false StatusContainer=true`.
 - Never trust a status query for the roll decision alone. Rolls are recorded in

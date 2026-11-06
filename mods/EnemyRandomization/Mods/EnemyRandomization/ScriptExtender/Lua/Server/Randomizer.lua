@@ -45,8 +45,18 @@ end
 -- a second random buff, rescaled champion health again and rolled a new
 -- champion on top of the existing one. The ECS StatusContainer is the engine's
 -- own list: read it once per entity and treat either source as proof.
+-- The extender exposes StatusContainer.Statuses as a map from the status
+-- entity to the status id (HashMap<EntityHandle, FixedString>), so it is walked
+-- with pairs and the value is the id; `ipairs` over it finds nothing. An entry
+-- that is an object instead of an id is read through StatusId/StackId.
 local STATUS_SKEW_LOG_LIMIT = 6
 local statusSkewLogged = 0
+
+local function addStatusId(set, value)
+    if value == nil then return end
+    local text = tostring(value)
+    if text ~= "" then set[text] = true end
+end
 
 local function liveStatuses(entity)
     local set = {}
@@ -56,13 +66,15 @@ local function liveStatuses(entity)
     local listOk, statuses = pcall(function() return container.Statuses end)
     if not listOk or not statuses then return set end
     pcall(function()
-        for _, status in ipairs(statuses) do
-            for _, field in ipairs({ "StatusId", "StackId" }) do
-                local fieldOk, value = pcall(function() return status[field] end)
-                if fieldOk and value ~= nil then
-                    local text = tostring(value)
-                    if text ~= "" then set[text] = true end
+        for _, status in pairs(statuses) do
+            local kind = type(status)
+            if kind == "table" or kind == "userdata" then
+                for _, field in ipairs({ "StatusId", "StackId" }) do
+                    local fieldOk, value = pcall(function() return status[field] end)
+                    if fieldOk then addStatusId(set, value) end
                 end
+            else
+                addStatusId(set, status)
             end
         end
     end)
@@ -757,6 +769,17 @@ local function collectCombatants()
         end
     end
     return list
+end
+
+-- The status reader above, for the other server modules: Reinforce judges
+-- its "already reinforced" markers and live champions with it, because
+-- Osi.HasStatus alone is blind to them after a reload.
+function R.LiveStatuses(guid)
+    return liveStatuses(entityOf(guid))
+end
+
+function R.HasStatus(guid, status, live)
+    return hasStatus(guid, status, live)
 end
 
 function R.GetChampionStatuses(guid)

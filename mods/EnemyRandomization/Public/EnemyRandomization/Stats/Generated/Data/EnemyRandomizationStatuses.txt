@@ -45,3 +45,24 @@ data "DisplayName" "Mirrored"
 data "Description" "This enemy is a mirror image of another."
 data "StackId" "ENR_MIRROR_CLONE"
 data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"
+
+-- Reinforce.lua: a fight is reinforced at most once. Put on the enemy that
+-- rolled (before the roll) and on every wave member; taken off the fight's
+-- units when it ends.
+new entry "ENR_REINFORCE_ROLLED"
+type "StatusData"
+data "StatusType" "BOOST"
+data "DisplayName" "Reinforcements Rolled"
+data "Description" "This enemy's fight has already rolled for reinforcements."
+data "StackId" "ENR_REINFORCE_ROLLED"
+data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"
+
+-- Marks reinforcement wave members, which never roll buffs or champions of
+-- their own.
+new entry "ENR_REINFORCEMENT"
+type "StatusData"
+data "StatusType" "BOOST"
+data "DisplayName" "Reinforcement"
+data "Description" "This enemy arrived as a reinforcement."
+data "StackId" "ENR_REINFORCEMENT"
+data "StatusPropertyFlags" "DisableOverhead;DisableCombatlog;DisablePortraitIndicator"
