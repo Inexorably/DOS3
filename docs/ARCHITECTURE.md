@@ -119,6 +119,11 @@ the same pair twice.
 - The client `CooldownUI` shows the numeric remaining turns because native
   tooltips only understand enum labels.
 - Out-of-combat cooldown time is six seconds per turn.
+- A turn count with no matching stat label gets its cooldown type from
+  `Config.COOLDOWN_TYPE_BY_TURNS` (4 -> `UntilShortRest`, 5..7 -> `UntilRest`).
+  That map never returns a `*PerItem` type: it does not know who granted the
+  spell, and a 6-turn spell that no item granted was cast again under
+  `UntilRestPerItem` while its counter ran. The turn count stays in `Cooldown`.
 - `Rest.lua` handles short-rest refresh and long-rest clearing.
 - `ClassResources.lua` replaces BG3's per-rest class charges. A spent charge
   (Channel Divinity, Rage, Ki, Superiority Die, ...) regenerates one point every

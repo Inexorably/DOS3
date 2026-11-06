@@ -80,14 +80,18 @@ DOS2C.Config = {
         UntilRestPerItem = "UntilRestPerItem",
     },
     -- Fallback subtype used when the exact enum is unavailable.
+    -- No *PerItem label here: this map knows only the turn count, not who
+    -- granted the spell, and a 6-turn spell that no item granted (Topple and
+    -- Hold Person given by Osi.AddSpell) was cast again while its counter ran
+    -- under UntilRestPerItem. The turn count itself is written to Cooldown.
     COOLDOWN_TYPE_BY_TURNS = {
         [1] = "OncePerTurn",
         [2] = "OncePerTurnNoRealtime",
         [3] = "UntilShortRest",
-        [4] = "UntilShortRestPerItem",
+        [4] = "UntilShortRest",
         [5] = "UntilRest",
-        [6] = "UntilRestPerItem",
-        [7] = "UntilRestPerItem",
+        [6] = "UntilRest",
+        [7] = "UntilRest",
     },
     -- These values are for rebalancing BG3-native spells. Ported DOS2 spells
     -- use their original DOS2 cooldown from DOS2_COOLDOWNS below.

@@ -215,12 +215,13 @@ class CooldownRuntimeEnumTests(unittest.TestCase):
         self.assertIn("out-of-combat cooldown expired: spell_tick", " ".join(self.harness.prints()))
 
     def test_a_four_turn_cooldown_without_a_definition_type_uses_a_runtime_label(self) -> None:
-        # the turn fallback maps 4 turns to UntilShortRestPerItem, also absent on v33
+        # the turn fallback maps 4 turns to UntilShortRest (no *PerItem label, see
+        # test_lua_cooldown_turn_types.py), which v33 has
         self.define("Spell_Four", 4)
         self.character("e5", "Spell_Four", existing_kind=None)
         self.assertEqual(self.apply("e5", "Spell_Four", 4), "")
-        self.assertEqual(self.entry("e5"), {"count": 1, "kind": "OncePerShortRestPerItem",
-                                            "kind2": "OncePerShortRestPerItem", "turns": 4})
+        self.assertEqual(self.entry("e5"), {"count": 1, "kind": "UntilShortRest",
+                                            "kind2": "UntilShortRest", "turns": 4})
         self.assertEqual(self.errors_logged(), "")
 
     def test_a_label_with_no_runtime_meaning_falls_back_to_the_plain_turn_type(self) -> None:
