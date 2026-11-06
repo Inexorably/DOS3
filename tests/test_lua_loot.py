@@ -335,6 +335,57 @@ class LootTests(unittest.TestCase):
         self.assertIn("loot dead champion poll", self.logs())
         self.assertIn("loot roll:", self.logs())
 
+    def poll_scene(self) -> list[str]:
+        """A mixed Health scene for the dead-champion poll: living (one of them a champion), dead champion,
+        dead already-rolled champion, dead non-champion, dead reward carrier."""
+        champion = self.harness.run("return ER.Config.CHAMPIONS[1].status")
+        living = [f"alive-{index}" for index in range(12)]
+        for guid in living:
+            self.character(guid, health=40, level=5)
+        self.harness.run(f'H.statuses["alive-0|{champion}"] = true')
+        self.character("dead-champ", health=0, level=5)
+        self.harness.run(f'H.statuses["dead-champ|{champion}"] = true')
+        self.character("dead-rolled", health=0, level=5)
+        self.harness.run(f'H.statuses["dead-rolled|{champion}"] = true')
+        self.harness.run('H.statuses["dead-rolled|ENR_LOOT_ROLLED"] = true')
+        self.character("dead-plain", health=0, level=5)
+        self.harness.run('ER.Loot.AssignReward("dead-carrier", ER.Loot.PickReward("Rare"))')
+        self.character("dead-carrier", health=0, level=5)
+        self.harness.set_component(
+            "Health", living + ["dead-champ", "dead-rolled", "dead-plain", "dead-carrier"]
+        )
+        return living
+
+    def poll_lines(self) -> list[str]:
+        return [line for line in self.harness.prints() if "loot dead champion poll:" in line]
+
+    def test_dead_poll_rolls_the_same_corpses_in_a_mixed_scene(self) -> None:
+        # Behaviour guard (green before and after LOOT-TICK): which entities the poll rolls, and only once.
+        self.poll_scene()
+        for _ in range(30):
+            self.harness.fire_event("Tick", {})
+        lines = self.poll_lines()
+        self.assertEqual(len(lines), 2, lines)
+        self.assertTrue(any("dead-champ champions=1 reward=false" in line for line in lines), lines)
+        self.assertTrue(any("dead-carrier champions=0 reward=true" in line for line in lines), lines)
+        targets = sorted(str(call["args"][1]) for call in self.harness.osi_calls("TemplateAddTo"))
+        self.assertEqual(targets, ["dead-carrier", "dead-champ"])
+        for _ in range(30):
+            self.harness.fire_event("Tick", {})
+        self.assertEqual(len(self.poll_lines()), 2)
+        self.assertEqual(len(self.harness.osi_calls("TemplateAddTo")), 2)
+
+    def test_dead_poll_asks_no_status_of_a_living_entity(self) -> None:
+        # LOOT-TICK: the poll runs every 30 ticks over every Health entity, in and out of combat; a living one
+        # must cost no Osiris HasStatus call (its Hp is read first).
+        living = self.poll_scene()
+        self.harness.clear_osi_calls()
+        for _ in range(30):
+            self.harness.fire_event("Tick", {})
+        asked = [str(call["args"][0]) for call in self.harness.osi_calls("HasStatus")]
+        self.assertEqual([guid for guid in asked if guid in living], [])
+        self.assertIn("dead-champ", asked)
+
     def test_container_open_rolls_loot_when_chance_allows(self) -> None:
         self.harness.run("ER.Config.CONTAINER_LOOT_CHANCE = 1.0")
         self.character("chest-1", opened=True, level=1)
