@@ -38,7 +38,7 @@ tuning rather than dead content.
 
 | DOS2Combat rule | Config switch | What it removes | Content most affected |
 | --- | --- | --- | --- |
-| Attack rolls removed | `REMOVE_ATTACK_ROLLS` | The d20 to-hit roll. `Advantage(AttackRoll)` and `Disadvantage(AttackRoll)` are converted to a 1.25x / 0.75x outgoing-damage multiplier by `recordCombatModifiers`, but only when those exact tokens appear. | Bless, True Strike, Shield, Warding Flare, Blur, Precision Attack, Riposte |
+| Attack rolls removed | `REMOVE_ATTACK_ROLLS` | The d20 to-hit roll. `Advantage(AttackRoll)` and `Disadvantage(AttackRoll)` are converted to a 1.25x / 0.75x outgoing-damage multiplier by `recordCombatModifiers`, but only when those exact tokens appear. Since #30 a positive `RollBonus(Attack, X)` is also converted, to flat outgoing damage (`ATTACK_ROLL_DAMAGE_BONUS`). | Bless, True Strike, Shield, Warding Flare, Blur, Precision Attack, Riposte |
 | Saving throws removed | `REMOVE_SAVING_THROWS` | Save rolls, save-gated `ApplyStatus` arguments, and saving-throw boosts. | Aura of Protection, Danger Sense, Gnome Cunning, IronMind, Bless, Bane, Resistance |
 | Bonus actions removed | `REMOVE_BONUS_ACTIONS` | `BonusActionPoint` resource, bonus-action boosts, and bonus-action `SpellData` / `Object.UseCosts`. | Fast Hands, War Magic, War Priest, Curving Shot, Mind Sanctuary |
 | Concentration removed | `REMOVE_CONCENTRATION` | `IsConcentration`, `ConcentrationSpellID`, and concentration checks. | War Caster, Focused Conjuration, Mage Slayer, Hex/Hunter's Mark persistence |
@@ -95,7 +95,7 @@ native buffs therefore lose half their payload before DOS2 rules even apply.
 | --- | --- | --- | --- |
 | `AURA_OF_PROTECTION_BUFF` | `RollBonus(SavingThrow, CHA);RollBonus(DeathSavingThrow, CHA)` | Saving throws are removed and these boosts are stripped. | Grant 5% damage reduction per Charisma modifier, capped at 15%. |
 | `BARKSKIN` | `ACOverrideFormula(16,false)` | Works: the engine applies the override and `Ext.Entity.GetArmorClass` reports the resulting total. | None. |
-| `BLESS` | `RollBonus(Attack,1d4);RollBonus(SavingThrow,1d4);RollBonus(DeathSavingThrow,1d4)` | Saving-throw parts are stripped. `RollBonus(Attack)` is not one of the tokens converted to damage. | `CharacterWeaponDamage(1d4)` (or +15% damage) and a small save-independent effect. |
+| `BLESS` | `RollBonus(Attack,1d4);RollBonus(SavingThrow,1d4);RollBonus(DeathSavingThrow,1d4)` | At `2601446`: the `RollBonus(SavingThrow)` part is stripped and `RollBonus(Attack)` was not converted. Since #30 the status is not inert: `recordCombatModifiers` records `RollBonus(Attack,1d4)` as a flat +3 in `ATTACK_ROLL_DAMAGE_BONUS`, which `Armor.lua` adds to the holder's attack damage. The saving-throw part stays stripped; `RollBonus(DeathSavingThrow,1d4)` is not matched by `stripDeadSavingThrowBoosts` and stays. | `CharacterWeaponDamage(1d4)` (or +15% damage) and a small save-independent effect. |
 | `BLUR` | `IF(not Tagged('BLINDSIGHT', context.Source)):Disadvantage(AttackTarget)` | `AttackTarget` disadvantage is not converted. Attackers no longer roll. | 15% incoming damage reduction while not incapacitated. |
 | `BULLS_STRENGTH` | `Advantage(Ability, Strength);CarryCapacityMultiplier(2.0)` | Ability checks and carry capacity only. | `Ability(Strength,2)` if a combat benefit is wanted, otherwise retire. |
 | `COMPREHEND_LANGUAGES` | `Tag(COMPREHEND_LANGUAGES)` | Out-of-combat utility. | Move to a utility loot pool. |
@@ -209,7 +209,7 @@ statuses, passives, and spells directly.
 
 | Champion | Dead or weak entries | Why | Proposed change |
 | --- | --- | --- | --- |
-| Vitality | `BLESS` | Pure attack/save buff; both are inert. | Replace with `CharacterWeaponDamage(1d4)` or +15% damage. |
+| Vitality | `BLESS` | Pure attack/save buff; both were inert at `2601446`. Since #30 champions get `ENR_Perm_BLESS`, whose boost is `CharacterWeaponDamage(1d4)` (`scripts/dos2_content_compat.py`). | Replace with `CharacterWeaponDamage(1d4)` or +15% damage. |
 | Light | `BLESS` | Same. | Replace `BLESS` with a radiant damage rider. |
 | the Hunt | `BLESS` | Same. `AID` and `PackTactics` still work. | Replace `BLESS`; keep `AID` and `PackTactics`. |
 | War | `BLESS` | Same. `AID` and `Thunderwave` work. | Replace `BLESS`. |
@@ -252,7 +252,7 @@ same pattern applies to lower-profile variants.
 | Spell | Status or effect | DOS2 result | Proposed change |
 | --- | --- | --- | --- |
 | `Target_Bane` | `BANE`: `RollBonus(Attack,-1d4);RollBonus(SavingThrow,-1d4)` | Both halves are inert. The spell costs AP and does nothing. | Replace with an outgoing-damage penalty or vulnerability. |
-| `Target_Bless` | `BLESS`: attack and save roll bonuses | Inert. | Grant +1d4 weapon/spell damage, or a small damage-reduction buff. |
+| `Target_Bless` | `BLESS`: attack and save roll bonuses | Inert at `2601446`. Since #30: a flat +3 on the target's attack damage; the save bonus stays stripped (see `BLESS` in 1.1). | Grant +1d4 weapon/spell damage, or a small damage-reduction buff. |
 | `Target_Guidance` | `GUIDANCE`: skill and raw ability bonuses | Out of combat only. | Keep as utility; do not count as a combat buff. |
 | `Target_Resistance` | `RESISTANCE`: saving throw bonuses | Inert. | Grant a chosen damage resistance. |
 | `Target_TrueStrike` | `SourceAdvantageOnAttack()` | Inert and tagged negative. | +25% next-hit damage or retire. |
