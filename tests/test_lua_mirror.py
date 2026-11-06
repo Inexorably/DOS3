@@ -95,6 +95,17 @@ class MirrorTests(unittest.TestCase):
         self.harness.fire_timers()
         self.assertEqual(self.harness.run(f'return H.entities["{CLONE}"].Health.MaxHp'), 150)
 
+    def test_clone_spawns_at_the_valid_position(self) -> None:
+        self.only_mirrors_champion()
+        self.make_enemy("grunt", health=100)
+        self.harness.run('ER.Randomizer.ApplyTo("grunt")')
+        asked = self.harness.osi_calls("FindValidPosition")
+        create = self.harness.osi_calls("CreateAt")
+        self.assertEqual(len(asked), 1)
+        self.assertEqual(len(create), 1)
+        # The stub's flat navmesh hands back the asked point; CreateAt uses it.
+        self.assertEqual(list(create[0]["args"][1:4]), list(asked[0]["args"][0:3]))
+
     def test_other_champions_do_not_mirror(self) -> None:
         self.harness.run(
             "local keep = {} for _, e in ipairs(ER.Config.CHAMPIONS) do "
