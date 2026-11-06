@@ -700,16 +700,23 @@ end
 
 local deadPollTicks = 0
 
+local function hpOf(entity)
+    return entity.Health.Hp
+end
+
+-- Runs every 30 ticks over every Health entity (characters and items, in and
+-- out of combat). Read the Hp first: a living entity costs no Osiris call and
+-- no closure. The same corpses are rolled, in the same order.
 local function scanDeadChampions()
     if not (Ext and Ext.Entity and Ext.Entity.GetAllEntitiesWithComponent) then return 0 end
     local ok, entities = pcall(Ext.Entity.GetAllEntitiesWithComponent, "Health")
     if not ok or type(entities) ~= "table" then return 0 end
     local found = 0
     for _, entity in ipairs(entities) do
-        local guid = guidOf(entity)
-        if guid and not lootRolled[guid] and not hasStatus(guid, "ENR_LOOT_ROLLED") then
-            local hpOk, hp = pcall(function() return entity.Health.Hp end)
-            if hpOk and tonumber(hp) and tonumber(hp) <= 0 then
+        local hpOk, hp = pcall(hpOf, entity)
+        if hpOk and tonumber(hp) and tonumber(hp) <= 0 then
+            local guid = guidOf(entity)
+            if guid and not lootRolled[guid] and not hasStatus(guid, "ENR_LOOT_ROLLED") then
                 local conditions = championStatuses(guid)
                 if #conditions > 0 or rewardCarriers()[guid] then
                     found = found + 1
