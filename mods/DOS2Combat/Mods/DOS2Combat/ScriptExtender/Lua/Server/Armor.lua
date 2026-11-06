@@ -314,20 +314,56 @@ local function hasPassive(handle, passive)
     return ok and (result == 1 or result == true)
 end
 
+-- A field of an engine object; nil when it is absent or the read throws
+-- ("Property does not exist" on an SE object that lacks it).
+local function readField(owner, key)
+    if owner == nil then return nil end
+    local ok, value = pcall(function() return owner[key] end)
+    if ok then return value end
+    return nil
+end
+
 local function attackerOf(ev, hit)
-    for _, ref in ipairs({ hit.Inflicter, hit.InflicterOwner }) do
+    for _, key in ipairs({ "Inflicter", "InflicterOwner" }) do
+        local ref = readField(hit, key)
         if ref then return ref end
     end
-    if ev and ev.DamageSums then
-        for _, ref in ipairs({ ev.DamageSums.Inflicter, ev.DamageSums.InflicterOwner }) do
-            if ref then return ref end
-        end
+    -- The event's attack desc: BG3SE renamed DamageSums to Attack (the old
+    -- name still reads, with a deprecation warning).
+    local desc = readField(ev, "Attack") or readField(ev, "DamageSums")
+    for _, key in ipairs({ "Inflicter", "InflicterOwner" }) do
+        local ref = readField(desc, key)
+        if ref then return ref end
     end
     return nil
 end
 
+-- The numeric value of an enum field of a hit. BG3SE returns enum properties
+-- as userdata with Label / Value (tonumber of it is nil); a label string is
+-- looked up in Ext.Enums[enumName]; a number is used as is. nil = unknown.
+local function enumValue(value, enumName)
+    if value == nil then return nil end
+    local number = tonumber(value)
+    if number then return number end
+    if type(value) ~= "string" then
+        number = tonumber(readField(value, "Value"))
+        if number then return number end
+        local label = readField(value, "Label")
+        if type(label) ~= "string" then
+            local ok, text = pcall(tostring, value)
+            label = ok and text or nil
+        end
+        value = label
+    end
+    if type(value) ~= "string" or value == "" then return nil end
+    local enum = readField(Ext and Ext.Enums, enumName)
+    local entry = readField(enum, value)
+    if entry == nil then return nil end
+    return tonumber(entry) or tonumber(readField(entry, "Value"))
+end
+
 local function isAttackDamage(ev, hit)
-    local cause = tonumber(hit.CauseType) or 0
+    local cause = enumValue(readField(hit, "CauseType"), "CauseType") or 0
     -- SurfaceMove/Create/Status, StatusEnter/Tick, AURA, inventory/world
     -- throws are not eligible for critical hits.
     if cause == 1 or cause == 2 or cause == 3 or cause == 4
@@ -335,12 +371,12 @@ local function isAttackDamage(ev, hit)
         return false
     end
 
-    local with = tonumber(hit.HitWith) or 0
+    local with = enumValue(readField(hit, "HitWith"), "HitWith") or 0
     if with == 5 or with == 6 or with == 7 or with == 8 or with == 9 then
         return false
     end
 
-    local spellAttack = tonumber(hit.SpellAttackType) or 0
+    local spellAttack = enumValue(readField(hit, "SpellAttackType"), "SpellAttackType") or 0
     if spellAttack > 0 then return true end
     if cause == 6 or cause == 7 or cause == 10 then return true end
     if with == 1 or with == 2 or with == 3 or with == 4 then return true end
