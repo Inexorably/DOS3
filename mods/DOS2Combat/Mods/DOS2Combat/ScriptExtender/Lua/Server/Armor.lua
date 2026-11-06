@@ -49,32 +49,12 @@ local function isPartyCharacter(handle, entity)
         if ok and host and tostring(host) == tostring(guid) then return true end
     end
 
-    local sawPartyEntry = false
-    local function matches(value)
-        if type(value) == "table" then
-            for _, item in ipairs(value) do
-                sawPartyEntry = true
-                if tostring(item) == tostring(guid) then return true end
-            end
-        elseif value and tostring(value) ~= "" then
-            sawPartyEntry = true
-            if tostring(value) == tostring(guid) then return true end
-        end
-        return false
-    end
-    if Osi and Osi.GetPartyMembers then
-        local ok, a, b, c, d = pcall(Osi.GetPartyMembers)
-        if ok and (matches(a) or matches(b) or matches(c) or matches(d)) then return true end
-    end
-    if Osi and Osi.GetAllPartyMembers then
-        local ok, values = pcall(Osi.GetAllPartyMembers)
-        if ok and matches(values) then return true end
-    end
-    -- During early combat the party query can be empty. In that case do not
-    -- grant innate armor to characters; only treat known non-party entities as
-    -- enemies.
-    if not sawPartyEntry then return true end
-    return false
+    -- The party is DB_Players (Util.lua). During early combat it can be empty.
+    -- In that case do not grant innate armor to characters; only treat known
+    -- non-party entities as enemies.
+    local party = U.PartySet()
+    if next(party) == nil then return true end
+    return party[U.UuidOf(guid)] == true
 end
 
 local function component(entity, name)

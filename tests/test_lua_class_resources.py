@@ -130,16 +130,52 @@ class ClassResourceTests(unittest.TestCase):
         self.assertEqual(self.harness.run("return #H.entities['c7'].replicated"), 0)
 
     def test_enemy_charges_keep_vanilla_rest_rules(self) -> None:
-        self.harness.set_osi_result("GetPartyMembers", ["c10"])
+        self.harness.set_db("DB_Players", ["c10"])
         self.character("enemy", (CHANNEL_DIVINITY, 0, 1))
         self.turn("enemy")
         self.assertEqual(self.amount("enemy", CHANNEL_DIVINITY), 0)
 
     def test_party_members_recharge_when_the_party_list_is_populated(self) -> None:
-        self.harness.set_osi_result("GetPartyMembers", ["c11"])
+        self.harness.set_db("DB_Players", ["c11"])
         self.character("c11", (CHANNEL_DIVINITY, 0, 1))
         self.turn("c11")
         self.assertEqual(self.amount("c11", CHANNEL_DIVINITY), 1)
+
+    # ------------------------------------------------------------ DB_Players
+    # In game the party is the Osiris database DB_Players; the DOS2 queries
+    # GetPartyMembers / GetAllPartyMembers do not exist on this build.
+    PARTY = "11111111-2222-3333-4444-555555555555"
+    ENEMY = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+
+    def bg3_party(self) -> None:
+        self.harness.remove_osi("GetPartyMembers", "GetAllPartyMembers")
+        self.harness.set_db("DB_Players", [f"Humans_Male_Player_{self.PARTY}"])
+
+    def test_an_enemy_outside_db_players_keeps_its_spent_charge(self) -> None:
+        self.bg3_party()
+        self.character(self.ENEMY, (CHANNEL_DIVINITY, 0, 1))
+        self.turn(self.ENEMY)
+        self.assertEqual(self.amount(self.ENEMY, CHANNEL_DIVINITY), 0)
+
+    def test_a_db_players_member_recharges(self) -> None:
+        self.bg3_party()
+        self.character(self.PARTY, (CHANNEL_DIVINITY, 0, 1))
+        self.turn(self.PARTY)
+        self.assertEqual(self.amount(self.PARTY, CHANNEL_DIVINITY), 1)
+
+    def test_a_template_prefixed_host_row_matches_its_bare_uuid(self) -> None:
+        self.bg3_party()
+        self.assertTrue(self.harness.run(f"return DOS2C.Utils.IsPartyMember('{self.PARTY}')"))
+        self.assertFalse(self.harness.run(f"return DOS2C.Utils.IsPartyMember('{self.ENEMY}')"))
+
+    def test_an_empty_db_players_keeps_the_unpopulated_rule_and_says_so_once(self) -> None:
+        self.harness.remove_osi("GetPartyMembers", "GetAllPartyMembers")
+        self.character(self.ENEMY, (CHANNEL_DIVINITY, 0, 1))
+        self.turn(self.ENEMY)
+        self.turn(self.ENEMY)
+        self.assertEqual(self.amount(self.ENEMY, CHANNEL_DIVINITY), 1)
+        logs = " ".join(self.harness.prints())
+        self.assertEqual(logs.count("party is empty"), 1)
 
     def test_a_character_without_resources_is_ignored(self) -> None:
         self.harness.run("H.entities['c8'] = { Uuid = { EntityUuid = 'c8' } }")

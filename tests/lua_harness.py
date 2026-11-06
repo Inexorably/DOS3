@@ -128,6 +128,22 @@ class LuaModHarness:
             rows[index] = row
         self.lua.globals().H["osi_db"][name] = rows
 
+    def remove_osi(self, *names: str) -> None:
+        """Make ``Osi.<name>`` nil, as on a build without that Osiris name.
+
+        This BG3 build has neither DOS2 party query (GetPartyMembers,
+        GetAllPartyMembers): a guarded ``if Osi.GetPartyMembers`` sees nil.
+        """
+        missing = self.lua.table()
+        for name in names:
+            missing[name] = True
+        self.lua.globals()["_osi_missing"] = missing
+        self.lua.execute(
+            "local real, missing = Osi, _osi_missing "
+            "Osi = setmetatable({}, { __index = function(_, name) "
+            "if missing[name] then return nil end return real[name] end })"
+        )
+
     def to_lua(self, value: Any) -> Any:
         """Convert Python lists/dicts into Lua tables so ipairs/pairs see them."""
         if isinstance(value, dict):

@@ -742,6 +742,21 @@ is what the reinforcement boons, the offer's fight check and the "never
 randomize a party member" guard all need. The same DOS2 names are still used by
 `DOS2Combat`, `RespecAnywhere` and `OrbWeaver`; they are outside this fix.
 
+`DOS2Combat` now reads the same database (`Utils.PartySet`, used by
+`Utils.IsPartyMember` and Armor's `isPartyCharacter`). Its old rule was "an
+empty party list means everyone is party", so with no DOS2 query every
+character, enemies included, counted as party. None of the 100 SE runtime logs
+of 2026-10-30 to 11-02 has a `diag GetPartyMembers` or `diag GetAllPartyMembers`
+line (Diagnostics logs them only when `Osi.GetPartyMembers` is truthy), while 58
+`diag GetHostCharacter` lines are there. `Extender Runtime 2026-11-02
+03-54-28.log` shows the effect three times: right before
+`turn start: fd5f646a-...` (`S_CHA_FL1_BanditSanctum_01`, a bandit that Enemy
+Randomization buffed and Armor gave a 20% reduction) comes
+`class charge recharged: Rage 2/2`, a per-turn recharge meant for the party
+only. Enemy cooldown overrides (`ENEMY_COOLDOWN_OVERRIDES`) were skipped the
+same way. `RespecAnywhere`, `OrbWeaver` and `DOS2Combat`'s `Bedroll`,
+`SurfaceSpells`, `Verify` and `Diagnostics` still use the DOS2 names.
+
 ## Maintenance rule
 
 Whenever a runtime-only API/arity/enum is discovered:

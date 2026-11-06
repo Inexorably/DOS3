@@ -320,7 +320,7 @@ class CooldownTests(unittest.TestCase):
     def test_on_spell_cast_applies_party_cooldown(self) -> None:
         self.define("Spell_Cast", 3)
         self.character("c8", spells=["Spell_Cast"])
-        self.harness.set_osi_result("GetPartyMembers", ["c8"])
+        self.harness.set_db("DB_Players", ["c8"])
         self.harness.run('DOS2C.Cooldowns.OnSpellCast("c8", "Spell_Cast")')
         self.assertEqual(self.cooldown_entries("c8")[0]["turns"], 3)
 
@@ -343,7 +343,7 @@ class CooldownTests(unittest.TestCase):
     def test_on_spell_cast_skips_enemies_when_overlay_disabled(self) -> None:
         self.define("Spell_Enemy", 4)
         self.character("c11", spells=["Spell_Enemy"])
-        self.harness.set_osi_result("GetPartyMembers", ["someone-else"])
+        self.harness.set_db("DB_Players", ["someone-else"])
         self.harness.run("DOS2C.Config.ENEMY_COOLDOWNS_ENABLED = false")
         try:
             self.harness.run('DOS2C.Cooldowns.OnSpellCast("c11", "Spell_Enemy")')
@@ -354,14 +354,26 @@ class CooldownTests(unittest.TestCase):
     def test_on_spell_cast_uses_enemy_override(self) -> None:
         self.define("Target_Multiattack_Gnoll_Flind_Melee", 1)
         self.character("c12", spells=["Target_Multiattack_Gnoll_Flind_Melee"])
-        self.harness.set_osi_result("GetPartyMembers", ["someone-else"])
+        self.harness.set_db("DB_Players", ["someone-else"])
         self.harness.run('DOS2C.Cooldowns.OnSpellCast("c12", "Target_Multiattack_Gnoll_Flind_Melee")')
         self.assertEqual(self.cooldown_entries("c12")[0]["turns"], 4)
+
+    def test_an_enemy_outside_db_players_gets_its_override(self) -> None:
+        # In game the party is DB_Players; GetPartyMembers does not exist, which
+        # made every caster "party" and skipped the enemy overrides.
+        party = "11111111-2222-3333-4444-555555555555"
+        enemy = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+        self.harness.remove_osi("GetPartyMembers", "GetAllPartyMembers")
+        self.harness.set_db("DB_Players", [f"S_Player_Laezel_{party}"])
+        self.define("Target_Multiattack_Gnoll_Flind_Melee", 1)
+        self.character(enemy, spells=["Target_Multiattack_Gnoll_Flind_Melee"])
+        self.harness.run(f'DOS2C.Cooldowns.OnSpellCast("{enemy}", "Target_Multiattack_Gnoll_Flind_Melee")')
+        self.assertEqual(self.cooldown_entries(enemy)[0]["turns"], 4)
 
     def test_spell_cast_event_component_drives_the_cast(self) -> None:
         self.define("Spell_Event", 2)
         self.character("c13", spells=["Spell_Event"])
-        self.harness.set_osi_result("GetPartyMembers", ["c13"])
+        self.harness.set_db("DB_Players", ["c13"])
         self.harness.run(
             """
             H.entities["c13"].SpellCastEvent = {
