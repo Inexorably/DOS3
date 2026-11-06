@@ -98,12 +98,20 @@ local openedAt = nil
 local openedTick = 0
 local ticks = 0
 
--- IMGUI buttons fire OnClick for any mouse button, so panning the camera with
--- the middle button picked a card. The last button pressed is recorded from
--- MouseButtonInput (SDL numbering: 1 = left) and only a left click picks.
+-- Only a left click picks. IMGUI decides that: each Choose button asks for
+-- the left button only (ImGuiButtonFlags_MouseButtonLeft).
+-- MouseButtonInput cannot decide it: the extender drops a mouse event that
+-- IMGUI wants (io.WantCaptureMouse) before Lua's input events fire, and the
+-- overlay covers the screen, so a click on a card never reaches it. What it
+-- does see (SDL numbering: 1 = left, 2 = middle, 3 = right) is a press that
+-- went to the game instead of the window. A non-left button seen held while
+-- the window is open still blocks a pick; one pressed before it opened, or
+-- released since, does not (a pan before the offer blocked every pick).
 local LEFT_BUTTON = 1
 ---@type integer|nil
-local lastButton = nil
+local heldButton = nil
+local MAX_PASSED_LOGS = 6
+local passedLogs = 0
 
 local function try(fn) pcall(fn) end
 
@@ -302,8 +310,8 @@ local function sendPick(combat, key)
         log("ignored click on %s %s after opening", key, shown)
         return
     end
-    if lastButton ~= LEFT_BUTTON then
-        log("ignored click on %s: mouse button %s is not the left button", key, tostring(lastButton))
+    if heldButton and heldButton ~= LEFT_BUTTON then
+        log("ignored click on %s: mouse button %s is held", key, tostring(heldButton))
         return
     end
     log("picked %s %s after opening", key, shown)
@@ -488,6 +496,7 @@ local function addCard(parent, option, combat, layout)
         try(function() button:SetColor("ButtonHovered", kind.border) end)
         try(function() button:SetColor("ButtonActive", kind.accent) end)
         try(function() button:SetStyle("FrameRounding", 8) end)
+        try(function() button.Flags = { "MouseButtonLeft" } end)
         button.OnClick = function() sendPick(combat, option.key) end
     end
     -- The outermost frame is what sits in the row.
@@ -504,6 +513,8 @@ function M.Show(payload)
     deadline = (now and timeout) and (now + timeout) or nil
     openedAt = now
     openedTick = ticks
+    heldButton = nil
+    passedLogs = 0
 
     -- Full-screen dimmed overlay.
     local width, height = viewportSize()
@@ -578,7 +589,19 @@ end
 
 if Ext and Ext.Events and Ext.Events.MouseButtonInput then
     Ext.Events.MouseButtonInput:Subscribe(function(ev)
-        if ev and ev.Pressed then lastButton = ev.Button end
+        if not ev then return end
+        if ev.Pressed then
+            heldButton = ev.Button
+            if window and passedLogs < MAX_PASSED_LOGS then
+                passedLogs = passedLogs + 1
+                local seconds = openSeconds()
+                log("mouse button %s press %s after opening reached the game, not the window",
+                    tostring(ev.Button), seconds and string.format("%.2fs", seconds)
+                        or string.format("%d frames", ticks - openedTick))
+            end
+        elseif ev.Button == heldButton then
+            heldButton = nil
+        end
     end)
 else
     log("error: Ext.Events.MouseButtonInput is unavailable; Choose buttons cannot pick")
