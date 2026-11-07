@@ -34,7 +34,7 @@ class CastingPowerTests(unittest.TestCase):
             local caster = {
                 Stats = {
                     SpellCastingAbility = 4,
-                    AbilityModifiers = { 0, 0, 0, %d, 0, 0, 0 },
+                    AbilityModifiers = { 0, 0, 0, 0, %d, 0, 0 },
                 },
             }
             local hit = {

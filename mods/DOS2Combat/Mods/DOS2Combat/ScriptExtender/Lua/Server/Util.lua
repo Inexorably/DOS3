@@ -74,6 +74,40 @@ function U.GuidOf(handle)
     return handle ~= nil and tostring(handle) or nil
 end
 
+-- A field of an engine object; nil when it is absent or the read throws
+-- ("Property does not exist" on an SE object that lacks it).
+function U.ReadField(owner, key)
+    if owner == nil then return nil end
+    local ok, value = pcall(function() return owner[key] end)
+    if ok then return value end
+    return nil
+end
+
+-- The numeric value of an enum field (a hit's CauseType, a stat's AbilityId).
+-- BG3SE returns enum properties as userdata with Label / Value (tonumber of it
+-- is nil); a label string is looked up in Ext.Enums[enumName]; a number is
+-- used as is. nil = unknown.
+function U.EnumValue(value, enumName)
+    if value == nil then return nil end
+    local number = tonumber(value)
+    if number then return number end
+    if type(value) ~= "string" then
+        number = tonumber(U.ReadField(value, "Value"))
+        if number then return number end
+        local label = U.ReadField(value, "Label")
+        if type(label) ~= "string" then
+            local ok, text = pcall(tostring, value)
+            label = ok and text or nil
+        end
+        value = label
+    end
+    if type(value) ~= "string" or value == "" then return nil end
+    local enum = U.ReadField(Ext and Ext.Enums, enumName)
+    local entry = U.ReadField(enum, value)
+    if entry == nil then return nil end
+    return tonumber(entry) or tonumber(U.ReadField(entry, "Value"))
+end
+
 -- True for a party member. The party list is empty before the session is ready,
 -- so an unpopulated list reports true rather than silently skipping players.
 function U.IsPartyMember(handle)

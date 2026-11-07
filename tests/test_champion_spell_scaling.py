@@ -39,7 +39,7 @@ class ChampionSpellScalingTests(unittest.TestCase):
             callbacks = {}
             Ext = {
                 Events = {
-                    DealDamage = {
+                    BeforeDealDamage = {
                         Subscribe = function(_, callback)
                             callbacks[#callbacks + 1] = callback
                         end,

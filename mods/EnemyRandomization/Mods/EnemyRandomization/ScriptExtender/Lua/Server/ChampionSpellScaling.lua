@@ -138,18 +138,45 @@ local function scaleTable(curve, spellLevel, expectedLevel)
     return factor
 end
 
-local function scaleDamage(hit, factor)
+-- A field of an engine object; nil when it is absent or the read throws.
+local function field(owner, key)
+    if owner == nil then return nil end
+    local ok, value = pcall(function() return owner[key] end)
+    if ok then return value end
+    return nil
+end
+
+-- BeforeDealDamage carries the computed damage twice: per hit on
+-- Hit.DamageList and as the attack's totals on DamageSums (DOS2Combat's
+-- Armor.lua reads it the same way). Both describe the same damage, so both are
+-- scaled; scaling only one leaves the other applied. The change is counted once.
+local function scaleDamage(hit, factor, sums)
     if not hit or factor >= 1 then return 0 end
     local changed = 0
-    local list = hit.DamageList
-    if list and #list > 0 then
+    local lists = {}
+    for _, owner in ipairs({ hit, sums }) do
+        local list = field(owner, "DamageList")
+        if list and #list > 0 then lists[#lists + 1] = list end
+    end
+    for index, list in ipairs(lists) do
+        local listChanged = 0
         for i = 1, #list do
             local pair = list[i]
             local amount = tonumber(pair and pair.Amount) or 0
             if amount > 0 then
                 local scaled = math.floor(amount * factor + 0.5)
                 local ok = pcall(function() pair.Amount = scaled end)
-                if ok then changed = changed + (scaled - amount) end
+                if ok then listChanged = listChanged + (scaled - amount) end
+            end
+        end
+        if index == 1 then changed = listChanged end
+    end
+    if #lists > 0 then
+        for _, owner in ipairs({ hit, sums }) do
+            local total = tonumber(field(owner, "TotalDamageDone"))
+            if total and total > 0 then
+                local scaled = math.floor(total * factor + 0.5)
+                pcall(function() owner.TotalDamageDone = scaled end)
             end
         end
     end
@@ -187,16 +214,37 @@ function S.OnDamage(ev)
     local factor = scaleTable(curve, spellLevel, expectedLevel)
     if factor >= 1 then return end
 
-    local changed = scaleDamage(hit, factor)
+    local changed = scaleDamage(hit, factor, field(ev, "DamageSums"))
     if changed ~= 0 then
         log("champion spell scale: %s caster=%d spellLevel=%d expected=%d x%.2f",
             spell, casterLevel, spellLevel, expectedLevel, factor)
     end
 end
 
-if Ext and Ext.Events and Ext.Events.DealDamage then
-    Ext.Events.DealDamage:Subscribe(function(ev)
+-- Printed whether or not DEBUG is on: the rule is off, not just quiet.
+local function reportError(msg)
+    local line = ((C and C.LOG_PREFIX) or "[ENR]") .. " " .. msg
+    local printed = false
+    if Ext and Ext.Utils and Ext.Utils.PrintError then
+        printed = pcall(Ext.Utils.PrintError, line)
+    end
+    if not printed and Ext and Ext.Utils and Ext.Utils.Print then
+        pcall(Ext.Utils.Print, line)
+    end
+end
+
+if Ext and Ext.Events and Ext.Events.BeforeDealDamage then
+    -- BeforeDealDamage fires after the damage is computed and before it is
+    -- applied. DealDamage (used before) fires earlier, when DamageList is still
+    -- empty, so nothing was ever scaled (DOS2Combat's Armor.lua moved for the
+    -- same reason).
+    Ext.Events.BeforeDealDamage:Subscribe(function(ev)
         local ok, err = pcall(S.OnDamage, ev)
         if not ok then log("champion spell scale error: %s", tostring(err)) end
     end, { Priority = 95 })
+elseif Ext and Ext.Events and Ext.Events.DealDamage then
+    -- Older Script Extender: DealDamage never carries damage, so say so rather
+    -- than subscribing to it.
+    reportError("Ext.Events.BeforeDealDamage is missing; champion spells are NOT scaled. "
+        .. "Install a Script Extender build that provides it.")
 end

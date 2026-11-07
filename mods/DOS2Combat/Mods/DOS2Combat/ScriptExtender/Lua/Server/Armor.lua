@@ -294,14 +294,9 @@ local function hasPassive(handle, passive)
     return ok and (result == 1 or result == true)
 end
 
--- A field of an engine object; nil when it is absent or the read throws
--- ("Property does not exist" on an SE object that lacks it).
-local function readField(owner, key)
-    if owner == nil then return nil end
-    local ok, value = pcall(function() return owner[key] end)
-    if ok then return value end
-    return nil
-end
+-- Engine-object readers, shared with CastingPower.lua (Util.lua).
+local readField = U.ReadField
+local enumValue = U.EnumValue
 
 local function attackerOf(ev, hit)
     for _, key in ipairs({ "Inflicter", "InflicterOwner" }) do
@@ -316,30 +311,6 @@ local function attackerOf(ev, hit)
         if ref then return ref end
     end
     return nil
-end
-
--- The numeric value of an enum field of a hit. BG3SE returns enum properties
--- as userdata with Label / Value (tonumber of it is nil); a label string is
--- looked up in Ext.Enums[enumName]; a number is used as is. nil = unknown.
-local function enumValue(value, enumName)
-    if value == nil then return nil end
-    local number = tonumber(value)
-    if number then return number end
-    if type(value) ~= "string" then
-        number = tonumber(readField(value, "Value"))
-        if number then return number end
-        local label = readField(value, "Label")
-        if type(label) ~= "string" then
-            local ok, text = pcall(tostring, value)
-            label = ok and text or nil
-        end
-        value = label
-    end
-    if type(value) ~= "string" or value == "" then return nil end
-    local enum = readField(Ext and Ext.Enums, enumName)
-    local entry = readField(enum, value)
-    if entry == nil then return nil end
-    return tonumber(entry) or tonumber(readField(entry, "Value"))
 end
 
 local function isAttackDamage(ev, hit)
