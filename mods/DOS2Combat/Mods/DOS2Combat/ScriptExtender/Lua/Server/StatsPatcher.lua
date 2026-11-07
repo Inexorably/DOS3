@@ -887,16 +887,44 @@ local function neutralizeSavingThrowFields(stat, fields)
     return changed
 end
 
+local function spellLink(stat, field)
+    local value = U.SafeGet(stat, field)
+    if type(value) == "string" and value ~= "" then return value end
+    return nil
+end
+
+-- The spell whose counter `name` shares: follow SpellContainerID (a linked
+-- variant -> its container) and RootSpellID (an upcast level -> its base
+-- spell, e.g. Projectile_WitchBolt_2 -> Projectile_WitchBolt) until a stat
+-- names neither. An upcast of a container variant (Chromatic Orb: Fire at
+-- level 2, Hex: Strength at level 2) ends at the base container, so the result
+-- does not depend on the order the stats are patched in.
+local function groupOwner(name, stat)
+    local owner = name
+    local seen = { [name:lower()] = true }
+    while stat do
+        local link = spellLink(stat, "SpellContainerID") or spellLink(stat, "RootSpellID")
+        if not link or seen[link:lower()] then break end
+        seen[link:lower()] = true
+        owner = link
+        local ok, parent = pcall(Ext.Stats.Get, link)
+        stat = ok and parent or nil
+    end
+    return owner
+end
+
 -- A linked spell container (Chromatic Orb, Hex, Command, Enhance Ability, ...)
--- is one spellbook entry that casts one of several child spells. The cooldown
--- module needs the group up front so casting a child charges the whole skill.
+-- is one spellbook entry that casts one of several child spells, and an upcast
+-- level is its own stat cast from the base spell's entry. The cooldown module
+-- needs the group up front so casting any variant at any level charges the
+-- whole skill.
 local function registerSpellGroup(name, stat)
     local cooldowns = DOS2C.Cooldowns
     if not (cooldowns and cooldowns.SetGroup) then return end
 
-    local container = U.SafeGet(stat, "SpellContainerID")
-    if type(container) == "string" and container ~= "" then
-        cooldowns.SetGroup(container, { name })
+    local owner = groupOwner(name, stat)
+    if owner ~= name then
+        cooldowns.SetGroup(owner, { name })
     end
 
     local children = U.SafeGet(stat, "ContainerSpells")
@@ -906,7 +934,7 @@ local function registerSpellGroup(name, stat)
             local child = raw:gsub("^%s+", ""):gsub("%s+$", "")
             if child ~= "" then list[#list + 1] = child end
         end
-        cooldowns.SetGroup(name, list)
+        cooldowns.SetGroup(owner, list)
     end
 end
 

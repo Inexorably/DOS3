@@ -114,6 +114,12 @@ the same pair twice.
   `ContainerSpells`/`SpellContainerID`; `Cooldowns` keys the counter by the
   container and stamps an entry for the container and every child, so whichever
   spell the engine consults is blocked.
+- Upcast levels (`Projectile_WitchBolt_2`, `_3`, ...) are their own stats that
+  name the base spell in `RootSpellID`. `StatsPatcher` follows
+  `SpellContainerID` and `RootSpellID` to the top spell and registers every
+  level in that spell's group, so all levels (and an upcast container variant
+  such as Hex: Strength at level 2) share one counter; the cast level's turns
+  are stamped onto every member.
 - `SpellBookCooldowns` is the native representation used for UI and hard
   blocking.
 - The client `CooldownUI` shows the numeric remaining turns because native
