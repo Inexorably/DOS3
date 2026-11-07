@@ -772,6 +772,36 @@ Attack`, so `ev.Attack` is the event's attack desc on this build;
 `attackerOf` reads `Attack` first, then `DamageSums`, each field in a `pcall`
 (an attack desc throws "Property does not exist" on a field it lacks).
 
+## Casting power never scaled: AbilityId is an enum too (2026-11-02 runs)
+
+`CastingPower.lua` read `Stats.SpellCastingAbility` with `tonumber(...) or 0`.
+It is an `AbilityId` enum object like the hit fields above, so every caster read
+ability 0, the modifier was 0 and no spell damage was ever scaled: 0 `casting
+damage x...` lines in the 44 SE logs of 2026-11-01 / 11-02 (DEBUG on), while the
+same sessions cast Fire Bolt, Chromatic Orb, Ray of Frost, Witch Bolt and
+Eldritch Blast. `isSpellDamage` read `CauseType` / `HitWith` the same way (every
+non-weapon spell hit passed, status ticks and surfaces included), and `casterOf`
+read `ev.Attack.Inflicter` unguarded: 6 `casting damage handler error: ...
+AttackDesc::Inflicter` lines in the 11-01 23-23-56 log. The modifier itself was
+read at `AbilityModifiers[ability]`, one slot early (index 4 = Constitution; see
+the seven-entry note above). All four now go through `Utils.EnumValue` /
+`Utils.ReadField` (shared with `Armor.lua`) and Intelligence / Wisdom / Charisma
+read Lua indices 5 / 6 / 7. Status: `confirmed` for "never scaled" (the log
+counts); the scaled numbers in game are not measured yet.
+
+The handler also listened on the wrong event. `CastingPower.lua` subscribed
+`Ext.Events.DealDamage`, which fires before the functor rolls with an empty
+`DamageList` (the reason `Armor.lua` moved to `BeforeDealDamage`), so with
+the enums read correctly it still changed nothing and logged nothing. The SE log
+of 2026-11-04 16-13-27 has 5 `cooldown applied: Projectile_FireBolt` lines, 0 `casting damage`
+lines, 0 handler errors and 171 `damage reduction` lines from `Armor.lua` on
+`BeforeDealDamage` in the same session. Enemy Randomization's
+`ChampionSpellScaling.lua` and `SummonDamage.lua` subscribed `DealDamage` the
+same way. All three now subscribe `BeforeDealDamage` and scale both
+`Hit.DamageList` and `DamageSums.DamageList` (plus `TotalDamageDone`), as
+`Armor.lua` does. Status: `confirmed` for "nothing scaled on DealDamage" (the
+log counts); scaling on `BeforeDealDamage` is not measured in game yet.
+
 ## The party is DB_Players, not GetPartyMembers (2026-11-02 run)
 
 `Osi.GetPartyMembers` and `Osi.GetAllPartyMembers` are DOS2 Osiris names; this
