@@ -1,0 +1,85 @@
+{
+ "cases": [
+  {
+   "data": {},
+   "files": [
+    "cc_data.lua",
+    "cc_live.lua",
+    "toggle.lua"
+   ],
+   "mode": null,
+   "name": "cc_toggle_staged_base",
+   "sha16": "edce414b56aedb18",
+   "sim": "cc_toggle_sim.lua"
+  },
+  {
+   "data": {},
+   "files": [
+    "cc_data.lua",
+    "cc_live.lua",
+    "toggle.lua"
+   ],
+   "mode": "probe_fail",
+   "name": "cc_toggle_staged_probe_fail",
+   "sha16": "025c70e3adb91ea1",
+   "sim": "cc_toggle_sim.lua"
+  },
+  {
+   "data": {},
+   "files": [
+    "cc_data.lua",
+    "cc_live.lua",
+    "toggle.lua"
+   ],
+   "mode": "probe_fightend",
+   "name": "cc_toggle_staged_probe_fightend",
+   "sha16": "61831fe49e9ec88b",
+   "sim": "cc_toggle_sim.lua"
+  },
+  {
+   "data": {},
+   "files": [
+    "cc_data.lua",
+    "cc_live.lua",
+    "toggle.lua"
+   ],
+   "mode": "probe_noexpire",
+   "name": "cc_toggle_staged_probe_noexpire",
+   "sha16": "d7375eac4db9d69c",
+   "sim": "cc_toggle_sim.lua"
+  },
+  {
+   "data": {},
+   "files": [
+    "cc_data.lua",
+    "cc_live.lua",
+    "toggle.lua"
+   ],
+   "mode": "probe_snapshot",
+   "name": "cc_toggle_staged_probe_snapshot",
+   "sha16": "bd67c2e7f4e2e08e",
+   "sim": "cc_toggle_sim.lua"
+  },
+  {
+   "data": {},
+   "files": [
+    "cc_data.lua",
+    "cc_live.lua",
+    "toggle.lua"
+   ],
+   "mode": "toggle",
+   "name": "cc_toggle_staged_toggle",
+   "sha16": "edce414b56aedb18",
+   "sim": "cc_toggle_sim.lua"
+  }
+ ],
+ "modules": [
+  "BootstrapServer.lua",
+  "cc_data.lua",
+  "cc_live.lua",
+  "toggle.lua"
+ ],
+ "sims": {
+  "cc_toggle_sim.lua": []
+ }
+}
