@@ -1,0 +1,7 @@
+{
+  "RequiredVersion": 29,
+  "FeatureFlags": [
+    "Lua"
+  ],
+  "ModTable": "CC_Ladder_SE"
+}

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<save>
+  <version major="4" minor="8" revision="0" build="500" />
+  <region id="Config">
+    <node id="root">
+      <children>
+        <node id="Conflicts" />
+        <node id="Dependencies" />
+        <node id="ModuleInfo">
+          <attribute id="Author" type="LSString" value="RaptorPatrolContinuum" />
+          <attribute id="CharacterCreationLevelName" type="FixedString" value="" />
+          <attribute id="Description" type="LSString" value="CC ladder v2: soft CC stacks per ladder (STR / DEX / CON / MIND), the ladder's hard status at 3 stacks (in combat; out of combat every CC is vanilla)" />
+          <attribute id="FileSize" type="uint64" value="0" />
+          <attribute id="Folder" type="LSString" value="CC_Ladder_SE" />
+          <attribute id="LobbyLevelName" type="FixedString" value="" />
+          <attribute id="MD5" type="LSString" value="" />
+          <attribute id="MainMenuBackgroundVideo" type="FixedString" value="" />
+          <attribute id="MenuLevelName" type="FixedString" value="" />
+          <attribute id="Name" type="FixedString" value="CC_Ladder_SE" />
+          <attribute id="NumPlayers" type="uint8" value="4" />
+          <attribute id="PhotoBooth" type="FixedString" value="" />
+          <attribute id="PublishHandle" type="uint64" value="0" />
+          <attribute id="StartupLevelName" type="FixedString" value="" />
+          <attribute id="Tags" type="LSString" value="" />
+          <attribute id="Type" type="FixedString" value="Add-on" />
+          <attribute id="UUID" type="FixedString" value="71a51cac-3f94-502f-824e-73e18015e698" />
+          <attribute id="Version64" type="int64" value="36028797018963968" />
+          <children>
+            <node id="PublishVersion">
+              <attribute id="Version64" type="int64" value="36028797018963968" />
+            </node>
+            <node id="Scripts" />
+            <node id="TargetModes">
+              <children>
+                <node id="Target">
+                  <attribute id="Object" type="FixedString" value="Story" />
+                </node>
+              </children>
+            </node>
+          </children>
+        </node>
+      </children>
+    </node>
+  </region>
+</save>

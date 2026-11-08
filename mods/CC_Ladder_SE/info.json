@@ -1,0 +1,13 @@
+{
+  "Mods": [
+    {
+      "Name": "CC_Ladder_SE",
+      "Author": "RaptorPatrolContinuum",
+      "Description": "CC ladder v2: soft CC stacks per ladder (STR / DEX / CON / MIND), the ladder's hard status at 3 stacks (in combat; out of combat every CC is vanilla)",
+      "Version": "1.0.0",
+      "UUID": "71a51cac-3f94-502f-824e-73e18015e698",
+      "Folder": "CC_Ladder_SE",
+      "Dependencies": []
+    }
+  ]
+}
